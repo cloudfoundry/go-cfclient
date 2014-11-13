@@ -118,8 +118,6 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("content-type", "application/json")
 
-	fmt.Println(req)
-
 	resp, err := c.config.HttpClient.Do(req)
 	return resp, err
 }
