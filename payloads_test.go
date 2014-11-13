@@ -89,3 +89,108 @@ const orgSpacesPayload = `{
       }
    ]
 }`
+
+const listSpacesPayload = `{
+   "total_results": 8,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
+            "url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
+            "created_at": "2014-09-24T13:54:54+00:00",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "dev",
+            "organization_guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+            "space_quota_definition_guid": null,
+            "organization_url": "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b",
+            "developers_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/developers",
+            "managers_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/managers",
+            "auditors_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/auditors",
+            "apps_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/apps",
+            "routes_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/routes",
+            "domains_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/domains",
+            "service_instances_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/service_instances",
+            "app_events_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/app_events",
+            "events_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/events",
+            "security_groups_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups"
+         }
+      },
+      {
+         "metadata": {
+            "guid": "657b5923-7de0-486a-9928-b4d78ee24931",
+            "url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931",
+            "created_at": "2014-09-26T13:37:31+00:00",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "demo",
+            "organization_guid": "da0dba14-6064-4f7a-b15a-ff9e677e49b2",
+            "space_quota_definition_guid": null,
+            "organization_url": "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2",
+            "developers_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/developers",
+            "managers_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/managers",
+            "auditors_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/auditors",
+            "apps_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/apps",
+            "routes_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/routes",
+            "domains_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/domains",
+            "service_instances_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/service_instances",
+            "app_events_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/app_events",
+            "events_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/events",
+            "security_groups_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/security_groups"
+         }
+      }
+   ]
+}`
+
+const listAppsPayload = `{
+   "total_results": 28,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c",
+            "url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c",
+            "created_at": "2014-10-10T21:03:13+00:00",
+            "updated_at": "2014-11-10T14:07:31+00:00"
+         },
+         "entity": {
+            "name": "app-test",
+            "production": false,
+            "space_guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
+            "stack_guid": "2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
+            "buildpack": "https://github.com/cloudfoundry/buildpack-go.git",
+            "detected_buildpack": null,
+            "environment_json": {
+               "FOOBAR": "QUX"
+            },
+            "memory": 256,
+            "instances": 1,
+            "disk_quota": 1024,
+            "state": "STARTED",
+            "version": "97ef1272-9eb6-4839-9df1-5ed4f55b5c45",
+            "command": null,
+            "console": false,
+            "debug": null,
+            "staging_task_id": "5879c8d06a10491a879734162000def8",
+            "package_state": "PENDING",
+            "health_check_timeout": null,
+            "staging_failed_reason": null,
+            "docker_image": null,
+            "package_updated_at": "2014-11-10T14:08:50+00:00",
+            "detected_start_command": "app-launching-service-broker",
+            "space_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
+            "stack_url": "/v2/stacks/2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
+            "events_url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/events",
+            "service_bindings_url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/service_bindings",
+            "routes_url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/routes"
+         }
+      }
+   ]
+}`

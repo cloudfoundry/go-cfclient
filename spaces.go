@@ -25,19 +25,19 @@ type Space struct {
 func (c *Client) ListSpaces() []Space {
 	var spaces []Space
 	var spaceResp SpaceResponse
-	r := c.newRequest("GET", "/v2/Spaces")
+	r := c.newRequest("GET", "/v2/spaces")
 	resp, err := c.doRequest(r)
 	if err != nil {
-		log.Printf("Error requesting Spaces %v", err)
+		log.Printf("Error requesting spaces %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading Space request %v", resBody)
+		log.Printf("Error reading space request %v", resBody)
 	}
 
 	err = json.Unmarshal(resBody, &spaceResp)
 	if err != nil {
-		log.Printf("Error unmarshalling Space %v", err)
+		log.Printf("Error unmarshalling space %v", err)
 	}
 	for _, space := range spaceResp.Resources {
 		space.Entity.Guid = space.Meta.Guid
