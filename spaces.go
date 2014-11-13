@@ -1,4 +1,4 @@
-package cf
+package cfclient
 
 import (
 	"encoding/json"

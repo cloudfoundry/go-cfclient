@@ -1,4 +1,4 @@
-package cf
+package cfclient
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ type Organization struct {
 	Name string `json:"name"`
 }
 
-func (c *Client) ListOrganizations() []Organization {
+func (c *Client) ListOrgs() []Organization {
 	var orgs []Organization
 	var orgResp OrganizationResponse
 	r := c.newRequest("GET", "/v2/organizations")
@@ -47,7 +47,7 @@ func (c *Client) ListOrganizations() []Organization {
 	return orgs
 }
 
-func (c *Client) OrganizationSpaces(guid string) []Space {
+func (c *Client) OrgSpaces(guid string) []Space {
 	var spaces []Space
 	var spaceResp SpaceResponse
 	path := fmt.Sprintf("/v2/organizations/%s/spaces", guid)

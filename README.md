@@ -1,3 +1,3 @@
-# CF-go
+# go-cfclient
 
 Golang library for Cloud Foundry

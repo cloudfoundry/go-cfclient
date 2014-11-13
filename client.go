@@ -1,10 +1,9 @@
-package cf
+package cfclient
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -110,7 +109,6 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 	}
 
 	if c.config.Token == "" {
-		fmt.Println("getting token")
 		c.config.Token = c.getToken()
 	}
 
