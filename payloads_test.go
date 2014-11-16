@@ -194,3 +194,41 @@ const listAppsPayload = `{
       }
    ]
 }`
+
+const appPayload = `{
+   "metadata": {
+      "guid": "9902530c-c634-4864-a189-71d763cb12e2",
+      "url": "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2",
+      "created_at": "2014-11-07T23:11:39+00:00",
+      "updated_at": "2014-11-07T23:12:03+00:00"
+   },
+   "entity": {
+      "name": "test-env",
+      "production": false,
+      "space_guid": "a72fa1e8-c694-47b3-85f2-55f61fd00d73",
+      "stack_guid": "2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
+      "buildpack": null,
+      "detected_buildpack": "Ruby",
+      "environment_json": {},
+      "memory": 256,
+      "instances": 1,
+      "disk_quota": 1024,
+      "state": "STARTED",
+      "version": "0d2f5607-ab6a-4abd-91fe-222cde1ea0f8",
+      "command": null,
+      "console": false,
+      "debug": null,
+      "staging_task_id": "46267d4a98ae4f4390aed29975453d60",
+      "package_state": "STAGED",
+      "health_check_timeout": null,
+      "staging_failed_reason": null,
+      "docker_image": null,
+      "package_updated_at": "2014-11-07T23:12:58+00:00",
+      "detected_start_command": "rackup -p $PORT",
+      "space_url": "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73",
+      "stack_url": "/v2/stacks/2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
+      "events_url": "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/events",
+      "service_bindings_url": "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/service_bindings",
+      "routes_url": "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/routes"
+   }
+}`

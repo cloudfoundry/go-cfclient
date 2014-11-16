@@ -46,3 +46,23 @@ func (c *Client) ListApps() []App {
 	}
 	return apps
 }
+
+func (c *Client) AppByGuid(guid string) App {
+	var appResource AppResource
+	r := c.newRequest("GET", "/v2/apps/"+guid)
+	resp, err := c.doRequest(r)
+	if err != nil {
+		log.Printf("Error requesting apps %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading app request %v", resBody)
+	}
+
+	err = json.Unmarshal(resBody, &appResource)
+	if err != nil {
+		log.Printf("Error unmarshaling app %v", err)
+	}
+	appResource.Entity.Guid = appResource.Meta.Guid
+	return appResource.Entity
+}
