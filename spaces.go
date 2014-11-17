@@ -18,8 +18,31 @@ type SpaceResource struct {
 }
 
 type Space struct {
-	Guid string `json:"guid"`
-	Name string `json:"name"`
+	Guid   string `json:"guid"`
+	Name   string `json:"name"`
+	OrgURL string `json:"organization_url"`
+	c      *Client
+}
+
+func (s *Space) Org() Org {
+	var orgResource OrgResource
+	r := s.c.newRequest("GET", s.OrgURL)
+	resp, err := s.c.doRequest(r)
+	if err != nil {
+		log.Printf("Error requesting org %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading org request %v", resBody)
+	}
+
+	err = json.Unmarshal(resBody, &orgResource)
+	if err != nil {
+		log.Printf("Error unmarshaling org %v", err)
+	}
+	orgResource.Entity.Guid = orgResource.Meta.Guid
+	orgResource.Entity.c = s.c
+	return orgResource.Entity
 }
 
 func (c *Client) ListSpaces() []Space {
@@ -41,6 +64,7 @@ func (c *Client) ListSpaces() []Space {
 	}
 	for _, space := range spaceResp.Resources {
 		space.Entity.Guid = space.Meta.Guid
+		space.Entity.c = c
 		spaces = append(spaces, space.Entity)
 	}
 	return spaces

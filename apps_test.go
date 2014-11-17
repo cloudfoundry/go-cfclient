@@ -39,3 +39,25 @@ func TestAppByGuid(t *testing.T) {
 		So(app.Name, ShouldEqual, "test-env")
 	})
 }
+
+func TestAppSpaces(t *testing.T) {
+	Convey("App By GUID", t, func() {
+		setup("GET", "/v2/spaces/foobar", spacePayload)
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: server.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		app := &App{
+			Guid:     "123",
+			Name:     "test app",
+			SpaceURL: "/v2/spaces/foobar",
+			c:        client,
+		}
+		space := app.Space()
+		So(space.Name, ShouldEqual, "test-space")
+		So(space.Guid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
+	})
+}

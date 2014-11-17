@@ -7,25 +7,26 @@ import (
 	"log"
 )
 
-type OrganizationResponse struct {
-	Count     int                    `json:"total_results"`
-	Pages     int                    `json:"total_pages"`
-	Resources []OrganizationResource `json:"resources"`
+type OrgResponse struct {
+	Count     int           `json:"total_results"`
+	Pages     int           `json:"total_pages"`
+	Resources []OrgResource `json:"resources"`
 }
 
-type OrganizationResource struct {
-	Meta   Meta         `json:"metadata"`
-	Entity Organization `json:"entity"`
+type OrgResource struct {
+	Meta   Meta `json:"metadata"`
+	Entity Org  `json:"entity"`
 }
 
-type Organization struct {
+type Org struct {
 	Guid string `json:"guid"`
 	Name string `json:"name"`
+	c    *Client
 }
 
-func (c *Client) ListOrgs() []Organization {
-	var orgs []Organization
-	var orgResp OrganizationResponse
+func (c *Client) ListOrgs() []Org {
+	var orgs []Org
+	var orgResp OrgResponse
 	r := c.newRequest("GET", "/v2/organizations")
 	resp, err := c.doRequest(r)
 	if err != nil {

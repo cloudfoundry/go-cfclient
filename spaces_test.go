@@ -22,3 +22,25 @@ func TestListSpaces(t *testing.T) {
 		So(spaces[0].Name, ShouldEqual, "dev")
 	})
 }
+
+func TestAppSpace(t *testing.T) {
+	Convey("Find space org", t, func() {
+		setup("GET", "/v2/org/foobar", orgPayload)
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: server.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		space := &Space{
+			Guid:   "123",
+			Name:   "test space",
+			OrgURL: "/v2/org/foobar",
+			c:      client,
+		}
+		org := space.Org()
+		So(org.Name, ShouldEqual, "test-org")
+		So(org.Guid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
+	})
+}
