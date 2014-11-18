@@ -43,6 +43,7 @@ func (c *Client) ListOrgs() []Org {
 	}
 	for _, org := range orgResp.Resources {
 		org.Entity.Guid = org.Meta.Guid
+		org.Entity.c = c
 		orgs = append(orgs, org.Entity)
 	}
 	return orgs

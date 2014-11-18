@@ -23,7 +23,7 @@ func TestListSpaces(t *testing.T) {
 	})
 }
 
-func TestAppSpace(t *testing.T) {
+func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
 		setup("GET", "/v2/org/foobar", orgPayload)
 		defer teardown()

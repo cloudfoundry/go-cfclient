@@ -282,3 +282,74 @@ const orgPayload = `{
       "space_quota_definitions_url": "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2/space_quota_definitions"
    }
 }`
+
+const listServicePayload = `{
+   "total_results": 22,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "a3d76c01-c08a-4505-b06d-8603265682a3",
+            "url": "/v2/services/a3d76c01-c08a-4505-b06d-8603265682a3",
+            "created_at": "2014-09-24T14:10:51+00:00",
+            "updated_at": "2014-10-08T00:06:30+00:00"
+         },
+         "entity": {
+            "label": "nats",
+            "provider": null,
+            "url": null,
+            "description": "NATS is a lightweight cloud messaging system",
+            "long_description": null,
+            "version": null,
+            "info_url": null,
+            "active": true,
+            "bindable": true,
+            "unique_id": "b9310aba-2fa4-11e4-b626-a6c5e4d22fb7",
+            "extra": "",
+            "tags": [
+               "nats",
+               "mbus",
+               "pubsub"
+            ],
+            "requires": [],
+            "documentation_url": null,
+            "service_broker_guid": "a4bdf03a-f0c4-43f9-9c77-f434da91404f",
+            "plan_updateable": false,
+            "service_plans_url": "/v2/services/a3d76c01-c08a-4505-b06d-8603265682a3/service_plans"
+         }
+      },
+      {
+         "metadata": {
+            "guid": "ab9ad9c8-1f51-463a-ae3a-5082e9f04ae6",
+            "url": "/v2/services/ab9ad9c8-1f51-463a-ae3a-5082e9f04ae6",
+            "created_at": "2014-09-24T14:10:51+00:00",
+            "updated_at": "2014-10-08T00:06:30+00:00"
+         },
+         "entity": {
+            "label": "etcd",
+            "provider": null,
+            "url": null,
+            "description": "Etcd key-value storage",
+            "long_description": null,
+            "version": null,
+            "info_url": null,
+            "active": true,
+            "bindable": true,
+            "unique_id": "211411a0-2da1-11e4-852f-a6c5e4d22fb7",
+            "extra": "",
+            "tags": [
+               "etcd",
+               "keyvalue",
+               "etcd-0.4.6"
+            ],
+            "requires": [],
+            "documentation_url": null,
+            "service_broker_guid": "a4bdf03a-f0c4-43f9-9c77-f434da91404f",
+            "plan_updateable": false,
+            "service_plans_url": "/v2/services/ab9ad9c8-1f51-463a-ae3a-5082e9f04ae6/service_plans"
+         }
+      }
+   ]
+}`

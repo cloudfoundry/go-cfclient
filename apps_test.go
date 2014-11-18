@@ -40,8 +40,8 @@ func TestAppByGuid(t *testing.T) {
 	})
 }
 
-func TestAppSpaces(t *testing.T) {
-	Convey("App By GUID", t, func() {
+func TestAppSpace(t *testing.T) {
+	Convey("Find app space", t, func() {
 		setup("GET", "/v2/spaces/foobar", spacePayload)
 		defer teardown()
 		c := &Config{
