@@ -108,11 +108,9 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 		return nil, err
 	}
 
-	if c.config.Token == "" {
-		c.config.Token = c.getToken()
-	}
+	c.GetToken()
 
-	req.Header.Set("Authorization", "bearer "+c.config.Token)
+	req.Header.Set("Authorization", c.config.Token)
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("content-type", "application/json")
 
@@ -153,6 +151,13 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 	return buf, nil
 }
 
+func (c *Client) GetToken() string {
+	if c.config.Token == "" {
+		c.config.Token = c.getToken()
+	}
+	return c.config.Token
+}
+
 func (c *Client) getToken() string {
 	var authResp AuthResp
 	data := url.Values{
@@ -180,5 +185,5 @@ func (c *Client) getToken() string {
 	if err != nil {
 		log.Printf("Error unmarshalling %v\n", err)
 	}
-	return authResp.AccessToken
+	return "bearer " + authResp.AccessToken
 }
