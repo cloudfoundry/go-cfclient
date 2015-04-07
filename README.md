@@ -31,6 +31,11 @@ func main() {
 }
 ```
 
-### Contributing
+### Developing & Contributing
+
+You can use Godep to restor the dependency
+```bash
+godep go build
+```
 
 Pull requests welcomed. Please ensure you make your changes in a branch off of the `develop` branch, not the `master` branch.

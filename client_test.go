@@ -55,6 +55,7 @@ func TestMakeRequest(t *testing.T) {
 		req := client.newRequest("GET", "/v2/foobar")
 		resp, err := client.doRequest(req)
 		So(err, ShouldBeNil)
+		So(client.GetToken(), ShouldEqual, "bearer foobar")
 		So(resp, ShouldNotBeNil)
 	})
 }

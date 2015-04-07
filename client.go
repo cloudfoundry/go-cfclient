@@ -110,7 +110,7 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 
 	c.GetToken()
 
-	req.Header.Set("Authorization", "bearer "+c.config.Token)
+	req.Header.Set("Authorization", c.config.Token)
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("content-type", "application/json")
 
