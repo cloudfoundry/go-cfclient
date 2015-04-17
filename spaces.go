@@ -18,10 +18,11 @@ type SpaceResource struct {
 }
 
 type Space struct {
-	Guid   string `json:"guid"`
-	Name   string `json:"name"`
-	OrgURL string `json:"organization_url"`
-	c      *Client
+	Guid    string      `json:"guid"`
+	Name    string      `json:"name"`
+	OrgURL  string      `json:"organization_url"`
+	OrgData OrgResource `json:"organization"`
+	c       *Client
 }
 
 func (s *Space) Org() Org {
