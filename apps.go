@@ -22,6 +22,7 @@ type App struct {
 	Name        string            `json:"name"`
 	Environment map[string]string `json:"environment_json"`
 	SpaceURL    string            `json:"space_url"`
+	SpaceData   SpaceResource     `json:"space"`
 	c           *Client
 }
 
@@ -49,8 +50,9 @@ func (a *App) Space() Space {
 func (c *Client) ListApps() []App {
 	var apps []App
 	var appResp AppResponse
-	r := c.newRequest("GET", "/v2/apps")
+	r := c.newRequest("GET", "/v2/apps?inline-relations-depth=2")
 	resp, err := c.doRequest(r)
+
 	if err != nil {
 		log.Printf("Error requesting apps %v", err)
 	}
@@ -65,6 +67,8 @@ func (c *Client) ListApps() []App {
 	}
 	for _, app := range appResp.Resources {
 		app.Entity.Guid = app.Meta.Guid
+		app.Entity.SpaceData.Entity.Guid = app.Entity.SpaceData.Meta.Guid
+		app.Entity.SpaceData.Entity.OrgData.Entity.Guid = app.Entity.SpaceData.Entity.OrgData.Meta.Guid
 		app.Entity.c = c
 		apps = append(apps, app.Entity)
 	}
@@ -73,7 +77,7 @@ func (c *Client) ListApps() []App {
 
 func (c *Client) AppByGuid(guid string) App {
 	var appResource AppResource
-	r := c.newRequest("GET", "/v2/apps/"+guid)
+	r := c.newRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
 	resp, err := c.doRequest(r)
 	if err != nil {
 		log.Printf("Error requesting apps %v", err)
@@ -88,6 +92,8 @@ func (c *Client) AppByGuid(guid string) App {
 		log.Printf("Error unmarshaling app %v", err)
 	}
 	appResource.Entity.Guid = appResource.Meta.Guid
+	appResource.Entity.SpaceData.Entity.Guid = appResource.Entity.SpaceData.Meta.Guid
+	appResource.Entity.SpaceData.Entity.OrgData.Entity.Guid = appResource.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	appResource.Entity.c = c
 	return appResource.Entity
 }
