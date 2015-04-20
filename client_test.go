@@ -16,6 +16,7 @@ func TestDefaultConfig(t *testing.T) {
 		So(c.LoginAddress, ShouldEqual, "https://login.10.244.0.34.xip.io")
 		So(c.Username, ShouldEqual, "admin")
 		So(c.Password, ShouldEqual, "admin")
+		So(c.SkipSslValidation, ShouldEqual, false)
 		So(c.Token, ShouldEqual, "")
 	})
 }

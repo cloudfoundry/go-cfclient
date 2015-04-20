@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -19,12 +21,13 @@ type Client struct {
 
 //Config is used to configure the creation of a client
 type Config struct {
-	ApiAddress   string
-	LoginAddress string
-	Username     string
-	Password     string
-	HttpClient   *http.Client
-	Token        string
+	ApiAddress        string
+	LoginAddress      string
+	Username          string
+	Password          string
+	SkipSslValidation bool
+	HttpClient        *http.Client
+	Token             string
 }
 
 // request is used to help build up a request
@@ -46,12 +49,13 @@ type AuthResp struct {
 //DefaultConfig configuration for client
 func DefaultConfig() *Config {
 	return &Config{
-		ApiAddress:   "https://api.10.244.0.34.xip.io",
-		LoginAddress: "https://login.10.244.0.34.xip.io",
-		Username:     "admin",
-		Password:     "admin",
-		Token:        "",
-		HttpClient:   http.DefaultClient,
+		ApiAddress:        "https://api.10.244.0.34.xip.io",
+		LoginAddress:      "https://login.10.244.0.34.xip.io",
+		Username:          "admin",
+		Password:          "admin",
+		Token:             "",
+		SkipSslValidation: false,
+		HttpClient:        http.DefaultClient,
 	}
 }
 
@@ -81,7 +85,16 @@ func NewClient(config *Config) *Client {
 	}
 
 	if config.HttpClient == nil {
-		config.HttpClient = defConfig.HttpClient
+		if config.SkipSslValidation == false {
+			config.HttpClient = defConfig.HttpClient
+		} else {
+
+			tr := &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+
+			config.HttpClient = &http.Client{Transport: tr}
+		}
 	}
 
 	client := &Client{
@@ -177,6 +190,10 @@ func (c *Client) getToken() string {
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("cf:")))
 
 	resp, err := c.config.HttpClient.Do(req)
+	if err != nil {
+		log.Printf("Error reading response %v\n", err)
+		os.Exit(1)
+	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading response %v\n", err)
