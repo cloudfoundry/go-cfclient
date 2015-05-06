@@ -3,9 +3,12 @@ package cfclient
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
+	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -35,17 +38,8 @@ func TestCreateNewClient(t *testing.T) {
 }
 
 func TestMakeRequest(t *testing.T) {
-	mux := http.NewServeMux()
-	server := httptest.NewServer(mux)
-	m := martini.New()
-	r := martini.NewRouter()
-	r.Post("/oauth/token", func() string {
-		return `{ "access_token": "foobar", "token_type": "test", "refresh_token": "blah"}`
-	})
-	r.NotFound(func() string { return "" })
-	m.Action(r.Handle)
-	mux.Handle("/", m)
 	Convey("Test making request", t, func() {
+		server := fakeUAAServer()
 		c := &Config{
 			ApiAddress:   server.URL,
 			LoginAddress: server.URL,
@@ -56,7 +50,44 @@ func TestMakeRequest(t *testing.T) {
 		req := client.newRequest("GET", "/v2/foobar")
 		resp, err := client.doRequest(req)
 		So(err, ShouldBeNil)
-		So(client.GetToken(), ShouldEqual, "bearer foobar")
 		So(resp, ShouldNotBeNil)
 	})
+}
+
+func TestTokenRefresh(t *testing.T) {
+	gomega.RegisterTestingT(t)
+	Convey("Test making request", t, func() {
+		server := fakeUAAServer()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: server.URL,
+			Username:     "foo",
+			Password:     "bar",
+		}
+		client := NewClient(c)
+		gomega.Consistently(client.GetToken()).Should(gomega.Equal("bearer foobar2"))
+		gomega.Eventually(client.GetToken(), "3s").Should(gomega.Equal("bearer foobar3"))
+	})
+}
+
+func fakeUAAServer() *httptest.Server {
+	mux := http.NewServeMux()
+	server := httptest.NewServer(mux)
+	m := martini.New()
+	m.Use(render.Renderer())
+	r := martini.NewRouter()
+	count := 1
+	r.Post("/oauth/token", func(r render.Render) {
+		r.JSON(200, map[string]interface{}{
+			"token_type":    "bearer",
+			"access_token":  "foobar" + strconv.Itoa(count),
+			"refresh_token": "barfoo",
+			"expires_in":    3,
+		})
+		count = count + 1
+	})
+	r.NotFound(func() string { return "" })
+	m.Action(r.Handle)
+	mux.Handle("/", m)
+	return server
 }

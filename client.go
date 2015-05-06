@@ -3,15 +3,13 @@ package cfclient
 import (
 	"bytes"
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"strings"
+
+	"golang.org/x/oauth2"
 )
 
 //Client used to communicate with Clod Foundry
@@ -28,6 +26,7 @@ type Config struct {
 	SkipSslValidation bool
 	HttpClient        *http.Client
 	Token             string
+	TokenSource       oauth2.TokenSource
 }
 
 // request is used to help build up a request
@@ -38,12 +37,6 @@ type request struct {
 	params url.Values
 	body   io.Reader
 	obj    interface{}
-}
-
-type AuthResp struct {
-	AccessToken  string `json:"access_token"`
-	TokenType    string `json:"token_type"`
-	RefreshToken string `json:"refresh_token"`
 }
 
 //DefaultConfig configuration for client
@@ -123,7 +116,7 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 
 	c.GetToken()
 
-	req.Header.Set("Authorization", c.config.Token)
+	req.Header.Set("Authorization", c.GetToken())
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("content-type", "application/json")
 
@@ -165,42 +158,46 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 }
 
 func (c *Client) GetToken() string {
-	if c.config.Token == "" {
-		c.config.Token = c.getToken()
+	if c.config.Token != "" {
+		return "bearer" + c.config.Token
 	}
-	return c.config.Token
+
+	if c.config.TokenSource == nil {
+		tokenSource, err := c.getTokenSource()
+		if err != nil {
+			log.Printf("Error getting token %v\n", err)
+		}
+
+		c.config.TokenSource = tokenSource
+	}
+
+	token, err := c.config.TokenSource.Token()
+	if err != nil {
+		log.Printf("Error getting token %v\n", err)
+		return ""
+	}
+
+	return "bearer " + token.AccessToken
 }
 
-func (c *Client) getToken() string {
-	var authResp AuthResp
-	data := url.Values{
-		"grant_type": {"password"},
-		"scope":      {""},
-		"username":   {c.config.Username},
-		"password":   {c.config.Password},
+func (c *Client) getTokenSource() (oauth2.TokenSource, error) {
+	authConf := &oauth2.Config{
+		ClientID: "cf",
+		Scopes:   []string{""},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  c.config.LoginAddress + "/oauth/auth",
+			TokenURL: c.config.LoginAddress + "/oauth/token",
+		},
 	}
-	req, err := http.NewRequest("POST", c.config.LoginAddress+"/oauth/token", strings.NewReader(data.Encode()))
-	if err != nil {
-		log.Printf("Error posting token %v\n", err)
-	}
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("content-type", "application/json")
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("cf:")))
+	token, err := authConf.PasswordCredentialsToken(
+		oauth2.NoContext, c.config.Username, c.config.Password)
 
-	resp, err := c.config.HttpClient.Do(req)
 	if err != nil {
-		log.Printf("Error reading response %v\n", err)
-		os.Exit(1)
+		log.Printf("Error getting token %v\n", err)
+		return nil, err
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Error reading response %v\n", err)
-	}
-	err = json.Unmarshal(resBody, &authResp)
-	if err != nil {
-		log.Printf("Error unmarshalling %v\n", err)
-	}
-	return "bearer " + authResp.AccessToken
+
+	tokenSource := authConf.TokenSource(oauth2.NoContext, token)
+	return tokenSource, nil
 }
