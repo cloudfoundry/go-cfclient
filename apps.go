@@ -18,11 +18,11 @@ type AppResource struct {
 }
 
 type App struct {
-	Guid        string            `json:"guid"`
-	Name        string            `json:"name"`
-	Environment map[string]string `json:"environment_json"`
-	SpaceURL    string            `json:"space_url"`
-	SpaceData   SpaceResource     `json:"space"`
+	Guid        string                 `json:"guid"`
+	Name        string                 `json:"name"`
+	Environment map[string]interface{} `json:"environment_json"`
+	SpaceURL    string                 `json:"space_url"`
+	SpaceData   SpaceResource          `json:"space"`
 	c           *Client
 }
 
