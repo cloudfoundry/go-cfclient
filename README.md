@@ -2,7 +2,7 @@
 
 ### Overview
 
-[![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient?status.png)](https://godoc.org/github.com/cloudfoundry-community/go-cfclient)
+[![Build Status](https://img.shields.io/travis/cloudfoundry-community/go-cfclient.svg)](https://travis-ci.org/cloudfoundry-community/go-cfclient) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/cloudfoundry-community/go-cfclient)
 
 `cfclient` is a package to assist you in writing apps that need information out of [Cloud Foundry](http://cloudfoundry.org). It provides functions and structures to retrieve
 
