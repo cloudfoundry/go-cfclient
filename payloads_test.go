@@ -233,6 +233,14 @@ const appPayload = `{
    }
 }`
 
+const appPayloadWithEnvironment_json = `{
+   "metadata": {
+   },
+   "entity": {
+      "environment_json": {"string": "string", "int": 1}
+   }
+}`
+
 const spacePayload = `{
    "metadata": {
       "guid": "a72fa1e8-c694-47b3-85f2-55f61fd00d73",
