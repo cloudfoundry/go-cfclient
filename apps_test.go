@@ -26,7 +26,7 @@ func TestListApps(t *testing.T) {
 
 func TestAppByGuid(t *testing.T) {
 	Convey("App By GUID", t, func() {
-		setup("GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
@@ -56,7 +56,7 @@ func TestAppByGuid(t *testing.T) {
 
 func TestAppSpace(t *testing.T) {
 	Convey("Find app space", t, func() {
-		setup("GET", "/v2/spaces/foobar", spacePayload)
+		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
