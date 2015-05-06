@@ -38,6 +38,20 @@ func TestAppByGuid(t *testing.T) {
 		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
 		So(app.Name, ShouldEqual, "test-env")
 	})
+
+	Convey("App By GUID with environment variables with different types", t, func() {
+		setup("GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment_json)
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: server.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		app := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		So(app.Environment["string"], ShouldEqual, "string")
+		So(app.Environment["int"], ShouldEqual, 1)
+	})
 }
 
 func TestAppSpace(t *testing.T) {
