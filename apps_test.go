@@ -8,7 +8,11 @@ import (
 
 func TestListApps(t *testing.T) {
 	Convey("List Apps", t, func() {
-		setup("GET", "/v2/apps", listAppsPayload)
+		mocks := []MockRoute{
+			{"GET", "/v2/apps", listAppsPayload},
+			{"GET", "/v2/appsPage2", listAppsPayloadPage2},
+		}
+		setupMultiple(mocks)
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
@@ -17,16 +21,18 @@ func TestListApps(t *testing.T) {
 		}
 		client := NewClient(c)
 		apps := client.ListApps()
-		So(len(apps), ShouldEqual, 1)
+		So(len(apps), ShouldEqual, 2)
 		So(apps[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
 		So(apps[0].Name, ShouldEqual, "app-test")
 		So(apps[0].Environment["FOOBAR"], ShouldEqual, "QUX")
+		So(apps[1].Guid, ShouldEqual, "f9ad202b-76dd-44ec-b7c2-fd2417a561e8")
+		So(apps[1].Name, ShouldEqual, "app-test2")
 	})
 }
 
 func TestAppByGuid(t *testing.T) {
 	Convey("App By GUID", t, func() {
-		setup("GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
@@ -40,7 +46,7 @@ func TestAppByGuid(t *testing.T) {
 	})
 
 	Convey("App By GUID with environment variables with different types", t, func() {
-		setup("GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment_json)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment_json})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
@@ -56,7 +62,7 @@ func TestAppByGuid(t *testing.T) {
 
 func TestAppSpace(t *testing.T) {
 	Convey("Find app space", t, func() {
-		setup("GET", "/v2/spaces/foobar", spacePayload)
+		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,

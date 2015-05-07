@@ -8,7 +8,7 @@ import (
 
 func TestListSpaces(t *testing.T) {
 	Convey("List Space", t, func() {
-		setup("GET", "/v2/spaces", listSpacesPayload)
+		setup(MockRoute{"GET", "/v2/spaces", listSpacesPayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
@@ -25,7 +25,7 @@ func TestListSpaces(t *testing.T) {
 
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
-		setup("GET", "/v2/org/foobar", orgPayload)
+		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload})
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
