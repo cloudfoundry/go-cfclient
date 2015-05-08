@@ -114,8 +114,6 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 		return nil, err
 	}
 
-	c.GetToken()
-
 	req.Header.Set("Authorization", c.GetToken())
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("content-type", "application/json")
