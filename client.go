@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/internal"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-
-	"golang.org/x/oauth2"
 )
 
 //Client used to communicate with Clod Foundry
@@ -179,6 +180,13 @@ func (c *Client) GetToken() string {
 }
 
 func (c *Client) getTokenSource() (oauth2.TokenSource, error) {
+
+	// Create a contextClient for oauth2 incase we want to skip ssl validation
+	contextClient := func(ctx context.Context) (*http.Client, error) {
+		return c.config.HttpClient, nil
+	}
+	internal.RegisterContextClientFunc(contextClient)
+
 	authConf := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
