@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-
-	"golang.org/x/oauth2"
 )
 
-//Client used to communicate with Clod Foundry
+//Client used to communicate with Cloud Foundry
 type Client struct {
 	config Config
 }
@@ -31,7 +31,6 @@ type Config struct {
 
 // request is used to help build up a request
 type request struct {
-	config *Config
 	method string
 	url    string
 	params url.Values
@@ -77,18 +76,37 @@ func NewClient(config *Config) *Client {
 		config.Token = defConfig.Token
 	}
 
-	if config.HttpClient == nil {
-		if config.SkipSslValidation == false {
-			config.HttpClient = defConfig.HttpClient
-		} else {
+	ctx := oauth2.NoContext
 
-			tr := &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
+	if config.SkipSslValidation == false {
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, defConfig.HttpClient)
+	} else {
 
-			config.HttpClient = &http.Client{Transport: tr}
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
+
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
+
 	}
+
+	authConfig := &oauth2.Config{
+		ClientID: "cf",
+		Scopes:   []string{""},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  config.LoginAddress + "/oauth/auth",
+			TokenURL: config.LoginAddress + "/oauth/token",
+		},
+	}
+
+	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
+
+	if err != nil {
+		log.Printf("Error getting token %v\n", err)
+	}
+
+	config.HttpClient = authConfig.Client(ctx, token)
+	config.TokenSource = authConfig.TokenSource(ctx, token)
 
 	client := &Client{
 		config: *config,
@@ -99,7 +117,6 @@ func NewClient(config *Config) *Client {
 // newRequest is used to create a new request
 func (c *Client) newRequest(method, path string) *request {
 	r := &request{
-		config: &c.config,
 		method: method,
 		url:    c.config.ApiAddress + path,
 		params: make(map[string][]string),
@@ -113,11 +130,6 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Set("Authorization", c.GetToken())
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("content-type", "application/json")
-
 	resp, err := c.config.HttpClient.Do(req)
 	return resp, err
 }
@@ -156,19 +168,6 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 }
 
 func (c *Client) GetToken() string {
-	if c.config.Token != "" {
-		return "bearer" + c.config.Token
-	}
-
-	if c.config.TokenSource == nil {
-		tokenSource, err := c.getTokenSource()
-		if err != nil {
-			log.Printf("Error getting token %v\n", err)
-		}
-
-		c.config.TokenSource = tokenSource
-	}
-
 	token, err := c.config.TokenSource.Token()
 	if err != nil {
 		log.Printf("Error getting token %v\n", err)
@@ -176,26 +175,4 @@ func (c *Client) GetToken() string {
 	}
 
 	return "bearer " + token.AccessToken
-}
-
-func (c *Client) getTokenSource() (oauth2.TokenSource, error) {
-	authConf := &oauth2.Config{
-		ClientID: "cf",
-		Scopes:   []string{""},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  c.config.LoginAddress + "/oauth/auth",
-			TokenURL: c.config.LoginAddress + "/oauth/token",
-		},
-	}
-
-	token, err := authConf.PasswordCredentialsToken(
-		oauth2.NoContext, c.config.Username, c.config.Password)
-
-	if err != nil {
-		log.Printf("Error getting token %v\n", err)
-		return nil, err
-	}
-
-	tokenSource := authConf.TokenSource(oauth2.NoContext, token)
-	return tokenSource, nil
 }
