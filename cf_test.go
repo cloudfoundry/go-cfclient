@@ -2,13 +2,16 @@ package cfclient
 
 import (
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 )
 
 var (
-	mux    *http.ServeMux
-	server *httptest.Server
+	mux           *http.ServeMux
+	server        *httptest.Server
+	fakeUAAServer *httptest.Server
 )
 
 type MockRoute struct {
@@ -24,6 +27,7 @@ func setup(mock MockRoute) {
 func setupMultiple(mockEndpoints []MockRoute) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
+	fakeUAAServer = FakeUAAServer()
 	m := martini.New()
 	r := martini.NewRouter()
 	for _, mock := range mockEndpoints {
@@ -40,10 +44,34 @@ func setupMultiple(mockEndpoints []MockRoute) {
 			})
 		}
 	}
+
 	m.Action(r.Handle)
 	mux.Handle("/", m)
 }
 
+func FakeUAAServer() *httptest.Server {
+	mux := http.NewServeMux()
+	server := httptest.NewServer(mux)
+	m := martini.New()
+	m.Use(render.Renderer())
+	r := martini.NewRouter()
+	count := 1
+	r.Post("/oauth/token", func(r render.Render) {
+		r.JSON(200, map[string]interface{}{
+			"token_type":    "bearer",
+			"access_token":  "foobar" + strconv.Itoa(count),
+			"refresh_token": "barfoo",
+			"expires_in":    3,
+		})
+		count = count + 1
+	})
+	r.NotFound(func() string { return "" })
+	m.Action(r.Handle)
+	mux.Handle("/", m)
+	return server
+}
+
 func teardown() {
 	server.Close()
+	fakeUAAServer.Close()
 }

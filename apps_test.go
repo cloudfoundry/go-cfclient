@@ -16,7 +16,7 @@ func TestListApps(t *testing.T) {
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
+			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
 		client := NewClient(c)
@@ -36,7 +36,7 @@ func TestAppByGuid(t *testing.T) {
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
+			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
 		client := NewClient(c)
@@ -50,7 +50,7 @@ func TestAppByGuid(t *testing.T) {
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
+			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
 		client := NewClient(c)
@@ -66,7 +66,7 @@ func TestAppSpace(t *testing.T) {
 		defer teardown()
 		c := &Config{
 			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
+			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
 		client := NewClient(c)

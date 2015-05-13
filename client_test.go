@@ -1,15 +1,9 @@
 package cfclient
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"testing"
-
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
 	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 )
 
 func TestDefaultConfig(t *testing.T) {
@@ -39,12 +33,14 @@ func TestCreateNewClient(t *testing.T) {
 
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request", t, func() {
-		server := fakeUAAServer()
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
+		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
-			Username:     "foo",
-			Password:     "bar",
+			ApiAddress:        server.URL,
+			LoginAddress:      fakeUAAServer.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
 		}
 		client := NewClient(c)
 		req := client.newRequest("GET", "/v2/foobar")
@@ -57,10 +53,10 @@ func TestMakeRequest(t *testing.T) {
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
-		server := fakeUAAServer()
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
 		c := &Config{
 			ApiAddress:   server.URL,
-			LoginAddress: server.URL,
+			LoginAddress: fakeUAAServer.URL,
 			Username:     "foo",
 			Password:     "bar",
 		}
@@ -68,26 +64,4 @@ func TestTokenRefresh(t *testing.T) {
 		gomega.Consistently(client.GetToken()).Should(gomega.Equal("bearer foobar2"))
 		gomega.Eventually(client.GetToken(), "3s").Should(gomega.Equal("bearer foobar3"))
 	})
-}
-
-func fakeUAAServer() *httptest.Server {
-	mux := http.NewServeMux()
-	server := httptest.NewServer(mux)
-	m := martini.New()
-	m.Use(render.Renderer())
-	r := martini.NewRouter()
-	count := 1
-	r.Post("/oauth/token", func(r render.Render) {
-		r.JSON(200, map[string]interface{}{
-			"token_type":    "bearer",
-			"access_token":  "foobar" + strconv.Itoa(count),
-			"refresh_token": "barfoo",
-			"expires_in":    3,
-		})
-		count = count + 1
-	})
-	r.NotFound(func() string { return "" })
-	m.Action(r.Handle)
-	mux.Handle("/", m)
-	return server
 }
