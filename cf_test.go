@@ -29,6 +29,7 @@ func setupMultiple(mockEndpoints []MockRoute) {
 	server = httptest.NewServer(mux)
 	fakeUAAServer = FakeUAAServer()
 	m := martini.New()
+	m.Use(render.Renderer())
 	r := martini.NewRouter()
 	for _, mock := range mockEndpoints {
 		method := mock.Method
@@ -44,6 +45,14 @@ func setupMultiple(mockEndpoints []MockRoute) {
 			})
 		}
 	}
+	r.Get("/v2/info", func(r render.Render) {
+		r.JSON(200, map[string]interface{}{
+			"authorization_endpoint": fakeUAAServer.URL,
+			"token_endpoint":         fakeUAAServer.URL,
+			"logging_endpoint":       server.URL,
+		})
+
+	})
 
 	m.Action(r.Handle)
 	mux.Handle("/", m)
