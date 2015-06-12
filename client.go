@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 //Client used to communicate with Cloud Foundry
@@ -106,7 +107,13 @@ func NewClient(config *Config) *Client {
 
 	}
 
-	endpoint, _ := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
+	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
+
+	if err != nil {
+		log.Println("Could not get api /v2/info :", err)
+		os.Exit(1)
+
+	}
 
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
@@ -138,10 +145,12 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 	if api == "" {
 		return DefaultEndpoint(), nil
 	}
+
 	resp, err := httpClient.Get(api + "/v2/info")
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	err = decodeBody(resp, &endpoint)
 	if err != nil {
@@ -168,6 +177,7 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 		return nil, err
 	}
 	resp, err := c.config.HttpClient.Do(req)
+	defer resp.Body.Close()
 	return resp, err
 }
 
