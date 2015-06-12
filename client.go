@@ -10,11 +10,19 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 //Client used to communicate with Cloud Foundry
 type Client struct {
-	config Config
+	config   Config
+	Endpoint Endpoint
+}
+
+type Endpoint struct {
+	DopplerAddress string `json:"logging_endpoint"`
+	AuthEndpoint   string `json:"authorization_endpoint"`
+	TokenEndpoint  string `json:"token_endpoint"`
 }
 
 //Config is used to configure the creation of a client
@@ -39,6 +47,8 @@ type request struct {
 }
 
 //DefaultConfig configuration for client
+//Keep LoginAdress for backward compatibility
+//Need to be remove in close future
 func DefaultConfig() *Config {
 	return &Config{
 		ApiAddress:        "https://api.10.244.0.34.xip.io",
@@ -48,6 +58,14 @@ func DefaultConfig() *Config {
 		Token:             "",
 		SkipSslValidation: false,
 		HttpClient:        http.DefaultClient,
+	}
+}
+
+func DefaultEndpoint() *Endpoint {
+	return &Endpoint{
+		DopplerAddress: "wss://loggregator.10.244.0.34.xip.io:443",
+		TokenEndpoint:  "https://uaa.10.244.0.34.xip.io",
+		AuthEndpoint:   "https://login.10.244.0.34.xip.io",
 	}
 }
 
@@ -77,7 +95,6 @@ func NewClient(config *Config) *Client {
 	}
 
 	ctx := oauth2.NoContext
-
 	if config.SkipSslValidation == false {
 		ctx = context.WithValue(ctx, oauth2.HTTPClient, defConfig.HttpClient)
 	} else {
@@ -90,12 +107,20 @@ func NewClient(config *Config) *Client {
 
 	}
 
+	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
+
+	if err != nil {
+		log.Println("Could not get api /v2/info :", err)
+		os.Exit(1)
+
+	}
+
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  config.LoginAddress + "/oauth/auth",
-			TokenURL: config.LoginAddress + "/oauth/token",
+			AuthURL:  endpoint.AuthEndpoint + "/oauth/auth",
+			TokenURL: endpoint.TokenEndpoint + "/oauth/token",
 		},
 	}
 
@@ -109,9 +134,30 @@ func NewClient(config *Config) *Client {
 	config.TokenSource = authConfig.TokenSource(ctx, token)
 
 	client := &Client{
-		config: *config,
+		config:   *config,
+		Endpoint: *endpoint,
 	}
 	return client
+}
+func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
+	var endpoint Endpoint
+
+	if api == "" {
+		return DefaultEndpoint(), nil
+	}
+
+	resp, err := httpClient.Get(api + "/v2/info")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	err = decodeBody(resp, &endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return &endpoint, err
 }
 
 // newRequest is used to create a new request

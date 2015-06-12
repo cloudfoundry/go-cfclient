@@ -18,19 +18,6 @@ func TestDefaultConfig(t *testing.T) {
 	})
 }
 
-func TestCreateNewClient(t *testing.T) {
-	Convey("Create new client", t, func() {
-		c := &Config{
-			ApiAddress:   "",
-			LoginAddress: "",
-			Username:     "",
-			Password:     "",
-		}
-		client := NewClient(c)
-		So(client, ShouldNotBeNil)
-	})
-}
-
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
