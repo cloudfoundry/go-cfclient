@@ -177,7 +177,6 @@ func (c *Client) doRequest(r *request) (*http.Response, error) {
 		return nil, err
 	}
 	resp, err := c.config.HttpClient.Do(req)
-	defer resp.Body.Close()
 	return resp, err
 }
 
