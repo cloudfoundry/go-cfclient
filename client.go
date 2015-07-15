@@ -20,9 +20,10 @@ type Client struct {
 }
 
 type Endpoint struct {
-	DopplerAddress string `json:"logging_endpoint"`
-	AuthEndpoint   string `json:"authorization_endpoint"`
-	TokenEndpoint  string `json:"token_endpoint"`
+	DopplerEndpoint string `json:"doppler_logging_endpoint"`
+	LoggingEndpoint string `json:"logging_endpoint"`
+	AuthEndpoint    string `json:"authorization_endpoint"`
+	TokenEndpoint   string `json:"token_endpoint"`
 }
 
 //Config is used to configure the creation of a client
@@ -63,9 +64,10 @@ func DefaultConfig() *Config {
 
 func DefaultEndpoint() *Endpoint {
 	return &Endpoint{
-		DopplerAddress: "wss://loggregator.10.244.0.34.xip.io:443",
-		TokenEndpoint:  "https://uaa.10.244.0.34.xip.io",
-		AuthEndpoint:   "https://login.10.244.0.34.xip.io",
+		DopplerEndpoint: "wss://doppler.10.244.0.34.xip.io:443",
+		LoggingEndpoint: "wss://loggregator.10.244.0.34.xip.io:443",
+		TokenEndpoint:   "https://uaa.10.244.0.34.xip.io",
+		AuthEndpoint:    "https://login.10.244.0.34.xip.io",
 	}
 }
 
