@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/cloudfoundry-community/go-cfclient",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.5.3",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/inject",
@@ -28,6 +28,11 @@
 		{
 			"ImportPath": "github.com/oxtoacart/bpool",
 			"Rev": "754d38fccfc6e52083355014b6abc8d626445dfd"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions",
+			"Comment": "1.5.0-414-g287b434",
+			"Rev": "287b4346dc4e71a038c346375a9d572453bc469b"
 		},
 		{
 			"ImportPath": "github.com/smartystreets/goconvey/convey",
