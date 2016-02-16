@@ -43,6 +43,10 @@ func setupMultiple(mockEndpoints []MockRoute) {
 			r.Post(endpoint, func() string {
 				return output
 			})
+		} else if method == "DELETE" {
+			r.Delete(endpoint, func() (int, string) {
+				return 204, output
+			})
 		}
 	}
 	r.Get("/v2/info", func(r render.Render) {

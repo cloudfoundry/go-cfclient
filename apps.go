@@ -111,6 +111,20 @@ func (c *Client) GetAppInstances(guid string) map[string]AppInstance {
 	return appInstances
 }
 
+func (c *Client) KillAppInstance(guid string, index string) error {
+	requestURL := fmt.Sprintf("/v2/apps/%s/instances/%s", guid, index)
+	r := c.newRequest("DELETE", requestURL)
+	resp, err := c.doRequest(r)
+	if err != nil {
+		log.Printf("Error killing app instance %v", err)
+		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
+	}
+	if resp.StatusCode != 204 {
+		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
+	}
+	return nil
+}
+
 func (c *Client) AppByGuid(guid string) App {
 	var appResource AppResource
 	r := c.newRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
