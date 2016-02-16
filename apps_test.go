@@ -60,6 +60,36 @@ func TestAppByGuid(t *testing.T) {
 	})
 }
 
+func TestGetAppInstances(t *testing.T) {
+	Convey("App completely running", t, func() {
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstancePayload})
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: fakeUAAServer.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		So(appInstances["0"].State, ShouldEqual, "RUNNING")
+		So(appInstances["1"].State, ShouldEqual, "RUNNING")
+	})
+
+	Convey("App partially running", t, func() {
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstanceUnhealthyPayload})
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: fakeUAAServer.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		So(appInstances["0"].State, ShouldEqual, "RUNNING")
+		So(appInstances["1"].State, ShouldEqual, "STARTING")
+	})
+}
+
 func TestAppSpace(t *testing.T) {
 	Convey("Find app space", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload})

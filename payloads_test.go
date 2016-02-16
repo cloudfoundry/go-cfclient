@@ -289,6 +289,44 @@ const appPayloadWithEnvironment_json = `{
    }
 }`
 
+const appInstancePayload = `{
+   "0": {
+      "state": "RUNNING",
+      "since": 1455210430.5104606,
+      "debug_ip": null,
+      "debug_port": null,
+      "console_ip": null,
+      "console_port": null
+   },
+   "1": {
+      "state": "RUNNING",
+      "since": 1455210430.3912115,
+      "debug_ip": null,
+      "debug_port": null,
+      "console_ip": null,
+      "console_port": null
+   }
+}`
+
+const appInstanceUnhealthyPayload = `{
+   "0": {
+      "state": "RUNNING",
+      "since": 1455210430.5104606,
+      "debug_ip": null,
+      "debug_port": null,
+      "console_ip": null,
+      "console_port": null
+   },
+   "1": {
+      "state": "STARTING",
+      "since": 1455210430.3912115,
+      "debug_ip": null,
+      "debug_port": null,
+      "console_ip": null,
+      "console_port": null
+   }
+}`
+
 const spacePayload = `{
    "metadata": {
       "guid": "a72fa1e8-c694-47b3-85f2-55f61fd00d73",

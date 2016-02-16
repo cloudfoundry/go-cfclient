@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 )
@@ -25,6 +26,10 @@ type App struct {
 	SpaceURL    string                 `json:"space_url"`
 	SpaceData   SpaceResource          `json:"space"`
 	c           *Client
+}
+
+type AppInstance struct {
+	State string `json:"state"`
 }
 
 func (a *App) Space() Space {
@@ -84,6 +89,26 @@ func (c *Client) ListApps() []App {
 		}
 	}
 	return apps
+}
+
+func (c *Client) GetAppInstances(guid string) map[string]AppInstance {
+	var appInstances map[string]AppInstance
+
+	requestURL := fmt.Sprintf("/v2/apps/%s/instances", guid)
+	r := c.newRequest("GET", requestURL)
+	resp, err := c.doRequest(r)
+	if err != nil {
+		log.Printf("Error requesting app instances %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading app instances %v", err)
+	}
+	err = json.Unmarshal(resBody, &appInstances)
+	if err != nil {
+		log.Printf("Error unmarshalling app instances %v", err)
+	}
+	return appInstances
 }
 
 func (c *Client) AppByGuid(guid string) App {
