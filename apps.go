@@ -97,6 +97,7 @@ func (c *Client) GetAppInstances(guid string) map[string]AppInstance {
 	requestURL := fmt.Sprintf("/v2/apps/%s/instances", guid)
 	r := c.newRequest("GET", requestURL)
 	resp, err := c.doRequest(r)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Printf("Error requesting app instances %v", err)
 	}
@@ -115,6 +116,7 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 	requestURL := fmt.Sprintf("/v2/apps/%s/instances/%s", guid, index)
 	r := c.newRequest("DELETE", requestURL)
 	resp, err := c.doRequest(r)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Printf("Error killing app instance %v", err)
 		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
