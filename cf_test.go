@@ -1,11 +1,13 @@
 package cfclient
 
 import (
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+
+	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 )
 
 var (
@@ -33,7 +35,9 @@ func setupMultiple(mockEndpoints []MockRoute) {
 	r := martini.NewRouter()
 	for _, mock := range mockEndpoints {
 		method := mock.Method
+		fmt.Println("method:", method)
 		endpoint := mock.Endpoint
+		fmt.Println("endpoint:", endpoint)
 		output := mock.Output
 		if method == "GET" {
 			r.Get(endpoint, func() string {
