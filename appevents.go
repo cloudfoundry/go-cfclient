@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"strings"
 )
 
 // AppEvent the detailed event type for app events
@@ -20,14 +19,13 @@ func (c *Client) ListAppCreateEvent() ([]Event, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-
-	resBodyAsString := string(resBody[:len(resBody)])
-	if strings.HasPrefix(resBodyAsString, "404") {
-		return nil, errors.New(resBodyAsString)
+	if resp.StatusCode >= 400 {
+		return nil, errors.New(string(resBody[:]))
 	}
 
 	var eventResponse EventResponse
