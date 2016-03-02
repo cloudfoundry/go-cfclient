@@ -2,7 +2,9 @@ package cfclient
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
+	"strings"
 )
 
 // AppEvent the detailed event type for app events
@@ -22,7 +24,12 @@ func (c *Client) ListAppCreateEvent() ([]Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("resBody:", string(resBody[:len(resBody)]))
+
+	resBodyAsString := string(resBody[:len(resBody)])
+	if strings.HasPrefix(resBodyAsString, "404") {
+		return nil, errors.New(resBodyAsString)
+	}
+
 	var eventResponse EventResponse
 	err = json.Unmarshal(resBody, &eventResponse)
 	if err != nil {
