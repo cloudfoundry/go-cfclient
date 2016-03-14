@@ -447,3 +447,63 @@ const listServicePayload = `{
       }
    ]
 }`
+const listAppsCreatedEventPayload = `{
+   "total_results": 2,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": "/v2/events?order-direction=asc&page=2&q=type:audit.app.update",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "49ab122b-82b9-4623-8a13-24e585e32e66",
+            "url": "/v2/events/49ab122b-82b9-4623-8a13-24e585e32e66",
+            "created_at": "2016-02-26T13:00:21Z",
+            "updated_at": null
+         },
+         "entity": {
+            "type": "audit.app.update",
+            "actor": "fbf30c43-436e-40e4-8ace-31970b52ce89",
+            "actor_type": "user",
+            "actor_name": "team-toad@sap.com",
+            "actee": "3ca436ff-67a8-468a-8c7d-27ec68a6cfe5",
+            "actee_type": "app",
+            "actee_name": "authentication-v1-pre-blue",
+            "timestamp": "2016-02-26T13:00:21Z",
+            "metadata": {
+               "request": {
+                  "state": "STOPPED"
+               }
+            },
+            "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
+            "organization_guid": "bfdcdf09-a3b8-46f4-ab74-d494efefe5b4"
+         }
+      },
+      {
+         "metadata": {
+            "guid": "8e8f83c7-3fc3-4127-9359-ae391380b971",
+            "url": "/v2/events/8e8f83c7-3fc3-4127-9359-ae391380b971",
+            "created_at": "2016-02-26T13:00:21Z",
+            "updated_at": null
+         },
+         "entity": {
+            "type": "audit.app.update",
+            "actor": "fbf30c43-436e-40e4-8ace-31970b52ce89",
+            "actor_type": "user",
+            "actor_name": "team-toad@sap.com",
+            "actee": "3ca436ff-67a8-468a-8c7d-27ec68a6cfe5",
+            "actee_type": "app",
+            "actee_name": "authentication-v1-pre-blue",
+            "timestamp": "2016-02-26T13:00:21Z",
+            "metadata": {
+               "request": {
+                  "health_check_timeout": 180,
+                  "buildpack": "nodejs_buildpack",
+                  "command": "PRIVATE DATA HIDDEN"
+               }
+            },
+            "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
+            "organization_guid": "bfdcdf09-a3b8-46f4-ab74-d494efefe5b4"
+         }
+      }
+    ]
+ }`

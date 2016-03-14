@@ -1,11 +1,12 @@
 package cfclient
 
 import (
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+
+	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 )
 
 var (
