@@ -24,7 +24,14 @@ const (
 	AppSSHAuth = "audit.app.ssh-authorized"
 	//AppSSHUnauth audit.app.ssh-unauthorized event const
 	AppSSHUnauth = "audit.app.ssh-unauthorized"
+	//FilterTimestamp const for query filter timestamp
+	FilterTimestamp = "timestamp"
+	//FilterActee const for query filter actee
+	FilterActee = "actee"
 )
+
+//ValidOperators const for all valid operators in a query
+var ValidOperators = []string{":", ">=", "<=", "<", ">", "IN"}
 
 // AppEventResponse the entire response
 type AppEventResponse struct {
@@ -39,6 +46,13 @@ type AppEventResponse struct {
 type AppEventResource struct {
 	Meta   Meta           `json:"metadata"`
 	Entity AppEventEntity `json:"entity"`
+}
+
+//AppEventQuery a struct for defining queries like 'q=filter>value' or 'q=filter IN a,b,c'
+type AppEventQuery struct {
+	Filter   string
+	Operator string
+	Value    string
 }
 
 // The AppEventEntity the actual app event body
@@ -85,11 +99,32 @@ type AppEventEntity struct {
 
 // ListAppEvents returns all app events based on eventType
 func (c *Client) ListAppEvents(eventType string) ([]AppEventEntity, error) {
+	return c.ListAppEventsByQuery(eventType, nil)
+}
+
+// ListAppEventsByQuery returns all app events based on eventType and queries
+func (c *Client) ListAppEventsByQuery(eventType string, queries []AppEventQuery) ([]AppEventEntity, error) {
+
 	if eventType != AppCrash && eventType != AppStart && eventType != AppStop && eventType != AppUpdate && eventType != AppCreate &&
 		eventType != AppDelete && eventType != AppSSHAuth && eventType != AppSSHUnauth {
 		return nil, errors.New("Unsupported app event type " + eventType)
 	}
-	requ := c.newRequest("GET", "/v2/events?q=type:"+eventType)
+
+	var query = "/v2/events?q=type:" + eventType
+	//adding the additional queries
+	if queries != nil && len(queries) > 0 {
+		for _, eventQuery := range queries {
+			if eventQuery.Filter != FilterTimestamp && eventQuery.Filter != FilterActee {
+				return nil, errors.New("Unsupported query filter type " + eventQuery.Filter)
+			}
+			if !stringInSlice(eventQuery.Operator, ValidOperators) {
+				return nil, errors.New("Unsupported query operator type " + eventQuery.Operator)
+			}
+			query += "&q=" + eventQuery.Filter + eventQuery.Operator + eventQuery.Value
+		}
+	}
+
+	requ := c.newRequest("GET", query)
 
 	resp, err := c.doRequest(requ)
 	if err != nil {
@@ -116,4 +151,13 @@ func (c *Client) ListAppEvents(eventType string) ([]AppEventEntity, error) {
 		events[i] = eventResponse.Resources[i].Entity
 	}
 	return events, nil
+}
+
+func stringInSlice(str string, list []string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

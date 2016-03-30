@@ -21,6 +21,8 @@ func TestListAppCreateEvents(t *testing.T) {
 		appEvents, err = client.ListAppEvents(AppCreate)
 		So(err, ShouldEqual, nil)
 		So(len(appEvents), ShouldEqual, 2)
+		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
+		So(appEvents[1].MetaData.Request.State, ShouldEqual, "STARTED")
 
 	})
 }
