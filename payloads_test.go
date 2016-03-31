@@ -498,7 +498,8 @@ const listAppsCreatedEventPayload = `{
                "request": {
                   "health_check_timeout": 180,
                   "buildpack": "nodejs_buildpack",
-                  "command": "PRIVATE DATA HIDDEN"
+                  "command": "PRIVATE DATA HIDDEN",
+                  "state": "STARTED"
                }
             },
             "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
