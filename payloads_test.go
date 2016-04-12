@@ -90,6 +90,14 @@ const orgSpacesPayload = `{
    ]
 }`
 
+const emptyResources = `{
+   "total_results": 0,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": []
+}`
+
 const listSpacesPayload = `{
    "total_results": 8,
    "total_pages": 2,
