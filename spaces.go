@@ -49,25 +49,9 @@ func (s *Space) Org() Org {
 
 func (c *Client) ListSpaces() []Space {
 	var spaces []Space
-
 	requestUrl := "/v2/spaces"
-
 	for {
-		var spaceResp SpaceResponse
-		r := c.newRequest("GET", requestUrl)
-		resp, err := c.doRequest(r)
-		if err != nil {
-			log.Printf("Error requesting spaces %v", err)
-		}
-		resBody, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf("Error reading space request %v", resBody)
-		}
-
-		err = json.Unmarshal(resBody, &spaceResp)
-		if err != nil {
-			log.Printf("Error unmarshalling space %v", err)
-		}
+		var spaceResp = c.getSpaceResponse(requestUrl)
 		for _, space := range spaceResp.Resources {
 			space.Entity.Guid = space.Meta.Guid
 			space.Entity.c = c
@@ -77,7 +61,25 @@ func (c *Client) ListSpaces() []Space {
 		if requestUrl == "" {
 			break
 		}
-		resp.Body.Close()
 	}
 	return spaces
+}
+
+func (c *Client) getSpaceResponse(requestUrl string) SpaceResponse {
+	var spaceResp SpaceResponse
+	r := c.newRequest("GET", requestUrl)
+	resp, err := c.doRequest(r)
+	if err != nil {
+		log.Printf("Error requesting spaces %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Printf("Error reading space request %v", resBody)
+	}
+	err = json.Unmarshal(resBody, &spaceResp)
+	if err != nil {
+		log.Printf("Error unmarshalling space %v", err)
+	}
+	return spaceResp
 }
