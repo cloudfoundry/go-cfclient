@@ -90,11 +90,19 @@ const orgSpacesPayload = `{
    ]
 }`
 
-const listSpacesPayload = `{
-   "total_results": 8,
+const emptyResources = `{
+   "total_results": 0,
    "total_pages": 1,
    "prev_url": null,
    "next_url": null,
+   "resources": []
+}`
+
+const listSpacesPayload = `{
+   "total_results": 8,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/spacesPage2",
    "resources": [
       {
          "metadata": {
@@ -142,6 +150,63 @@ const listSpacesPayload = `{
             "app_events_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/app_events",
             "events_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/events",
             "security_groups_url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931/security_groups"
+         }
+      }
+   ]
+}`
+
+const listSpacesPayloadPage2 = `{
+   "total_results": 8,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "created_at": "2014-09-24T13:54:54+00:00",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "test",
+            "organization_guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+            "space_quota_definition_guid": null,
+            "organization_url": "/v2/organizations/b737761f-9d93-4b30-af17-3d73dbca18aa",
+            "developers_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/developers",
+            "managers_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/managers",
+            "auditors_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/auditors",
+            "apps_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/apps",
+            "routes_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/routes",
+            "domains_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/domains",
+            "service_instances_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/service_inst2ances",
+            "app_events_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/app_events",
+            "events_url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977/events",
+            "security_groups_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups"
+         }
+      },
+      {
+         "metadata": {
+            "guid": "329b5923-7de0-486a-9928-b4d78ee24982",
+            "url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982",
+            "created_at": "2014-09-26T13:37:31+00:00",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "prod",
+            "organization_guid": "da0dba14-6064-4f7a-b15a-ff9e677e49b2",
+            "space_quota_definition_guid": null,
+            "organization_url": "/v2/organizations/ad0dba14-6064-4f7a-b15a-ff9e677e492b",
+            "developers_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/developers",
+            "managers_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/managers",
+            "auditors_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/auditors",
+            "apps_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/apps",
+            "routes_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/routes",
+            "domains_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/domains",
+            "service_instances_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/service_instances",
+            "app_events_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/app_events",
+            "events_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/events",
+            "security_groups_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/security_groups"
          }
       }
    ]

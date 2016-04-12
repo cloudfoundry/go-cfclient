@@ -11,6 +11,7 @@ func TestListSecGroups(t *testing.T) {
 		mocks := []MockRoute{
 			{"GET", "/v2/security_groups", listSecGroupsPayload},
 			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources},
 		}
 		setupMultiple(mocks)
 		defer teardown()
@@ -50,5 +51,38 @@ func TestListSecGroups(t *testing.T) {
 		So(SecGroups[1].SpacesData[1].Entity.Name, ShouldEqual, "space-test2")
 		So(SecGroups[1].SpacesData[2].Entity.Guid, ShouldEqual, "c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1")
 		So(SecGroups[1].SpacesData[2].Entity.Name, ShouldEqual, "space-test3")
+	})
+}
+
+func TestSecGroupListSpaceResources(t *testing.T) {
+	Convey("List Space Resources", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/security_groups/123/spaces", listSpacesPayload},
+			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2},
+		}
+		setupMultiple(mocks)
+		defer teardown()
+		c := &Config{
+			ApiAddress:   server.URL,
+			LoginAddress: fakeUAAServer.URL,
+			Token:        "foobar",
+		}
+		client := NewClient(c)
+		secGroup := &SecGroup{
+			Guid:      "123",
+			Name:      "test-sec-group",
+			SpacesURL: "/v2/security_groups/123/spaces",
+			c:         client,
+		}
+		spaces := secGroup.ListSpaceResources()
+		So(len(spaces), ShouldEqual, 4)
+		So(spaces[0].Entity.Guid, ShouldEqual, "8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(spaces[0].Entity.Name, ShouldEqual, "dev")
+		So(spaces[1].Entity.Guid, ShouldEqual, "657b5923-7de0-486a-9928-b4d78ee24931")
+		So(spaces[1].Entity.Name, ShouldEqual, "demo")
+		So(spaces[2].Entity.Guid, ShouldEqual, "9ffd7c5c-d83c-4786-b399-b7bd54883977")
+		So(spaces[2].Entity.Name, ShouldEqual, "test")
+		So(spaces[3].Entity.Guid, ShouldEqual, "329b5923-7de0-486a-9928-b4d78ee24982")
+		So(spaces[3].Entity.Name, ShouldEqual, "prod")
 	})
 }

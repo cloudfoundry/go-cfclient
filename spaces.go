@@ -9,6 +9,7 @@ import (
 type SpaceResponse struct {
 	Count     int             `json:"total_results"`
 	Pages     int             `json:"total_pages"`
+	NextUrl   string          `json:"next_url"`
 	Resources []SpaceResource `json:"resources"`
 }
 
@@ -48,25 +49,37 @@ func (s *Space) Org() Org {
 
 func (c *Client) ListSpaces() []Space {
 	var spaces []Space
+	requestUrl := "/v2/spaces"
+	for {
+		var spaceResp = c.getSpaceResponse(requestUrl)
+		for _, space := range spaceResp.Resources {
+			space.Entity.Guid = space.Meta.Guid
+			space.Entity.c = c
+			spaces = append(spaces, space.Entity)
+		}
+		requestUrl = spaceResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return spaces
+}
+
+func (c *Client) getSpaceResponse(requestUrl string) SpaceResponse {
 	var spaceResp SpaceResponse
-	r := c.newRequest("GET", "/v2/spaces")
+	r := c.newRequest("GET", requestUrl)
 	resp, err := c.doRequest(r)
 	if err != nil {
 		log.Printf("Error requesting spaces %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Printf("Error reading space request %v", resBody)
 	}
-
 	err = json.Unmarshal(resBody, &spaceResp)
 	if err != nil {
 		log.Printf("Error unmarshalling space %v", err)
 	}
-	for _, space := range spaceResp.Resources {
-		space.Entity.Guid = space.Meta.Guid
-		space.Entity.c = c
-		spaces = append(spaces, space.Entity)
-	}
-	return spaces
+	return spaceResp
 }

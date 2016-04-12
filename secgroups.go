@@ -59,11 +59,17 @@ func (c *Client) ListSecGroups() []SecGroup {
 
 		for _, secGroup := range secGroupResp.Resources {
 			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = c
 			for i, space := range secGroup.Entity.SpacesData {
 				space.Entity.Guid = space.Meta.Guid
 				secGroup.Entity.SpacesData[i] = space
 			}
-			secGroup.Entity.c = c
+			if len(secGroup.Entity.SpacesData) == 0 {
+				spaces := secGroup.Entity.ListSpaceResources()
+				for _, space := range spaces {
+					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
+				}
+			}
 			secGroups = append(secGroups, secGroup.Entity)
 		}
 
@@ -74,4 +80,22 @@ func (c *Client) ListSecGroups() []SecGroup {
 		resp.Body.Close()
 	}
 	return secGroups
+}
+
+func (secGroup *SecGroup) ListSpaceResources() []SpaceResource {
+	var spaceResources []SpaceResource
+	requestUrl := secGroup.SpacesURL
+	for {
+		var spaceResp = secGroup.c.getSpaceResponse(requestUrl)
+		for i, spaceRes := range spaceResp.Resources {
+			spaceRes.Entity.Guid = spaceRes.Meta.Guid
+			spaceResp.Resources[i] = spaceRes
+		}
+		spaceResources = append(spaceResources, spaceResp.Resources...)
+		requestUrl = spaceResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return spaceResources
 }
