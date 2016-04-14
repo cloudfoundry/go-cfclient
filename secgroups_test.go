@@ -20,7 +20,9 @@ func TestListSecGroups(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		SecGroups := client.ListSecGroups()
 		So(len(SecGroups), ShouldEqual, 2)
 		So(SecGroups[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
@@ -67,7 +69,9 @@ func TestSecGroupListSpaceResources(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		secGroup := &SecGroup{
 			Guid:      "123",
 			Name:      "test-sec-group",

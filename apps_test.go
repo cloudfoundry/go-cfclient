@@ -19,7 +19,9 @@ func TestListApps(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		apps := client.ListApps()
 		So(len(apps), ShouldEqual, 2)
 		So(apps[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
@@ -39,7 +41,9 @@ func TestAppByGuid(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		app := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
 		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
 		So(app.Name, ShouldEqual, "test-env")
@@ -53,7 +57,9 @@ func TestAppByGuid(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		app := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
 		So(app.Environment["string"], ShouldEqual, "string")
 		So(app.Environment["int"], ShouldEqual, 1)
@@ -69,7 +75,9 @@ func TestGetAppInstances(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
 		So(appInstances["0"].State, ShouldEqual, "RUNNING")
 		So(appInstances["1"].State, ShouldEqual, "RUNNING")
@@ -83,7 +91,9 @@ func TestGetAppInstances(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
 		So(appInstances["0"].State, ShouldEqual, "RUNNING")
 		So(appInstances["1"].State, ShouldEqual, "STARTING")
@@ -99,7 +109,9 @@ func TestKillAppInstance(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		So(client.KillAppInstance("9902530c-c634-4864-a189-71d763cb12e2", "0"), ShouldBeNil)
 	})
 }
@@ -113,7 +125,9 @@ func TestAppSpace(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+So(err, ShouldBeNil)
+
 		app := &App{
 			Guid:     "123",
 			Name:     "test app",
