@@ -27,8 +27,8 @@ type Org struct {
 func (c *Client) ListOrgs() ([]Org, error) {
 	var orgs []Org
 	var orgResp OrgResponse
-	r := c.newRequest("GET", "/v2/organizations")
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", "/v2/organizations")
+	resp, err := c.DoRequest(r)
 	if err != nil {
 		return nil, fmt.Errorf("Error requesting organizations %v", err)
 	}
@@ -53,8 +53,8 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	var spaces []Space
 	var spaceResp SpaceResponse
 	path := fmt.Sprintf("/v2/organizations/%s/spaces", guid)
-	r := c.newRequest("GET", path)
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", path)
+	resp, err := c.DoRequest(r)
 	if err != nil {
 		return nil, fmt.Errorf("Error requesting space %v", err)
 	}

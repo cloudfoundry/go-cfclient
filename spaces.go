@@ -28,8 +28,8 @@ type Space struct {
 
 func (s *Space) Org() (Org, error) {
 	var orgResource OrgResource
-	r := s.c.newRequest("GET", s.OrgURL)
-	resp, err := s.c.doRequest(r)
+	r := s.c.NewRequest("GET", s.OrgURL)
+	resp, err := s.c.DoRequest(r)
 	if err != nil {
 		return Org{}, fmt.Errorf("Error requesting org %v", err)
 	}
@@ -70,8 +70,8 @@ func (c *Client) ListSpaces() ([]Space, error) {
 
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
 	var spaceResp SpaceResponse
-	r := c.newRequest("GET", requestUrl)
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
 	if err != nil {
 		return SpaceResponse{}, fmt.Errorf("Error requesting spaces %v", err)
 	}

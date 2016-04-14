@@ -26,8 +26,8 @@ type Service struct {
 func (c *Client) ListServices() ([]Service, error) {
 	var services []Service
 	var serviceResp servicesResponse
-	r := c.newRequest("GET", "/v2/services")
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", "/v2/services")
+	resp, err := c.DoRequest(r)
 	if err != nil {
 		return nil, fmt.Errorf("Error requesting services %v", err)
 	}

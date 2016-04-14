@@ -124,9 +124,9 @@ func (c *Client) ListAppEventsByQuery(eventType string, queries []AppEventQuery)
 		}
 	}
 
-	requ := c.newRequest("GET", query)
+	requ := c.NewRequest("GET", query)
 
-	resp, err := c.doRequest(requ)
+	resp, err := c.DoRequest(requ)
 	if err != nil {
 		return nil, err
 	}

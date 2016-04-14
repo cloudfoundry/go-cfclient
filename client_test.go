@@ -32,8 +32,8 @@ func TestMakeRequest(t *testing.T) {
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
-		req := client.newRequest("GET", "/v2/foobar")
-		resp, err := client.doRequest(req)
+		req := client.NewRequest("GET", "/v2/foobar")
+		resp, err := client.DoRequest(req)
 		So(err, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
 	})

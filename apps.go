@@ -34,8 +34,8 @@ type AppInstance struct {
 
 func (a *App) Space() (Space, error) {
 	var spaceResource SpaceResource
-	r := a.c.newRequest("GET", a.SpaceURL)
-	resp, err := a.c.doRequest(r)
+	r := a.c.NewRequest("GET", a.SpaceURL)
+	resp, err := a.c.DoRequest(r)
 	if err != nil {
 		return Space{}, fmt.Errorf("Error requesting space: %v", err)
 	}
@@ -59,8 +59,8 @@ func (c *Client) ListApps() ([]App, error) {
 	requestUrl := "/v2/apps?inline-relations-depth=2"
 	for {
 		var appResp AppResponse
-		r := c.newRequest("GET", requestUrl)
-		resp, err := c.doRequest(r)
+		r := c.NewRequest("GET", requestUrl)
+		resp, err := c.DoRequest(r)
 
 		if err != nil {
 			return nil, fmt.Errorf("Error requesting apps %v", err)
@@ -95,8 +95,8 @@ func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {
 	var appInstances map[string]AppInstance
 
 	requestURL := fmt.Sprintf("/v2/apps/%s/instances", guid)
-	r := c.newRequest("GET", requestURL)
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("Error requesting app instances %v", err)
@@ -114,8 +114,8 @@ func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {
 
 func (c *Client) KillAppInstance(guid string, index string) error {
 	requestURL := fmt.Sprintf("/v2/apps/%s/instances/%s", guid, index)
-	r := c.newRequest("DELETE", requestURL)
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("DELETE", requestURL)
+	resp, err := c.DoRequest(r)
 	defer resp.Body.Close()
 	if err != nil {
 		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
@@ -128,8 +128,8 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 
 func (c *Client) AppByGuid(guid string) (App, error) {
 	var appResource AppResource
-	r := c.newRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
-	resp, err := c.doRequest(r)
+	r := c.NewRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
+	resp, err := c.DoRequest(r)
 	if err != nil {
 		return App{}, fmt.Errorf("Error requesting apps: %v", err)
 	}

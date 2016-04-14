@@ -158,8 +158,8 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 	return &endpoint, err
 }
 
-// newRequest is used to create a new request
-func (c *Client) newRequest(method, path string) *request {
+// NewRequest is used to create a new request
+func (c *Client) NewRequest(method, path string) *request {
 	r := &request{
 		method: method,
 		url:    c.config.ApiAddress + path,
@@ -168,8 +168,8 @@ func (c *Client) newRequest(method, path string) *request {
 	return r
 }
 
-// doRequest runs a request with our client
-func (c *Client) doRequest(r *request) (*http.Response, error) {
+// DoRequest runs a request with our client
+func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	req, err := r.toHTTP()
 	if err != nil {
 		return nil, err

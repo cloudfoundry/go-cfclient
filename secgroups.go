@@ -41,8 +41,8 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 	requestUrl := "/v2/security_groups?inline-relations-depth=1"
 	for {
 		var secGroupResp SecGroupResponse
-		r := c.newRequest("GET", requestUrl)
-		resp, err := c.doRequest(r)
+		r := c.NewRequest("GET", requestUrl)
+		resp, err := c.DoRequest(r)
 
 		if err != nil {
 			return nil, fmt.Errorf("Error requesting sec groups %v", err)
