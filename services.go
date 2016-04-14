@@ -7,13 +7,13 @@ import (
 	"log"
 )
 
-type ServiceResponse struct {
-	Count     int               `json:"total_results"`
-	Pages     int               `json:"total_pages"`
-	Resources []ServiceResource `json:"resources"`
+type servicesResponse struct {
+	Count     int                `json:"total_results"`
+	Pages     int                `json:"total_pages"`
+	Resources []servicesResource `json:"resources"`
 }
 
-type ServiceResource struct {
+type servicesResource struct {
 	Meta   Meta    `json:"metadata"`
 	Entity Service `json:"entity"`
 }
@@ -26,7 +26,7 @@ type Service struct {
 
 func (c *Client) ListServices() ([]Service, error) {
 	var services []Service
-	var serviceResp ServiceResponse
+	var serviceResp servicesResponse
 	r := c.newRequest("GET", "/v2/services")
 	resp, err := c.doRequest(r)
 	if err != nil {
