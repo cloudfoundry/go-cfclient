@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 )
 
 type servicesResponse struct {
@@ -34,7 +33,7 @@ func (c *Client) ListServices() ([]Service, error) {
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading services request %v", resBody)
+		return nil, fmt.Errorf("Error reading services request: %v", err)
 	}
 
 	err = json.Unmarshal(resBody, &serviceResp)
