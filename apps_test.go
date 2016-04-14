@@ -15,9 +15,8 @@ func TestListApps(t *testing.T) {
 		setupMultiple(mocks)
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -39,9 +38,8 @@ func TestAppByGuid(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -57,9 +55,8 @@ func TestAppByGuid(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment_json})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -77,9 +74,8 @@ func TestGetAppInstances(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstancePayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -95,9 +91,8 @@ func TestGetAppInstances(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstanceUnhealthyPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -115,9 +110,8 @@ func TestKillAppInstance(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances/0", ""})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -131,9 +125,8 @@ func TestAppSpace(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)

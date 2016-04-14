@@ -11,9 +11,8 @@ func TestListOrgs(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -32,9 +31,8 @@ func TestOrgSpaces(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)

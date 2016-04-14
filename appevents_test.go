@@ -11,9 +11,8 @@ func TestListAppEvents(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -33,9 +32,8 @@ func TestListAppEventsByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)

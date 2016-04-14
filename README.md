@@ -25,7 +25,6 @@ import (
 func main() {
   c := &Config{
     ApiAddress:   "https://api.10.244.0.34.xip.io",
-    LoginAddress: "https://login.10.244.0.34.xip.io",
     Username:     "admin",
     Password:     "admin",
   }

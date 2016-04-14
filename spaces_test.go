@@ -15,9 +15,8 @@ func TestListSpaces(t *testing.T) {
 		setupMultiple(mocks)
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -42,9 +41,8 @@ func TestSpaceOrg(t *testing.T) {
 		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload})
 		defer teardown()
 		c := &Config{
-			ApiAddress:   server.URL,
-			LoginAddress: fakeUAAServer.URL,
-			Token:        "foobar",
+			ApiAddress: server.URL,
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)

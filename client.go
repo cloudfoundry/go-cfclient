@@ -29,7 +29,6 @@ type Endpoint struct {
 //Config is used to configure the creation of a client
 type Config struct {
 	ApiAddress        string
-	LoginAddress      string
 	Username          string
 	Password          string
 	SkipSslValidation bool
@@ -53,7 +52,6 @@ type request struct {
 func DefaultConfig() *Config {
 	return &Config{
 		ApiAddress:        "https://api.10.244.0.34.xip.io",
-		LoginAddress:      "https://login.10.244.0.34.xip.io",
 		Username:          "admin",
 		Password:          "admin",
 		Token:             "",
@@ -78,10 +76,6 @@ func NewClient(config *Config) (client *Client, err error) {
 
 	if len(config.ApiAddress) == 0 {
 		config.ApiAddress = defConfig.ApiAddress
-	}
-
-	if len(config.LoginAddress) == 0 {
-		config.LoginAddress = defConfig.LoginAddress
 	}
 
 	if len(config.Username) == 0 {
