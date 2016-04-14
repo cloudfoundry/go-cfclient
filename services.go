@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 )
@@ -23,13 +24,13 @@ type Service struct {
 	c     *Client
 }
 
-func (c *Client) ListServices() []Service {
+func (c *Client) ListServices() ([]Service, error) {
 	var services []Service
 	var serviceResp ServiceResponse
 	r := c.newRequest("GET", "/v2/services")
 	resp, err := c.doRequest(r)
 	if err != nil {
-		log.Printf("Error requesting services %v", err)
+		return nil, fmt.Errorf("Error requesting services %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -38,12 +39,12 @@ func (c *Client) ListServices() []Service {
 
 	err = json.Unmarshal(resBody, &serviceResp)
 	if err != nil {
-		log.Printf("Error unmarshaling services %v", err)
+		return nil, fmt.Errorf("Error unmarshaling services %v", err)
 	}
 	for _, service := range serviceResp.Resources {
 		service.Entity.Guid = service.Meta.Guid
 		service.Entity.c = c
 		services = append(services, service.Entity)
 	}
-	return services
+	return services, nil
 }

@@ -16,9 +16,11 @@ func TestListServices(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		services := client.ListServices()
+		services, err := client.ListServices()
+		So(err, ShouldBeNil)
+
 		So(len(services), ShouldEqual, 2)
 		So(services[0].Guid, ShouldEqual, "a3d76c01-c08a-4505-b06d-8603265682a3")
 		So(services[0].Label, ShouldEqual, "nats")

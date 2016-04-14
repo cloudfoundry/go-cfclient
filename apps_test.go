@@ -20,9 +20,11 @@ func TestListApps(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		apps := client.ListApps()
+		apps, err := client.ListApps()
+		So(err, ShouldBeNil)
+
 		So(len(apps), ShouldEqual, 2)
 		So(apps[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
 		So(apps[0].Name, ShouldEqual, "app-test")
@@ -42,9 +44,11 @@ func TestAppByGuid(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		app := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		app, err := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
 		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
 		So(app.Name, ShouldEqual, "test-env")
 	})
@@ -58,9 +62,11 @@ So(err, ShouldBeNil)
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		app := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		app, err := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
 		So(app.Environment["string"], ShouldEqual, "string")
 		So(app.Environment["int"], ShouldEqual, 1)
 	})
@@ -76,9 +82,11 @@ func TestGetAppInstances(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		appInstances, err := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
 		So(appInstances["0"].State, ShouldEqual, "RUNNING")
 		So(appInstances["1"].State, ShouldEqual, "RUNNING")
 	})
@@ -92,9 +100,11 @@ So(err, ShouldBeNil)
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
-		appInstances := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		appInstances, err := client.GetAppInstances("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
 		So(appInstances["0"].State, ShouldEqual, "RUNNING")
 		So(appInstances["1"].State, ShouldEqual, "STARTING")
 	})
@@ -110,7 +120,7 @@ func TestKillAppInstance(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
 		So(client.KillAppInstance("9902530c-c634-4864-a189-71d763cb12e2", "0"), ShouldBeNil)
 	})
@@ -126,7 +136,7 @@ func TestAppSpace(t *testing.T) {
 			Token:        "foobar",
 		}
 		client, err := NewClient(c)
-So(err, ShouldBeNil)
+		So(err, ShouldBeNil)
 
 		app := &App{
 			Guid:     "123",
@@ -134,7 +144,9 @@ So(err, ShouldBeNil)
 			SpaceURL: "/v2/spaces/foobar",
 			c:        client,
 		}
-		space := app.Space()
+		space, err := app.Space()
+		So(err, ShouldBeNil)
+
 		So(space.Name, ShouldEqual, "test-space")
 		So(space.Guid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
 	})
