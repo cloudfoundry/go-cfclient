@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 )
@@ -35,8 +36,7 @@ type SecGroupRule struct {
 	Destination string `json:"destination"`
 }
 
-func (c *Client) ListSecGroups() []SecGroup {
-	var secGroups []SecGroup
+func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 
 	requestUrl := "/v2/security_groups?inline-relations-depth=1"
 	for {
@@ -45,7 +45,7 @@ func (c *Client) ListSecGroups() []SecGroup {
 		resp, err := c.doRequest(r)
 
 		if err != nil {
-			log.Printf("Error requesting sec groups %v", err)
+			return nil, fmt.Errorf("Error requesting sec groups %v", err)
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -54,7 +54,7 @@ func (c *Client) ListSecGroups() []SecGroup {
 
 		err = json.Unmarshal(resBody, &secGroupResp)
 		if err != nil {
-			log.Printf("Error unmarshaling sec group %v", err)
+			return nil, fmt.Errorf("Error unmarshaling sec group %v", err)
 		}
 
 		for _, secGroup := range secGroupResp.Resources {
@@ -65,7 +65,10 @@ func (c *Client) ListSecGroups() []SecGroup {
 				secGroup.Entity.SpacesData[i] = space
 			}
 			if len(secGroup.Entity.SpacesData) == 0 {
-				spaces := secGroup.Entity.ListSpaceResources()
+				spaces, err := secGroup.Entity.ListSpaceResources()
+				if err != nil {
+					return secGroups, nil
+				}
 				for _, space := range spaces {
 					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
 				}
@@ -79,14 +82,17 @@ func (c *Client) ListSecGroups() []SecGroup {
 		}
 		resp.Body.Close()
 	}
-	return secGroups
+	return secGroups, nil
 }
 
-func (secGroup *SecGroup) ListSpaceResources() []SpaceResource {
+func (secGroup *SecGroup) ListSpaceResources() ([]SpaceResource, error) {
 	var spaceResources []SpaceResource
 	requestUrl := secGroup.SpacesURL
 	for {
-		var spaceResp = secGroup.c.getSpaceResponse(requestUrl)
+		spaceResp, err := secGroup.c.getSpaceResponse(requestUrl)
+		if err != nil {
+			return []SpaceResource{}, err
+		}
 		for i, spaceRes := range spaceResp.Resources {
 			spaceRes.Entity.Guid = spaceRes.Meta.Guid
 			spaceResp.Resources[i] = spaceRes
@@ -97,5 +103,5 @@ func (secGroup *SecGroup) ListSpaceResources() []SpaceResource {
 			break
 		}
 	}
-	return spaceResources
+	return spaceResources, nil
 }

@@ -15,7 +15,8 @@ func TestListAppEvents(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
 		appEvents, err := client.ListAppEvents("blub")
 		So(err.Error(), ShouldEqual, "Unsupported app event type blub")
 		appEvents, err = client.ListAppEvents(AppCreate)
@@ -36,7 +37,9 @@ func TestListAppEventsByQuery(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
 		appEvents, err := client.ListAppEventsByQuery("blub", []AppEventQuery{})
 		So(err.Error(), ShouldEqual, "Unsupported app event type blub")
 

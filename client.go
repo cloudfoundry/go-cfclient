@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
+	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
-	"os"
+
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
 )
 
 //Client used to communicate with Cloud Foundry
@@ -72,7 +72,7 @@ func DefaultEndpoint() *Endpoint {
 }
 
 // NewClient returns a new client
-func NewClient(config *Config) *Client {
+func NewClient(config *Config) (client *Client, err error) {
 	// bootstrap the config
 	defConfig := DefaultConfig()
 
@@ -100,21 +100,16 @@ func NewClient(config *Config) *Client {
 	if config.SkipSslValidation == false {
 		ctx = context.WithValue(ctx, oauth2.HTTPClient, defConfig.HttpClient)
 	} else {
-
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
-
 		ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
-
 	}
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
 	if err != nil {
-		log.Println("Could not get api /v2/info :", err)
-		os.Exit(1)
-
+		return nil, fmt.Errorf("Could not get api /v2/info: %v", err)
 	}
 
 	authConfig := &oauth2.Config{
@@ -128,20 +123,20 @@ func NewClient(config *Config) *Client {
 
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
 
-
 	if err != nil {
-		log.Printf("Error getting token %v\n", err)
+		return nil, fmt.Errorf("Error getting token: %v", err)
 	}
 
 	config.TokenSource = authConfig.TokenSource(ctx, token)
 	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
 
-	client := &Client{
+	client = &Client{
 		config:   *config,
 		Endpoint: *endpoint,
 	}
-	return client
+	return client, nil
 }
+
 func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 	var endpoint Endpoint
 
@@ -216,12 +211,10 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 	return buf, nil
 }
 
-func (c *Client) GetToken() string {
+func (c *Client) GetToken() (string, error) {
 	token, err := c.config.TokenSource.Token()
 	if err != nil {
-		log.Printf("Error getting token %v\n", err)
-		return ""
+		return "", fmt.Errorf("Error getting bearer token: %v", err)
 	}
-
-	return "bearer " + token.AccessToken
+	return "bearer " + token.AccessToken, nil
 }

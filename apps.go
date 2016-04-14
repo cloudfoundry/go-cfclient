@@ -32,28 +32,28 @@ type AppInstance struct {
 	State string `json:"state"`
 }
 
-func (a *App) Space() Space {
+func (a *App) Space() (Space, error) {
 	var spaceResource SpaceResource
 	r := a.c.newRequest("GET", a.SpaceURL)
 	resp, err := a.c.doRequest(r)
 	if err != nil {
-		log.Printf("Error requesting space %v", err)
+		return Space{}, fmt.Errorf("Error requesting space: %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading space request %v", resBody)
+		log.Printf("Error reading space request: %v", err)
 	}
 
 	err = json.Unmarshal(resBody, &spaceResource)
 	if err != nil {
-		log.Printf("Error unmarshaling space %v", err)
+		return Space{}, fmt.Errorf("Error unmarshaling space: %v", err)
 	}
 	spaceResource.Entity.Guid = spaceResource.Meta.Guid
 	spaceResource.Entity.c = a.c
-	return spaceResource.Entity
+	return spaceResource.Entity, nil
 }
 
-func (c *Client) ListApps() []App {
+func (c *Client) ListApps() ([]App, error) {
 	var apps []App
 
 	requestUrl := "/v2/apps?inline-relations-depth=2"
@@ -63,7 +63,7 @@ func (c *Client) ListApps() []App {
 		resp, err := c.doRequest(r)
 
 		if err != nil {
-			log.Printf("Error requesting apps %v", err)
+			return nil, fmt.Errorf("Error requesting apps %v", err)
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -72,7 +72,7 @@ func (c *Client) ListApps() []App {
 
 		err = json.Unmarshal(resBody, &appResp)
 		if err != nil {
-			log.Printf("Error unmarshaling app %v", err)
+			return nil, fmt.Errorf("Error unmarshaling app %v", err)
 		}
 
 		for _, app := range appResp.Resources {
@@ -88,10 +88,10 @@ func (c *Client) ListApps() []App {
 			break
 		}
 	}
-	return apps
+	return apps, nil
 }
 
-func (c *Client) GetAppInstances(guid string) map[string]AppInstance {
+func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {
 	var appInstances map[string]AppInstance
 
 	requestURL := fmt.Sprintf("/v2/apps/%s/instances", guid)
@@ -99,17 +99,17 @@ func (c *Client) GetAppInstances(guid string) map[string]AppInstance {
 	resp, err := c.doRequest(r)
 	defer resp.Body.Close()
 	if err != nil {
-		log.Printf("Error requesting app instances %v", err)
+		return nil, fmt.Errorf("Error requesting app instances %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading app instances %v", err)
+		return nil, fmt.Errorf("Error reading app instances %v", err)
 	}
 	err = json.Unmarshal(resBody, &appInstances)
 	if err != nil {
-		log.Printf("Error unmarshalling app instances %v", err)
+		return nil, fmt.Errorf("Error unmarshalling app instances %v", err)
 	}
-	return appInstances
+	return appInstances, nil
 }
 
 func (c *Client) KillAppInstance(guid string, index string) error {
@@ -118,7 +118,6 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 	resp, err := c.doRequest(r)
 	defer resp.Body.Close()
 	if err != nil {
-		log.Printf("Error killing app instance %v", err)
 		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
 	}
 	if resp.StatusCode != 204 {
@@ -127,12 +126,12 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 	return nil
 }
 
-func (c *Client) AppByGuid(guid string) App {
+func (c *Client) AppByGuid(guid string) (App, error) {
 	var appResource AppResource
 	r := c.newRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
 	resp, err := c.doRequest(r)
 	if err != nil {
-		log.Printf("Error requesting apps %v", err)
+		return App{}, fmt.Errorf("Error requesting apps: %v", err)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -141,11 +140,11 @@ func (c *Client) AppByGuid(guid string) App {
 
 	err = json.Unmarshal(resBody, &appResource)
 	if err != nil {
-		log.Printf("Error unmarshaling app %v", err)
+		return App{}, fmt.Errorf("Error unmarshaling app: %v", err)
 	}
 	appResource.Entity.Guid = appResource.Meta.Guid
 	appResource.Entity.SpaceData.Entity.Guid = appResource.Entity.SpaceData.Meta.Guid
 	appResource.Entity.SpaceData.Entity.OrgData.Entity.Guid = appResource.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	appResource.Entity.c = c
-	return appResource.Entity
+	return appResource.Entity, nil
 }

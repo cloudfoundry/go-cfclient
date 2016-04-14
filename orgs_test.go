@@ -15,8 +15,12 @@ func TestListOrgs(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
-		orgs := client.ListOrgs()
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListOrgs()
+		So(err, ShouldBeNil)
+
 		So(len(orgs), ShouldEqual, 2)
 		So(orgs[0].Guid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
 		So(orgs[0].Name, ShouldEqual, "demo")
@@ -32,8 +36,12 @@ func TestOrgSpaces(t *testing.T) {
 			LoginAddress: fakeUAAServer.URL,
 			Token:        "foobar",
 		}
-		client := NewClient(c)
-		spaces := client.OrgSpaces("foo")
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		spaces, err := client.OrgSpaces("foo")
+		So(err, ShouldBeNil)
+
 		So(len(spaces), ShouldEqual, 1)
 		So(spaces[0].Guid, ShouldEqual, "b8aff561-175d-45e8-b1e7-67e2aedb03b6")
 		So(spaces[0].Name, ShouldEqual, "test")
