@@ -49,7 +49,7 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("Error reading sec group request %v", resBody)
+			log.Printf("Error reading sec group request %v", string(resBody))
 		}
 
 		err = json.Unmarshal(resBody, &secGroupResp)
@@ -67,7 +67,7 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 			if len(secGroup.Entity.SpacesData) == 0 {
 				spaces, err := secGroup.Entity.ListSpaceResources()
 				if err != nil {
-					return secGroups, nil
+					return nil, err
 				}
 				for _, space := range spaces {
 					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
