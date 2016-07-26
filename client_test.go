@@ -10,7 +10,7 @@ import (
 func TestDefaultConfig(t *testing.T) {
 	Convey("Default config", t, func() {
 		c := DefaultConfig()
-		So(c.ApiAddress, ShouldEqual, "https://api.10.244.0.34.xip.io")
+		So(c.ApiAddress, ShouldEqual, "http://api.bosh-lite.com")
 		So(c.Username, ShouldEqual, "admin")
 		So(c.Password, ShouldEqual, "admin")
 		So(c.SkipSslValidation, ShouldEqual, false)
