@@ -51,7 +51,7 @@ type request struct {
 //Need to be remove in close future
 func DefaultConfig() *Config {
 	return &Config{
-		ApiAddress:        "https://api.10.244.0.34.xip.io",
+		ApiAddress:        "http://api.bosh-lite.com",
 		Username:          "admin",
 		Password:          "admin",
 		Token:             "",
@@ -177,11 +177,11 @@ func (r *request) toHTTP() (*http.Request, error) {
 
 	// Check if we should encode the body
 	if r.body == nil && r.obj != nil {
-		if b, err := encodeBody(r.obj); err != nil {
+		b, err := encodeBody(r.obj)
+		if err != nil {
 			return nil, err
-		} else {
-			r.body = b
 		}
+		r.body = b
 	}
 
 	// Create the HTTP request
