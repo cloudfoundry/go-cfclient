@@ -162,6 +162,17 @@ func (c *Client) NewRequest(method, path string) *request {
 	return r
 }
 
+// NewRequestWithBody is used to create a new request with
+// arbigtrary body io.Reader.
+func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *request {
+	r := c.NewRequest(method, path)
+
+	// Set request body
+	r.body = body
+
+	return r
+}
+
 // DoRequest runs a request with our client
 func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	req, err := r.toHTTP()
