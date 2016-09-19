@@ -597,6 +597,53 @@ const appInstanceUnhealthyPayload = `{
    }
 }`
 
+const appStatsPayload = `{
+   "0": {
+      "state": "RUNNING",
+      "stats": {
+         "name": "example-app",
+         "uris": [
+            "example-app.example.com",
+            "example-app-route2.example.com"
+         ],
+         "host": "192.168.1.100",
+         "port": 61297,
+         "uptime": 411118,
+         "mem_quota": 536870912,
+         "disk_quota": 1073741824,
+         "fds_quota": 16384,
+         "usage": {
+            "time": "2016-09-17 15:46:17 +0000",
+            "cpu": 0.36580239597146486,
+            "mem": 518123520,
+            "disk": 151150592
+         }
+      }
+   },
+   "1": {
+      "state": "RUNNING",
+      "stats": {
+         "name": "example-app",
+         "uris": [
+            "example-app.example.com",
+            "example-app-route2.example.com"
+         ],
+         "host": "192.168.1.101",
+         "port": 61388,
+         "uptime": 419568,
+         "mem_quota": 536870912,
+         "disk_quota": 1073741824,
+         "fds_quota": 16384,
+         "usage": {
+            "time": "2016-09-17 15:46:17 +0000",
+            "cpu": 0.33857742931636664,
+            "mem": 530731008,
+            "disk": 151150592
+         }
+      }
+   }
+}`
+
 const spacePayload = `{
    "metadata": {
       "guid": "a72fa1e8-c694-47b3-85f2-55f61fd00d73",
@@ -717,6 +764,7 @@ const listServicePayload = `{
       }
    ]
 }`
+
 const listAppsCreatedEventPayload = `{
    "total_results": 2,
    "total_pages": 2,
