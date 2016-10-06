@@ -28,12 +28,12 @@ type Endpoint struct {
 
 //Config is used to configure the creation of a client
 type Config struct {
-	ApiAddress        string
-	Username          string
-	Password          string
-	SkipSslValidation bool
+	ApiAddress        string `json:"api_url"`
+	Username          string `json:"user"`
+	Password          string `json:"password"`
+	SkipSslValidation bool   `json:"skip_ssl_validation"`
 	HttpClient        *http.Client
-	Token             string
+	Token             string `json:"auth_token"`
 	TokenSource       oauth2.TokenSource
 }
 
