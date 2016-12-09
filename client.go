@@ -155,8 +155,8 @@ func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Con
 		TokenURL:     endpoint.TokenEndpoint + "/oauth/token",
 	}
 
+	config.TokenSource = authConfig.TokenSource(ctx)
 	config.HttpClient = authConfig.Client(ctx)
-
 	return config
 }
 
