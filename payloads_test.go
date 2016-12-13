@@ -721,3 +721,34 @@ const listAppsCreatedEventPayload = `{
       }
     ]
  }`
+
+var serviceInstancePayload = `{
+   "metadata": {
+      "guid": "8423ca96-90ad-411f-b77a-0907844949fc",
+      "url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc",
+      "created_at": "2016-10-21T18:22:56Z",
+      "updated_at": null
+   },
+   "entity": {
+      "name": "fortunes-db",
+      "credentials": {},
+      "service_plan_guid": "f48419f7-4717-4706-86e4-a24973848a77",
+      "space_guid": "21e5fdc7-5131-4743-8447-6373cf336a77",
+      "gateway_data": null,
+      "dashboard_url": "https://p-mysql.system.example.com/manage/instances/8423ca96-90ad-411f-b77a-0907844949fc",
+      "type": "managed_service_instance",
+      "last_operation": {
+         "type": "create",
+         "state": "succeeded",
+         "description": "",
+         "updated_at": null,
+         "created_at": "2016-10-21T18:22:56Z"
+      },
+      "tags": [],
+      "space_url": "/v2/spaces/21e5fdc7-5131-4743-8447-6373cf336a77",
+      "service_plan_url": "/v2/service_plans/f48419f7-4717-4706-86e4-a24973848a77",
+      "service_bindings_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_bindings",
+      "service_keys_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_keys",
+      "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes"
+   }
+}`
