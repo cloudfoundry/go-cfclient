@@ -8,7 +8,11 @@ import (
 
 func TestListOrgs(t *testing.T) {
 	Convey("List Org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
+		mocks := []MockRoute{
+			{"GET", "/v2/organizations", listOrgsPayload},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2},
+		}
+		setupMultiple(mocks)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -20,7 +24,7 @@ func TestListOrgs(t *testing.T) {
 		orgs, err := client.ListOrgs()
 		So(err, ShouldBeNil)
 
-		So(len(orgs), ShouldEqual, 2)
+		So(len(orgs), ShouldEqual, 4)
 		So(orgs[0].Guid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
 		So(orgs[0].Name, ShouldEqual, "demo")
 	})

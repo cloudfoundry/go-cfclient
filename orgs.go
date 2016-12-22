@@ -10,6 +10,7 @@ import (
 type OrgResponse struct {
 	Count     int           `json:"total_results"`
 	Pages     int           `json:"total_pages"`
+	NextUrl   string        `json:"next_url"`
 	Resources []OrgResource `json:"resources"`
 }
 
@@ -26,27 +27,44 @@ type Org struct {
 
 func (c *Client) ListOrgs() ([]Org, error) {
 	var orgs []Org
-	var orgResp OrgResponse
-	r := c.NewRequest("GET", "/v2/organizations")
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return nil, fmt.Errorf("Error requesting organizations %v", err)
-	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Error reading organization request %v", resBody)
-	}
-
-	err = json.Unmarshal(resBody, &orgResp)
-	if err != nil {
-		return nil, fmt.Errorf("Error unmarshalling organization %v", err)
-	}
-	for _, org := range orgResp.Resources {
-		org.Entity.Guid = org.Meta.Guid
-		org.Entity.c = c
-		orgs = append(orgs, org.Entity)
+	requestUrl := "/v2/organizations"
+	for {
+		orgResp, err := c.getOrgResponse(requestUrl)
+		fmt.Println(orgResp)
+		if err != nil {
+			return []Org{}, err
+		}
+		for _, org := range orgResp.Resources {
+			org.Entity.Guid = org.Meta.Guid
+			org.Entity.c = c
+			orgs = append(orgs, org.Entity)
+		}
+		requestUrl = orgResp.NextUrl
+		fmt.Println(requestUrl)
+		if requestUrl == "" {
+			break
+		}
 	}
 	return orgs, nil
+}
+
+func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
+	var orgResp OrgResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return OrgResponse{}, fmt.Errorf("Error requesting orgs %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return OrgResponse{}, fmt.Errorf("Error reading org request %v", err)
+	}
+	err = json.Unmarshal(resBody, &orgResp)
+	if err != nil {
+		return OrgResponse{}, fmt.Errorf("Error unmarshalling org %v", err)
+	}
+	return orgResp, nil
 }
 
 func (c *Client) OrgSpaces(guid string) ([]Space, error) {
