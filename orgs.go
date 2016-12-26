@@ -30,7 +30,6 @@ func (c *Client) ListOrgs() ([]Org, error) {
 	requestUrl := "/v2/organizations"
 	for {
 		orgResp, err := c.getOrgResponse(requestUrl)
-		fmt.Println(orgResp)
 		if err != nil {
 			return []Org{}, err
 		}
@@ -40,7 +39,6 @@ func (c *Client) ListOrgs() ([]Org, error) {
 			orgs = append(orgs, org.Entity)
 		}
 		requestUrl = orgResp.NextUrl
-		fmt.Println(requestUrl)
 		if requestUrl == "" {
 			break
 		}

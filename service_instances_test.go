@@ -8,7 +8,7 @@ import (
 
 func TestServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload})
+		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload, ""}, t)
 		defer teardown()
 
 		c := &Config{

@@ -8,7 +8,7 @@ import (
 
 func TestListAppEvents(t *testing.T) {
 	Convey("List App Events", t, func() {
-		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload})
+		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -29,7 +29,7 @@ func TestListAppEvents(t *testing.T) {
 
 func TestListAppEventsByQuery(t *testing.T) {
 	Convey("List App Events By Query", t, func() {
-		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload})
+		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
