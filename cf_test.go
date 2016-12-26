@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"testing"
 
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
@@ -16,16 +17,26 @@ var (
 )
 
 type MockRoute struct {
-	Method   string
-	Endpoint string
-	Output   string
+	Method    string
+	Endpoint  string
+	Output    string
+	UserAgent string
 }
 
-func setup(mock MockRoute) {
-	setupMultiple([]MockRoute{mock})
+func setup(mock MockRoute, t *testing.T) {
+	setupMultiple([]MockRoute{mock}, t)
 }
 
-func setupMultiple(mockEndpoints []MockRoute) {
+func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
+	if len(UserAgentExp) < 1 {
+		UserAgentExp = "Go-CF-client/1.1"
+	}
+	if UserAgent != UserAgentExp {
+		t.Fatalf("Error Agent %s should be equal to %s", UserAgent, UserAgentExp)
+	}
+}
+
+func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 	fakeUAAServer = FakeUAAServer()
@@ -36,16 +47,20 @@ func setupMultiple(mockEndpoints []MockRoute) {
 		method := mock.Method
 		endpoint := mock.Endpoint
 		output := mock.Output
+		userAgent := mock.UserAgent
 		if method == "GET" {
-			r.Get(endpoint, func() string {
+			r.Get(endpoint, func(req *http.Request) string {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				return output
 			})
 		} else if method == "POST" {
-			r.Post(endpoint, func() string {
+			r.Post(endpoint, func(req *http.Request) string {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				return output
 			})
 		} else if method == "DELETE" {
-			r.Delete(endpoint, func() (int, string) {
+			r.Delete(endpoint, func(req *http.Request) (int, string) {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				return 204, output
 			})
 		}

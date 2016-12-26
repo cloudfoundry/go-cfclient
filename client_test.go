@@ -15,12 +15,13 @@ func TestDefaultConfig(t *testing.T) {
 		So(c.Password, ShouldEqual, "admin")
 		So(c.SkipSslValidation, ShouldEqual, false)
 		So(c.Token, ShouldEqual, "")
+		So(c.UserAgent, ShouldEqual, "Go-CF-client/1.1")
 	})
 }
 
 func TestMakeRequest(t *testing.T) {
-	Convey("Test making request", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -40,7 +41,7 @@ func TestMakeRequest(t *testing.T) {
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload})
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, ""}, t)
 		c := &Config{
 			ApiAddress: server.URL,
 			Username:   "foo",

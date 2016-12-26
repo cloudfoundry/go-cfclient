@@ -9,10 +9,10 @@ import (
 func TestListOrgs(t *testing.T) {
 	Convey("List Org", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/organizations", listOrgsPayload},
-			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2},
+			{"GET", "/v2/organizations", listOrgsPayload, ""},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, ""},
 		}
-		setupMultiple(mocks)
+		setupMultiple(mocks, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -32,7 +32,7 @@ func TestListOrgs(t *testing.T) {
 
 func TestOrgSpaces(t *testing.T) {
 	Convey("Get spaces by org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload})
+		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
