@@ -63,6 +63,11 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				return 204, output
 			})
+		} else if method == "PUT" {
+			r.Put(endpoint, func(req *http.Request) (int, string) {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				return 202, output
+			})
 		}
 	}
 	r.Get("/v2/info", func(r render.Render) {
