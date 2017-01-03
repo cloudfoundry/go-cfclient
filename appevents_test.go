@@ -8,7 +8,11 @@ import (
 
 func TestListAppEvents(t *testing.T) {
 	Convey("List App Events", t, func() {
-		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload, ""}, t)
+		mocks := []MockRoute{
+			{"GET", "/v2/events", listAppsCreatedEventPayload, ""},
+			{"GET", "/v2/events2", listAppsCreatedEventPayload2, ""},
+		}
+		setupMultiple(mocks, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -23,13 +27,16 @@ func TestListAppEvents(t *testing.T) {
 		So(len(appEvents), ShouldEqual, 2)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
 		So(appEvents[1].MetaData.Request.State, ShouldEqual, "STARTED")
-
 	})
 }
 
 func TestListAppEventsByQuery(t *testing.T) {
 	Convey("List App Events By Query", t, func() {
-		setup(MockRoute{"GET", "/v2/events", listAppsCreatedEventPayload, ""}, t)
+		mocks := []MockRoute{
+			{"GET", "/v2/events", listAppsCreatedEventPayload, ""},
+			{"GET", "/v2/events2", listAppsCreatedEventPayload2, ""},
+		}
+		setupMultiple(mocks, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -67,6 +74,5 @@ func TestListAppEventsByQuery(t *testing.T) {
 		So(len(appEvents), ShouldEqual, 2)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
 		So(appEvents[1].MetaData.Request.State, ShouldEqual, "STARTED")
-
 	})
 }

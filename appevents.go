@@ -3,6 +3,7 @@ package cfclient
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"time"
 )
@@ -24,6 +25,12 @@ const (
 	AppSSHAuth = "audit.app.ssh-authorized"
 	//AppSSHUnauth audit.app.ssh-unauthorized event const
 	AppSSHUnauth = "audit.app.ssh-unauthorized"
+	//AppRestage audit.app.restage event const
+	AppRestage = "audit.app.restage"
+	//AppMapRoute audit.app.map-route event const
+	AppMapRoute = "audit.app.map-route"
+	//AppUnmapRoute audit.app.unmap-route event const
+	AppUnmapRoute = "audit.app.unmap-route"
 	//FilterTimestamp const for query filter timestamp
 	FilterTimestamp = "timestamp"
 	//FilterActee const for query filter actee
@@ -104,9 +111,11 @@ func (c *Client) ListAppEvents(eventType string) ([]AppEventEntity, error) {
 
 // ListAppEventsByQuery returns all app events based on eventType and queries
 func (c *Client) ListAppEventsByQuery(eventType string, queries []AppEventQuery) ([]AppEventEntity, error) {
+	var events []AppEventEntity
 
 	if eventType != AppCrash && eventType != AppStart && eventType != AppStop && eventType != AppUpdate && eventType != AppCreate &&
-		eventType != AppDelete && eventType != AppSSHAuth && eventType != AppSSHUnauth {
+		eventType != AppDelete && eventType != AppSSHAuth && eventType != AppSSHUnauth && eventType != AppRestage &&
+		eventType != AppMapRoute && eventType != AppUnmapRoute {
 		return nil, errors.New("Unsupported app event type " + eventType)
 	}
 
@@ -124,33 +133,40 @@ func (c *Client) ListAppEventsByQuery(eventType string, queries []AppEventQuery)
 		}
 	}
 
-	requ := c.NewRequest("GET", query)
-
-	resp, err := c.DoRequest(requ)
-	if err != nil {
-		return nil, err
+	for {
+		eventResponse, err := c.getAppEventsResponse(query)
+		if err != nil {
+			return []AppEventEntity{}, err
+		}
+		for _, event := range eventResponse.Resources {
+			events = append(events, event.Entity)
+		}
+		query = eventResponse.NextURL
+		if query == "" {
+			break
+		}
 	}
 
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(resBody[:]))
-	}
+	return events, nil
+}
 
+func (c *Client) getAppEventsResponse(query string) (AppEventResponse, error) {
 	var eventResponse AppEventResponse
+	r := c.NewRequest("GET", query)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return AppEventResponse{}, fmt.Errorf("Error requesting appevents %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return AppEventResponse{}, fmt.Errorf("Error reading appevents request %v", err)
+	}
 	err = json.Unmarshal(resBody, &eventResponse)
 	if err != nil {
-		return nil, err
+		return AppEventResponse{}, fmt.Errorf("Error unmarshalling appevent %v", err)
 	}
-
-	eventsLen := len(eventResponse.Resources)
-	events := make([]AppEventEntity, eventsLen)
-	for i := 0; i < eventsLen; i++ {
-		events[i] = eventResponse.Resources[i].Entity
-	}
-	return events, nil
+	return eventResponse, nil
 }
 
 func stringInSlice(str string, list []string) bool {

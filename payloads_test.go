@@ -719,9 +719,9 @@ const listServicePayload = `{
 }`
 const listAppsCreatedEventPayload = `{
    "total_results": 2,
-   "total_pages": 1,
+   "total_pages": 2,
    "prev_url": null,
-   "next_url": "/v2/events?order-direction=asc&page=2&q=type:audit.app.update",
+   "next_url": "/v2/events2",
    "resources": [
       {
          "metadata": {
@@ -747,7 +747,15 @@ const listAppsCreatedEventPayload = `{
             "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
             "organization_guid": "bfdcdf09-a3b8-46f4-ab74-d494efefe5b4"
          }
-      },
+      }
+   ]
+ }`
+const listAppsCreatedEventPayload2 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": "/v2/events",
+   "next_url": null,
+   "resources": [
       {
          "metadata": {
             "guid": "8e8f83c7-3fc3-4127-9359-ae391380b971",
