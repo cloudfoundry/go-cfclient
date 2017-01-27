@@ -179,6 +179,38 @@ func (c *Client) BindSecGroup(secGUID, spaceGUID string) error {
 }
 
 /*
+BindRunningSecGroup contacts the CF endpoint to associate  a security group
+secGUID: identifies the security group to add a space to
+*/
+func (c *Client) BindRunningSecGroup(secGUID string) error {
+	//Perform the PUT and check for errors
+	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/config/running_security_groups/%s", secGUID)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 201 { //201 Created
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
+BindStagingSecGroup contacts the CF endpoint to associate a space with a security group
+secGUID: identifies the security group to add a space to
+*/
+func (c *Client) BindStagingSecGroup(secGUID string) error {
+	//Perform the PUT and check for errors
+	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/config/staging_security_groups/%s", secGUID)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 201 { //201 Created
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
 UnbindSecGroup contacts the CF endpoint to dissociate a space from a security group
 secGUID: identifies the security group to remove a space from
 spaceGUID: identifies the space to dissociate from the security group
