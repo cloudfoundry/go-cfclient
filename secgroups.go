@@ -34,7 +34,7 @@ type SecGroup struct {
 type SecGroupRule struct {
 	Protocol    string `json:"protocol"`
 	Type        string `json:"type,omitempty"`        //ICMP type. Only valid if Protocol=="icmp"
-	Ports       string `json:"ports"`                 //e.g. "4000-5000,9142"
+	Ports       string `json:"ports,omitempty"`       //e.g. "4000-5000,9142"
 	Destination string `json:"destination"`           //CIDR Format
 	Description string `json:"description,omitempty"` //Optional description
 	Log         bool   `json:"log,omitempty"`         //If true, log this rule
@@ -83,6 +83,35 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 		resp.Body.Close()
 	}
 	return secGroups, nil
+}
+
+func (c *Client) GetSecGroupByName(name string) (secGroup SecGroup, err error) {
+	requestURL := "/v2/security_groups?q=name:" + name
+	var secGroupResp SecGroupResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+
+	if err != nil {
+		return secGroup, fmt.Errorf("Error requesting sec groups %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading sec group request %v", string(resBody))
+	}
+
+	err = json.Unmarshal(resBody, &secGroupResp)
+	if err != nil {
+		return secGroup, fmt.Errorf("Error unmarshaling sec group %v", err)
+	}
+	if len(secGroupResp.Resources) == 0 {
+		return secGroup, fmt.Errorf("No security group with name %v found", name)
+	}
+	secGroup = secGroupResp.Resources[0].Entity
+	secGroup.Guid = secGroupResp.Resources[0].Meta.Guid
+	secGroup.c = c
+
+	resp.Body.Close()
+	return secGroup, nil
 }
 
 func (secGroup *SecGroup) ListSpaceResources() ([]SpaceResource, error) {

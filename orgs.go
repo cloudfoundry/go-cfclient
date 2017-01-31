@@ -46,6 +46,19 @@ func (c *Client) ListOrgs() ([]Org, error) {
 	return orgs, nil
 }
 
+func (c *Client) GetOrgByName(name string) (Org, error) {
+	var org Org
+	requestUrl := "/v2/organizations?q=name:" + name
+	orgResp, err := c.getOrgResponse(requestUrl)
+	if err != nil {
+		return org, err
+	}
+	org = orgResp.Resources[0].Entity
+	org.Guid = orgResp.Resources[0].Meta.Guid
+	org.c = c
+	return org, nil
+}
+
 func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
 	var orgResp OrgResponse
 	r := c.NewRequest("GET", requestUrl)

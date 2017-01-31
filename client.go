@@ -262,3 +262,11 @@ func (c *Client) GetToken() (string, error) {
 	}
 	return "bearer " + token.AccessToken, nil
 }
+
+func setupQuery(query map[string]string) string {
+	q := "q="
+	for key, val := range query {
+		q += key + ":" + val + "&q="
+	}
+	return q
+}

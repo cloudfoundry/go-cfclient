@@ -47,9 +47,9 @@ func (s *Space) Org() (Org, error) {
 	return orgResource.Entity, nil
 }
 
-func (c *Client) ListSpaces() ([]Space, error) {
+func (c *Client) ListSpacesByQuery(query map[string]string) ([]Space, error) {
 	var spaces []Space
-	requestUrl := "/v2/spaces"
+	requestUrl := "/v2/spaces?" + setupQuery(query)
 	for {
 		spaceResp, err := c.getSpaceResponse(requestUrl)
 		if err != nil {
@@ -66,6 +66,10 @@ func (c *Client) ListSpaces() ([]Space, error) {
 		}
 	}
 	return spaces, nil
+}
+
+func (c *Client) ListSpaces() ([]Space, error) {
+	return c.ListSpacesByQuery(nil)
 }
 
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
