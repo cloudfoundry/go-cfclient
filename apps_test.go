@@ -131,7 +131,7 @@ func TestGetAppInstances(t *testing.T) {
 
 func TestGetAppStats(t *testing.T) {
 	Convey("App stats completely running", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/stats", appStatsPayload})
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/stats", appStatsPayload, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
