@@ -53,6 +53,9 @@ func (c *Client) GetOrgByName(name string) (Org, error) {
 	if err != nil {
 		return org, err
 	}
+	if len(orgResp.Resources) != 1 {
+		return org, fmt.Errorf("Unable to find org " + name)
+	}
 	org = orgResp.Resources[0].Entity
 	org.Guid = orgResp.Resources[0].Meta.Guid
 	org.c = c
