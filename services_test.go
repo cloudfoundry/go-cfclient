@@ -17,7 +17,7 @@ func TestListServices(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		services, err := client.ListServices()
+		services, err := client.ListServices(nil)
 		So(err, ShouldBeNil)
 
 		So(len(services), ShouldEqual, 2)
