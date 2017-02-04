@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -120,10 +121,10 @@ func (a *App) Space() (Space, error) {
 	return spaceResource.Entity, nil
 }
 
-func (c *Client) ListApps() ([]App, error) {
+func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
 	var apps []App
 
-	requestUrl := "/v2/apps?inline-relations-depth=2"
+	requestUrl := "/v2/apps?" + query.Encode()
 	for {
 		var appResp AppResponse
 		r := c.NewRequest("GET", requestUrl)
@@ -156,6 +157,12 @@ func (c *Client) ListApps() ([]App, error) {
 		}
 	}
 	return apps, nil
+}
+
+func (c *Client) ListApps() ([]App, error) {
+	q := url.Values{}
+	q.Set("inline-relations-depth", "2")
+	return c.ListAppsByQuery(q)
 }
 
 func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {

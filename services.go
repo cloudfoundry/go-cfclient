@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 )
 
 type servicesResponse struct {
@@ -23,10 +24,10 @@ type Service struct {
 	c     *Client
 }
 
-func (c *Client) ListServices() ([]Service, error) {
+func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	var services []Service
 	var serviceResp servicesResponse
-	r := c.NewRequest("GET", "/v2/services")
+	r := c.NewRequest("GET", "/v2/services?"+query.Encode())
 	resp, err := c.DoRequest(r)
 	if err != nil {
 		return nil, fmt.Errorf("Error requesting services %v", err)
@@ -46,4 +47,8 @@ func (c *Client) ListServices() ([]Service, error) {
 		services = append(services, service.Entity)
 	}
 	return services, nil
+}
+
+func (c *Client) ListServices(query url.Values) ([]Service, error) {
+	return c.ListServicesByQuery(nil)
 }
