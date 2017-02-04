@@ -163,6 +163,91 @@ const orgSummaryPayload = `{
    ]
 }`
 
+const orgQuotaPayload = `{
+   "metadata": {
+      "guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+      "url": "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b",
+      "created_at": "2017-01-18T16:39:10Z",
+      "updated_at": "2017-01-18T16:46:20Z"
+   },
+   "entity": {
+      "name": "test-2",
+      "non_basic_services_allowed": false,
+      "total_services": 10,
+      "total_routes": 20,
+      "total_private_domains": 30,
+      "memory_limit": 40,
+      "trial_db_allowed": true,
+      "instance_memory_limit": 50,
+      "app_instance_limit": 60,
+      "app_task_limit": 70,
+      "total_service_keys": 80,
+      "total_reserved_route_ports": 90
+   }
+}`
+
+const listOrgQuotasPayloadPage1 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/quota_definitions_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "6f9d3100-44ab-49e2-a4f8-9d7d67651ae7",
+            "url": "/v2/quota_definitions/6f9d3100-44ab-49e2-a4f8-9d7d67651ae7",
+            "created_at": "2017-01-18T16:39:10Z",
+            "updated_at": "2017-01-18T16:46:20Z"
+         },
+         "entity": {
+            "name": "test-1",
+            "non_basic_services_allowed": true,
+            "total_services": -1,
+            "total_routes": 100,
+            "total_private_domains": -1,
+            "memory_limit": 102400,
+            "trial_db_allowed": false,
+            "instance_memory_limit": -1,
+            "app_instance_limit": -1,
+            "app_task_limit": -1,
+            "total_service_keys": -1,
+            "total_reserved_route_ports": -1
+         }
+      }
+   ]
+}`
+
+const listOrgQuotasPayloadPage2 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+            "url": "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b",
+            "created_at": "2017-01-18T16:39:10Z",
+            "updated_at": "2017-01-18T16:46:20Z"
+         },
+         "entity": {
+            "name": "test-2",
+            "non_basic_services_allowed": false,
+            "total_services": 10,
+            "total_routes": 20,
+            "total_private_domains": 30,
+            "memory_limit": 40,
+            "trial_db_allowed": true,
+            "instance_memory_limit": 50,
+            "app_instance_limit": 60,
+            "app_task_limit": 70,
+            "total_service_keys": 80,
+            "total_reserved_route_ports": 90
+         }
+      }
+   ]
+}`
+
 const emptyResources = `{
    "total_results": 0,
    "total_pages": 1,

@@ -21,9 +21,10 @@ type OrgResource struct {
 }
 
 type Org struct {
-	Guid string `json:"guid"`
-	Name string `json:"name"`
-	c    *Client
+	Guid                string `json:"guid"`
+	Name                string `json:"name"`
+	QuotaDefinitionGuid string `json:"quota_definition_guid"`
+	c                   *Client
 }
 
 type OrgSummary struct {
@@ -144,4 +145,31 @@ func (o *Org) Summary() (OrgSummary, error) {
 		return OrgSummary{}, fmt.Errorf("Error unmarshalling org summary %v", err)
 	}
 	return orgSummary, nil
+}
+
+func (o *Org) Quota() (*OrgQuota, error) {
+	var orgQuota *OrgQuota
+	var orgQuotaResource OrgQuotasResource
+	if o.QuotaDefinitionGuid == "" {
+		return nil, nil
+	}
+	requestUrl := fmt.Sprintf("/v2/quota_definitions/%s", o.QuotaDefinitionGuid)
+	r := o.c.NewRequest("GET", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error requesting org quota %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error reading org quota body %v", err)
+	}
+	err = json.Unmarshal(resBody, &orgQuotaResource)
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error unmarshalling org quota %v", err)
+	}
+	orgQuota = &orgQuotaResource.Entity
+	orgQuota.Guid = orgQuotaResource.Meta.Guid
+	orgQuota.c = o.c
+	return orgQuota, nil
 }
