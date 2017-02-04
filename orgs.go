@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 )
 
 type OrgResponse struct {
@@ -25,9 +26,9 @@ type Org struct {
 	c    *Client
 }
 
-func (c *Client) ListOrgs() ([]Org, error) {
+func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 	var orgs []Org
-	requestUrl := "/v2/organizations"
+	requestUrl := "/v2/organizations?" + query.Encode()
 	for {
 		orgResp, err := c.getOrgResponse(requestUrl)
 		if err != nil {
@@ -46,20 +47,22 @@ func (c *Client) ListOrgs() ([]Org, error) {
 	return orgs, nil
 }
 
+func (c *Client) ListOrgs() ([]Org, error) {
+	return c.ListOrgsByQuery(nil)
+}
+
 func (c *Client) GetOrgByName(name string) (Org, error) {
 	var org Org
-	requestUrl := "/v2/organizations?q=name:" + name
-	orgResp, err := c.getOrgResponse(requestUrl)
+	q := url.Values{}
+	q.Set("q", "name:"+name)
+	orgs, err := c.ListOrgsByQuery(q)
 	if err != nil {
 		return org, err
 	}
-	if len(orgResp.Resources) != 1 {
-		return org, fmt.Errorf("Unable to find org " + name)
+	if len(orgs) == 0 {
+		return org, fmt.Errorf("Unable to find org %s", name)
 	}
-	org = orgResp.Resources[0].Entity
-	org.Guid = orgResp.Resources[0].Meta.Guid
-	org.c = c
-	return org, nil
+	return orgs[0], nil
 }
 
 func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
@@ -105,5 +108,4 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	}
 
 	return spaces, nil
-
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 )
 
 type SpaceResponse struct {
@@ -47,9 +48,9 @@ func (s *Space) Org() (Org, error) {
 	return orgResource.Entity, nil
 }
 
-func (c *Client) ListSpacesByQuery(query map[string]string) ([]Space, error) {
+func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 	var spaces []Space
-	requestUrl := "/v2/spaces?" + setupQuery(query)
+	requestUrl := "/v2/spaces?" + query.Encode()
 	for {
 		spaceResp, err := c.getSpaceResponse(requestUrl)
 		if err != nil {
