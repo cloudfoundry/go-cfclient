@@ -60,3 +60,36 @@ func TestSpaceOrg(t *testing.T) {
 		So(org.Guid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 	})
 }
+
+func TestSpaceQuota(t *testing.T) {
+	Convey("Get space quota", t, func() {
+		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			QuotaDefinitionGuid: "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+			c:                   client,
+		}
+
+		spaceQuota, err := space.Quota()
+		So(err, ShouldBeNil)
+
+		So(spaceQuota.Guid, ShouldEqual, "9ffd7c5c-d83c-4786-b399-b7bd54883977")
+		So(spaceQuota.Name, ShouldEqual, "test-2")
+		So(spaceQuota.NonBasicServicesAllowed, ShouldEqual, false)
+		So(spaceQuota.TotalServices, ShouldEqual, 10)
+		So(spaceQuota.TotalRoutes, ShouldEqual, 20)
+		So(spaceQuota.MemoryLimit, ShouldEqual, 30)
+		So(spaceQuota.InstanceMemoryLimit, ShouldEqual, 40)
+		So(spaceQuota.AppInstanceLimit, ShouldEqual, 50)
+		So(spaceQuota.AppTaskLimit, ShouldEqual, 60)
+		So(spaceQuota.TotalServiceKeys, ShouldEqual, 70)
+		So(spaceQuota.TotalReservedRoutePorts, ShouldEqual, 80)
+	})
+}

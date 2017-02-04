@@ -370,6 +370,94 @@ const listSpacesPayloadPage2 = `{
    ]
 }`
 
+const spaceQuotaPayload = `{
+   "metadata": {
+      "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+      "url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977",
+      "created_at": "2017-02-04T18:11:49Z",
+      "updated_at": "2017-02-04T18:11:49Z"
+   },
+   "entity": {
+      "name": "test-2",
+      "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+      "non_basic_services_allowed": false,
+      "total_services": 10,
+      "total_routes": 20,
+      "memory_limit": 30,
+      "instance_memory_limit": 40,
+      "app_instance_limit": 50,
+      "app_task_limit": 60,
+      "total_service_keys": 70,
+      "total_reserved_route_ports": 80,
+      "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+      "spaces_url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces"
+   }
+}`
+
+const listSpaceQuotasPayloadPage1 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/space_quota_definitions_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "889aa2ed-a883-4cc0-abe5-804b2503f15d",
+            "url": "/v2/space_quota_definitions/889aa2ed-a883-4cc0-abe5-804b2503f15d",
+            "created_at": "2017-02-04T18:11:49Z",
+            "updated_at": "2017-02-04T18:11:49Z"
+         },
+         "entity": {
+            "name": "test-1",
+            "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "non_basic_services_allowed": true,
+            "total_services": -1,
+            "total_routes": 100,
+            "memory_limit": 102400,
+            "instance_memory_limit": -1,
+            "app_instance_limit": -1,
+            "app_task_limit": -1,
+            "total_service_keys": -1,
+            "total_reserved_route_ports": -1,
+            "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "spaces_url": "/v2/space_quota_definitions/889aa2ed-a883-4cc0-abe5-804b2503f15d/spaces"
+         }
+      }
+   ]
+}`
+
+const listSpaceQuotasPayloadPage2 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "created_at": "2017-02-04T18:11:49Z",
+            "updated_at": "2017-02-04T18:11:49Z"
+         },
+         "entity": {
+            "name": "test-2",
+            "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "non_basic_services_allowed": false,
+            "total_services": 10,
+            "total_routes": 20,
+            "memory_limit": 30,
+            "instance_memory_limit": 40,
+            "app_instance_limit": 50,
+            "app_task_limit": 60,
+            "total_service_keys": 70,
+            "total_reserved_route_ports": 80,
+            "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "spaces_url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces"
+         }
+      }
+   ]
+}`
+
 const listSecGroupsPayload = `{
    "total_results": 28,
    "total_pages": 1,
