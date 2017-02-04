@@ -26,6 +26,22 @@ type Org struct {
 	c    *Client
 }
 
+type OrgSummary struct {
+	Guid   string             `json:"guid"`
+	Name   string             `json:"name"`
+	Status string             `json:"status"`
+	Spaces []OrgSummarySpaces `json:"spaces"`
+}
+
+type OrgSummarySpaces struct {
+	Guid         string `json:"guid"`
+	Name         string `json:"name"`
+	ServiceCount int    `json:"service_count"`
+	AppCount     int    `json:"app_count"`
+	MemDevTotal  int    `json:"mem_dev_total"`
+	MemProdTotal int    `json:"mem_prod_total"`
+}
+
 func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 	var orgs []Org
 	requestUrl := "/v2/organizations?" + query.Encode()
@@ -108,4 +124,24 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	}
 
 	return spaces, nil
+}
+
+func (o *Org) Summary() (OrgSummary, error) {
+	var orgSummary OrgSummary
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/summary", o.Guid)
+	r := o.c.NewRequest("GET", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error requesting org summary %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error reading org summary body %v", err)
+	}
+	err = json.Unmarshal(resBody, &orgSummary)
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error unmarshalling org summary %v", err)
+	}
+	return orgSummary, nil
 }

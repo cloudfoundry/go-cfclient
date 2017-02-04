@@ -49,3 +49,36 @@ func TestOrgSpaces(t *testing.T) {
 		So(spaces[0].Name, ShouldEqual, "test")
 	})
 }
+
+func TestOrgSummary(t *testing.T) {
+	Convey("Get org summary", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+			c:    client,
+		}
+		summary, err := org.Summary()
+		So(err, ShouldBeNil)
+
+		So(summary.Guid, ShouldEqual, "06dcedd4-1f24-49a6-adc1-cce9131a1b2c")
+		So(summary.Name, ShouldEqual, "system")
+		So(summary.Status, ShouldEqual, "active")
+
+		spaces := summary.Spaces
+		So(len(spaces), ShouldEqual, 1)
+		So(spaces[0].Guid, ShouldEqual, "494d8b64-8181-4183-a6d3-6279db8fec6e")
+		So(spaces[0].Name, ShouldEqual, "test")
+		So(spaces[0].ServiceCount, ShouldEqual, 1)
+		So(spaces[0].AppCount, ShouldEqual, 2)
+		So(spaces[0].MemDevTotal, ShouldEqual, 32)
+		So(spaces[0].MemProdTotal, ShouldEqual, 64)
+	})
+}

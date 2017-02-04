@@ -147,6 +147,22 @@ const orgSpacesPayload = `{
    ]
 }`
 
+const orgSummaryPayload = `{
+   "guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+   "name": "system",
+   "status": "active",
+   "spaces": [
+      {
+         "guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+         "name": "test",
+         "service_count": 1,
+         "app_count": 2,
+         "mem_dev_total": 32,
+         "mem_prod_total": 64
+      }
+   ]
+}`
+
 const emptyResources = `{
    "total_results": 0,
    "total_pages": 1,
