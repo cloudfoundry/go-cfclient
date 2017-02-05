@@ -6,6 +6,26 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func TestListServicesInstances(t *testing.T) {
+	Convey("List Service Instances", t, func() {
+		setup(MockRoute{"GET", "/v2/service_instances", listServiceInstancePayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		instances, err := client.ListServiceInstances()
+		So(err, ShouldBeNil)
+
+		So(len(instances), ShouldEqual, 2)
+		So(instances[0].Guid, ShouldEqual, "8423ca96-90ad-411f-b77a-0907844949fc")
+		So(instances[0].Name, ShouldEqual, "fortunes-db")
+	})
+}
+
 func TestServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
 		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload, ""}, t)

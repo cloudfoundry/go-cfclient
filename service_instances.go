@@ -4,7 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 )
+
+type serviceInstancesResponse struct {
+	Count     int                       `json:"total_results"`
+	Pages     int                       `json:"total_pages"`
+	Resources []ServiceInstanceResource `json:"resources"`
+}
 
 type ServiceInstanceResource struct {
 	Meta   Meta            `json:"metadata"`
@@ -24,6 +31,36 @@ type ServiceInstance struct {
 	ServiceKeysUrl     string `json:"service_keys_url"`
 	RoutesUrl          string `json:"routes_url"`
 	c                  *Client
+}
+
+func (c *Client) ListServicesInstancesByQuery(query url.Values) ([]ServiceInstance, error) {
+	var instances []ServiceInstance
+	var sir serviceInstancesResponse
+
+	r := c.NewRequest("GET", "/v2/service_instances?"+query.Encode())
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return nil, fmt.Errorf("Error requesting service instances %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading service instances request: %v", err)
+	}
+
+	err = json.Unmarshal(resBody, &sir)
+	if err != nil {
+		return nil, fmt.Errorf("Error unmarshaling service instances %v", err)
+	}
+	for _, instance := range sir.Resources {
+		instance.Entity.Guid = instance.Meta.Guid
+		instance.Entity.c = c
+		instances = append(instances, instance.Entity)
+	}
+	return instances, nil
+}
+
+func (c *Client) ListServiceInstances() ([]ServiceInstance, error) {
+	return c.ListServicesInstancesByQuery(nil)
 }
 
 func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
