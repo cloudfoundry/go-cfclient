@@ -93,3 +93,43 @@ func TestSpaceQuota(t *testing.T) {
 		So(spaceQuota.TotalReservedRoutePorts, ShouldEqual, 80)
 	})
 }
+
+func TestSpaceSummary(t *testing.T) {
+	Convey("Get space summary", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "494d8b64-8181-4183-a6d3-6279db8fec6e",
+			c:    client,
+		}
+
+		summary, err := space.Summary()
+		So(err, ShouldBeNil)
+
+		So(summary.Guid, ShouldEqual, "494d8b64-8181-4183-a6d3-6279db8fec6e")
+		So(summary.Name, ShouldEqual, "test")
+
+		So(len(summary.Apps), ShouldEqual, 1)
+		So(summary.Apps[0].Guid, ShouldEqual, "b5f0d1bd-a3a9-40a4-af1a-312ad26e5379")
+		So(summary.Apps[0].Name, ShouldEqual, "test-app")
+		So(summary.Apps[0].ServiceCount, ShouldEqual, 1)
+		So(summary.Apps[0].RunningInstances, ShouldEqual, 1)
+		So(summary.Apps[0].Memory, ShouldEqual, 256)
+		So(summary.Apps[0].Instances, ShouldEqual, 1)
+		So(summary.Apps[0].DiskQuota, ShouldEqual, 512)
+		So(summary.Apps[0].State, ShouldEqual, "STARTED")
+		So(summary.Apps[0].Diego, ShouldEqual, true)
+
+		So(len(summary.Services), ShouldEqual, 1)
+		So(summary.Services[0].Guid, ShouldEqual, "3c5c758c-6b76-46f6-89d5-677909bfc975")
+		So(summary.Services[0].Name, ShouldEqual, "test-service")
+		So(summary.Services[0].BoundAppCount, ShouldEqual, 1)
+	})
+}

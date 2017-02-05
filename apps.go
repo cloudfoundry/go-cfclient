@@ -56,6 +56,18 @@ type AppStats struct {
 	} `json:"stats"`
 }
 
+type AppSummary struct {
+	Guid             string `json:"guid"`
+	Name             string `json:"name"`
+	ServiceCount     int    `json:"service_count"`
+	RunningInstances int    `json:"running_instances"`
+	Memory           int    `json:"memory"`
+	Instances        int    `json:"instances"`
+	DiskQuota        int    `json:"disk_quota"`
+	State            string `json:"state"`
+	Diego            bool   `json:"diego"`
+}
+
 // Custom time types to handle non-RFC3339 formatting in API JSON
 
 type sinceTime struct {

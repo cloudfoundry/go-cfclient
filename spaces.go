@@ -28,6 +28,13 @@ type Space struct {
 	c                   *Client
 }
 
+type SpaceSummary struct {
+	Guid     string           `json:"guid"`
+	Name     string           `json:"name"`
+	Apps     []AppSummary     `json:"apps"`
+	Services []ServiceSummary `json:"services"`
+}
+
 func (s *Space) Org() (Org, error) {
 	var orgResource OrgResource
 	r := s.c.NewRequest("GET", s.OrgURL)
@@ -74,6 +81,26 @@ func (s *Space) Quota() (*SpaceQuota, error) {
 	spaceQuota.Guid = spaceQuotaResource.Meta.Guid
 	spaceQuota.c = s.c
 	return spaceQuota, nil
+}
+
+func (s *Space) Summary() (SpaceSummary, error) {
+	var spaceSummary SpaceSummary
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/summary", s.Guid)
+	r := s.c.NewRequest("GET", requestUrl)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error requesting space summary %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error reading space summary body %v", err)
+	}
+	err = json.Unmarshal(resBody, &spaceSummary)
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error unmarshalling space summary %v", err)
+	}
+	return spaceSummary, nil
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {

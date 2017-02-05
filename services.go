@@ -24,6 +24,12 @@ type Service struct {
 	c     *Client
 }
 
+type ServiceSummary struct {
+	Guid          string `json:"guid"`
+	Name          string `json:"name"`
+	BoundAppCount int    `json:"bound_app_count"`
+}
+
 func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	var services []Service
 	var serviceResp servicesResponse
