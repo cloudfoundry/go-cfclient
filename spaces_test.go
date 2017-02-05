@@ -60,3 +60,76 @@ func TestSpaceOrg(t *testing.T) {
 		So(org.Guid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 	})
 }
+
+func TestSpaceQuota(t *testing.T) {
+	Convey("Get space quota", t, func() {
+		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			QuotaDefinitionGuid: "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+			c:                   client,
+		}
+
+		spaceQuota, err := space.Quota()
+		So(err, ShouldBeNil)
+
+		So(spaceQuota.Guid, ShouldEqual, "9ffd7c5c-d83c-4786-b399-b7bd54883977")
+		So(spaceQuota.Name, ShouldEqual, "test-2")
+		So(spaceQuota.NonBasicServicesAllowed, ShouldEqual, false)
+		So(spaceQuota.TotalServices, ShouldEqual, 10)
+		So(spaceQuota.TotalRoutes, ShouldEqual, 20)
+		So(spaceQuota.MemoryLimit, ShouldEqual, 30)
+		So(spaceQuota.InstanceMemoryLimit, ShouldEqual, 40)
+		So(spaceQuota.AppInstanceLimit, ShouldEqual, 50)
+		So(spaceQuota.AppTaskLimit, ShouldEqual, 60)
+		So(spaceQuota.TotalServiceKeys, ShouldEqual, 70)
+		So(spaceQuota.TotalReservedRoutePorts, ShouldEqual, 80)
+	})
+}
+
+func TestSpaceSummary(t *testing.T) {
+	Convey("Get space summary", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "494d8b64-8181-4183-a6d3-6279db8fec6e",
+			c:    client,
+		}
+
+		summary, err := space.Summary()
+		So(err, ShouldBeNil)
+
+		So(summary.Guid, ShouldEqual, "494d8b64-8181-4183-a6d3-6279db8fec6e")
+		So(summary.Name, ShouldEqual, "test")
+
+		So(len(summary.Apps), ShouldEqual, 1)
+		So(summary.Apps[0].Guid, ShouldEqual, "b5f0d1bd-a3a9-40a4-af1a-312ad26e5379")
+		So(summary.Apps[0].Name, ShouldEqual, "test-app")
+		So(summary.Apps[0].ServiceCount, ShouldEqual, 1)
+		So(summary.Apps[0].RunningInstances, ShouldEqual, 1)
+		So(summary.Apps[0].Memory, ShouldEqual, 256)
+		So(summary.Apps[0].Instances, ShouldEqual, 1)
+		So(summary.Apps[0].DiskQuota, ShouldEqual, 512)
+		So(summary.Apps[0].State, ShouldEqual, "STARTED")
+		So(summary.Apps[0].Diego, ShouldEqual, true)
+
+		So(len(summary.Services), ShouldEqual, 1)
+		So(summary.Services[0].Guid, ShouldEqual, "3c5c758c-6b76-46f6-89d5-677909bfc975")
+		So(summary.Services[0].Name, ShouldEqual, "test-service")
+		So(summary.Services[0].BoundAppCount, ShouldEqual, 1)
+	})
+}

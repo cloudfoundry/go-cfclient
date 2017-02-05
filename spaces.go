@@ -20,11 +20,19 @@ type SpaceResource struct {
 }
 
 type Space struct {
-	Guid    string      `json:"guid"`
-	Name    string      `json:"name"`
-	OrgURL  string      `json:"organization_url"`
-	OrgData OrgResource `json:"organization"`
-	c       *Client
+	Guid                string      `json:"guid"`
+	Name                string      `json:"name"`
+	OrgURL              string      `json:"organization_url"`
+	OrgData             OrgResource `json:"organization"`
+	QuotaDefinitionGuid string      `json:"space_quota_definition_guid"`
+	c                   *Client
+}
+
+type SpaceSummary struct {
+	Guid     string           `json:"guid"`
+	Name     string           `json:"name"`
+	Apps     []AppSummary     `json:"apps"`
+	Services []ServiceSummary `json:"services"`
 }
 
 func (s *Space) Org() (Org, error) {
@@ -46,6 +54,53 @@ func (s *Space) Org() (Org, error) {
 	orgResource.Entity.Guid = orgResource.Meta.Guid
 	orgResource.Entity.c = s.c
 	return orgResource.Entity, nil
+}
+
+func (s *Space) Quota() (*SpaceQuota, error) {
+	var spaceQuota *SpaceQuota
+	var spaceQuotaResource SpaceQuotasResource
+	if s.QuotaDefinitionGuid == "" {
+		return nil, nil
+	}
+	requestUrl := fmt.Sprintf("/v2/space_quota_definitions/%s", s.QuotaDefinitionGuid)
+	r := s.c.NewRequest("GET", requestUrl)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return &SpaceQuota{}, fmt.Errorf("Error requesting space quota %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return &SpaceQuota{}, fmt.Errorf("Error reading space quota body %v", err)
+	}
+	err = json.Unmarshal(resBody, &spaceQuotaResource)
+	if err != nil {
+		return &SpaceQuota{}, fmt.Errorf("Error unmarshalling space quota %v", err)
+	}
+	spaceQuota = &spaceQuotaResource.Entity
+	spaceQuota.Guid = spaceQuotaResource.Meta.Guid
+	spaceQuota.c = s.c
+	return spaceQuota, nil
+}
+
+func (s *Space) Summary() (SpaceSummary, error) {
+	var spaceSummary SpaceSummary
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/summary", s.Guid)
+	r := s.c.NewRequest("GET", requestUrl)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error requesting space summary %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error reading space summary body %v", err)
+	}
+	err = json.Unmarshal(resBody, &spaceSummary)
+	if err != nil {
+		return SpaceSummary{}, fmt.Errorf("Error unmarshalling space summary %v", err)
+	}
+	return spaceSummary, nil
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {

@@ -49,3 +49,70 @@ func TestOrgSpaces(t *testing.T) {
 		So(spaces[0].Name, ShouldEqual, "test")
 	})
 }
+
+func TestOrgSummary(t *testing.T) {
+	Convey("Get org summary", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+			c:    client,
+		}
+		summary, err := org.Summary()
+		So(err, ShouldBeNil)
+
+		So(summary.Guid, ShouldEqual, "06dcedd4-1f24-49a6-adc1-cce9131a1b2c")
+		So(summary.Name, ShouldEqual, "system")
+		So(summary.Status, ShouldEqual, "active")
+
+		spaces := summary.Spaces
+		So(len(spaces), ShouldEqual, 1)
+		So(spaces[0].Guid, ShouldEqual, "494d8b64-8181-4183-a6d3-6279db8fec6e")
+		So(spaces[0].Name, ShouldEqual, "test")
+		So(spaces[0].ServiceCount, ShouldEqual, 1)
+		So(spaces[0].AppCount, ShouldEqual, 2)
+		So(spaces[0].MemDevTotal, ShouldEqual, 32)
+		So(spaces[0].MemProdTotal, ShouldEqual, 64)
+	})
+}
+
+func TestOrgQuota(t *testing.T) {
+	Convey("Get org quota", t, func() {
+		setup(MockRoute{"GET", "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b", orgQuotaPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			QuotaDefinitionGuid: "a537761f-9d93-4b30-af17-3d73dbca181b",
+			c:                   client,
+		}
+		orgQuota, err := org.Quota()
+		So(err, ShouldBeNil)
+
+		So(orgQuota.Guid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
+		So(orgQuota.Name, ShouldEqual, "test-2")
+		So(orgQuota.NonBasicServicesAllowed, ShouldEqual, false)
+		So(orgQuota.TotalServices, ShouldEqual, 10)
+		So(orgQuota.TotalRoutes, ShouldEqual, 20)
+		So(orgQuota.TotalPrivateDomains, ShouldEqual, 30)
+		So(orgQuota.MemoryLimit, ShouldEqual, 40)
+		So(orgQuota.TrialDBAllowed, ShouldEqual, true)
+		So(orgQuota.InstanceMemoryLimit, ShouldEqual, 50)
+		So(orgQuota.AppInstanceLimit, ShouldEqual, 60)
+		So(orgQuota.AppTaskLimit, ShouldEqual, 70)
+		So(orgQuota.TotalServiceKeys, ShouldEqual, 80)
+		So(orgQuota.TotalReservedRoutePorts, ShouldEqual, 90)
+	})
+}

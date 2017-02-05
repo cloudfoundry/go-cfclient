@@ -147,6 +147,107 @@ const orgSpacesPayload = `{
    ]
 }`
 
+const orgSummaryPayload = `{
+   "guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+   "name": "system",
+   "status": "active",
+   "spaces": [
+      {
+         "guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+         "name": "test",
+         "service_count": 1,
+         "app_count": 2,
+         "mem_dev_total": 32,
+         "mem_prod_total": 64
+      }
+   ]
+}`
+
+const orgQuotaPayload = `{
+   "metadata": {
+      "guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+      "url": "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b",
+      "created_at": "2017-01-18T16:39:10Z",
+      "updated_at": "2017-01-18T16:46:20Z"
+   },
+   "entity": {
+      "name": "test-2",
+      "non_basic_services_allowed": false,
+      "total_services": 10,
+      "total_routes": 20,
+      "total_private_domains": 30,
+      "memory_limit": 40,
+      "trial_db_allowed": true,
+      "instance_memory_limit": 50,
+      "app_instance_limit": 60,
+      "app_task_limit": 70,
+      "total_service_keys": 80,
+      "total_reserved_route_ports": 90
+   }
+}`
+
+const listOrgQuotasPayloadPage1 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/quota_definitions_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "6f9d3100-44ab-49e2-a4f8-9d7d67651ae7",
+            "url": "/v2/quota_definitions/6f9d3100-44ab-49e2-a4f8-9d7d67651ae7",
+            "created_at": "2017-01-18T16:39:10Z",
+            "updated_at": "2017-01-18T16:46:20Z"
+         },
+         "entity": {
+            "name": "test-1",
+            "non_basic_services_allowed": true,
+            "total_services": -1,
+            "total_routes": 100,
+            "total_private_domains": -1,
+            "memory_limit": 102400,
+            "trial_db_allowed": false,
+            "instance_memory_limit": -1,
+            "app_instance_limit": -1,
+            "app_task_limit": -1,
+            "total_service_keys": -1,
+            "total_reserved_route_ports": -1
+         }
+      }
+   ]
+}`
+
+const listOrgQuotasPayloadPage2 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+            "url": "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b",
+            "created_at": "2017-01-18T16:39:10Z",
+            "updated_at": "2017-01-18T16:46:20Z"
+         },
+         "entity": {
+            "name": "test-2",
+            "non_basic_services_allowed": false,
+            "total_services": 10,
+            "total_routes": 20,
+            "total_private_domains": 30,
+            "memory_limit": 40,
+            "trial_db_allowed": true,
+            "instance_memory_limit": 50,
+            "app_instance_limit": 60,
+            "app_task_limit": 70,
+            "total_service_keys": 80,
+            "total_reserved_route_ports": 90
+         }
+      }
+   ]
+}`
+
 const emptyResources = `{
    "total_results": 0,
    "total_pages": 1,
@@ -264,6 +365,180 @@ const listSpacesPayloadPage2 = `{
             "app_events_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/app_events",
             "events_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/events",
             "security_groups_url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982/security_groups"
+         }
+      }
+   ]
+}`
+
+const spaceSummaryPayload = `{
+   "guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+   "name": "test",
+   "apps": [
+      {
+         "guid": "b5f0d1bd-a3a9-40a4-af1a-312ad26e5379",
+         "urls": [
+            "test-app.local.pcfdev.io"
+         ],
+         "routes": [
+            {
+               "guid": "0b44af3e-77e0-4821-abd6-18d8c79309e6",
+               "host": "test-app",
+               "port": null,
+               "path": "",
+               "domain": {
+                  "guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+                  "name": "local.pcfdev.io"
+               }
+            }
+         ],
+         "service_count": 1,
+         "service_names": [
+            "test-service"
+         ],
+         "running_instances": 1,
+         "name": "test-app",
+         "production": false,
+         "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+         "stack_guid": "67e019a3-322a-407a-96e0-178e95bd0e55",
+         "buildpack": "ruby_buildpack",
+         "detected_buildpack": "",
+         "detected_buildpack_guid": "d5860c89-fb0a-49f4-a8b7-3220ff91c91d",
+         "environment_json": {},
+         "memory": 256,
+         "instances": 1,
+         "disk_quota": 512,
+         "state": "STARTED",
+         "version": "fa47ec0a-adba-4cc5-b0ee-a8570dc49b3d",
+         "command": null,
+         "console": false,
+         "debug": null,
+         "staging_task_id": "a21d69a7-0878-4841-ab53-4b515397dc27",
+         "package_state": "STAGED",
+         "health_check_type": "port",
+         "health_check_timeout": null,
+         "staging_failed_reason": null,
+         "staging_failed_description": null,
+         "diego": true,
+         "docker_image": null,
+         "package_updated_at": "2017-02-05T12:18:04Z",
+         "detected_start_command": "rackup -p $PORT",
+         "enable_ssh": true,
+         "docker_credentials_json": {
+            "redacted_message": "[PRIVATE DATA HIDDEN]"
+         },
+         "ports": null
+      }
+   ],
+   "services": [
+      {
+         "guid": "3c5c758c-6b76-46f6-89d5-677909bfc975",
+         "name": "test-service",
+         "bound_app_count": 1,
+         "last_operation": {
+            "type": "create",
+            "state": "succeeded",
+            "description": "",
+            "updated_at": "2017-02-05T11:56:14Z",
+            "created_at": "2017-02-05T11:56:14Z"
+         },
+         "dashboard_url": null,
+         "service_plan": {
+            "guid": "25e717d2-59a1-4cd2-a792-04508f816776",
+            "name": "test-plan",
+            "service": {
+               "guid": "84c238f4-3961-4b10-8406-9003374c1f2b",
+               "label": "test-service",
+               "provider": null,
+               "version": null
+            }
+         }
+      }
+   ]
+}`
+
+const spaceQuotaPayload = `{
+   "metadata": {
+      "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+      "url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977",
+      "created_at": "2017-02-04T18:11:49Z",
+      "updated_at": "2017-02-04T18:11:49Z"
+   },
+   "entity": {
+      "name": "test-2",
+      "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+      "non_basic_services_allowed": false,
+      "total_services": 10,
+      "total_routes": 20,
+      "memory_limit": 30,
+      "instance_memory_limit": 40,
+      "app_instance_limit": 50,
+      "app_task_limit": 60,
+      "total_service_keys": 70,
+      "total_reserved_route_ports": 80,
+      "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+      "spaces_url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces"
+   }
+}`
+
+const listSpaceQuotasPayloadPage1 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/space_quota_definitions_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "889aa2ed-a883-4cc0-abe5-804b2503f15d",
+            "url": "/v2/space_quota_definitions/889aa2ed-a883-4cc0-abe5-804b2503f15d",
+            "created_at": "2017-02-04T18:11:49Z",
+            "updated_at": "2017-02-04T18:11:49Z"
+         },
+         "entity": {
+            "name": "test-1",
+            "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "non_basic_services_allowed": true,
+            "total_services": -1,
+            "total_routes": 100,
+            "memory_limit": 102400,
+            "instance_memory_limit": -1,
+            "app_instance_limit": -1,
+            "app_task_limit": -1,
+            "total_service_keys": -1,
+            "total_reserved_route_ports": -1,
+            "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "spaces_url": "/v2/space_quota_definitions/889aa2ed-a883-4cc0-abe5-804b2503f15d/spaces"
+         }
+      }
+   ]
+}`
+
+const listSpaceQuotasPayloadPage2 = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977",
+            "created_at": "2017-02-04T18:11:49Z",
+            "updated_at": "2017-02-04T18:11:49Z"
+         },
+         "entity": {
+            "name": "test-2",
+            "organization_guid": "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "non_basic_services_allowed": false,
+            "total_services": 10,
+            "total_routes": 20,
+            "memory_limit": 30,
+            "instance_memory_limit": 40,
+            "app_instance_limit": 50,
+            "app_task_limit": 60,
+            "total_service_keys": 70,
+            "total_reserved_route_ports": 80,
+            "organization_url": "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
+            "spaces_url": "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces"
          }
       }
    ]
