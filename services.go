@@ -49,6 +49,6 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	return services, nil
 }
 
-func (c *Client) ListServices(query url.Values) ([]Service, error) {
+func (c *Client) ListServices() ([]Service, error) {
 	return c.ListServicesByQuery(nil)
 }
