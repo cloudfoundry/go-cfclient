@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 )
 
@@ -172,4 +173,15 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	orgQuota.Guid = orgQuotaResource.Meta.Guid
 	orgQuota.c = o.c
 	return orgQuota, nil
+}
+
+func (c *Client) DeleteOrg(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/organizations/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
 }

@@ -116,3 +116,19 @@ func TestOrgQuota(t *testing.T) {
 		So(orgQuota.TotalReservedRoutePorts, ShouldEqual, 90)
 	})
 }
+
+func TestDeleteOrg(t *testing.T) {
+	Convey("Delete org", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b")
+		So(err, ShouldBeNil)
+	})
+}
