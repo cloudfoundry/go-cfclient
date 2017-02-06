@@ -20,18 +20,31 @@ type ServiceInstanceResource struct {
 }
 
 type ServiceInstance struct {
-	Guid               string `json:"guid"`
-	ServicePlanGuid    string `json:"service_plan_guid"`
-	Name               string `json:"name"`
-	SpaceGuid          string `json:"space_guid"`
-	DashboardUrl       string `json:"dashboard_url"`
-	Type               string `json:"type"`
-	SpaceUrl           string `json:"space_url"`
-	ServicePlanUrl     string `json:"service_plan_url"`
-	ServiceBindingsUrl string `json:"service_bindings_url"`
-	ServiceKeysUrl     string `json:"service_keys_url"`
-	RoutesUrl          string `json:"routes_url"`
+	Name               string                 `json:"name"`
+	Credentials        map[string]interface{} `json:"credentials"`
+	ServicePlanGuid    string                 `json:"service_plan_guid"`
+	SpaceGuid          string                 `json:"space_guid"`
+	DashboardUrl       string                 `json:"dashboard_url"`
+	Type               string                 `json:"type"`
+	LastOperation      LastOperation          `json:"last_operation"`
+	Tags               []string               `json:"tags"`
+	ServiceGuid        string                 `json:"service_guid"`
+	SpaceUrl           string                 `json:"space_url"`
+	ServicePlanUrl     string                 `json:"service_plan_url"`
+	ServiceBindingsUrl string                 `json:"service_bindings_url"`
+	ServiceKeysUrl     string                 `json:"service_keys_url"`
+	RoutesUrl          string                 `json:"routes_url"`
+	ServiceUrl         string                 `json:"service_url"`
+	Guid               string                 `json:"guid"`
 	c                  *Client
+}
+
+type LastOperation struct {
+	Type        string `json:"type"`
+	State       string `json:"state"`
+	Description string `json:"description"`
+	UpdatedAt   string `json:"updated_at"`
+	CreatedAt   string `json:"created_at"`
 }
 
 func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]ServiceInstance, error) {

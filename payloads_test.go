@@ -1120,6 +1120,7 @@ var serviceInstancePayload = `{
    "entity": {
       "name": "fortunes-db",
       "credentials": {},
+      "service_guid": "440ce9d9-b108-4bbe-80b4-08338f3cc25b",
       "service_plan_guid": "f48419f7-4717-4706-86e4-a24973848a77",
       "space_guid": "21e5fdc7-5131-4743-8447-6373cf336a77",
       "gateway_data": null,
@@ -1137,7 +1138,8 @@ var serviceInstancePayload = `{
       "service_plan_url": "/v2/service_plans/f48419f7-4717-4706-86e4-a24973848a77",
       "service_bindings_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_bindings",
       "service_keys_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_keys",
-      "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes"
+      "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes",
+      "service_url": "/v2/services/440ce9d9-b108-4bbe-80b4-08338f3cc25b"
    }
 }`
 
@@ -1157,6 +1159,7 @@ var listServiceInstancePayload = `{
       "entity": {
         "name": "fortunes-db",
         "credentials": {},
+        "service_guid": "440ce9d9-b108-4bbe-80b4-08338f3cc25b",
         "service_plan_guid": "f48419f7-4717-4706-86e4-a24973848a77",
         "space_guid": "21e5fdc7-5131-4743-8447-6373cf336a77",
         "gateway_data": null,
@@ -1174,7 +1177,8 @@ var listServiceInstancePayload = `{
         "service_plan_url": "/v2/service_plans/f48419f7-4717-4706-86e4-a24973848a77",
         "service_bindings_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_bindings",
         "service_keys_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_keys",
-        "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes"
+        "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes",
+        "service_url": "/v2/services/440ce9d9-b108-4bbe-80b4-08338f3cc25b"
       }
     },
     {
@@ -1187,6 +1191,7 @@ var listServiceInstancePayload = `{
       "entity": {
         "name": "fortunes-db",
         "credentials": {},
+        "service_guid": "440ce9d9-b108-4bbe-80b4-08338f3cc25b",
         "service_plan_guid": "f48419f7-4717-4706-86e4-a24973848a77",
         "space_guid": "21e5fdc7-5131-4743-8447-6373cf336a77",
         "gateway_data": null,
@@ -1204,7 +1209,8 @@ var listServiceInstancePayload = `{
         "service_plan_url": "/v2/service_plans/f48419f7-4717-4706-86e4-a24973848a77",
         "service_bindings_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_bindings",
         "service_keys_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_keys",
-        "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes"
+        "routes_url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes",
+        "service_url": "/v2/services/440ce9d9-b108-4bbe-80b4-08338f3cc25b"
       }
     }
   ]
