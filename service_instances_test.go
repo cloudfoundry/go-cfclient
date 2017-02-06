@@ -42,8 +42,18 @@ func TestServiceInstanceByGuid(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		expected := ServiceInstance{
-			Guid:               "8423ca96-90ad-411f-b77a-0907844949fc",
-			Name:               "fortunes-db",
+			Guid:        "8423ca96-90ad-411f-b77a-0907844949fc",
+			Credentials: map[string]interface{}{},
+			Name:        "fortunes-db",
+			LastOperation: LastOperation{
+				Type:        "create",
+				State:       "succeeded",
+				Description: "",
+				UpdatedAt:   "",
+				CreatedAt:   "2016-10-21T18:22:56Z",
+			},
+			Tags:               []string{},
+			ServiceGuid:        "440ce9d9-b108-4bbe-80b4-08338f3cc25b",
 			ServicePlanGuid:    "f48419f7-4717-4706-86e4-a24973848a77",
 			SpaceGuid:          "21e5fdc7-5131-4743-8447-6373cf336a77",
 			DashboardUrl:       "https://p-mysql.system.example.com/manage/instances/8423ca96-90ad-411f-b77a-0907844949fc",
@@ -53,6 +63,7 @@ func TestServiceInstanceByGuid(t *testing.T) {
 			ServiceBindingsUrl: "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_bindings",
 			ServiceKeysUrl:     "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/service_keys",
 			RoutesUrl:          "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/routes",
+			ServiceUrl:         "/v2/services/440ce9d9-b108-4bbe-80b4-08338f3cc25b",
 			c:                  client,
 		}
 		So(service, ShouldResemble, expected)
