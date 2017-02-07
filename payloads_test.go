@@ -456,6 +456,41 @@ const spaceSummaryPayload = `{
    ]
 }`
 
+const spaceRolesPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "uaa-id-363",
+        "url": "/v2/users/uaa-id-363",
+        "created_at": "2016-06-08T16:41:40Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "everything@example.com",
+        "space_roles": [
+          "space_developer",
+          "space_manager",
+          "space_auditor"
+        ],
+        "spaces_url": "/v2/users/uaa-id-363/spaces",
+        "organizations_url": "/v2/users/uaa-id-363/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-363/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-363/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-363/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-363/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-363/audited_spaces"
+      }
+    }
+  ]
+}`
+
 const spaceQuotaPayload = `{
    "metadata": {
       "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",

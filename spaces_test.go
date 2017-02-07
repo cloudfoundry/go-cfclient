@@ -133,3 +133,39 @@ func TestSpaceSummary(t *testing.T) {
 		So(summary.Services[0].BoundAppCount, ShouldEqual, 1)
 	})
 }
+
+func TestSpaceRoles(t *testing.T) {
+	Convey("Get space roles", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "494d8b64-8181-4183-a6d3-6279db8fec6e",
+			c:    client,
+		}
+
+		roles, err := space.Roles()
+		So(err, ShouldBeNil)
+
+		So(len(roles), ShouldEqual, 1)
+		So(roles[0].Guid, ShouldEqual, "uaa-id-363")
+		So(roles[0].Admin, ShouldEqual, false)
+		So(roles[0].Active, ShouldEqual, false)
+		So(roles[0].DefaultSpaceGuid, ShouldEqual, "")
+		So(roles[0].Username, ShouldEqual, "everything@example.com")
+		So(roles[0].SpaceRoles, ShouldResemble, []string{"space_developer", "space_manager", "space_auditor"})
+		So(roles[0].SpacesUrl, ShouldEqual, "/v2/users/uaa-id-363/spaces")
+		So(roles[0].OrganizationsUrl, ShouldEqual, "/v2/users/uaa-id-363/organizations")
+		So(roles[0].ManagedOrganizationsUrl, ShouldEqual, "/v2/users/uaa-id-363/managed_organizations")
+		So(roles[0].BillingManagedOrganizationsUrl, ShouldEqual, "/v2/users/uaa-id-363/billing_managed_organizations")
+		So(roles[0].AuditedOrganizationsUrl, ShouldEqual, "/v2/users/uaa-id-363/audited_organizations")
+		So(roles[0].ManagedSpacesUrl, ShouldEqual, "/v2/users/uaa-id-363/managed_spaces")
+		So(roles[0].AuditedSpacesUrl, ShouldEqual, "/v2/users/uaa-id-363/audited_spaces")
+	})
+}
