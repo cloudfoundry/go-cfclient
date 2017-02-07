@@ -1216,6 +1216,64 @@ var listServiceInstancePayload = `{
   ]
 }`
 
+const listRoutesPayloadPage1 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/routes_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "24707add-83b8-4fd8-a8f4-b7297199c805",
+            "url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805",
+            "created_at": "2017-02-06T14:13:57Z",
+            "updated_at": "2017-02-06T14:13:57Z"
+         },
+         "entity": {
+            "host": "test-1",
+            "path": "/foo",
+            "domain_guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "service_instance_guid": null,
+            "port": null,
+            "domain_url": "/v2/shared_domains/0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_url": "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "apps_url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805/apps",
+            "route_mappings_url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805/route_mappings"
+         }
+      }
+   ]
+}`
+
+const listRoutesPayloadPage2 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "1aba0d30-eb57-4543-a805-0d1c77171b4d",
+            "url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d",
+            "created_at": "2017-02-07T03:57:17Z",
+            "updated_at": "2017-02-07T03:57:17Z"
+         },
+         "entity": {
+            "host": "test-2",
+            "path": "",
+            "domain_guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "service_instance_guid": null,
+            "port": null,
+            "domain_url": "/v2/shared_domains/0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_url": "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "apps_url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d/apps",
+            "route_mappings_url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d/route_mappings"
+         }
+      }
+   ]
+}`
+
 const listStacksPayloadPage1 string = `{
    "total_results": 2,
    "total_pages": 2,
@@ -1236,6 +1294,7 @@ const listStacksPayloadPage1 string = `{
       }
    ]
 }`
+
 const listStacksPayloadPage2 string = `{
    "total_results": 2,
    "total_pages": 2,
