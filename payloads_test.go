@@ -711,7 +711,8 @@ const listAppsPayload = `{
             "space_guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "stack_guid": "2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
             "buildpack": "https://github.com/cloudfoundry/buildpack-go.git",
-            "detected_buildpack": null,
+            "detected_buildpack": "",
+            "detected_buildpack_guid": "0d22f6a1-76c5-417f-ac6c-d9d21463ecbc",
             "environment_json": {
                "FOOBAR": "QUX"
             },
@@ -725,11 +726,22 @@ const listAppsPayload = `{
             "debug": null,
             "staging_task_id": "5879c8d06a10491a879734162000def8",
             "package_state": "PENDING",
+            "health_check_http_endpoint": null,
+            "health_check_type": "port",
             "health_check_timeout": null,
             "staging_failed_reason": null,
+            "staging_failed_description": null,
+            "diego": true,
             "docker_image": null,
             "package_updated_at": "2014-11-10T14:08:50+00:00",
             "detected_start_command": "app-launching-service-broker",
+            "enable_ssh": true,
+            "docker_credentials_json": {
+               "redacted_message": "[PRIVATE DATA HIDDEN]"
+            },
+            "ports": [
+               8080
+            ],
             "space_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "stack_url": "/v2/stacks/2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
             "events_url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/events",
@@ -1214,6 +1226,106 @@ var listServiceInstancePayload = `{
       }
     }
   ]
+}`
+
+const listRoutesPayloadPage1 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/routes_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "24707add-83b8-4fd8-a8f4-b7297199c805",
+            "url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805",
+            "created_at": "2017-02-06T14:13:57Z",
+            "updated_at": "2017-02-06T14:13:57Z"
+         },
+         "entity": {
+            "host": "test-1",
+            "path": "/foo",
+            "domain_guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "service_instance_guid": null,
+            "port": null,
+            "domain_url": "/v2/shared_domains/0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_url": "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "apps_url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805/apps",
+            "route_mappings_url": "/v2/routes/24707add-83b8-4fd8-a8f4-b7297199c805/route_mappings"
+         }
+      }
+   ]
+}`
+
+const listRoutesPayloadPage2 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "1aba0d30-eb57-4543-a805-0d1c77171b4d",
+            "url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d",
+            "created_at": "2017-02-07T03:57:17Z",
+            "updated_at": "2017-02-07T03:57:17Z"
+         },
+         "entity": {
+            "host": "test-2",
+            "path": "",
+            "domain_guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "service_instance_guid": null,
+            "port": null,
+            "domain_url": "/v2/shared_domains/0b183484-45cc-4855-94d4-892f80f20c13",
+            "space_url": "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e",
+            "apps_url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d/apps",
+            "route_mappings_url": "/v2/routes/1aba0d30-eb57-4543-a805-0d1c77171b4d/route_mappings"
+         }
+      }
+   ]
+}`
+
+const listStacksPayloadPage1 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/stacks_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "67e019a3-322a-407a-96e0-178e95bd0e55",
+            "url": "/v2/stacks/67e019a3-322a-407a-96e0-178e95bd0e55",
+            "created_at": "2017-01-18T16:39:11Z",
+            "updated_at": "2017-01-18T16:39:11Z"
+         },
+         "entity": {
+            "name": "cflinuxfs2",
+            "description": "Cloud Foundry Linux-based filesystem"
+         }
+      }
+   ]
+}`
+
+const listStacksPayloadPage2 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "a9be2e10-0164-401d-94e0-88455d614844",
+            "url": "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844",
+            "created_at": "2017-01-18T16:39:11Z",
+            "updated_at": "2017-01-18T16:39:11Z"
+         },
+         "entity": {
+            "name": "windows2012R2",
+            "description": "Experimental Windows runtime"
+         }
+      }
+   ]
 }`
 
 const listTasksPayload string = `
