@@ -23,12 +23,33 @@ type AppResource struct {
 }
 
 type App struct {
-	Guid        string                 `json:"guid"`
-	Name        string                 `json:"name"`
-	Environment map[string]interface{} `json:"environment_json"`
-	SpaceURL    string                 `json:"space_url"`
-	SpaceData   SpaceResource          `json:"space"`
-	c           *Client
+	Guid                     string                 `json:"guid"`
+	Name                     string                 `json:"name"`
+	Memory                   int                    `json:"memory"`
+	Instances                int                    `json:"instances"`
+	DiskQuota                int                    `json:"disk_quota"`
+	SpaceGuid                string                 `json:"space_guid"`
+	StackGuid                string                 `json:"stack_guid"`
+	State                    string                 `json:"state"`
+	Command                  string                 `json:"command"`
+	Buildpack                string                 `json:"buildpack"`
+	DetectedBuildpack        string                 `json:"detected_buildpack"`
+	DetectedBuildpackGuid    string                 `json:"detected_buildpack_guid"`
+	HealthCheckHttpEndpoint  string                 `json:"health_check_http_endpoint"`
+	HealthCheckType          string                 `json:"health_check_type"`
+	HealthCheckTimeout       int                    `json:"health_check_timeout"`
+	Diego                    bool                   `json:"diego"`
+	EnableSSH                bool                   `json:"enable_ssh"`
+	DetectedStartCommand     string                 `json:"detected_start_command"`
+	DockerImage              string                 `json:"docker_image"`
+	DockerCredentials        map[string]interface{} `json:"docker_credentials_json"`
+	Environment              map[string]interface{} `json:"environment_json"`
+	StagingFailedReason      string                 `json:"staging_failed_reason"`
+	StagingFailedDescription string                 `json:"staging_failed_description"`
+	Ports                    []int                  `json:"ports"`
+	SpaceURL                 string                 `json:"space_url"`
+	SpaceData                SpaceResource          `json:"space"`
+	c                        *Client
 }
 
 type AppInstance struct {

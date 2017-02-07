@@ -711,7 +711,8 @@ const listAppsPayload = `{
             "space_guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "stack_guid": "2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
             "buildpack": "https://github.com/cloudfoundry/buildpack-go.git",
-            "detected_buildpack": null,
+            "detected_buildpack": "",
+            "detected_buildpack_guid": "0d22f6a1-76c5-417f-ac6c-d9d21463ecbc",
             "environment_json": {
                "FOOBAR": "QUX"
             },
@@ -725,11 +726,22 @@ const listAppsPayload = `{
             "debug": null,
             "staging_task_id": "5879c8d06a10491a879734162000def8",
             "package_state": "PENDING",
+            "health_check_http_endpoint": null,
+            "health_check_type": "port",
             "health_check_timeout": null,
             "staging_failed_reason": null,
+            "staging_failed_description": null,
+            "diego": true,
             "docker_image": null,
             "package_updated_at": "2014-11-10T14:08:50+00:00",
             "detected_start_command": "app-launching-service-broker",
+            "enable_ssh": true,
+            "docker_credentials_json": {
+               "redacted_message": "[PRIVATE DATA HIDDEN]"
+            },
+            "ports": [
+               8080
+            ],
             "space_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "stack_url": "/v2/stacks/2c531037-68a2-4e2c-a9e0-71f9d0abf0d4",
             "events_url": "/v2/apps/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/events",
