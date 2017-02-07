@@ -1216,6 +1216,47 @@ var listServiceInstancePayload = `{
   ]
 }`
 
+const listStacksPayloadPage1 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/stacks_page_2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "67e019a3-322a-407a-96e0-178e95bd0e55",
+            "url": "/v2/stacks/67e019a3-322a-407a-96e0-178e95bd0e55",
+            "created_at": "2017-01-18T16:39:11Z",
+            "updated_at": "2017-01-18T16:39:11Z"
+         },
+         "entity": {
+            "name": "cflinuxfs2",
+            "description": "Cloud Foundry Linux-based filesystem"
+         }
+      }
+   ]
+}`
+const listStacksPayloadPage2 string = `{
+   "total_results": 2,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "a9be2e10-0164-401d-94e0-88455d614844",
+            "url": "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844",
+            "created_at": "2017-01-18T16:39:11Z",
+            "updated_at": "2017-01-18T16:39:11Z"
+         },
+         "entity": {
+            "name": "windows2012R2",
+            "description": "Experimental Windows runtime"
+         }
+      }
+   ]
+}`
+
 const listTasksPayload string = `
 {
 "pagination": {
