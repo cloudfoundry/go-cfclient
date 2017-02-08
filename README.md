@@ -23,12 +23,12 @@ import (
 )
 
 func main() {
-  c := &Config{
+  c := &cfclient.Config{
     ApiAddress:   "https://api.10.244.0.34.xip.io",
     Username:     "admin",
     Password:     "admin",
   }
-  client, _ := NewClient(c)
+  client, _ := cfclient.NewClient(c)
   apps, _ := client.ListApps()
   fmt.Println(apps)
 }
