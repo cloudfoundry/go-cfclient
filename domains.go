@@ -32,7 +32,7 @@ type Domain struct {
 
 func (c *Client) ListDomainsByQuery(query url.Values) ([]Domain, error) {
 	var domains []Domain
-	requestUrl := "/v2/private_domains" + query.Encode()
+	requestUrl := "/v2/private_domains?" + query.Encode()
 	for {
 		var domainResp DomainsResponse
 		r := c.NewRequest("GET", requestUrl)
