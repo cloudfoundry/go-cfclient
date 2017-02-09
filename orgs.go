@@ -83,6 +83,27 @@ func (c *Client) GetOrgByName(name string) (Org, error) {
 	return orgs[0], nil
 }
 
+func (c *Client) GetOrgByGuid(guid string) (Org, error) {
+	var orgRes OrgResource
+	r := c.NewRequest("GET", "/v2/organizations/"+guid)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Org{}, err
+	}
+	err = json.Unmarshal(body, &orgRes)
+	if err != nil {
+		return Org{}, err
+	}
+	orgRes.Entity.Guid = orgRes.Meta.Guid
+	orgRes.Entity.c = c
+	return orgRes.Entity, nil
+}
+
 func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
 	var orgResp OrgResponse
 	r := c.NewRequest("GET", requestUrl)
