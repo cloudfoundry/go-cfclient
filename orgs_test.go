@@ -30,6 +30,25 @@ func TestListOrgs(t *testing.T) {
 	})
 }
 
+func TestGetOrgByGuid(t *testing.T) {
+	Convey("List Org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org, err := client.GetOrgByGuid("1c0e6074-777f-450e-9abc-c42f39d9b75b")
+		So(err, ShouldBeNil)
+
+		So(org.Guid, ShouldEqual, "1c0e6074-777f-450e-9abc-c42f39d9b75b")
+		So(org.Name, ShouldEqual, "name-1716")
+	})
+}
+
 func TestOrgSpaces(t *testing.T) {
 	Convey("Get spaces by org", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, ""}, t)

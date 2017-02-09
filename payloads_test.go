@@ -114,6 +114,31 @@ const listOrgsPayloadPage2 = `{
 ]
 }`
 
+const orgByGuidPayload = `{
+  "metadata": {
+    "guid": "1c0e6074-777f-450e-9abc-c42f39d9b75b",
+    "url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b",
+    "created_at": "2016-06-08T16:41:33Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1716",
+    "billing_enabled": false,
+    "quota_definition_guid": "769e777f-92b6-4ba0-9e48-5f77e6293670",
+    "status": "active",
+    "quota_definition_url": "/v2/quota_definitions/769e777f-92b6-4ba0-9e48-5f77e6293670",
+    "spaces_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/spaces",
+    "domains_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/domains",
+    "private_domains_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/private_domains",
+    "users_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/users",
+    "managers_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/managers",
+    "billing_managers_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/billing_managers",
+    "auditors_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/auditors",
+    "app_events_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/app_events",
+    "space_quota_definitions_url": "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b/space_quota_definitions"
+  }
+}`
+
 const orgSpacesPayload = `{
    "total_results": 1,
    "total_pages": 1,
