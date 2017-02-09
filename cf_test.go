@@ -54,9 +54,9 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 				return output
 			})
 		} else if method == "POST" {
-			r.Post(endpoint, func(req *http.Request) string {
+			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
-				return output
+				return 201, output
 			})
 		} else if method == "DELETE" {
 			r.Delete(endpoint, func(req *http.Request) (int, string) {
