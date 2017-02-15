@@ -22,6 +22,7 @@ type SpaceResource struct {
 type Space struct {
 	Guid                string      `json:"guid"`
 	Name                string      `json:"name"`
+	OrganizationGuid    string      `json:"organization_guid"`
 	OrgURL              string      `json:"organization_url"`
 	OrgData             OrgResource `json:"organization"`
 	QuotaDefinitionGuid string      `json:"space_quota_definition_guid"`

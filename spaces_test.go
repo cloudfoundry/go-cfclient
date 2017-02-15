@@ -27,12 +27,16 @@ func TestListSpaces(t *testing.T) {
 		So(len(spaces), ShouldEqual, 4)
 		So(spaces[0].Guid, ShouldEqual, "8efd7c5c-d83c-4786-b399-b7bd548839e1")
 		So(spaces[0].Name, ShouldEqual, "dev")
+		So(spaces[0].OrganizationGuid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
 		So(spaces[1].Guid, ShouldEqual, "657b5923-7de0-486a-9928-b4d78ee24931")
 		So(spaces[1].Name, ShouldEqual, "demo")
+		So(spaces[1].OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 		So(spaces[2].Guid, ShouldEqual, "9ffd7c5c-d83c-4786-b399-b7bd54883977")
 		So(spaces[2].Name, ShouldEqual, "test")
+		So(spaces[2].OrganizationGuid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
 		So(spaces[3].Guid, ShouldEqual, "329b5923-7de0-486a-9928-b4d78ee24982")
 		So(spaces[3].Name, ShouldEqual, "prod")
+		So(spaces[3].OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 	})
 }
 
