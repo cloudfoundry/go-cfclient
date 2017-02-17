@@ -9,8 +9,8 @@ import (
 func TestListOrgs(t *testing.T) {
 	Convey("List Org", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/organizations", listOrgsPayload, ""},
-			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, ""},
+			{"GET", "/v2/organizations", listOrgsPayload, "", 200},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -32,7 +32,7 @@ func TestListOrgs(t *testing.T) {
 
 func TestGetOrgByGuid(t *testing.T) {
 	Convey("List Org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -51,7 +51,7 @@ func TestGetOrgByGuid(t *testing.T) {
 
 func TestOrgSpaces(t *testing.T) {
 	Convey("Get spaces by org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -71,7 +71,7 @@ func TestOrgSpaces(t *testing.T) {
 
 func TestOrgSummary(t *testing.T) {
 	Convey("Get org summary", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -104,7 +104,7 @@ func TestOrgSummary(t *testing.T) {
 
 func TestOrgQuota(t *testing.T) {
 	Convey("Get org quota", t, func() {
-		setup(MockRoute{"GET", "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b", orgQuotaPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b", orgQuotaPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -138,7 +138,7 @@ func TestOrgQuota(t *testing.T) {
 
 func TestDeleteOrg(t *testing.T) {
 	Convey("Delete org", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", ""}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -148,6 +148,92 @@ func TestDeleteOrg(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestAssociateManager(t *testing.T) {
+	Convey("Associate manager", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", associateOrgManagerPayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateManager("user-guid")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateManagerByUsername(t *testing.T) {
+	Convey("Associate manager by username", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgManagerPayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateManagerByUsername("user-name")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestRemoveManager(t *testing.T) {
+	Convey("Remove manager", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", "", "", 204}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveManager("user-guid")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveManagerByUsername(t *testing.T) {
+	Convey("Remove manager by username", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 204}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveManagerByUsername("user-name")
 		So(err, ShouldBeNil)
 	})
 }
