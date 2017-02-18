@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -42,6 +43,12 @@ type OrgSummarySpaces struct {
 	AppCount     int    `json:"app_count"`
 	MemDevTotal  int    `json:"mem_dev_total"`
 	MemProdTotal int    `json:"mem_prod_total"`
+}
+
+type OrgRequest struct {
+	Name                string `json:"name"`
+	Status              string `json:"status,omitempty"`
+	QuotaDefinitionGuid string `json:"quota_definition_guid,omitempty"`
 }
 
 func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
@@ -194,6 +201,33 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	orgQuota.Guid = orgQuotaResource.Meta.Guid
 	orgQuota.c = o.c
 	return orgQuota, nil
+}
+
+func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return Org{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/organizations", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Org{}, err
+	}
+	var orgResource OrgResource
+	err = json.Unmarshal(body, &orgResource)
+	org := orgResource.Entity
+	org.Guid = orgResource.Meta.Guid
+	org.c = c
+	return org, nil
 }
 
 func (c *Client) DeleteOrg(guid string) error {
