@@ -9,7 +9,7 @@ import (
 func TestListTasks(t *testing.T) {
 	Convey("List Tasks", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks", listTasksPayload, ""},
+			{"GET", "/v3/tasks", listTasksPayload, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -44,7 +44,7 @@ func TestListTasks(t *testing.T) {
 func TestCreateTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", createTaskPayload, ""},
+			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", createTaskPayload, "", 201},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -76,7 +76,7 @@ func TestCreateTask(t *testing.T) {
 func TestTerminateTask(t *testing.T) {
 	Convey("Terminate Task", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", "", ""},
+			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", "", "", 202},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -95,7 +95,7 @@ func TestTerminateTask(t *testing.T) {
 func TestGetTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", createTaskPayload, ""},
+			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", createTaskPayload, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -120,7 +120,7 @@ func TestGetTask(t *testing.T) {
 func TestTasksByApp(t *testing.T) {
 	Convey("List Tasks by App", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, ""},
+			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

@@ -9,8 +9,8 @@ import (
 func TestListRoutes(t *testing.T) {
 	Convey("List Routes", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/routes", listRoutesPayloadPage1, ""},
-			{"GET", "/v2/routes_page_2", listRoutesPayloadPage2, ""},
+			{"GET", "/v2/routes", listRoutesPayloadPage1, "", 200},
+			{"GET", "/v2/routes_page_2", listRoutesPayloadPage2, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
