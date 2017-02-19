@@ -9,8 +9,8 @@ import (
 func TestListOrgQuotas(t *testing.T) {
 	Convey("List Org Quotas", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage1, ""},
-			{"GET", "/v2/quota_definitions_page_2", listOrgQuotasPayloadPage2, ""},
+			{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage1, "", 200},
+			{"GET", "/v2/quota_definitions_page_2", listOrgQuotasPayloadPage2, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -43,7 +43,7 @@ func TestListOrgQuotas(t *testing.T) {
 
 func TestGetOrgQuotaByName(t *testing.T) {
 	Convey("Get Org Quota By Name", t, func() {
-		setup(MockRoute{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage2, ""}, t)
+		setup(MockRoute{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage2, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

@@ -21,6 +21,7 @@ type MockRoute struct {
 	Endpoint  string
 	Output    string
 	UserAgent string
+	Status    int
 }
 
 func setup(mock MockRoute, t *testing.T) {
@@ -48,6 +49,7 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		endpoint := mock.Endpoint
 		output := mock.Output
 		userAgent := mock.UserAgent
+		status := mock.Status
 		if method == "GET" {
 			r.Get(endpoint, func(req *http.Request) string {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
@@ -56,17 +58,17 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		} else if method == "POST" {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
-				return 201, output
+				return status, output
 			})
 		} else if method == "DELETE" {
 			r.Delete(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
-				return 204, output
+				return status, output
 			})
 		} else if method == "PUT" {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
-				return 202, output
+				return status, output
 			})
 		}
 	}

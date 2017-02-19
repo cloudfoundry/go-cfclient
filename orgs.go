@@ -203,6 +203,68 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	return orgQuota, nil
 }
 
+func (o *Org) AssociateManager(userGUID string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("PUT", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateManagerByUsername(name string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return Org{}, err
+	}
+	r := o.c.NewRequestWithBody("PUT", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) RemoveManager(userGUID string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("DELETE", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveManagerByUsername(name string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return err
+	}
+	r := o.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(req)
@@ -217,17 +279,7 @@ func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
 	if resp.StatusCode != http.StatusCreated {
 		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return Org{}, err
-	}
-	var orgResource OrgResource
-	err = json.Unmarshal(body, &orgResource)
-	org := orgResource.Entity
-	org.Guid = orgResource.Meta.Guid
-	org.c = c
-	return org, nil
+	return c.handleOrgResp(resp)
 }
 
 func (c *Client) DeleteOrg(guid string) error {
@@ -239,4 +291,21 @@ func (c *Client) DeleteOrg(guid string) error {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) handleOrgResp(resp *http.Response) (Org, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Org{}, err
+	}
+	var orgResource OrgResource
+	err = json.Unmarshal(body, &orgResource)
+	if err != nil {
+		return Org{}, err
+	}
+	org := orgResource.Entity
+	org.Guid = orgResource.Meta.Guid
+	org.c = c
+	return org, nil
 }
