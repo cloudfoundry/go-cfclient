@@ -9,8 +9,8 @@ import (
 func TestListSpaces(t *testing.T) {
 	Convey("List Space", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/spaces", listSpacesPayload, ""},
-			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, ""},
+			{"GET", "/v2/spaces", listSpacesPayload, "", 200},
+			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -42,7 +42,7 @@ func TestListSpaces(t *testing.T) {
 
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
-		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -67,7 +67,7 @@ func TestSpaceOrg(t *testing.T) {
 
 func TestSpaceQuota(t *testing.T) {
 	Convey("Get space quota", t, func() {
-		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -100,7 +100,7 @@ func TestSpaceQuota(t *testing.T) {
 
 func TestSpaceSummary(t *testing.T) {
 	Convey("Get space summary", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -140,7 +140,7 @@ func TestSpaceSummary(t *testing.T) {
 
 func TestSpaceRoles(t *testing.T) {
 	Convey("Get space roles", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

@@ -21,7 +21,7 @@ func TestDefaultConfig(t *testing.T) {
 
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -41,7 +41,7 @@ func TestMakeRequest(t *testing.T) {
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, ""}, t)
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
 		c := &Config{
 			ApiAddress: server.URL,
 			Username:   "foo",
