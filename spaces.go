@@ -1,9 +1,11 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 )
 
@@ -154,6 +156,42 @@ func (s *Space) Roles() ([]SpaceRole, error) {
 	return roles, nil
 }
 
+func (s *Space) AssociateAuditorByUsername(name string) (Space, error) {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/auditors", s.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return Space{}, err
+	}
+	r := s.c.NewRequestWithBody("PUT", requestUrl, buf)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return Space{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return s.c.handleSpaceResp(resp)
+}
+
+func (s *Space) RemoveAuditorByUsername(name string) error {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/auditors", s.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return err
+	}
+	r := s.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 	var spaces []Space
 	requestUrl := "/v2/spaces?" + query.Encode()
@@ -215,4 +253,21 @@ func (c *Client) getSpaceRolesResponse(requestUrl string) (SpaceRoleResponse, er
 		return roleResp, fmt.Errorf("Error unmarshalling space roles %v", err)
 	}
 	return roleResp, nil
+}
+
+func (c *Client) handleSpaceResp(resp *http.Response) (Space, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Space{}, err
+	}
+	var spaceResource SpaceResource
+	err = json.Unmarshal(body, &spaceResource)
+	if err != nil {
+		return Space{}, err
+	}
+	space := spaceResource.Entity
+	space.Guid = spaceResource.Meta.Guid
+	space.c = c
+	return space, nil
 }
