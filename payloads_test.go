@@ -1586,7 +1586,6 @@ const createTaskPayload = `
   }
 }
 `
-
 const listDomainsPayload = `{
   "total_results": 4,
   "total_pages": 1,
@@ -1665,4 +1664,112 @@ const postDomainPayload = `{
     "owning_organization_url": "/v2/organizations/8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
     "shared_organizations_url": "/v2/private_domains/b98aeca1-22b9-49f9-8428-3ace9ea2ba11/shared_organizations"
   }
+}`
+
+const ListBuildpacksPayload = `{
+  "total_results": 3,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": "/v2/buildpacksPage2",
+  "resources": [
+    {
+      "metadata": {
+        "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+        "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_1",
+        "position": 1,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1616"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "4de2ac22-ef36-4d62-9698-5f2b426748a9",
+        "url": "/v2/buildpacks/4de2ac22-ef36-4d62-9698-5f2b426748a9",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_2",
+        "position": 2,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1617"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "79f16936-56f1-41d5-a4c4-f0e9a8877791",
+        "url": "/v2/buildpacks/79f16936-56f1-41d5-a4c4-f0e9a8877791",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_3",
+        "position": 3,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1618"
+      }
+    }
+  ]
+}`
+
+const ListBuildpacksPayload2 = `{
+  "total_results": 3,
+  "total_pages": 1,
+  "prev_url": "/v2/buildpacks",
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+        "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_1",
+        "position": 1,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1616"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "4de2ac22-ef36-4d62-9698-5f2b426748a9",
+        "url": "/v2/buildpacks/4de2ac22-ef36-4d62-9698-5f2b426748a9",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_2",
+        "position": 2,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1617"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "79f16936-56f1-41d5-a4c4-f0e9a8877791",
+        "url": "/v2/buildpacks/79f16936-56f1-41d5-a4c4-f0e9a8877791",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name_3",
+        "position": 3,
+        "enabled": true,
+        "locked": false,
+        "filename": "name-1618"
+      }
+    }
+  ]
 }`
