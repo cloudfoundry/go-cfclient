@@ -9,6 +9,18 @@ import (
 	"net/url"
 )
 
+type SpaceRequest struct {
+	Name               string   `json:"name"`
+	OrganizationGuid   string   `json:"organization_guid"`
+	DeveloperGuid      []string `json:"developer_guids"`
+	ManagerGuid        []string `json:"manager_guids"`
+	AuditorGuid        []string `json:"auditor_guids"`
+	DomainGuid         []string `json:"domain_guids"`
+	SecurityGroupGuids []string `json:"security_group_guids"`
+	SpaceQuotaDefGuid  []string `json:"space_quota_definition_guid"`
+	AllowSSH           []string `json:"allow_ssh"`
+}
+
 type SpaceResponse struct {
 	Count     int             `json:"total_results"`
 	Pages     int             `json:"total_pages"`
@@ -154,6 +166,24 @@ func (s *Space) Roles() ([]SpaceRole, error) {
 		}
 	}
 	return roles, nil
+}
+
+func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return Space{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/spaces", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Space{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return c.handleSpaceResp(resp)
+
 }
 
 func (s *Space) AssociateAuditorByUsername(name string) (Space, error) {
