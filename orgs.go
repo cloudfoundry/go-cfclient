@@ -150,6 +150,7 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	}
 	for _, space := range spaceResp.Resources {
 		space.Entity.Guid = space.Meta.Guid
+		space.Entity.c = c
 		spaces = append(spaces, space.Entity)
 	}
 
