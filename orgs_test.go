@@ -191,6 +191,50 @@ func TestAssociateManager(t *testing.T) {
 	})
 }
 
+func TestAssociateAuditor(t *testing.T) {
+	Convey("Associate auditor", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", associateOrgAuditorPayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateAuditor("user-guid")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateUser(t *testing.T) {
+	Convey("Associate user", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", associateOrgUserPayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateUser("user-guid")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
 		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgManagerPayload, "", 201}, t)
@@ -235,6 +279,28 @@ func TestAssociateAuditorByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateUserByUsername(t *testing.T) {
+	Convey("Associate user by username", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateUserByUsername("user-name")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestRemoveManager(t *testing.T) {
 	Convey("Remove manager", t, func() {
 		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", "", "", 204}, t)
@@ -252,6 +318,48 @@ func TestRemoveManager(t *testing.T) {
 		}
 
 		err = org.RemoveManager("user-guid")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveAuditor(t *testing.T) {
+	Convey("Remove auditor", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", "", "", 204}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveAuditor("user-guid")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveUser(t *testing.T) {
+	Convey("Remove user", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", "", "", 204}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveUser("user-guid")
 		So(err, ShouldBeNil)
 	})
 }
@@ -294,6 +402,27 @@ func TestRemoveAuditorByUsername(t *testing.T) {
 		}
 
 		err = org.RemoveAuditorByUsername("user-name")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveUserByUsername(t *testing.T) {
+	Convey("Remove user by username", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", "", "", 204}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveUserByUsername("user-name")
 		So(err, ShouldBeNil)
 	})
 }
