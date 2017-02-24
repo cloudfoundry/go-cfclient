@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type serviceInstancesResponse struct {
+type ServiceInstancesResponse struct {
 	Count     int                       `json:"total_results"`
 	Pages     int                       `json:"total_pages"`
 	NextUrl   string                    `json:"next_url"`
@@ -52,7 +52,7 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]ServiceInstanc
 
 	requestUrl := "/v2/service_instances?" + query.Encode()
 	for {
-		var sir serviceInstancesResponse
+		var sir ServiceInstancesResponse
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {

@@ -7,13 +7,13 @@ import (
 	"net/url"
 )
 
-type servicesResponse struct {
+type ServicesResponse struct {
 	Count     int                `json:"total_results"`
 	Pages     int                `json:"total_pages"`
-	Resources []servicesResource `json:"resources"`
+	Resources []ServicesResource `json:"resources"`
 }
 
-type servicesResource struct {
+type ServicesResource struct {
 	Meta   Meta    `json:"metadata"`
 	Entity Service `json:"entity"`
 }
@@ -32,7 +32,7 @@ type ServiceSummary struct {
 
 func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	var services []Service
-	var serviceResp servicesResponse
+	var serviceResp ServicesResponse
 	r := c.NewRequest("GET", "/v2/services?"+query.Encode())
 	resp, err := c.DoRequest(r)
 	if err != nil {
