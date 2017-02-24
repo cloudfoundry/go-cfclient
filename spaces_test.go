@@ -40,6 +40,27 @@ func TestListSpaces(t *testing.T) {
 	})
 }
 
+func TestCreateSpace(t *testing.T) {
+	Convey("Create Space", t, func() {
+		setup(MockRoute{"POST", "/v2/spaces", spacePayload, "", 201}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		spaceRequest := SpaceRequest{Name: "test-space", OrganizationGuid: "da0dba14-6064-4f7a-b15a-ff9e677e49b2"}
+
+		space, err := client.CreateSpace(spaceRequest)
+		So(err, ShouldBeNil)
+
+		So(space.Name, ShouldEqual, "test-space")
+		So(space.OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
+	})
+}
+
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
 		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200}, t)
