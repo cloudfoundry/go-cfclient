@@ -33,10 +33,11 @@ type SecGroup struct {
 
 type SecGroupRule struct {
 	Protocol    string `json:"protocol"`
-	Type        string `json:"type,omitempty"`        //ICMP type. Only valid if Protocol=="icmp"
 	Ports       string `json:"ports,omitempty"`       //e.g. "4000-5000,9142"
 	Destination string `json:"destination"`           //CIDR Format
 	Description string `json:"description,omitempty"` //Optional description
+	Code        int    `json:"code,omitempty"`        // ICMP code
+	Type        int    `json:"type,omitempty"`        //ICMP type. Only valid if Protocol=="icmp"
 	Log         bool   `json:"log,omitempty"`         //If true, log this rule
 }
 
