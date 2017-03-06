@@ -99,14 +99,10 @@ func NewClient(config *Config) (client *Client, err error) {
 		config.UserAgent = defConfig.UserAgent
 	}
 	ctx := context.Background()
-	if config.SkipSslValidation == false {
-		ctx = context.WithValue(ctx, oauth2.HTTPClient, defConfig.HttpClient)
-	} else {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
-	}
+
+	tr := http.DefaultTransport.(*http.Transport)
+	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: config.SkipSslValidation}
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
@@ -182,7 +178,6 @@ func getUserTokenAuth(config *Config, endpoint *Endpoint, ctx context.Context) *
 	token := &oauth2.Token{
 		AccessToken: config.Token,
 		TokenType:   "Bearer"}
-
 
 	config.TokenSource = authConfig.TokenSource(ctx, token)
 	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
