@@ -89,6 +89,15 @@ type AppSummary struct {
 	Diego            bool   `json:"diego"`
 }
 
+type AppEnv struct {
+	// These can have arbitrary JSON so need to map to interface{}
+	Environment    map[string]interface{} `json:"environment_json"`
+	StagingEnv     map[string]interface{} `json:"staging_env_json"`
+	RunningEnv     map[string]interface{} `json:"running_env_json"`
+	SystemEnv      map[string]interface{} `json:"system_env_json"`
+	ApplicationEnv map[string]interface{} `json:"application_env_json"`
+}
+
 // Custom time types to handle non-RFC3339 formatting in API JSON
 
 type sinceTime struct {
@@ -217,6 +226,27 @@ func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {
 		return nil, fmt.Errorf("Error unmarshalling app instances %v", err)
 	}
 	return appInstances, nil
+}
+
+func (c *Client) GetAppEnv(guid string) (AppEnv, error) {
+	var appEnv AppEnv
+
+	requestURL := fmt.Sprintf("/v2/apps/%s/env", guid)
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return appEnv, fmt.Errorf("Error requesting app env %v", err)
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return appEnv, fmt.Errorf("Error reading app env %v", err)
+	}
+	err = json.Unmarshal(resBody, &appEnv)
+	if err != nil {
+		return appEnv, fmt.Errorf("Error unmarshalling app env %v", err)
+	}
+	return appEnv, nil
 }
 
 func (c *Client) GetAppStats(guid string) (map[string]AppStats, error) {
