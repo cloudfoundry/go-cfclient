@@ -31,8 +31,11 @@ type Route struct {
 }
 
 func (c *Client) ListRoutesByQuery(query url.Values) ([]Route, error) {
+	return c.fetchRoutes("/v2/routes?" + query.Encode())
+}
+
+func (c *Client) fetchRoutes(requestUrl string) ([]Route, error) {
 	var routes []Route
-	requestUrl := "/v2/routes?" + query.Encode()
 	for {
 		routesResp, err := c.getRoutesResponse(requestUrl)
 		if err != nil {

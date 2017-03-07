@@ -1157,6 +1157,35 @@ const appStatsPayload = `{
    }
 }`
 
+const appRoutesPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "311d34d1-c045-4853-845f-05132377ad7d",
+        "url": "/v2/routes/311d34d1-c045-4853-845f-05132377ad7d",
+        "created_at": "2016-06-08T16:41:44Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "host": "host-36",
+        "path": "/foo",
+        "domain_guid": "40a499f7-198a-4289-9aa2-605ba43f92ee",
+        "space_guid": "c7c0dd06-b078-43d7-adcb-3974cd785fdd",
+        "service_instance_guid": null,
+        "port": null,
+        "domain_url": "/v2/private_domains/40a499f7-198a-4289-9aa2-605ba43f92ee",
+        "space_url": "/v2/spaces/c7c0dd06-b078-43d7-adcb-3974cd785fdd",
+        "apps_url": "/v2/routes/311d34d1-c045-4853-845f-05132377ad7d/apps",
+        "route_mappings_url": "/v2/routes/311d34d1-c045-4853-845f-05132377ad7d/route_mappings"
+      }
+    }
+  ]
+}`
+
 const spacePayload = `{
    "metadata": {
       "guid": "a72fa1e8-c694-47b3-85f2-55f61fd00d73",

@@ -186,6 +186,32 @@ func TestGetAppStats(t *testing.T) {
 	})
 }
 
+func TestGetAppRoutes(t *testing.T) {
+	Convey("List app routes", t, func() {
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/routes", appRoutesPayload, "", 200}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		routes, err := client.GetAppRoutes("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
+		So(len(routes), ShouldEqual, 1)
+		So(routes[0].Guid, ShouldEqual, "311d34d1-c045-4853-845f-05132377ad7d")
+		So(routes[0].Host, ShouldEqual, "host-36")
+		So(routes[0].Path, ShouldEqual, "/foo")
+		So(routes[0].DomainGuid, ShouldEqual, "40a499f7-198a-4289-9aa2-605ba43f92ee")
+		So(routes[0].SpaceGuid, ShouldEqual, "c7c0dd06-b078-43d7-adcb-3974cd785fdd")
+		So(routes[0].ServiceInstanceGuid, ShouldEqual, "")
+		So(routes[0].Port, ShouldEqual, 0)
+
+	})
+}
+
 func TestKillAppInstance(t *testing.T) {
 	Convey("Kills an app instance", t, func() {
 		setup(MockRoute{"DELETE", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances/0", "", "", 204}, t)
