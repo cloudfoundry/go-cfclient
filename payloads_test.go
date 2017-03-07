@@ -1024,6 +1024,46 @@ const appPayload = `{
    }
 }`
 
+const appEnvPayload = `{
+  "staging_env_json": {
+    "STAGING_ENV": "staging_value"
+  },
+  "running_env_json": {
+    "RUNNING_ENV": "running_value"
+  },
+  "environment_json": {
+    "env_var": "env_val"
+  },
+  "system_env_json": {
+    "VCAP_SERVICES": {
+      "abc": 123
+    }
+  },
+  "application_env_json": {
+    "VCAP_APPLICATION": {
+      "limits": {
+        "fds": 16384,
+        "mem": 1024,
+        "disk": 1024
+      },
+      "application_name": "name-2245",
+      "application_uris": [
+
+      ],
+      "name": "name-2245",
+      "space_name": "name-2246",
+      "space_id": "3309d44f-78ae-4058-99e1-c50469d1e043",
+      "uris": [
+
+      ],
+      "users": null,
+      "application_id": "a7c47787-a982-467c-95d7-9ab17cbcc918",
+      "version": "ed59723c-d691-4d4f-ac5b-f174266c988f",
+      "application_version": "ed59723c-d691-4d4f-ac5b-f174266c988f"
+    }
+  }
+}`
+
 const appPayloadWithEnvironment_json = `{
    "metadata": {
    },
