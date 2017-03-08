@@ -29,6 +29,28 @@ func TestListDomains(t *testing.T) {
 	})
 }
 
+func TestListSharedDomains(t *testing.T) {
+	Convey("List shared domains", t, func() {
+		setup(MockRoute{"GET", "/v2/shared_domains", listSharedDomainsPayload, "", 200}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		domains, err := client.ListSharedDomains()
+		So(err, ShouldBeNil)
+
+		So(len(domains), ShouldEqual, 1)
+		So(domains[0].Guid, ShouldEqual, "91977695-8ad9-40db-858f-4df782603ec3")
+		So(domains[0].Name, ShouldEqual, "domain-49.example.com")
+		So(domains[0].RouterGroupGuid, ShouldEqual, "my-random-guid")
+		So(domains[0].RouterGroupType, ShouldEqual, "tcp")
+	})
+}
+
 func TestCreateDomain(t *testing.T) {
 	Convey("Create domain", t, func() {
 		setup(MockRoute{"POST", "/v2/private_domains", postDomainPayload, "", 201}, t)
