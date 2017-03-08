@@ -223,8 +223,15 @@ func (s *Space) RemoveAuditorByUsername(name string) error {
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
+	return c.fetchSpaces("/v2/spaces?" + query.Encode())
+}
+
+func (c *Client) ListSpaces() ([]Space, error) {
+	return c.ListSpacesByQuery(nil)
+}
+
+func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 	var spaces []Space
-	requestUrl := "/v2/spaces?" + query.Encode()
 	for {
 		spaceResp, err := c.getSpaceResponse(requestUrl)
 		if err != nil {
@@ -241,10 +248,6 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 		}
 	}
 	return spaces, nil
-}
-
-func (c *Client) ListSpaces() ([]Space, error) {
-	return c.ListSpacesByQuery(nil)
 }
 
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
