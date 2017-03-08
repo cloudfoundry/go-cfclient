@@ -16,9 +16,21 @@ type DomainsResponse struct {
 	Resources []DomainResource `json:"resources"`
 }
 
+type SharedDomainsResponse struct {
+	Count     int                    `json:"total_results"`
+	Pages     int                    `json:"total_pages"`
+	NextUrl   string                 `json:"next_url"`
+	Resources []SharedDomainResource `json:"resources"`
+}
+
 type DomainResource struct {
 	Meta   Meta   `json:"metadata"`
 	Entity Domain `json:"entity"`
+}
+
+type SharedDomainResource struct {
+	Meta   Meta         `json:"metadata"`
+	Entity SharedDomain `json:"entity"`
 }
 
 type Domain struct {
@@ -28,6 +40,14 @@ type Domain struct {
 	OwningOrganizationUrl  string `json:"owning_organization_url"`
 	SharedOrganizationsUrl string `json:"shared_organizations_url"`
 	c                      *Client
+}
+
+type SharedDomain struct {
+	Guid            string `json:"guid"`
+	Name            string `json:"name"`
+	RouterGroupGuid string `json:"router_group_guid"`
+	RouterGroupType string `json:"router_group_type"`
+	c               *Client
 }
 
 func (c *Client) ListDomainsByQuery(query url.Values) ([]Domain, error) {
@@ -66,6 +86,42 @@ func (c *Client) ListDomains() ([]Domain, error) {
 	return c.ListDomainsByQuery(nil)
 }
 
+func (c *Client) ListSharedDomainsByQuery(query url.Values) ([]SharedDomain, error) {
+	var domains []SharedDomain
+	requestUrl := "/v2/shared_domains?" + query.Encode()
+	for {
+		var domainResp SharedDomainsResponse
+		r := c.NewRequest("GET", requestUrl)
+		resp, err := c.DoRequest(r)
+		if err != nil {
+			return nil, fmt.Errorf("Error requesting shared domains %v", err)
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading shared domains request: %v", err)
+		}
+
+		err = json.Unmarshal(resBody, &domainResp)
+		if err != nil {
+			return nil, fmt.Errorf("Error unmarshaling shared domains %v", err)
+		}
+		for _, domain := range domainResp.Resources {
+			domain.Entity.Guid = domain.Meta.Guid
+			domain.Entity.c = c
+			domains = append(domains, domain.Entity)
+		}
+		requestUrl = domainResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return domains, nil
+}
+
+func (c *Client) ListSharedDomains() ([]SharedDomain, error) {
+	return c.ListSharedDomainsByQuery(nil)
+}
+
 func (c *Client) GetDomainByName(name string) (Domain, error) {
 	q := url.Values{}
 	q.Set("q", "name:"+name)
@@ -75,6 +131,19 @@ func (c *Client) GetDomainByName(name string) (Domain, error) {
 	}
 	if len(domains) == 0 {
 		return Domain{}, fmt.Errorf("Unable to find domain %s", name)
+	}
+	return domains[0], nil
+}
+
+func (c *Client) GetSharedDomainByName(name string) (SharedDomain, error) {
+	q := url.Values{}
+	q.Set("q", "name:"+name)
+	domains, err := c.ListSharedDomainsByQuery(q)
+	if err != nil {
+		return SharedDomain{}, nil
+	}
+	if len(domains) == 0 {
+		return SharedDomain{}, fmt.Errorf("Unable to find shared domain %s", name)
 	}
 	return domains[0], nil
 }
