@@ -249,6 +249,10 @@ func (c *Client) GetAppEnv(guid string) (AppEnv, error) {
 	return appEnv, nil
 }
 
+func (c *Client) GetAppRoutes(guid string) ([]Route, error) {
+	return c.fetchRoutes(fmt.Sprintf("/v2/apps/%s/routes", guid))
+}
+
 func (c *Client) GetAppStats(guid string) (map[string]AppStats, error) {
 	var appStats map[string]AppStats
 
