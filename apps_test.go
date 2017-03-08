@@ -201,6 +201,27 @@ func TestKillAppInstance(t *testing.T) {
 	})
 }
 
+func TestAppEnv(t *testing.T) {
+	Convey("Find app space", t, func() {
+		setup(MockRoute{"GET", "/v2/apps/a7c47787-a982-467c-95d7-9ab17cbcc918/env", appEnvPayload, "", 200}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		appEnv, err := client.GetAppEnv("a7c47787-a982-467c-95d7-9ab17cbcc918")
+		So(err, ShouldBeNil)
+		So(appEnv.StagingEnv, ShouldResemble, map[string]interface{}{"STAGING_ENV": "staging_value"})
+		So(appEnv.RunningEnv, ShouldResemble, map[string]interface{}{"RUNNING_ENV": "running_value"})
+		So(appEnv.Environment, ShouldResemble, map[string]interface{}{"env_var": "env_val"})
+		So(appEnv.SystemEnv["VCAP_SERVICES"].(map[string]interface{})["abc"], ShouldEqual, 123)
+		So(appEnv.ApplicationEnv["VCAP_APPLICATION"].(map[string]interface{})["application_name"], ShouldEqual, "name-2245")
+	})
+}
+
 func TestAppSpace(t *testing.T) {
 	Convey("Find app space", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload, "", 200}, t)
