@@ -10,7 +10,7 @@ import (
 func TestListTasks(t *testing.T) {
 	Convey("List Tasks", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks", listTasksPayload, "", 200},
+			{"GET", "/v3/tasks", listTasksPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -44,7 +44,7 @@ func TestListTasks(t *testing.T) {
 func TestListTasksByQuery(t *testing.T) {
 	Convey("List Tasks", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks?names=my-fancy-name", listTasksPayload, "", 200},
+			{"GET", "/v3/tasks", listTasksPayload, "", 200, "names=my-fancy-name&page=1"},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -57,6 +57,7 @@ func TestListTasksByQuery(t *testing.T) {
 
 		query := url.Values{}
 		query.Add("names", "my-fancy-name")
+		query.Add("page", "1")
 		task, err := client.ListTasksByQuery(query)
 		So(err, ShouldBeNil)
 
@@ -81,7 +82,7 @@ func TestListTasksByQuery(t *testing.T) {
 func TestCreateTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", createTaskPayload, "", 201},
+			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", createTaskPayload, "", 201, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -113,7 +114,7 @@ func TestCreateTask(t *testing.T) {
 func TestTerminateTask(t *testing.T) {
 	Convey("Terminate Task", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", "", "", 202},
+			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", "", "", 202, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -132,7 +133,7 @@ func TestTerminateTask(t *testing.T) {
 func TestGetTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", createTaskPayload, "", 200},
+			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", createTaskPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -157,7 +158,7 @@ func TestGetTask(t *testing.T) {
 func TestTasksByApp(t *testing.T) {
 	Convey("List Tasks by App", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200},
+			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -169,6 +170,45 @@ func TestTasksByApp(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		task, err := client.TasksByApp("ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
+		So(err, ShouldBeNil)
+
+		So(len(task), ShouldEqual, 2)
+
+		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
+		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].SequenceID, ShouldEqual, 1)
+		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].DiskInMb, ShouldEqual, 1024)
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].State, ShouldEqual, "FAILED")
+		So(task[1].SequenceID, ShouldEqual, 2)
+		So(task[1].MemoryInMb, ShouldEqual, 1024)
+		So(task[1].DiskInMb, ShouldEqual, 1024)
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+	})
+}
+
+
+func TestTasksByAppByQuery(t *testing.T) {
+	Convey("List Tasks by App", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200, "names=my-fancy-name&page=1"},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		query := url.Values{}
+		query.Add("names", "my-fancy-name")
+		query.Add("page", "1")
+		task, err := client.TasksByAppByQuery("ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5", query)
 		So(err, ShouldBeNil)
 
 		So(len(task), ShouldEqual, 2)

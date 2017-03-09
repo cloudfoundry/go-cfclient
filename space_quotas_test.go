@@ -9,8 +9,8 @@ import (
 func TestListSpaceQuotas(t *testing.T) {
 	Convey("List Space Quotas", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage1, "", 200},
-			{"GET", "/v2/space_quota_definitions_page_2", listSpaceQuotasPayloadPage2, "", 200},
+			{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage1, "", 200, ""},
+			{"GET", "/v2/space_quota_definitions_page_2", listSpaceQuotasPayloadPage2, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -41,7 +41,7 @@ func TestListSpaceQuotas(t *testing.T) {
 
 func TestGetSpaceQuotaByName(t *testing.T) {
 	Convey("Get Space Quota By Name", t, func() {
-		setup(MockRoute{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage2, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage2, "", 200, "q=name:test-2"}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

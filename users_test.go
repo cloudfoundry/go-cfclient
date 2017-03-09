@@ -9,8 +9,8 @@ import (
 func TestListUsers(t *testing.T) {
 	Convey("List Users", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users", listUsersPayload, "", 200},
-			{"GET", "/v2/usersPage2", listUsersPayloadPage2, "", 200},
+			{"GET", "/v2/users", listUsersPayload, "", 200, ""},
+			{"GET", "/v2/usersPage2", listUsersPayloadPage2, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -39,7 +39,7 @@ func TestListUsers(t *testing.T) {
 func TestListUserSpaces(t *testing.T) {
 	Convey("List User Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/spaces", listUserSpacesPayload, "", 200},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/spaces", listUserSpacesPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -63,7 +63,7 @@ func TestListUserSpaces(t *testing.T) {
 func TestListUserManagedSpaces(t *testing.T) {
 	Convey("List User Audited Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_spaces", listUserSpacesPayload, "", 200},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_spaces", listUserSpacesPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -87,7 +87,7 @@ func TestListUserManagedSpaces(t *testing.T) {
 func TestListUserAuditedSpaces(t *testing.T) {
 	Convey("List User Managed Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_spaces", listUserSpacesPayload, "", 200},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_spaces", listUserSpacesPayload, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
