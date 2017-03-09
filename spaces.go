@@ -187,18 +187,12 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 }
 
 func (s *Space) AssociateDeveloperByUsername(name string) (Space, error) {
-	fmt.Println("I'm here")
-	fmt.Println(s.Guid)
 	requestUrl := fmt.Sprintf("/v2/spaces/%s/developers", s.Guid)
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
 	if err != nil {
 		return Space{}, err
 	}
-	fmt.Println(requestUrl)
-	fmt.Println(name)
-	fmt.Println(s.c)
-	fmt.Println(s)
 	r := s.c.NewRequestWithBody("PUT", requestUrl, buf)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
