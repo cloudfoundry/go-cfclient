@@ -309,10 +309,12 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 			return nil, fmt.Errorf("Error unmarshaling response %v", err)
 		}
 
-		fmt.Printf("Error Code - %s\n", response.ErrorCode)
-		fmt.Printf("Code - %d\n", response.Code)
-		fmt.Printf("Description - %s\n", response.Description)
-		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return nil, fmt.Errorf(`Request failed CF API returned with status code %d
+-------------------------------
+Error Code  %s
+Code        %d
+Description %s`,
+			resp.StatusCode, response.ErrorCode, response.Code, response.Description)
 	}
 	//get the json from the response body
 	return respBodyToSecGroup(resp.Body, c)
