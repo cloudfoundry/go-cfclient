@@ -218,7 +218,7 @@ func (c *Client) BindRunningSecGroup(secGUID string) error {
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 201 { //201 Created
+	if resp.StatusCode != 200 { //200
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -234,7 +234,7 @@ func (c *Client) BindStagingSecGroup(secGUID string) error {
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 201 { //201 Created
+	if resp.StatusCode != 200 { //200
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
