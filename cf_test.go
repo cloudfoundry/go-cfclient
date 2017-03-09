@@ -3,12 +3,12 @@ package cfclient
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"testing"
 
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
-	"net/url"
 )
 
 var (

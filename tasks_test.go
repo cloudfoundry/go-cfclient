@@ -1,10 +1,10 @@
 package cfclient
 
 import (
+	"net/url"
 	"testing"
 	"time"
 	. "github.com/smartystreets/goconvey/convey"
-	"net/url"
 )
 
 func TestListTasks(t *testing.T) {

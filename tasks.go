@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"time"
 	"github.com/pkg/errors"
 	"net/url"
+	"time"
 )
 
 // TaskListResponse is the JSON response from the API.
@@ -103,6 +103,7 @@ func (c *Client) handleTasksApiCall(apiUrl string, query url.Values) ([]Task, er
 
 
 // ListTasks returns all tasks the user has access to.
+// See http://v3-apidocs.cloudfoundry.org/version/3.12.0/index.html#list-tasks
 func (c *Client) ListTasks() ([]Task, error) {
 	return c.handleTasksApiCall("/v3/tasks", url.Values{})
 }
@@ -126,7 +127,6 @@ func (c *Client) TasksByAppByQuery(guid string, query url.Values) ([]Task, error
 	uri := fmt.Sprintf("/v3/apps/%s/tasks", guid)
 	return c.handleTasksApiCall(uri, query)
 }
-
 
 func createReader(tr TaskRequest) (io.Reader, error) {
 	rmap := make(map[string]string)
