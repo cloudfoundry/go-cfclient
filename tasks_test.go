@@ -3,8 +3,8 @@ package cfclient
 import (
 	"testing"
 	"time"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"net/url"
 )
 
 func TestListTasks(t *testing.T) {
@@ -22,6 +22,42 @@ func TestListTasks(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		task, err := client.ListTasks()
+		So(err, ShouldBeNil)
+
+		So(len(task), ShouldEqual, 2)
+
+		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
+		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].SequenceID, ShouldEqual, 1)
+		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].DiskInMb, ShouldEqual, 1024)
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].State, ShouldEqual, "FAILED")
+		So(task[1].SequenceID, ShouldEqual, 2)
+		So(task[1].MemoryInMb, ShouldEqual, 1024)
+		So(task[1].DiskInMb, ShouldEqual, 1024)
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+	})
+}
+func TestListTasksByQuery(t *testing.T) {
+	Convey("List Tasks", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v3/tasks?names=my-fancy-name", listTasksPayload, "", 200},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		query := url.Values{}
+		query.Add("names", "my-fancy-name")
+		task, err := client.ListTasksByQuery(query)
 		So(err, ShouldBeNil)
 
 		So(len(task), ShouldEqual, 2)
