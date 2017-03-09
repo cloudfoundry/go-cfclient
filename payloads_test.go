@@ -1771,6 +1771,27 @@ const listDomainsPayload = `{
   ]
 }`
 
+const listSharedDomainsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "91977695-8ad9-40db-858f-4df782603ec3",
+        "url": "/v2/shared_domains/91977695-8ad9-40db-858f-4df782603ec3",
+        "created_at": "2016-06-08T16:41:37Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "domain-49.example.com",
+        "router_group_guid": "my-random-guid",
+        "router_group_type": "tcp"
+      }
+    }
+  ]
+}`
 const postDomainPayload = `{
   "metadata": {
     "guid": "b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
