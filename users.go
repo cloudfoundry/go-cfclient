@@ -62,16 +62,16 @@ func (c *Client) ListUsers() (Users, error) {
 	return c.ListUsersByQuery(nil)
 }
 
-func (c *Client) ListUserSpaces(spaceGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/spaces", spaceGuid))
+func (c *Client) ListUserSpaces(userGuid string) ([]Space, error) {
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/spaces", userGuid))
 }
 
-func (c *Client) ListUserAuditedSpaces(spaceGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/audited_spaces", spaceGuid))
+func (c *Client) ListUserAuditedSpaces(userGuid string) ([]Space, error) {
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/audited_spaces", userGuid))
 }
 
-func (c *Client) ListUserManagedSpaces(spaceGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", spaceGuid))
+func (c *Client) ListUserManagedSpaces(userGuid string) ([]Space, error) {
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", userGuid))
 }
 
 func (u Users) GetUserByUsername(username string) User {
