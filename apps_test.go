@@ -28,6 +28,8 @@ func TestListApps(t *testing.T) {
 
 		So(len(apps), ShouldEqual, 2)
 		So(apps[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
+		So(apps[0].CreatedAt, ShouldEqual, "2014-10-10T21:03:13+00:00")
+		So(apps[0].UpdatedAt, ShouldEqual, "2014-11-10T14:07:31+00:00")
 		So(apps[0].Name, ShouldEqual, "app-test")
 		So(apps[0].Memory, ShouldEqual, 256)
 		So(apps[0].Instances, ShouldEqual, 1)
@@ -50,6 +52,7 @@ func TestListApps(t *testing.T) {
 		So(apps[0].Environment["FOOBAR"], ShouldEqual, "QUX")
 		So(apps[0].StagingFailedReason, ShouldEqual, "")
 		So(apps[0].StagingFailedDescription, ShouldEqual, "")
+		So(apps[0].PackageState, ShouldEqual, "PENDING")
 		So(len(apps[0].Ports), ShouldEqual, 1)
 		So(apps[0].Ports[0], ShouldEqual, 8080)
 
