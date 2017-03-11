@@ -24,6 +24,8 @@ type AppResource struct {
 
 type App struct {
 	Guid                     string                 `json:"guid"`
+	CreatedAt                string                 `json:"created_at"`
+	UpdatedAt                string                 `json:"updated_at"`
 	Name                     string                 `json:"name"`
 	Memory                   int                    `json:"memory"`
 	Instances                int                    `json:"instances"`
@@ -31,6 +33,7 @@ type App struct {
 	SpaceGuid                string                 `json:"space_guid"`
 	StackGuid                string                 `json:"stack_guid"`
 	State                    string                 `json:"state"`
+	PackageState             string                 `json:"package_state"`
 	Command                  string                 `json:"command"`
 	Buildpack                string                 `json:"buildpack"`
 	DetectedBuildpack        string                 `json:"detected_buildpack"`
@@ -49,6 +52,7 @@ type App struct {
 	Ports                    []int                  `json:"ports"`
 	SpaceURL                 string                 `json:"space_url"`
 	SpaceData                SpaceResource          `json:"space"`
+	PackageUpdatedAt         string                 `json:"package_updated_at"`
 	c                        *Client
 }
 
@@ -187,6 +191,8 @@ func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
 
 		for _, app := range appResp.Resources {
 			app.Entity.Guid = app.Meta.Guid
+			app.Entity.CreatedAt = app.Meta.CreatedAt
+			app.Entity.UpdatedAt = app.Meta.UpdatedAt
 			app.Entity.SpaceData.Entity.Guid = app.Entity.SpaceData.Meta.Guid
 			app.Entity.SpaceData.Entity.OrgData.Entity.Guid = app.Entity.SpaceData.Entity.OrgData.Meta.Guid
 			app.Entity.c = c
