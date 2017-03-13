@@ -2,9 +2,10 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type RoutesResponse struct {
@@ -63,16 +64,16 @@ func (c *Client) getRoutesResponse(requestUrl string) (RoutesResponse, error) {
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return RoutesResponse{}, fmt.Errorf("Error requesting routes %v", err)
+		return RoutesResponse{}, errors.Wrap(err, "Error requesting routes")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return RoutesResponse{}, fmt.Errorf("Error reading routes body %v", err)
+		return RoutesResponse{}, errors.Wrap(err, "Error reading routes body")
 	}
 	err = json.Unmarshal(resBody, &routesResp)
 	if err != nil {
-		return RoutesResponse{}, fmt.Errorf("Error unmarshalling routes %v", err)
+		return RoutesResponse{}, errors.Wrap(err, "Error unmarshalling routes")
 	}
 	return routesResp, nil
 }

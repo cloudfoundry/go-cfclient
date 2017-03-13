@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type SpaceQuotasResponse struct {
@@ -78,16 +80,16 @@ func (c *Client) getSpaceQuotasResponse(requestUrl string) (SpaceQuotasResponse,
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return SpaceQuotasResponse{}, fmt.Errorf("Error requesting space quotas %v", err)
+		return SpaceQuotasResponse{}, errors.Wrap(err, "Error requesting space quotas")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceQuotasResponse{}, fmt.Errorf("Error reading space quotas body %v", err)
+		return SpaceQuotasResponse{}, errors.Wrap(err, "Error reading space quotas body")
 	}
 	err = json.Unmarshal(resBody, &spaceQuotasResp)
 	if err != nil {
-		return SpaceQuotasResponse{}, fmt.Errorf("Error unmarshalling space quotas %v", err)
+		return SpaceQuotasResponse{}, errors.Wrap(err, "Error unmarshalling space quotas")
 	}
 	return spaceQuotasResp, nil
 }

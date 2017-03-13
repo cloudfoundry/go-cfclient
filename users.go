@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type Users []User
@@ -88,16 +90,16 @@ func (c *Client) getUserResponse(requestUrl string) (UserResponse, error) {
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return UserResponse{}, fmt.Errorf("Error requesting users %v", err)
+		return UserResponse{}, errors.Wrap(err, "Error requesting users")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return UserResponse{}, fmt.Errorf("Error reading user request %v", err)
+		return UserResponse{}, errors.Wrap(err, "Error reading user request")
 	}
 	err = json.Unmarshal(resBody, &userResp)
 	if err != nil {
-		return UserResponse{}, fmt.Errorf("Error unmarshalling user %v", err)
+		return UserResponse{}, errors.Wrap(err, "Error unmarshalling user")
 	}
 	return userResp, nil
 }

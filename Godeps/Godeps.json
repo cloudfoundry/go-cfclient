@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/cloudfoundry-community/go-cfclient",
 	"GoVersion": "go1.5.3",
+	"GodepVersion": "v79",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/inject",
@@ -26,11 +27,76 @@
 			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
 		},
 		{
+			"ImportPath": "github.com/onsi/gomega/format",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/internal/assertion",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/internal/asyncassertion",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/internal/testingtsupport",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/matchers",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/bipartitegraph",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/edge",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/node",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/matchers/support/goraph/util",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega/types",
+			"Comment": "v1.0-35-g4dfabf7",
+			"Rev": "4dfabf7db2e4147ec99a86db32b2f2a3484cfee8"
+		},
+		{
 			"ImportPath": "github.com/oxtoacart/bpool",
 			"Rev": "754d38fccfc6e52083355014b6abc8d626445dfd"
 		},
 		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.0-3-gbfd5150",
+			"Rev": "bfd5150e4e41705ded2129ec33379de1cb90b513"
+		},
+		{
 			"ImportPath": "github.com/smartystreets/assertions",
+			"Comment": "1.5.0-414-g287b434",
+			"Rev": "287b4346dc4e71a038c346375a9d572453bc469b"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions/internal/go-render/render",
+			"Comment": "1.5.0-414-g287b434",
+			"Rev": "287b4346dc4e71a038c346375a9d572453bc469b"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions/internal/oglematchers",
 			"Comment": "1.5.0-414-g287b434",
 			"Rev": "287b4346dc4e71a038c346375a9d572453bc469b"
 		},
@@ -40,11 +106,29 @@
 			"Rev": "eb2e83c1df892d2c9ad5a3c85672da30be585dfd"
 		},
 		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey/gotest",
+			"Comment": "1.5.0-386-geb2e83c",
+			"Rev": "eb2e83c1df892d2c9ad5a3c85672da30be585dfd"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey/reporting",
+			"Comment": "1.5.0-386-geb2e83c",
+			"Rev": "eb2e83c1df892d2c9ad5a3c85672da30be585dfd"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "7dbad50ab5b31073856416cdcfeb2796d682f844"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "2baa8a1b9338cf13d9eeb27696d761155fa480be"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/clientcredentials",
+			"Rev": "2baa8a1b9338cf13d9eeb27696d761155fa480be"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "2baa8a1b9338cf13d9eeb27696d761155fa480be"
 		}
 	]
