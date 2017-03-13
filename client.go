@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -36,7 +37,8 @@ type Config struct {
 	ClientSecret      string `json:"client_secret"`
 	SkipSslValidation bool   `json:"skip_ssl_validation"`
 	HttpClient        *http.Client
-	Token             string `json:"auth_token"`
+	Timeout           time.Duration `json:"timeout"`
+	Token             string        `json:"auth_token"`
 	TokenSource       oauth2.TokenSource
 	UserAgent         string `json:"user_agent"`
 }
@@ -102,7 +104,7 @@ func NewClient(config *Config) (client *Client, err error) {
 
 	tr := http.DefaultTransport.(*http.Transport)
 	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: config.SkipSslValidation}
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr, Timeout: config.Timeout})
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
