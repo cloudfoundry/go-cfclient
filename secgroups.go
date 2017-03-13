@@ -15,6 +15,12 @@ type SecGroupResponse struct {
 	Resources []SecGroupResource `json:"resources"`
 }
 
+type SecGroupCreateResponse struct {
+	Code        int    `json:"code"`
+	ErrorCode   string `json:"error_code"`
+	Description string `json:"description"`
+}
+
 type SecGroupResource struct {
 	Meta   Meta     `json:"metadata"`
 	Entity SecGroup `json:"entity"`
@@ -294,7 +300,21 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 		return nil, err
 	}
 	if resp.StatusCode != 201 { // Both create and update should give 201 CREATED
-		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		var response SecGroupCreateResponse
+
+		bodyRaw, _ := ioutil.ReadAll(resp.Body)
+
+		err = json.Unmarshal(bodyRaw, &response)
+		if err != nil {
+			return nil, fmt.Errorf("Error unmarshaling response %v", err)
+		}
+
+		return nil, fmt.Errorf(`Request failed CF API returned with status code %d
+-------------------------------
+Error Code  %s
+Code        %d
+Description %s`,
+			resp.StatusCode, response.ErrorCode, response.Code, response.Description)
 	}
 	//get the json from the response body
 	return respBodyToSecGroup(resp.Body, c)
