@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"testing"
 	"time"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -189,7 +190,6 @@ func TestTasksByApp(t *testing.T) {
 		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
-
 
 func TestTasksByAppByQuery(t *testing.T) {
 	Convey("List Tasks by App", t, func() {

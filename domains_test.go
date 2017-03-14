@@ -31,7 +31,7 @@ func TestListDomains(t *testing.T) {
 
 func TestListSharedDomains(t *testing.T) {
 	Convey("List shared domains", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains", listSharedDomainsPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains", listSharedDomainsPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"github.com/pkg/errors"
 	"net/url"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // TaskListResponse is the JSON response from the API.
@@ -67,7 +68,7 @@ type TaskRequest struct {
 }
 
 func (c *Client) makeTaskListRequestWithParams(baseUrl string, query url.Values) ([]byte, error) {
-	requestUrl := baseUrl + "?" + query.Encode();
+	requestUrl := baseUrl + "?" + query.Encode()
 	req := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(req)
 	if err != nil {
@@ -100,7 +101,6 @@ func (c *Client) handleTasksApiCall(apiUrl string, query url.Values) ([]Task, er
 	}
 	return response.Tasks, nil
 }
-
 
 // ListTasks returns all tasks the user has access to.
 // See http://v3-apidocs.cloudfoundry.org/version/3.12.0/index.html#list-tasks

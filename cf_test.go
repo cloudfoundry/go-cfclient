@@ -18,11 +18,11 @@ var (
 )
 
 type MockRoute struct {
-	Method    string
-	Endpoint  string
-	Output    string
-	UserAgent string
-	Status    int
+	Method      string
+	Endpoint    string
+	Output      string
+	UserAgent   string
+	Status      int
 	QueryString string
 }
 
