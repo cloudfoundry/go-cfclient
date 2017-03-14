@@ -2,10 +2,10 @@ package cfclient
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io/ioutil"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -155,16 +155,17 @@ func (c *Client) getAppEventsResponse(query string) (AppEventResponse, error) {
 	r := c.NewRequest("GET", query)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return AppEventResponse{}, fmt.Errorf("Error requesting appevents %v", err)
+		return AppEventResponse{}, errors.Wrap(err, "Error requesting appevents")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return AppEventResponse{}, fmt.Errorf("Error reading appevents request %v", err)
+		return AppEventResponse{}, errors.Wrap(err, "Error reading appevents response body")
 	}
+
 	err = json.Unmarshal(resBody, &eventResponse)
 	if err != nil {
-		return AppEventResponse{}, fmt.Errorf("Error unmarshalling appevent %v", err)
+		return AppEventResponse{}, errors.Wrap(err, "Error unmarshalling appevent")
 	}
 	return eventResponse, nil
 }

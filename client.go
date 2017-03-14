@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -107,7 +107,7 @@ func NewClient(config *Config) (client *Client, err error) {
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
 	if err != nil {
-		return nil, fmt.Errorf("Could not get api /v2/info: %v", err)
+		return nil, errors.Wrap(err, "Could not get api /v2/info")
 	}
 
 	switch {
@@ -142,7 +142,7 @@ func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Conf
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
 
 	if err != nil {
-		return nil, fmt.Errorf("Error getting token: %v", err)
+		return nil, errors.Wrap(err, "Error getting token")
 	}
 
 	config.TokenSource = authConfig.TokenSource(ctx, token)
@@ -239,6 +239,15 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	}
 
 	resp, err := c.config.HttpClient.Do(req)
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		cfErr := &CloudFoundryErrors{}
+		if err := decodeBody(resp, cfErr); err != nil {
+			return resp, errors.Wrap(err, "Unable to decode body")
+		}
+		return nil, cfErr
+	}
+
 	return resp, err
 }
 
@@ -278,7 +287,7 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 func (c *Client) GetToken() (string, error) {
 	token, err := c.config.TokenSource.Token()
 	if err != nil {
-		return "", fmt.Errorf("Error getting bearer token: %v", err)
+		return "", errors.Wrap(err, "Error getting bearer token")
 	}
 	return "bearer " + token.AccessToken, nil
 }

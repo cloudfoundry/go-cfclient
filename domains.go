@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type DomainsResponse struct {
@@ -58,16 +60,16 @@ func (c *Client) ListDomainsByQuery(query url.Values) ([]Domain, error) {
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
-			return nil, fmt.Errorf("Error requesting domains %v", err)
+			return nil, errors.Wrap(err, "Error requesting domains")
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading domains request: %v", err)
+			return nil, errors.Wrap(err, "Error reading domains request")
 		}
 
 		err = json.Unmarshal(resBody, &domainResp)
 		if err != nil {
-			return nil, fmt.Errorf("Error unmarshaling domains %v", err)
+			return nil, errors.Wrap(err, "Error unmarshaling domains")
 		}
 		for _, domain := range domainResp.Resources {
 			domain.Entity.Guid = domain.Meta.Guid
@@ -94,16 +96,16 @@ func (c *Client) ListSharedDomainsByQuery(query url.Values) ([]SharedDomain, err
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
-			return nil, fmt.Errorf("Error requesting shared domains %v", err)
+			return nil, errors.Wrap(err, "Error requesting shared domains")
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading shared domains request: %v", err)
+			return nil, errors.Wrap(err, "Error reading shared domains request")
 		}
 
 		err = json.Unmarshal(resBody, &domainResp)
 		if err != nil {
-			return nil, fmt.Errorf("Error unmarshaling shared domains %v", err)
+			return nil, errors.Wrap(err, "Error unmarshaling shared domains")
 		}
 		for _, domain := range domainResp.Resources {
 			domain.Entity.Guid = domain.Meta.Guid
@@ -130,7 +132,7 @@ func (c *Client) GetDomainByName(name string) (Domain, error) {
 		return Domain{}, nil
 	}
 	if len(domains) == 0 {
-		return Domain{}, fmt.Errorf("Unable to find domain %s", name)
+		return Domain{}, errors.Wrapf(err, "Unable to find domain %s", name)
 	}
 	return domains[0], nil
 }
@@ -143,7 +145,7 @@ func (c *Client) GetSharedDomainByName(name string) (SharedDomain, error) {
 		return SharedDomain{}, nil
 	}
 	if len(domains) == 0 {
-		return SharedDomain{}, fmt.Errorf("Unable to find shared domain %s", name)
+		return SharedDomain{}, errors.Wrapf(err, "Unable to find shared domain %s", name)
 	}
 	return domains[0], nil
 }
@@ -159,7 +161,7 @@ func (c *Client) CreateDomain(name, orgGuid string) (*Domain, error) {
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return nil, errors.Wrapf(err, "Error creating domain %s, response code: %d", name, resp.StatusCode)
 	}
 	return respBodyToDomain(resp.Body, c)
 }
@@ -170,7 +172,7 @@ func (c *Client) DeleteDomain(guid string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return errors.Wrapf(err, "Error deleting domain %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
 }

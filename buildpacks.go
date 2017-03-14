@@ -2,8 +2,9 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+
+	"github.com/pkg/errors"
 )
 
 type BuildpackResponse struct {
@@ -53,16 +54,16 @@ func (c *Client) getBuildpackResponse(requestUrl string) (BuildpackResponse, err
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return BuildpackResponse{}, fmt.Errorf("Error requesting buildpacks %v", err)
+		return BuildpackResponse{}, errors.Wrap(err, "Error requesting buildpacks")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return BuildpackResponse{}, fmt.Errorf("Error reading buildpack request %v", err)
+		return BuildpackResponse{}, errors.Wrap(err, "Error reading buildpack request")
 	}
 	err = json.Unmarshal(resBody, &buildpackResp)
 	if err != nil {
-		return BuildpackResponse{}, fmt.Errorf("Error unmarshalling buildpack %v", err)
+		return BuildpackResponse{}, errors.Wrap(err, "Error unmarshalling buildpack")
 	}
 	return buildpackResp, nil
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type OrgQuotasResponse struct {
@@ -79,16 +81,16 @@ func (c *Client) getOrgQuotasResponse(requestUrl string) (OrgQuotasResponse, err
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return OrgQuotasResponse{}, fmt.Errorf("Error requesting org quotas %v", err)
+		return OrgQuotasResponse{}, errors.Wrap(err, "Error requesting org quotas")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return OrgQuotasResponse{}, fmt.Errorf("Error reading org quotas body %v", err)
+		return OrgQuotasResponse{}, errors.Wrap(err, "Error reading org quotas body")
 	}
 	err = json.Unmarshal(resBody, &orgQuotasResp)
 	if err != nil {
-		return OrgQuotasResponse{}, fmt.Errorf("Error unmarshalling org quotas %v", err)
+		return OrgQuotasResponse{}, errors.Wrap(err, "Error unmarshalling org quotas")
 	}
 	return orgQuotasResp, nil
 }
