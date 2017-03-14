@@ -2,9 +2,10 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type StacksResponse struct {
@@ -56,16 +57,16 @@ func (c *Client) getStacksResponse(requestUrl string) (StacksResponse, error) {
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return StacksResponse{}, fmt.Errorf("Error requesting stacks %v", err)
+		return StacksResponse{}, errors.Wrap(err, "Error requesting stacks")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return StacksResponse{}, fmt.Errorf("Error reading stacks body %v", err)
+		return StacksResponse{}, errors.Wrap(err, "Error reading stacks body")
 	}
 	err = json.Unmarshal(resBody, &stacksResp)
 	if err != nil {
-		return StacksResponse{}, fmt.Errorf("Error unmarshalling stacks %v", err)
+		return StacksResponse{}, errors.Wrap(err, "Error unmarshalling stacks")
 	}
 	return stacksResp, nil
 }

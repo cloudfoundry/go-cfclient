@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type SpaceRequest struct {
@@ -84,16 +86,16 @@ func (s *Space) Org() (Org, error) {
 	r := s.c.NewRequest("GET", s.OrgURL)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error requesting org %v", err)
+		return Org{}, errors.Wrap(err, "Error requesting org")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error reading org request %v", err)
+		return Org{}, errors.Wrap(err, "Error reading org request")
 	}
 
 	err = json.Unmarshal(resBody, &orgResource)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error unmarshaling org %v", err)
+		return Org{}, errors.Wrap(err, "Error unmarshaling org")
 	}
 	orgResource.Entity.Guid = orgResource.Meta.Guid
 	orgResource.Entity.c = s.c
@@ -110,16 +112,16 @@ func (s *Space) Quota() (*SpaceQuota, error) {
 	r := s.c.NewRequest("GET", requestUrl)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error requesting space quota %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error requesting space quota")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error reading space quota body %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error reading space quota body")
 	}
 	err = json.Unmarshal(resBody, &spaceQuotaResource)
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error unmarshalling space quota %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error unmarshalling space quota")
 	}
 	spaceQuota = &spaceQuotaResource.Entity
 	spaceQuota.Guid = spaceQuotaResource.Meta.Guid
@@ -133,16 +135,16 @@ func (s *Space) Summary() (SpaceSummary, error) {
 	r := s.c.NewRequest("GET", requestUrl)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error requesting space summary %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error requesting space summary")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error reading space summary body %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error reading space summary body")
 	}
 	err = json.Unmarshal(resBody, &spaceSummary)
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error unmarshalling space summary %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error unmarshalling space summary")
 	}
 	return spaceSummary, nil
 }
@@ -290,16 +292,16 @@ func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error requesting spaces %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error requesting spaces")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error reading space request %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error reading space request")
 	}
 	err = json.Unmarshal(resBody, &spaceResp)
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error unmarshalling space %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error unmarshalling space")
 	}
 	return spaceResp, nil
 }
@@ -309,16 +311,16 @@ func (c *Client) getSpaceRolesResponse(requestUrl string) (SpaceRoleResponse, er
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return roleResp, fmt.Errorf("Error requesting space roles %v", err)
+		return roleResp, errors.Wrap(err, "Error requesting space roles")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return roleResp, fmt.Errorf("Error reading space roles request %v", err)
+		return roleResp, errors.Wrap(err, "Error reading space roles request")
 	}
 	err = json.Unmarshal(resBody, &roleResp)
 	if err != nil {
-		return roleResp, fmt.Errorf("Error unmarshalling space roles %v", err)
+		return roleResp, errors.Wrap(err, "Error unmarshalling space roles")
 	}
 	return roleResp, nil
 }

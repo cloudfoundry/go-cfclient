@@ -2,9 +2,10 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type ServicesResponse struct {
@@ -36,16 +37,16 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	r := c.NewRequest("GET", "/v2/services?"+query.Encode())
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return nil, fmt.Errorf("Error requesting services %v", err)
+		return nil, errors.Wrap(err, "Error requesting services")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading services request: %v", err)
+		return nil, errors.Wrap(err, "Error reading services request:")
 	}
 
 	err = json.Unmarshal(resBody, &serviceResp)
 	if err != nil {
-		return nil, fmt.Errorf("Error unmarshaling services %v", err)
+		return nil, errors.Wrap(err, "Error unmarshaling services")
 	}
 	for _, service := range serviceResp.Resources {
 		service.Entity.Guid = service.Meta.Guid
