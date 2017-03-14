@@ -3,6 +3,7 @@ package cfclient
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -17,15 +18,24 @@ var (
 )
 
 type MockRoute struct {
-	Method    string
-	Endpoint  string
-	Output    string
-	UserAgent string
-	Status    int
+	Method      string
+	Endpoint    string
+	Output      string
+	UserAgent   string
+	Status      int
+	QueryString string
 }
 
 func setup(mock MockRoute, t *testing.T) {
 	setupMultiple([]MockRoute{mock}, t)
+}
+
+func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
+	value, _ := url.QueryUnescape(QueryString)
+
+	if QueryStringExp != value {
+		t.Fatalf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
+	}
 }
 
 func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
@@ -50,24 +60,29 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		output := mock.Output
 		userAgent := mock.UserAgent
 		status := mock.Status
+		queryString := mock.QueryString
 		if method == "GET" {
 			r.Get(endpoint, func(req *http.Request) string {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testQueryString(req.URL.RawQuery, queryString, t)
 				return output
 			})
 		} else if method == "POST" {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testQueryString(req.URL.RawQuery, queryString, t)
 				return status, output
 			})
 		} else if method == "DELETE" {
 			r.Delete(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testQueryString(req.URL.RawQuery, queryString, t)
 				return status, output
 			})
 		} else if method == "PUT" {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testQueryString(req.URL.RawQuery, queryString, t)
 				return status, output
 			})
 		}

@@ -9,9 +9,9 @@ import (
 func TestListSecGroups(t *testing.T) {
 	Convey("List SecGroups", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/security_groups", listSecGroupsPayload, "", 200},
-			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2, "", 200},
-			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources, "", 200},
+			{"GET", "/v2/security_groups", listSecGroupsPayload, "", 200, "inline-relations-depth=1"},
+			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2, "", 200, ""},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -60,8 +60,8 @@ func TestListSecGroups(t *testing.T) {
 func TestSecGroupListSpaceResources(t *testing.T) {
 	Convey("List Space Resources", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/security_groups/123/spaces", listSpacesPayload, "", 200},
-			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200},
+			{"GET", "/v2/security_groups/123/spaces", listSpacesPayload, "", 200, ""},
+			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

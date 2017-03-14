@@ -9,8 +9,8 @@ import (
 func TestListSpaces(t *testing.T) {
 	Convey("List Space", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/spaces", listSpacesPayload, "", 200},
-			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200},
+			{"GET", "/v2/spaces", listSpacesPayload, "", 200, ""},
+			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200, ""},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -42,7 +42,7 @@ func TestListSpaces(t *testing.T) {
 
 func TestCreateSpace(t *testing.T) {
 	Convey("Create Space", t, func() {
-		setup(MockRoute{"POST", "/v2/spaces", spacePayload, "", 201}, t)
+		setup(MockRoute{"POST", "/v2/spaces", spacePayload, "", 201, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -63,7 +63,7 @@ func TestCreateSpace(t *testing.T) {
 
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
-		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -88,7 +88,7 @@ func TestSpaceOrg(t *testing.T) {
 
 func TestSpaceQuota(t *testing.T) {
 	Convey("Get space quota", t, func() {
-		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -121,7 +121,7 @@ func TestSpaceQuota(t *testing.T) {
 
 func TestSpaceSummary(t *testing.T) {
 	Convey("Get space summary", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -161,7 +161,7 @@ func TestSpaceSummary(t *testing.T) {
 
 func TestSpaceRoles(t *testing.T) {
 	Convey("Get space roles", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -197,7 +197,7 @@ func TestSpaceRoles(t *testing.T) {
 
 func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceAuditorPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceAuditorPayload, "", 201, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -219,7 +219,7 @@ func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 
 func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Associate developer by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceDeveloperPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceDeveloperPayload, "", 201, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -241,7 +241,7 @@ func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 
 func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Remove developer by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", "", "", 204, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -261,7 +261,7 @@ func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 }
 func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
