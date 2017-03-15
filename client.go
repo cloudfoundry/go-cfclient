@@ -36,7 +36,7 @@ type Config struct {
 	ClientSecret      string `json:"client_secret"`
 	SkipSslValidation bool   `json:"skip_ssl_validation"`
 	HttpClient        *http.Client
-	Token             string `json:"auth_token"`
+	Token             string        `json:"auth_token"`
 	TokenSource       oauth2.TokenSource
 	UserAgent         string `json:"user_agent"`
 }
@@ -78,7 +78,6 @@ func DefaultEndpoint() *Endpoint {
 func NewClient(config *Config) (client *Client, err error) {
 	// bootstrap the config
 	defConfig := DefaultConfig()
-
 	if len(config.ApiAddress) == 0 {
 		config.ApiAddress = defConfig.ApiAddress
 	}
@@ -98,11 +97,17 @@ func NewClient(config *Config) (client *Client, err error) {
 	if len(config.UserAgent) == 0 {
 		config.UserAgent = defConfig.UserAgent
 	}
+
+	if config.HttpClient == nil {
+		config.HttpClient = defConfig.HttpClient
+	}
+	// keep track of the timeout specified via config
+	timeout := config.HttpClient.Timeout
 	ctx := context.Background()
 
 	tr := http.DefaultTransport.(*http.Transport)
 	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: config.SkipSslValidation}
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr, Timeout: timeout})
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
@@ -121,7 +126,8 @@ func NewClient(config *Config) (client *Client, err error) {
 			return nil, err
 		}
 	}
-
+	// make sure timeout will be set to what was initially specified in config
+	config.HttpClient.Timeout = timeout
 	client = &Client{
 		config:   *config,
 		Endpoint: *endpoint,
@@ -237,7 +243,6 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	if r.body != nil {
 		req.Header.Set("Content-type", "application/json")
 	}
-
 	resp, err := c.config.HttpClient.Do(req)
 
 	if resp.StatusCode >= http.StatusBadRequest {
