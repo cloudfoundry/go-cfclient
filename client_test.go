@@ -5,6 +5,8 @@ import (
 
 	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
+	"net/http"
+	"time"
 )
 
 func TestDefaultConfig(t *testing.T) {
@@ -35,6 +37,23 @@ func TestMakeRequest(t *testing.T) {
 		resp, err := client.DoRequest(req)
 		So(err, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
+	})
+}
+
+func TestMakeRequestWithTimeout(t *testing.T) {
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress:        server.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
+			HttpClient: 	&http.Client{Timeout: 10 * time.Nanosecond},
+		}
+		client, err := NewClient(c)
+		So(err, ShouldNotBeNil)
+		So(client, ShouldBeNil)
 	})
 }
 
