@@ -42,14 +42,14 @@ func TestMakeRequest(t *testing.T) {
 
 func TestMakeRequestWithTimeout(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, ""}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
 			Username:          "foo",
 			Password:          "bar",
 			SkipSslValidation: true,
-			HttpClient: 	&http.Client{Timeout: 10 * time.Nanosecond},
+			HttpClient:        &http.Client{Timeout: 10 * time.Nanosecond},
 		}
 		client, err := NewClient(c)
 		So(err, ShouldNotBeNil)
