@@ -98,11 +98,27 @@ func NewClient(config *Config) (client *Client, err error) {
 	if len(config.UserAgent) == 0 {
 		config.UserAgent = defConfig.UserAgent
 	}
+
+	if config.HttpClient == nil {
+		config.HttpClient = defConfig.HttpClient
+	}
+
+	if config.HttpClient.Transport == nil {
+		config.HttpClient.Transport = http.DefaultTransport
+	}
+
+	tp := config.HttpClient.Transport.(*http.Transport)
+	if tp.TLSClientConfig == nil {
+		tp.TLSClientConfig = &tls.Config{}
+	}
+
+	// we want to keep the Timeout value from config.HttpClient
+	timeout := config.HttpClient.Timeout
+
 	ctx := context.Background()
 
-	tr := http.DefaultTransport.(*http.Transport)
-	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: config.SkipSslValidation}
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
+	tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, config.HttpClient)
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
@@ -121,7 +137,10 @@ func NewClient(config *Config) (client *Client, err error) {
 			return nil, err
 		}
 	}
-
+	// make sure original Timeout value will be used
+	if config.HttpClient.Timeout != timeout {
+		config.HttpClient.Timeout = timeout
+	}
 	client = &Client{
 		config:   *config,
 		Endpoint: *endpoint,
