@@ -287,10 +287,6 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 	return spaces, nil
 }
 
-func (c *Client) ListSpaces() ([]Space, error) {
-	return c.ListSpacesByQuery(nil)
-}
-
 func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (Space, error) {
 	var space Space
 	q := url.Values{}
