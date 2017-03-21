@@ -287,6 +287,24 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 	return spaces, nil
 }
 
+func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (Space, error) {
+	var space Space
+	q := url.Values{}
+	q.Set("q", "organization_guid:"+orgGuid)
+	q.Set("&q", "name:"+spaceName)
+	spaces, err := c.ListSpacesByQuery(q)
+	if err != nil {
+		return space, err
+	}
+
+	if len(spaces) == 0 {
+		return space, fmt.Errorf("Unable to find space %s", spaceName)
+	}
+
+	return spaces[0], nil
+
+}
+
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
 	var spaceResp SpaceResponse
 	r := c.NewRequest("GET", requestUrl)
