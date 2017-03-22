@@ -1,13 +1,20 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
 )
+
+type UserRequest struct {
+	Guid             string `json:"guid"`
+	DefaultSpaceGuid string `json:"default_space_guid,omitempty"`
+}
 
 type Users []User
 
@@ -74,6 +81,47 @@ func (c *Client) ListUserAuditedSpaces(userGuid string) ([]Space, error) {
 
 func (c *Client) ListUserManagedSpaces(userGuid string) ([]Space, error) {
 	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", userGuid))
+}
+
+func (c *Client) CreateUser(req UserRequest) (User, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return User{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/users", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return User{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return User{}, errors.Wrapf(err, "Error creating user, response code: %d", resp.StatusCode)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return User{}, err
+	}
+	var userResource UserResource
+	err = json.Unmarshal(body, &userResource)
+	if err != nil {
+		return User{}, err
+	}
+	user := userResource.Entity
+	user.Guid = userResource.Meta.Guid
+	user.c = c
+	return user, nil
+}
+
+func (c *Client) DeleteUser(userGuid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/users/%s", userGuid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting user %s, response code: %d", userGuid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (u Users) GetUserByUsername(username string) User {
