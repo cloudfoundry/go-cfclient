@@ -122,3 +122,36 @@ func TestGetUserByUsername(t *testing.T) {
 		So(users.GetUserByUsername("testUser4"), ShouldResemble, user4)
 	})
 }
+
+func TestCreateUser(t *testing.T) {
+	Convey("Create user", t, func() {
+		setup(MockRoute{"POST", "/v2/users", createUserPayload, "", 201, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		user, err := client.CreateUser(UserRequest{Guid: "guid-cb24b36d-4656-468e-a50d-b53113ac6177"})
+		So(err, ShouldBeNil)
+		So(user.Guid, ShouldEqual, "guid-cb24b36d-4656-468e-a50d-b53113ac6177")
+	})
+}
+
+func TestDeleteUser(t *testing.T) {
+	Convey("Delete user", t, func() {
+		setup(MockRoute{"DELETE", "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177", "", "", 204, ""}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteUser("guid-cb24b36d-4656-468e-a50d-b53113ac6177")
+		So(err, ShouldBeNil)
+	})
+}
