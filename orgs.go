@@ -206,6 +206,66 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	return orgQuota, nil
 }
 
+func (c *Client) AssociateManager(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateManager(userGUID)
+}
+
+func (c *Client) AssociateManagerByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateManagerByUsername(name)
+}
+
+func (c *Client) AssociateUser(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateUser(userGUID)
+}
+
+func (c *Client) AssociateAuditor(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateAuditor(userGUID)
+}
+
+func (c *Client) AssociateUserByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateUserByUsername(name)
+}
+
+func (c *Client) AssociateAuditorByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateAuditorByUsername(name)
+}
+
+func (c *Client) RemoveManager(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveManager(userGUID)
+}
+
+func (c *Client) RemoveManagerByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveManagerByUsername(name)
+}
+
+func (c *Client) RemoveUser(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveUser(userGUID)
+}
+
+func (c *Client) RemoveAuditor(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveAuditor(userGUID)
+}
+
+func (c *Client) RemoveUserByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveUserByUsername(name)
+}
+
+func (c *Client) RemoveAuditorByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveAuditorByUsername(name)
+}
+
 func (o *Org) AssociateManager(userGUID string) (Org, error) {
 	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
 	r := o.c.NewRequest("PUT", requestUrl)
