@@ -206,6 +206,66 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	return orgQuota, nil
 }
 
+func (c *Client) AssociateOrgManager(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateManager(userGUID)
+}
+
+func (c *Client) AssociateOrgManagerByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateManagerByUsername(name)
+}
+
+func (c *Client) AssociateOrgUser(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateUser(userGUID)
+}
+
+func (c *Client) AssociateOrgAuditor(orgGUID, userGUID string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateAuditor(userGUID)
+}
+
+func (c *Client) AssociateOrgUserByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateUserByUsername(name)
+}
+
+func (c *Client) AssociateOrgAuditorByUsername(orgGUID, name string) (Org, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.AssociateAuditorByUsername(name)
+}
+
+func (c *Client) RemoveOrgManager(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveManager(userGUID)
+}
+
+func (c *Client) RemoveOrgManagerByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveManagerByUsername(name)
+}
+
+func (c *Client) RemoveOrgUser(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveUser(userGUID)
+}
+
+func (c *Client) RemoveOrgAuditor(orgGUID, userGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveAuditor(userGUID)
+}
+
+func (c *Client) RemoveOrgUserByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveUserByUsername(name)
+}
+
+func (c *Client) RemoveOrgAuditorByUsername(orgGUID, name string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.RemoveAuditorByUsername(name)
+}
+
 func (o *Org) AssociateManager(userGUID string) (Org, error) {
 	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
 	r := o.c.NewRequest("PUT", requestUrl)
