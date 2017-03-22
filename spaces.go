@@ -185,7 +185,26 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return c.handleSpaceResp(resp)
+}
 
+func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateDeveloperByUsername(name)
+}
+
+func (c *Client) RemoveSpaceDeveloperByUsername(spaceGUID, name string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveDeveloperByUsername(name)
+}
+
+func (c *Client) AssociateSpaceAuditorByUsername(spaceGUID, name string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateAuditorByUsername(name)
+}
+
+func (c *Client) RemoveSpaceAuditorByUsername(spaceGUID, name string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveAuditorByUsername(name)
 }
 
 func (s *Space) AssociateDeveloperByUsername(name string) (Space, error) {
