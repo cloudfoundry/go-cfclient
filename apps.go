@@ -133,11 +133,22 @@ func (s *statTime) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	time, err := time.Parse("2006-01-02 15:04:05 -0700", timeString)
-	if err != nil {
-		return err
+	switch {
+	// RFC3339 time format
+	case string(timeString[10]) == "T" && string(timeString[19]) == "Z":
+		time, err := time.Parse("2006-01-02T15:04:05Z07:00", timeString)
+		if err != nil {
+			return err
+		}
+		*s = statTime{time}
+	// Unix epoch time format
+	default:
+		time, err := time.Parse("2006-01-02 15:04:05 -0700", timeString)
+		if err != nil {
+			return err
+		}
+		*s = statTime{time}
 	}
-	*s = statTime{time}
 	return nil
 }
 
