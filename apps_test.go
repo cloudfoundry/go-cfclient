@@ -176,7 +176,7 @@ func TestGetAppStats(t *testing.T) {
 		date1, _ := time.Parse("2006-01-02 15:04:05 -0700", "2016-09-17 15:46:17 +0000")
 
 		So(appStats["0"].Stats.Usage.Time.Format(time.UnixDate), ShouldEqual, date0.Format(time.UnixDate))
-		So(appStats["1"].Stats.Usage.Time.Format(time.UnixDate), ShouldEqual, date1.Format(time.UnixDate))
+		So(appStats["1"].Stats.Usage.Time.Format(time.RFC3339), ShouldEqual, date1.Format(time.RFC3339))
 		So(appStats["0"].Stats.Usage.Time.ToTime(), ShouldHaveSameTypeAs, date0)
 		So(appStats["1"].Stats.Usage.Time.ToTime(), ShouldHaveSameTypeAs, date1)
 		So(appStats["0"].Stats.Usage.CPU, ShouldEqual, 0.36580239597146486)
