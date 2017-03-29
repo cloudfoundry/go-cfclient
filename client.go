@@ -152,9 +152,6 @@ func shallowDefaultTransport() *http.Transport {
 	defaultTransport := http.DefaultTransport.(*http.Transport)
 	return &http.Transport{
 		Proxy:                 defaultTransport.Proxy,
-		DialContext:           defaultTransport.DialContext,
-		MaxIdleConns:          defaultTransport.MaxIdleConns,
-		IdleConnTimeout:       defaultTransport.IdleConnTimeout,
 		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
 		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
 	}
