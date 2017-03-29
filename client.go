@@ -104,8 +104,7 @@ func NewClient(config *Config) (client *Client, err error) {
 	}
 
 	if config.HttpClient.Transport == nil {
-		tr := *http.DefaultTransport.(*http.Transport)
-		config.HttpClient.Transport = &tr
+		config.HttpClient.Transport = shallowDefaultTransport()
 	}
 
 	tp := config.HttpClient.Transport.(*http.Transport)
@@ -147,6 +146,18 @@ func NewClient(config *Config) (client *Client, err error) {
 		Endpoint: *endpoint,
 	}
 	return client, nil
+}
+
+func shallowDefaultTransport() *http.Transport {
+	defaultTransport := http.DefaultTransport.(*http.Transport)
+	return &http.Transport{
+		Proxy:                 defaultTransport.Proxy,
+		DialContext:           defaultTransport.DialContext,
+		MaxIdleConns:          defaultTransport.MaxIdleConns,
+		IdleConnTimeout:       defaultTransport.IdleConnTimeout,
+		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
+	}
 }
 
 func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Config, error) {
