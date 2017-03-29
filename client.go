@@ -104,7 +104,8 @@ func NewClient(config *Config) (client *Client, err error) {
 	}
 
 	if config.HttpClient.Transport == nil {
-		config.HttpClient.Transport = http.DefaultTransport
+		tr := *http.DefaultTransport.(*http.Transport)
+		config.HttpClient.Transport = &tr
 	}
 
 	tp := config.HttpClient.Transport.(*http.Transport)
