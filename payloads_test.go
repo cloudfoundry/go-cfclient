@@ -1574,6 +1574,58 @@ var listServiceInstancePayload = `{
   ]
 }`
 
+const userProvidedServiceInstancePayload = `{
+  "metadata": {
+    "guid": "e9358711-0ad9-4f2a-b3dc-289d47c17c87",
+    "url": "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87",
+    "created_at": "2016-06-08T16:41:33Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1700",
+    "credentials": {
+      "creds-key-58": "creds-val-58"
+    },
+    "space_guid": "22236d1a-d9c7-44b7-bdad-2bb079a6c4a1",
+    "type": "user_provided_service_instance",
+    "syslog_drain_url": "https://foo.com/url-104",
+    "route_service_url": null,
+    "space_url": "/v2/spaces/22236d1a-d9c7-44b7-bdad-2bb079a6c4a1",
+    "service_bindings_url": "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87/service_bindings",
+    "routes_url": "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87/routes"
+  }
+}`
+
+const listUserProvidedServiceInstancePayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "54e4c645-7d20-4271-8c27-8cc904e1e7ee",
+        "url": "/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee",
+        "created_at": "2016-06-08T16:41:33Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name-1696",
+        "credentials": {
+          "creds-key-57": "creds-val-57"
+        },
+        "space_guid": "87d14ac2-f396-460e-a523-dc1d77aba35a",
+        "type": "user_provided_service_instance",
+        "syslog_drain_url": "https://foo.com/url-103",
+        "route_service_url": null,
+        "space_url": "/v2/spaces/87d14ac2-f396-460e-a523-dc1d77aba35a",
+        "service_bindings_url": "/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee/service_bindings",
+        "routes_url": "/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee/routes"
+      }
+    }
+  ]
+}`
+
 const listRoutesPayloadPage1 string = `{
    "total_results": 2,
    "total_pages": 2,
