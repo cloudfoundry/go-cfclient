@@ -1262,6 +1262,41 @@ const orgPayload = `{
    }
 }`
 
+const listServiceBindingsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "aa599bb3-4811-405a-bbe3-a68c7c55afc8",
+        "url": "/v2/service_bindings/aa599bb3-4811-405a-bbe3-a68c7c55afc8",
+        "created_at": "2016-06-08T16:41:43Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "app_guid": "b26e7e98-f002-41a8-a663-1b60f808a92a",
+        "service_instance_guid": "bde206e0-1ee8-48ad-b794-44c857633d50",
+        "credentials": {
+          "creds-key-66": "creds-val-66"
+        },
+        "binding_options": {
+
+        },
+        "gateway_data": null,
+        "gateway_name": "",
+        "syslog_drain_url": null,
+        "volume_mounts": [
+
+        ],
+        "app_url": "/v2/apps/b26e7e98-f002-41a8-a663-1b60f808a92a",
+        "service_instance_url": "/v2/service_instances/bde206e0-1ee8-48ad-b794-44c857633d50"
+      }
+    }
+  ]
+}`
+
 const listServicePlansPayload = `{
   "total_results": 1,
   "total_pages": 1,
