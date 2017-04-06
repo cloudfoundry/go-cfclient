@@ -1180,6 +1180,28 @@ const appStatsPayload = `{
             "disk": 151150592
          }
       }
+   },
+   "2": {
+      "state": "RUNNING",
+      "stats": {
+         "name": "example-app",
+         "uris": [
+            "example-app.example.com",
+            "example-app-route2.example.com"
+         ],
+         "host": "192.168.1.102",
+         "port": 61389,
+         "uptime": 419568,
+         "mem_quota": 536870912,
+         "disk_quota": 1073741824,
+         "fds_quota": 16384,
+         "usage": {
+            "time": "2017-04-06T20:32:19.273294439Z",
+            "cpu": 0.33857742931636664,
+            "mem": 530731008,
+            "disk": 151150592
+         }
+      }
    }
 }`
 

@@ -133,25 +133,18 @@ func (s *statTime) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	// RFC3339 time format
-	if (string(timeString[10]) == "T" && string(timeString[19]) == "Z"){
-		time, err := time.Parse("2006-01-02T15:04:05Z07:00", timeString)
-		if err != nil {
-			return err
+
+	possibleFormats := [...]string{time.RFC3339, time.RFC3339Nano, "2006-01-02 15:04:05 -0700"}
+
+	var value time.Time
+	for _, possibleFormat := range possibleFormats {
+		if value, err = time.Parse(possibleFormat, timeString); err == nil {
+			*s = statTime{value}
+			return nil
 		}
-		*s = statTime{time}
-	// Unix epoch time format
-	} else {
-		time, err := time.Parse("2006-01-02 15:04:05 -0700", timeString)
-		if err != nil {
-			return err
-		}
-		*s = statTime{time}
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return fmt.Errorf("%s was not in any of the expected Date Formats %v", timeString, possibleFormats)
 }
 
 func (s statTime) ToTime() time.Time {
