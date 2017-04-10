@@ -9,7 +9,7 @@ import (
 
 func TestUserProvidedServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", userProvidedServiceInstancePayload, "", 200, ""}, t)
+		setup(MockRoute{"GET", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", userProvidedServiceInstancePayload, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -39,7 +39,7 @@ func TestUserProvidedServiceInstanceByGuid(t *testing.T) {
 
 func TestListUserProvidedServiceInstances(t *testing.T) {
 	Convey("List Service Instances", t, func() {
-		setup(MockRoute{"GET", "/v2/user_provided_service_instances", listUserProvidedServiceInstancePayload, "", 200, ""}, t)
+		setup(MockRoute{"GET", "/v2/user_provided_service_instances", listUserProvidedServiceInstancePayload, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{

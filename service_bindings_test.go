@@ -9,7 +9,7 @@ import (
 
 func TestListServiceBindings(t *testing.T) {
 	Convey("List Service Bindings", t, func() {
-		setup(MockRoute{"GET", "/v2/service_bindings", listServiceBindingsPayload, "", 200, ""}, t)
+		setup(MockRoute{"GET", "/v2/service_bindings", listServiceBindingsPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
