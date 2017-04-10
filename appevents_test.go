@@ -9,8 +9,8 @@ import (
 func TestListAppEvents(t *testing.T) {
 	Convey("List App Events", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/events", listAppsCreatedEventPayload, "", 200, "q=type:audit.app.create"},
-			{"GET", "/v2/events2", listAppsCreatedEventPayload2, "", 200, ""},
+			{"GET", "/v2/events", listAppsCreatedEventPayload, "", 200, "q=type:audit.app.create", nil},
+			{"GET", "/v2/events2", listAppsCreatedEventPayload2, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -33,8 +33,8 @@ func TestListAppEvents(t *testing.T) {
 func TestListAppEventsByQuery(t *testing.T) {
 	Convey("List App Events By Query", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/events", listAppsCreatedEventPayload, "", 200, "q=type:audit.app.create&q=actee:3ca436ff-67a8-468a-8c7d-27ec68a6cfe5"},
-			{"GET", "/v2/events2", listAppsCreatedEventPayload2, "", 200, ""},
+			{"GET", "/v2/events", listAppsCreatedEventPayload, "", 200, "q=type:audit.app.create&q=actee:3ca436ff-67a8-468a-8c7d-27ec68a6cfe5", nil},
+			{"GET", "/v2/events2", listAppsCreatedEventPayload2, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
