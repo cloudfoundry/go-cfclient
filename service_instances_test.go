@@ -8,7 +8,7 @@ import (
 
 func TestListServicesInstances(t *testing.T) {
 	Convey("List Service Instances", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances", listServiceInstancePayload, "", 200, ""}, t)
+		setup(MockRoute{"GET", "/v2/service_instances", listServiceInstancePayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -28,7 +28,7 @@ func TestListServicesInstances(t *testing.T) {
 
 func TestServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload, "", 200, ""}, t)
+		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{

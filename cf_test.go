@@ -1,10 +1,13 @@
 package cfclient
 
 import (
+	_ "github.com/onsi/gomega"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/go-martini/martini"
@@ -24,10 +27,15 @@ type MockRoute struct {
 	UserAgent   string
 	Status      int
 	QueryString string
+	PostForm    *string
 }
 
 func setup(mock MockRoute, t *testing.T) {
 	setupMultiple([]MockRoute{mock}, t)
+}
+
+type PostBody struct {
+	Data []map[string]string `json:"data"`
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
@@ -43,7 +51,20 @@ func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 		UserAgentExp = "Go-CF-client/1.1"
 	}
 	if UserAgent != UserAgentExp {
-		t.Fatalf("Error Agent %s should be equal to %s", UserAgent, UserAgentExp)
+		t.Fatalf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
+	}
+}
+
+func testPostQuery(req *http.Request, postFormBody *string, t *testing.T) {
+	if postFormBody != nil {
+		if body, err := ioutil.ReadAll(req.Body); err != nil {
+			t.Fatal("No request body but expected one")
+		} else {
+			defer req.Body.Close()
+			if strings.TrimSpace(string(body)) != strings.TrimSpace(*postFormBody) {
+				t.Fatalf("Expected POST body (%s) does not equal POST body (%s)", *postFormBody, body)
+			}
+		}
 	}
 }
 
@@ -61,6 +82,7 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		userAgent := mock.UserAgent
 		status := mock.Status
 		queryString := mock.QueryString
+		postFormBody := mock.PostForm
 		if method == "GET" {
 			r.Get(endpoint, func(req *http.Request) string {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
@@ -71,6 +93,7 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
+				testPostQuery(req, postFormBody, t)
 				return status, output
 			})
 		} else if method == "DELETE" {

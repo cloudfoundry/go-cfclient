@@ -2212,3 +2212,90 @@ const createUserPayload = `{
     "audited_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_spaces"
   }
 }`
+
+const createIsolationSegmentPayload = `{
+   "guid": "323f211e-fea3-4161-9bd1-615392327913",
+   "name": "TheKittenIsTheShark",
+   "created_at": "2016-10-19T20:25:04Z",
+   "updated_at": "2016-11-08T16:41:26Z",
+   "links": {
+      "self": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913"
+      },
+      "spaces": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/relationships/spaces"
+      },
+      "organizations": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/relationships/organizations"
+      }
+   }
+}`
+
+const listIsolationSegmentsPayload = `{
+   "pagination": {
+      "total_results": 2,
+      "total_pages": 1,
+      "first": {
+         "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+      },
+      "last": {
+         "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+      },
+      "next": null,
+      "previous": null
+   },
+   "resources": [
+      {
+         "guid": "033b4c58-12bb-499a-b05d-4b6fc9e2993b",
+         "name": "shared",
+         "created_at": "2017-04-02T11:22:04Z",
+         "updated_at": "2017-04-02T11:22:04Z",
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b"
+            },
+            "organizations": {
+               "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/organizations"
+            },
+            "spaces": {
+               "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/spaces"
+            }
+         }
+      },
+      {
+         "guid": "23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0",
+         "name": "my_segment",
+         "created_at": "2017-04-07T11:20:16Z",
+         "updated_at": "2017-04-07T11:20:16Z",
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0"
+            },
+            "organizations": {
+               "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0/organizations"
+            },
+            "spaces": {
+               "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0/relationships/spaces"
+            }
+         }
+      }
+   ]
+}`
+
+const addOrgToIsolationSegmentPayload = `{
+   "guid": "033b4c58-12bb-499a-b05d-4b6fc9e2993b",
+   "name": "shared",
+   "created_at": "2016-10-19T20:25:04Z",
+   "updated_at": "2016-11-08T16:41:26Z",
+   "links": {
+      "self": {
+         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b"
+      },
+      "spaces": {
+         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/spaces"
+      },
+      "organizations": {
+         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations"
+      }
+   }
+}`
