@@ -10,7 +10,7 @@ import (
 func TestCreateIsolationSegement(t *testing.T) {
 	Convey("Create Isolation Segment", t, func() {
 		mocks := []MockRoute{
-			{"POST", "/v3/isolation_segments", createIsolationSegmentPayload, "", http.StatusCreated, ""},
+			{"POST", "/v3/isolation_segments", createIsolationSegmentPayload, "", http.StatusCreated, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -36,7 +36,7 @@ func TestCreateIsolationSegement(t *testing.T) {
 func TestGetIsolationSegementByGUID(t *testing.T) {
 	Convey("Request existing Isolation Segment", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913", createIsolationSegmentPayload, "", http.StatusOK, ""},
+			{"GET", "/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913", createIsolationSegmentPayload, "", http.StatusOK, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -60,7 +60,7 @@ func TestGetIsolationSegementByGUID(t *testing.T) {
 
 	Convey("Request non-existing Isolation Segment", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/isolation_segments/323f211e-fea3-4161--9bd1-615392327913", createIsolationSegmentPayload, "", http.StatusOK, ""},
+			{"GET", "/v3/isolation_segments/323f211e-fea3-4161--9bd1-615392327913", createIsolationSegmentPayload, "", http.StatusOK, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -80,7 +80,7 @@ func TestGetIsolationSegementByGUID(t *testing.T) {
 func TestListIsolationSegments(t *testing.T) {
 	Convey("Request list of all Isolation Segments", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/isolation_segments", listIsolationSegmentsPayload, "", http.StatusOK, ""},
+			{"GET", "/v3/isolation_segments", listIsolationSegmentsPayload, "", http.StatusOK, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -111,7 +111,7 @@ func TestListIsolationSegments(t *testing.T) {
 func TestDeleteIsolationSegmentByGUID(t *testing.T) {
 	Convey("Delete an Isolation Segment by GUID", t, func() {
 		mocks := []MockRoute{
-			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b", "", "", http.StatusNoContent, ""},
+			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b", "", "", http.StatusNoContent, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -131,15 +131,17 @@ func TestDeleteIsolationSegmentByGUID(t *testing.T) {
 }
 
 func TestIsolationSegmentMethods(t *testing.T) {
+
+	postData := `{"data":[{"guid":"theKittenIsTheShark"}]}`
+
 	Convey("Request list of all Isolation Segments", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/isolation_segments", listIsolationSegmentsPayload, "", http.StatusOK, ""},
-			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b", "", "", http.StatusNoContent, ""},
-			{"POST", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations", "", "", http.StatusCreated, ""},
-			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations", "", "", http.StatusNoContent, ""},
-			{"POST", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations", "", "", http.StatusCreated, ""},
-			{"PUT", "/v2/spaces/theKittenIsTheShark", "", "", http.StatusCreated, ""},
-			{"DELETE", "/v2/spaces/theKittenIsTheShark/isolation_segment", "", "", http.StatusNoContent, ""},
+			{"GET", "/v3/isolation_segments", listIsolationSegmentsPayload, "", http.StatusOK, "", nil},
+			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b", "", "", http.StatusNoContent, "", nil},
+			{"POST", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations", "", "", http.StatusCreated, "", &postData},
+			{"DELETE", "/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations", "", "", http.StatusNoContent, "", nil},
+			{"PUT", "/v2/spaces/theKittenIsTheShark", "", "", http.StatusCreated, "", nil},
+			{"DELETE", "/v2/spaces/theKittenIsTheShark/isolation_segment", "", "", http.StatusNoContent, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

@@ -107,7 +107,7 @@ func (c *Client) GetIsolationSegmentByGUID(guid string) (*IsolationSegment, erro
 	if err != nil {
 		return nil, errors.Wrap(err, "Error unmarshalling isolation segment response")
 	}
-	return &IsolationSegment{Name: isr.Name, GUID: isr.GUID, CreatedAt: isr.CreatedAt, UpdatedAt: isr.UpdatedAt}, nil
+	return &IsolationSegment{Name: isr.Name, GUID: isr.GUID, CreatedAt: isr.CreatedAt, UpdatedAt: isr.UpdatedAt, c: c}, nil
 }
 
 func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
@@ -173,12 +173,15 @@ func (i *IsolationSegment) AddOrg(orgGuid string) error {
 		return errors.New("No communication handle.")
 	}
 	req := i.c.NewRequest("POST", fmt.Sprintf("/v3/isolation_segments/%s/relationships/organizations", i.GUID))
+	type Entry struct {
+		GUID string `json:"guid"`
+	}
 	req.obj = map[string]interface{}{
-		"guid": orgGuid,
+		"data": []Entry{Entry{GUID: orgGuid}},
 	}
 	resp, err := i.c.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error during POSTing to isolation segments")
+		return errors.Wrap(err, "Error during adding org to isolation segment")
 	}
 	if resp.StatusCode != http.StatusCreated {
 		return errors.New(fmt.Sprintf("Error adding org %s to isolation segment %s, response code: %d", orgGuid, i.Name, resp.StatusCode))
@@ -196,7 +199,7 @@ func (i *IsolationSegment) RemoveOrg(orgGuid string) error {
 	}
 	resp, err := i.c.DoRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "Error during sending DELETE request for org %s in isolation segments", orgGuid)
+		return errors.Wrapf(err, "Error during removing org %s in isolation segment %s", orgGuid, i.Name)
 	}
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.New(fmt.Sprintf("Error deleting org %s in isolation segment %s, response code: %d", orgGuid, i.Name, resp.StatusCode))
@@ -214,7 +217,7 @@ func (i *IsolationSegment) AddSpace(spaceGuid string) error {
 	}
 	resp, err := i.c.DoRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "Error during sending PUT request for space %s to isolation segment %s", spaceGuid, i.Name)
+		return errors.Wrapf(err, "Error during adding space %s to isolation segment %s", spaceGuid, i.Name)
 	}
 	if resp.StatusCode != http.StatusCreated {
 		return errors.New(fmt.Sprintf("Error adding space to isolation segment %s, response code: %d", i.Name, resp.StatusCode))
@@ -229,7 +232,7 @@ func (i *IsolationSegment) RemoveSpace(spaceGuid string) error {
 	req := i.c.NewRequest("DELETE", fmt.Sprintf("/v2/spaces/%s/isolation_segment", spaceGuid))
 	resp, err := i.c.DoRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "Error during sending DELETE request for isolation segment %s in space %s", i.Name, spaceGuid)
+		return errors.Wrapf(err, "Error during deleting space %s in isolation segment", spaceGuid, i.Name)
 	}
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.New(fmt.Sprintf("Error deleting in isolation segment %s for space, response code: %d", i.Name, spaceGuid, resp.StatusCode))
