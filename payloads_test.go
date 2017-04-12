@@ -1202,6 +1202,28 @@ const appStatsPayload = `{
             "disk": 151150592
          }
       }
+   },
+   "3": {
+      "state": "RUNNING",
+      "stats": {
+         "name": "example-app",
+         "uris": [
+            "example-app.example.com",
+            "example-app-route2.example.com"
+         ],
+         "host": "192.168.1.102",
+         "port": 61389,
+         "uptime": 419568,
+         "mem_quota": 536870912,
+         "disk_quota": 1073741824,
+         "fds_quota": 16384,
+         "usage": {
+            "time": "2017-04-12 15:27:44 UTC",
+            "cpu": 0.33857742931636664,
+            "mem": 530731008,
+            "disk": 151150592
+         }
+      }
    }
 }`
 
@@ -1421,7 +1443,7 @@ const listServicePayload = `{
 }`
 
 const listAppsCreatedEventPayload = `{
-   "total_results": 2,
+   "total_results": 3,
    "total_pages": 2,
    "prev_url": null,
    "next_url": "/v2/events2",
@@ -1450,11 +1472,37 @@ const listAppsCreatedEventPayload = `{
             "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
             "organization_guid": "bfdcdf09-a3b8-46f4-ab74-d494efefe5b4"
          }
+      },
+      {
+         "metadata": {
+            "guid": "49ab122b-82b9-4623-8a13-24e585e32e66",
+            "url": "/v2/events/49ab122b-82b9-4623-8a13-24e585e32e66",
+            "created_at": "2016-02-26T13:00:21Z",
+            "updated_at": "2016-02-26T13:00:21Z"
+         },
+         "entity": {
+            "type": "app.crash",
+            "actor": "fbf30c43-436e-40e4-8ace-31970b52ce89",
+            "actor_type": "app",
+            "actor_name": "authentication-v1-pre-blue",
+            "actee": "3ca436ff-67a8-468a-8c7d-27ec68a6cfe5",
+            "actee_type": "app",
+            "actee_name": "authentication-v1-pre-blue",
+            "timestamp": "2016-02-26T13:00:21Z",
+            "metadata": {
+             "instance": "",
+             "index": 0,
+             "exit_description": "2 error(s) occurred:\n\n* 1 error(s) occurred:\n\n* Exited with status 4\n* 2 error(s) occurred:\n\n* cancelled\n* cancelled",
+             "reason": "CRASHED"
+            },
+            "space_guid": "08582a96-cbef-463c-822e-bda8d4284cc7",
+            "organization_guid": "bfdcdf09-a3b8-46f4-ab74-d494efefe5b4"
+         }
       }
    ]
  }`
 const listAppsCreatedEventPayload2 = `{
-   "total_results": 2,
+   "total_results": 3,
    "total_pages": 2,
    "prev_url": "/v2/events",
    "next_url": null,
