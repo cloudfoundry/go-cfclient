@@ -81,6 +81,11 @@ type AppEventEntity struct {
 	//Timestamp format "2016-02-26T13:29:44Z". The event creation time.
 	Timestamp time.Time `json:"timestamp"`
 	MetaData  struct {
+		//app.crash event fields
+		ExitDescription string `json:"exit_description,omitempty"`
+		ExitReason      string `json:"reason,omitempty"`
+		ExitStatus      string `json:"exit_status,omitempty"`
+
 		Request struct {
 			Name              string  `json:"name,omitempty"`
 			Instances         float64 `json:"instances,omitempty"`
@@ -96,10 +101,7 @@ type AppEventEntity struct {
 			HealthcheckTimeout float64 `json:"health_check_timeout,omitempty"`
 			Production         bool    `json:"production,omitempty"`
 			//app.crash event fields
-			Index           float64 `json:"index,omitempty"`
-			ExitStatus      string  `json:"exit_status,omitempty"`
-			ExitDescription string  `json:"exit_description,omitempty"`
-			ExitReason      string  `json:"reason,omitempty"`
+			Index float64 `json:"index,omitempty"`
 		} `json:"request"`
 	} `json:"metadata"`
 }
