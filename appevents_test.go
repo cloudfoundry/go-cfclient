@@ -82,30 +82,3 @@ func TestListAppEventsByQuery(t *testing.T) {
 		So(appEvents[2].MetaData.Request.State, ShouldEqual, "STARTED")
 	})
 }
-
-// func TestListAppCrashedEvents(t *testing.T) {
-// 	Convey("List App Crashed Events", t, func() {
-// 		mocks := []MockRoute{
-// 			{"GET", "/v2/events", listAppsCrashedEventPayload, "", 200, "", nil},
-// 		}
-// 		setupMultiple(mocks, t)
-// 		defer teardown()
-// 		c := &Config{
-// 			ApiAddress: server.URL,
-// 			Token:      "foobar",
-// 		}
-// 		client, err := NewClient(c)
-// 		So(err, ShouldBeNil)
-//
-// 		// appEventQuery := AppEventQuery{
-// 		// 	Filter:   FilterActee,
-// 		// 	Operator: ":",
-// 		// 	Value:    "3ca436ff-67a8-468a-8c7d-27ec68a6cfe5",
-// 		// }
-// 		appEvents, err := client.ListAppEventsByQuery(AppCrash, []AppEventQuery{})
-// 		So(err, ShouldEqual, nil)
-// 		So(len(appEvents), ShouldEqual, 1)
-// 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "")
-// 		So(appEvents[0].MetaData.ExitReason, ShouldEqual, "CRASHED")
-// 	})
-// }
