@@ -24,9 +24,12 @@ func TestListAppEvents(t *testing.T) {
 		So(err.Error(), ShouldEqual, "Unsupported app event type blub")
 		appEvents, err = client.ListAppEvents(AppCreate)
 		So(err, ShouldEqual, nil)
-		So(len(appEvents), ShouldEqual, 2)
+		So(len(appEvents), ShouldEqual, 3)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
-		So(appEvents[1].MetaData.Request.State, ShouldEqual, "STARTED")
+		So(appEvents[1].EventType, ShouldEqual, AppCrash)
+		So(appEvents[1].MetaData.Request.State, ShouldEqual, "")
+		So(appEvents[1].MetaData.ExitReason, ShouldEqual, "CRASHED")
+		So(appEvents[2].MetaData.Request.State, ShouldEqual, "STARTED")
 	})
 }
 
@@ -71,8 +74,11 @@ func TestListAppEventsByQuery(t *testing.T) {
 		}
 		appEvents, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
 		So(err, ShouldEqual, nil)
-		So(len(appEvents), ShouldEqual, 2)
+		So(len(appEvents), ShouldEqual, 3)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
-		So(appEvents[1].MetaData.Request.State, ShouldEqual, "STARTED")
+		So(appEvents[1].EventType, ShouldEqual, AppCrash)
+		So(appEvents[1].MetaData.Request.State, ShouldEqual, "")
+		So(appEvents[1].MetaData.ExitReason, ShouldEqual, "CRASHED")
+		So(appEvents[2].MetaData.Request.State, ShouldEqual, "STARTED")
 	})
 }
