@@ -134,7 +134,7 @@ func (s *statTime) UnmarshalJSON(b []byte) (err error) {
 		return err
 	}
 
-	possibleFormats := [...]string{time.RFC3339, time.RFC3339Nano, "2006-01-02 15:04:05 -0700"}
+	possibleFormats := [...]string{time.RFC3339, time.RFC3339Nano, "2006-01-02 15:04:05 -0700", "2006-01-02 15:04:05 MST"}
 
 	var value time.Time
 	for _, possibleFormat := range possibleFormats {
