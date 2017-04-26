@@ -324,3 +324,23 @@ func (c *Client) AppByGuid(guid string) (App, error) {
 	appResource.Entity.c = c
 	return appResource.Entity, nil
 }
+
+//AppByName takes an appName, and GUIDs for a space and org, and performs
+// the API lookup with those query parameters set to return you the desired
+// App object.
+func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err error) {
+	query := url.Values{}
+	query.Add("q", fmt.Sprintf("organization_guid:%s", orgGuid))
+	query.Add("q", fmt.Sprintf("space_guid:%s", spaceGuid))
+	query.Add("q", fmt.Sprintf("name:%s", appName))
+	apps, err := c.ListAppsByQuery(query)
+	if err != nil {
+		return
+	}
+	if len(apps) == 0 {
+		err = fmt.Errorf("No app found with name: `%s` in space with GUID `%s` and org with GUID `%s`", appName, spaceGuid, orgGuid)
+		return
+	}
+	app = apps[0]
+	return
+}
