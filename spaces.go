@@ -306,18 +306,17 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 	return spaces, nil
 }
 
-func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (Space, error) {
-	var space Space
-	q := url.Values{}
-	q.Set("q", "organization_guid:"+orgGuid)
-	q.Set("&q", "name:"+spaceName)
-	spaces, err := c.ListSpacesByQuery(q)
+func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (space Space, err error) {
+	query := url.Values{}
+	query.Add("q", fmt.Sprintf("organization_guid:%s", orgGuid))
+	query.Add("q", fmt.Sprintf("name:%s", spaceName))
+	spaces, err := c.ListSpacesByQuery(query)
 	if err != nil {
-		return space, err
+		return
 	}
 
 	if len(spaces) == 0 {
-		return space, fmt.Errorf("Unable to find space %s", spaceName)
+		return space, fmt.Errorf("No space found with name: `%s` in org with GUID: `%s`", spaceName, orgGuid)
 	}
 
 	return spaces[0], nil
