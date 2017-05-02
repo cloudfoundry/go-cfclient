@@ -40,6 +40,26 @@ func TestMakeRequest(t *testing.T) {
 	})
 }
 
+func TestMakeRequestFailure(t *testing.T) {
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress:        server.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+		req := client.NewRequest("GET", "/v2/organizations")
+		req.url = "%gh&%ij"
+		resp, err := client.DoRequest(req)
+		So(resp, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+	})
+}
+
 func TestMakeRequestWithTimeout(t *testing.T) {
 	Convey("Test making request b", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)

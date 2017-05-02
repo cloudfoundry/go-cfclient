@@ -267,6 +267,9 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	}
 
 	resp, err := c.config.HttpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= http.StatusBadRequest {
 		cfErr := &CloudFoundryErrors{}
@@ -276,7 +279,7 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 		return nil, cfErr
 	}
 
-	return resp, err
+	return resp, nil
 }
 
 // toHTTP converts the request to an HTTP request
