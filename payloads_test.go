@@ -495,6 +495,31 @@ const listSpacesPayloadPage2 = `{
    ]
 }`
 
+const spaceByGuidPayload = `{
+  "metadata": {
+    "guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
+    "url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
+    "created_at": "2014-09-24T13:54:54+00:00",
+    "updated_at": null
+  },
+  "entity": {
+    "name": "dev",
+    "organization_guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+    "space_quota_definition_guid": null,
+    "organization_url": "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b",
+    "developers_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/developers",
+    "managers_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/managers",
+    "auditors_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/auditors",
+    "apps_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/apps",
+    "routes_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/routes",
+    "domains_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/domains",
+    "service_instances_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/service_instances",
+    "app_events_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/app_events",
+    "events_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/events",
+    "security_groups_url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups"
+  }
+}`
+
 const associateSpaceAuditorPayload = `{
   "metadata": {
     "guid": "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
