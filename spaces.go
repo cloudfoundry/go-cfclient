@@ -323,6 +323,16 @@ func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (space Space, 
 
 }
 
+func (c *Client) GetSpaceByGuid(spaceGUID string) (Space, error) {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s", spaceGUID)
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Space{}, errors.Wrap(err, "Error requesting space info")
+	}
+	return c.handleSpaceResp(resp)
+}
+
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
 	var spaceResp SpaceResponse
 	r := c.NewRequest("GET", requestUrl)

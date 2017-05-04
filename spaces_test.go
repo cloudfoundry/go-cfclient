@@ -279,3 +279,22 @@ func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestGetSpaceByGuid(t *testing.T) {
+	Convey("List Space", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", spaceByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space, err := client.GetSpaceByGuid("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+
+		So(space.Guid, ShouldEqual, "8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(space.Name, ShouldEqual, "dev")
+	})
+}
