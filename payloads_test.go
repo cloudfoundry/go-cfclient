@@ -2409,10 +2409,10 @@ const listServiceKeysPayload = `{
             "service_instance_guid": "ecf26687-e176-4784-b181-b3c942fecb62",
             "credentials": {
                "jms": "nhp://100.100.100.100:9008",
-							 "js_uri": "http://100.100.100.100:9008",
-							 "amqp": "amqp://100.100.100.100:9008",
-							 "nhp": "nhp://100.100.100.100:9009",
-							 "mqtt": "tcp://100.100.100.100:9008",
+               "js_uri": "http://100.100.100.100:9008",
+               "amqp": "amqp://100.100.100.100:9008",
+               "nhp": "nhp://100.100.100.100:9009",
+               "mqtt": "tcp://100.100.100.100:9008",
                "name": "fcf26687-e176-4784-b181-b3c942fecb62",
                "nsp": "nsp://100.100.100.100:9008",
                "userid": "cfu-9be3911b-c621-4467-8866-f8b924aaee57",
@@ -2424,8 +2424,6 @@ const listServiceKeysPayload = `{
                   }
                ]
             },
-						"service_instance_url": "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62"
-				}
-		}
-]
+            "service_instance_url": "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62"
+	}}]
 }`
