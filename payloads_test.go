@@ -2416,7 +2416,7 @@ const listServiceKeysPayload = `{
                "name": "fcf26687-e176-4784-b181-b3c942fecb62",
                "nsp": "nsp://100.100.100.100:9008",
                "userid": "cfu-9be3911b-c621-4467-8866-f8b924aaee57",
-							 "uri": "nhp://100.100.100.100:9008",
+               "uri": "nhp://100.100.100.100:9008",
                "uriInfos": [
                   {
                      "host": "100.100.100.100",
@@ -2425,5 +2425,47 @@ const listServiceKeysPayload = `{
                ]
             },
             "service_instance_url": "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62"
-	}}]
+        }
+    }
+  ]
 }`
+
+const getServiceKeyPayload = `{
+   "total_results": 1,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "8be3911b-c621-4467-8866-f8b924aaee57",
+            "url": "/v2/service_keys/8be3911b-c621-4467-8866-f8b924aaee57",
+            "created_at": "2017-05-16T12:14:46Z",
+            "updated_at": "2017-05-16T12:14:46Z"
+         },
+         "entity": {
+            "name": "test01_key",
+            "service_instance_guid": "ecf26687-e176-4784-b181-b3c942fecb62",
+            "credentials": {
+               "jms": "nhp://100.100.100.100:9008",
+               "js_uri": "http://100.100.100.100:9008",
+               "amqp": "amqp://100.100.100.100:9008",
+               "nhp": "nhp://100.100.100.100:9009",
+               "mqtt": "tcp://100.100.100.100:9008",
+               "name": "fcf26687-e176-4784-b181-b3c942fecb62",
+               "nsp": "nsp://100.100.100.100:9008",
+               "userid": "cfu-9be3911b-c621-4467-8866-f8b924aaee57",
+               "uri": "nhp://100.100.100.100:9008",
+               "uriInfos": [
+                  {
+                     "host": "100.100.100.100",
+                     "port": 9008
+                  }
+               ]
+            },
+            "service_instance_url": "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62"
+        }
+    }
+  ]
+}`
+
