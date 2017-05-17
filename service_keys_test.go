@@ -35,3 +35,47 @@ func TestListServiceKeys(t *testing.T) {
 		So(serviceKeys[1].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62")
 	})
 }
+
+func TestGetServiceKeyByName(t *testing.T) {
+	Convey("Get service key by name", t, func() {
+		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeyPayload, "", 200, "q=name:test01_key", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		serviceKey, err := client.GetServiceKeyByName("test01_key")
+		So(err, ShouldBeNil)
+
+		So(serviceKey, ShouldNotBeNil)
+		So(serviceKey.Name, ShouldEqual, "test01_key")
+		So(serviceKey.ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKey.Credentials, ShouldNotEqual, nil)
+		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62")
+	})
+}
+
+func TestGetServiceKeyByGuid(t *testing.T) {
+	Convey("Get service key by guid", t, func() {
+		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeyPayload, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		serviceKey, err := client.GetServiceKeyByInstanceGuid("ecf26687-e176-4784-b181-b3c942fecb62")
+		So(err, ShouldBeNil)
+
+		So(serviceKey, ShouldNotBeNil)
+		So(serviceKey.Name, ShouldEqual, "test01_key")
+		So(serviceKey.ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKey.Credentials, ShouldNotEqual, nil)
+		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62")
+	})
+}
