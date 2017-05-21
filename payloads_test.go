@@ -1467,6 +1467,58 @@ const listServicePayload = `{
    ]
 }`
 
+const listServicePlanVisibilitiesPayload = `{
+  "total_results": 4,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "d1b5ea55-f354-4f43-b52e-53045747adb9",
+        "url": "/v2/service_plan_visibilities/d1b5ea55-f354-4f43-b52e-53045747adb9",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "service_plan_guid": "62cb572c-e9ca-4c9f-b822-8292db1d9a96",
+        "organization_guid": "81df84f3-8ce0-4c92-990a-3760b6ff66bd",
+        "service_plan_url": "/v2/service_plans/62cb572c-e9ca-4c9f-b822-8292db1d9a96",
+        "organization_url": "/v2/organizations/81df84f3-8ce0-4c92-990a-3760b6ff66bd"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "332331a3-7b6c-413b-a2e4-edf90ac47fa9",
+        "url": "/v2/service_plan_visibilities/332331a3-7b6c-413b-a2e4-edf90ac47fa9",
+        "created_at": "2016-06-08T16:41:31Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "service_plan_guid": "c505f2ec-81ed-4091-b194-b8e905f32b24",
+        "organization_guid": "99b61b74-09d6-47db-9568-a835e42d0a1d",
+        "service_plan_url": "/v2/service_plans/c505f2ec-81ed-4091-b194-b8e905f32b24",
+        "organization_url": "/v2/organizations/99b61b74-09d6-47db-9568-a835e42d0a1d"
+      }
+    }
+  ]
+}`
+
+const postServicePlanVisibilityPayload = `{
+  "metadata": {
+    "guid": "f740b01a-4afe-4435-aedd-0a8308a7e7d6",
+    "url": "/v2/service_plan_visibilities/f740b01a-4afe-4435-aedd-0a8308a7e7d6",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "service_plan_guid": "ab5780a9-ac8e-4412-9496-4512e865011a",
+    "organization_guid": "55d0ff39-dac9-431f-ba6d-83f37381f1c3",
+    "service_plan_url": "/v2/service_plans/ab5780a9-ac8e-4412-9496-4512e865011a",
+    "organization_url": "/v2/organizations/55d0ff39-dac9-431f-ba6d-83f37381f1c3"
+  }
+}`
+
 const listAppsCreatedEventPayload = `{
    "total_results": 3,
    "total_pages": 2,
@@ -2468,4 +2520,3 @@ const getServiceKeyPayload = `{
     }
   ]
 }`
-
