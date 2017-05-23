@@ -17,11 +17,11 @@ func (cfErrs CloudFoundryErrors) Error() string {
 }
 
 type CloudFoundryError struct {
-	Code   int    `json:"code"`
-	Title  string `json:"title"`
-	Detail string `json:"detail"`
+	Code        int    `json:"code"`
+	ErrorCode   string `json:"error_code"`
+	Description string `json:"description"`
 }
 
 func (cfErr CloudFoundryError) Error() string {
-	return fmt.Sprintf("cfclient: error (%d): %s", cfErr.Code, cfErr.Title)
+	return fmt.Sprintf("cfclient: error (%d): %s", cfErr.Code, cfErr.ErrorCode)
 }
