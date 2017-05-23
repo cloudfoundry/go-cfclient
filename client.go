@@ -272,8 +272,8 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		cfErr := &CloudFoundryErrors{}
-		if err := decodeBody(resp, cfErr); err != nil {
+		var cfErr CloudFoundryError
+		if err := decodeBody(resp, &cfErr); err != nil {
 			return resp, errors.Wrap(err, "Unable to decode body")
 		}
 		return nil, cfErr
