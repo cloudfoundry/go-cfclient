@@ -1831,6 +1831,69 @@ const listRoutesPayloadPage2 string = `{
    ]
 }`
 
+const createRoute string = `
+{
+  "metadata": {
+    "guid": "78fe5006-1d1c-41ba-94de-eb7002241b82",
+    "url": "/v2/routes/78fe5006-1d1c-41ba-94de-eb7002241b82",
+    "created_at": "2017-05-24T19:04:34Z",
+    "updated_at": null
+  },
+  "entity": {
+    "host": "",
+    "path": "",
+    "domain_guid": "08167353-32da-4ed9-9ef5-aa7b31bbc009",
+    "space_guid": "b65a9a76-8c55-460b-9162-18b396da66cf",
+    "service_instance_guid": null,
+    "port": 1099,
+    "domain_url": "/v2/shared_domains/08167353-32da-4ed9-9ef5-aa7b31bbc009",
+    "domain": {
+      "metadata": {
+        "guid": "08167353-32da-4ed9-9ef5-aa7b31bbc009",
+        "url": "/v2/shared_domains/08167353-32da-4ed9-9ef5-aa7b31bbc009",
+        "created_at": "2017-01-17T17:54:46Z",
+        "updated_at": null
+      },
+      "entity": {
+        "name": "tcp.main.example.com",
+        "router_group_guid": "b4c90165-5689-4a7e-4cfc-f55dc41f3e22",
+        "router_group_type": null
+      }
+    },
+    "space_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf",
+    "space": {
+      "metadata": {
+        "guid": "b65a9a76-8c55-460b-9162-18b396da66cf",
+        "url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf",
+        "created_at": "2016-12-09T15:06:17Z",
+        "updated_at": null
+      },
+      "entity": {
+        "name": "system",
+        "organization_guid": "236c6d93-7cfb-4d4a-bc76-9a9cc2bc8e58",
+        "space_quota_definition_guid": null,
+        "allow_ssh": true,
+        "organization_url": "/v2/organizations/236c6d93-7cfb-4d4a-bc76-9a9cc2bc8e58",
+        "developers_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/developers",
+        "managers_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/managers",
+        "auditors_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/auditors",
+        "apps_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/apps",
+        "routes_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/routes",
+        "domains_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/domains",
+        "service_instances_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/service_instances",
+        "app_events_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/app_events",
+        "events_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/events",
+        "security_groups_url": "/v2/spaces/b65a9a76-8c55-460b-9162-18b396da66cf/security_groups"
+      }
+    },
+    "apps_url": "/v2/routes/78fe5006-1d1c-41ba-94de-eb7002241b82/apps",
+    "apps": [
+
+    ],
+    "route_mappings_url": "/v2/routes/78fe5006-1d1c-41ba-94de-eb7002241b82/route_mappings"
+  }
+}`
+
 const listStacksPayloadPage1 string = `{
    "total_results": 2,
    "total_pages": 2,
