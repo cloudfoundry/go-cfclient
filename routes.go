@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/pkg/errors"
+	"bytes"
 )
 
 type RoutesResponse struct {
@@ -20,6 +21,11 @@ type RoutesResource struct {
 	Entity Route `json:"entity"`
 }
 
+type RouteRequest struct {
+	DomainGuid          string `json:"domain_guid"`
+	SpaceGuid           string `json:"space_guid"`
+}
+
 type Route struct {
 	Guid                string `json:"guid"`
 	Host                string `json:"host"`
@@ -29,6 +35,15 @@ type Route struct {
 	ServiceInstanceGuid string `json:"service_instance_guid"`
 	Port                int    `json:"port"`
 	c                   *Client
+}
+
+
+func (c *Client) CreateTcpRoute(routeRequest RouteRequest) (Route, error) {
+	routesResource, err := c.createRoute("/v2/routes?generate_port=true", routeRequest)
+	if nil != err {
+		return Route{}, err
+	}
+	return routesResource.Entity, nil
 }
 
 func (c *Client) ListRoutesByQuery(query url.Values) ([]Route, error) {
@@ -76,4 +91,29 @@ func (c *Client) getRoutesResponse(requestUrl string) (RoutesResponse, error) {
 		return RoutesResponse{}, errors.Wrap(err, "Error unmarshalling routes")
 	}
 	return routesResp, nil
+}
+
+
+func (c *Client) createRoute(requestUrl string, routeRequest RouteRequest) (RoutesResource, error) {
+	var routeResp RoutesResource
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(routeRequest)
+	if err != nil {
+		return RoutesResource{}, errors.Wrap(err, "Error creating route - failed to serialize request body")
+	}
+	r := c.NewRequestWithBody("POST", requestUrl, buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return RoutesResource{}, errors.Wrap(err, "Error creating route")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return RoutesResource{}, errors.Wrap(err, "Error creating route")
+	}
+	err = json.Unmarshal(resBody, &routeResp)
+	if err != nil {
+		return RoutesResource{}, errors.Wrap(err, "Error unmarshalling routes")
+	}
+	return routeResp, nil
 }
