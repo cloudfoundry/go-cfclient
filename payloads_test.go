@@ -2119,6 +2119,15 @@ const listSharedDomainsPayload = `{
     }
   ]
 }`
+
+const listDomainsEmptyResponse = `{
+  "total_results": 0,
+  "total_pages": 0,
+  "prev_url": null,
+  "next_url": null,
+  "resources": []
+}`
+
 const postDomainPayload = `{
   "metadata": {
     "guid": "b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
