@@ -67,7 +67,7 @@ func (c *Client) ListServicePlanVisibilities() ([]ServicePlanVisibility, error) 
 	return c.ListServicePlanVisibilitiesByQuery(nil)
 }
 
-func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizationGuid string) (*ServicePlanVisibility, error) {
+func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
 	req := c.NewRequest("POST", "/v2/service_plan_visibilities")
 	req.obj = map[string]interface{}{
 		"service_plan_guid": servicePlanGuid,
@@ -75,26 +75,26 @@ func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizatio
 	}
 	resp, err := c.DoRequest(req)
 	if err != nil {
-		return nil, err
+		return ServicePlanVisibility{}, err
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return nil, errors.Wrapf(err, "Error creating service plan visibility, response code: %d", resp.StatusCode)
+		return ServicePlanVisibility{}, errors.Wrapf(err, "Error creating service plan visibility, response code: %d", resp.StatusCode)
 	}
 	return respBodyToServicePlanVisibility(resp.Body, c)
 }
 
-func respBodyToServicePlanVisibility(body io.ReadCloser, c *Client) (*ServicePlanVisibility, error) {
+func respBodyToServicePlanVisibility(body io.ReadCloser, c *Client) (ServicePlanVisibility, error) {
 	bodyRaw, err := ioutil.ReadAll(body)
 	if err != nil {
-		return nil, err
+		return ServicePlanVisibility{}, err
 	}
 	servicePlanVisibilityRes := ServicePlanVisibilityResource{}
 	err = json.Unmarshal([]byte(bodyRaw), &servicePlanVisibilityRes)
 	if err != nil {
-		return nil, err
+		return ServicePlanVisibility{}, err
 	}
 	servicePlanVisibility := servicePlanVisibilityRes.Entity
 	servicePlanVisibility.Guid = servicePlanVisibilityRes.Meta.Guid
 	servicePlanVisibility.c = c
-	return &servicePlanVisibility, nil
+	return servicePlanVisibility, nil
 }
