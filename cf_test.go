@@ -84,10 +84,10 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		queryString := mock.QueryString
 		postFormBody := mock.PostForm
 		if method == "GET" {
-			r.Get(endpoint, func(req *http.Request) string {
+			r.Get(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
-				return output
+				return status, output
 			})
 		} else if method == "POST" {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
