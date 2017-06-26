@@ -1366,6 +1366,33 @@ const listServiceBindingsPayload = `{
   ]
 }`
 
+const serviceBindingByGuidPayload = `{
+  "metadata": {
+    "guid": "foo-bar-baz",
+    "url": "/v2/service_bindings/foo-bar-baz",
+    "created_at": "2017-06-22T03:46:24Z",
+    "updated_at": "2017-06-22T03:46:24Z"
+  },
+  "entity": {
+    "app_guid": "app-bar-baz",
+    "service_instance_guid": "instance-bar-baz",
+    "credentials": {
+      "host": "host.bar.baz",
+      "port": 5432
+    },
+    "binding_options": {
+    },
+    "gateway_data": null,
+    "gateway_name": "",
+    "syslog_drain_url": null,
+    "volume_mounts": [
+    ],
+    "app_url": "/v2/apps/app-bar-baz",
+    "service_instance_url": "/v2/service_instances/instance-bar-baz"
+  }
+}
+`
+
 const listServicePlansPayload = `{
   "total_results": 1,
   "total_pages": 1,

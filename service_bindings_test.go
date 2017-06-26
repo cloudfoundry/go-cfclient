@@ -37,3 +37,21 @@ func TestListServiceBindings(t *testing.T) {
 		So(serviceBindings[0].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/bde206e0-1ee8-48ad-b794-44c857633d50")
 	})
 }
+func TestServiceBindingByGuid(t *testing.T) {
+	Convey("Service Binding By Guid", t, func() {
+		setup(MockRoute{"GET", "/v2/service_bindings/foo-bar-baz", serviceBindingByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		serviceBinding, err := client.ServiceBindingByGuid("foo-bar-baz")
+		So(err, ShouldBeNil)
+
+		So(serviceBinding.Guid, ShouldEqual, "foo-bar-baz")
+		So(serviceBinding.AppGuid, ShouldEqual, "app-bar-baz")
+	})
+}
