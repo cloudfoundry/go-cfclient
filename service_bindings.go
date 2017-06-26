@@ -62,3 +62,24 @@ func (c *Client) ListServiceBindingsByQuery(query url.Values) ([]ServiceBinding,
 func (c *Client) ListServiceBindings() ([]ServiceBinding, error) {
 	return c.ListServiceBindingsByQuery(nil)
 }
+
+func (c *Client) ServiceBindingByGuid(guid string) (ServiceBinding, error) {
+	var serviceBinding ServiceBindingResource
+	r := c.NewRequest("GET", "/v2/service_bindings/"+url.QueryEscape(guid))
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return ServiceBinding{}, errors.Wrap(err, "Error requesting serving binding")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return ServiceBinding{}, errors.Wrap(err, "Error reading service binding response body")
+	}
+	err = json.Unmarshal(resBody, &serviceBinding)
+	if err != nil {
+		return ServiceBinding{}, errors.Wrap(err, "Error unmarshalling service binding")
+	}
+	serviceBinding.Entity.Guid = serviceBinding.Meta.Guid
+	serviceBinding.Entity.c = c
+	return serviceBinding.Entity, nil
+}
