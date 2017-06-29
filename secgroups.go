@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"reflect"
+	"strings"
 
 	"github.com/pkg/errors"
 )
