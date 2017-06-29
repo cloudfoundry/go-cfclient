@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type SpaceRequest struct {
@@ -84,16 +86,16 @@ func (s *Space) Org() (Org, error) {
 	r := s.c.NewRequest("GET", s.OrgURL)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error requesting org %v", err)
+		return Org{}, errors.Wrap(err, "Error requesting org")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error reading org request %v", err)
+		return Org{}, errors.Wrap(err, "Error reading org request")
 	}
 
 	err = json.Unmarshal(resBody, &orgResource)
 	if err != nil {
-		return Org{}, fmt.Errorf("Error unmarshaling org %v", err)
+		return Org{}, errors.Wrap(err, "Error unmarshaling org")
 	}
 	orgResource.Entity.Guid = orgResource.Meta.Guid
 	orgResource.Entity.c = s.c
@@ -110,16 +112,16 @@ func (s *Space) Quota() (*SpaceQuota, error) {
 	r := s.c.NewRequest("GET", requestUrl)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error requesting space quota %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error requesting space quota")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error reading space quota body %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error reading space quota body")
 	}
 	err = json.Unmarshal(resBody, &spaceQuotaResource)
 	if err != nil {
-		return &SpaceQuota{}, fmt.Errorf("Error unmarshalling space quota %v", err)
+		return &SpaceQuota{}, errors.Wrap(err, "Error unmarshalling space quota")
 	}
 	spaceQuota = &spaceQuotaResource.Entity
 	spaceQuota.Guid = spaceQuotaResource.Meta.Guid
@@ -133,16 +135,16 @@ func (s *Space) Summary() (SpaceSummary, error) {
 	r := s.c.NewRequest("GET", requestUrl)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error requesting space summary %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error requesting space summary")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error reading space summary body %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error reading space summary body")
 	}
 	err = json.Unmarshal(resBody, &spaceSummary)
 	if err != nil {
-		return SpaceSummary{}, fmt.Errorf("Error unmarshalling space summary %v", err)
+		return SpaceSummary{}, errors.Wrap(err, "Error unmarshalling space summary")
 	}
 	return spaceSummary, nil
 }
@@ -183,7 +185,26 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return c.handleSpaceResp(resp)
+}
 
+func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateDeveloperByUsername(name)
+}
+
+func (c *Client) RemoveSpaceDeveloperByUsername(spaceGUID, name string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveDeveloperByUsername(name)
+}
+
+func (c *Client) AssociateSpaceAuditorByUsername(spaceGUID, name string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateAuditorByUsername(name)
+}
+
+func (c *Client) RemoveSpaceAuditorByUsername(spaceGUID, name string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveAuditorByUsername(name)
 }
 
 func (s *Space) AssociateDeveloperByUsername(name string) (Space, error) {
@@ -285,21 +306,48 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 	return spaces, nil
 }
 
+func (c *Client) GetSpaceByName(spaceName string, orgGuid string) (space Space, err error) {
+	query := url.Values{}
+	query.Add("q", fmt.Sprintf("organization_guid:%s", orgGuid))
+	query.Add("q", fmt.Sprintf("name:%s", spaceName))
+	spaces, err := c.ListSpacesByQuery(query)
+	if err != nil {
+		return
+	}
+
+	if len(spaces) == 0 {
+		return space, fmt.Errorf("No space found with name: `%s` in org with GUID: `%s`", spaceName, orgGuid)
+	}
+
+	return spaces[0], nil
+
+}
+
+func (c *Client) GetSpaceByGuid(spaceGUID string) (Space, error) {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s", spaceGUID)
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Space{}, errors.Wrap(err, "Error requesting space info")
+	}
+	return c.handleSpaceResp(resp)
+}
+
 func (c *Client) getSpaceResponse(requestUrl string) (SpaceResponse, error) {
 	var spaceResp SpaceResponse
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error requesting spaces %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error requesting spaces")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error reading space request %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error reading space request")
 	}
 	err = json.Unmarshal(resBody, &spaceResp)
 	if err != nil {
-		return SpaceResponse{}, fmt.Errorf("Error unmarshalling space %v", err)
+		return SpaceResponse{}, errors.Wrap(err, "Error unmarshalling space")
 	}
 	return spaceResp, nil
 }
@@ -309,16 +357,16 @@ func (c *Client) getSpaceRolesResponse(requestUrl string) (SpaceRoleResponse, er
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return roleResp, fmt.Errorf("Error requesting space roles %v", err)
+		return roleResp, errors.Wrap(err, "Error requesting space roles")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return roleResp, fmt.Errorf("Error reading space roles request %v", err)
+		return roleResp, errors.Wrap(err, "Error reading space roles request")
 	}
 	err = json.Unmarshal(resBody, &roleResp)
 	if err != nil {
-		return roleResp, fmt.Errorf("Error unmarshalling space roles %v", err)
+		return roleResp, errors.Wrap(err, "Error unmarshalling space roles")
 	}
 	return roleResp, nil
 }

@@ -2,9 +2,10 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type ServiceInstancesResponse struct {
@@ -56,16 +57,16 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]ServiceInstanc
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
-			return nil, fmt.Errorf("Error requesting service instances %v", err)
+			return nil, errors.Wrap(err, "Error requesting service instances")
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading service instances request: %v", err)
+			return nil, errors.Wrap(err, "Error reading service instances request:")
 		}
 
 		err = json.Unmarshal(resBody, &sir)
 		if err != nil {
-			return nil, fmt.Errorf("Error unmarshaling service instances %v", err)
+			return nil, errors.Wrap(err, "Error unmarshaling service instances")
 		}
 		for _, instance := range sir.Resources {
 			instance.Entity.Guid = instance.Meta.Guid
@@ -90,19 +91,16 @@ func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
 	req := c.NewRequest("GET", "/v2/service_instances/"+guid)
 	res, err := c.DoRequest(req)
 	if err != nil {
-		return ServiceInstance{}, fmt.Errorf("Error requesting service instance: %s", err)
-	}
-	if res.StatusCode >= 400 {
-		return ServiceInstance{}, fmt.Errorf("Error requesting service instance '%s': %s", guid, res.Status)
+		return ServiceInstance{}, errors.Wrap(err, "Error requesting service instance")
 	}
 
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return ServiceInstance{}, fmt.Errorf("Error reading service instance response: %s", err)
+		return ServiceInstance{}, errors.Wrap(err, "Error reading service instance response")
 	}
 	err = json.Unmarshal(data, &sir)
 	if err != nil {
-		return ServiceInstance{}, fmt.Errorf("Error JSON parsing service instance response: %s", err)
+		return ServiceInstance{}, errors.Wrap(err, "Error JSON parsing service instance response")
 	}
 	sir.Entity.Guid = sir.Meta.Guid
 	sir.Entity.c = c

@@ -5,6 +5,8 @@ import (
 
 	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
+	"net/http"
+	"time"
 )
 
 func TestDefaultConfig(t *testing.T) {
@@ -21,7 +23,7 @@ func TestDefaultConfig(t *testing.T) {
 
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -31,17 +33,54 @@ func TestMakeRequest(t *testing.T) {
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
-		req := client.NewRequest("GET", "/v2/foobar")
+		req := client.NewRequest("GET", "/v2/organizations")
 		resp, err := client.DoRequest(req)
 		So(err, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
 	})
 }
 
+func TestMakeRequestFailure(t *testing.T) {
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress:        server.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+		req := client.NewRequest("GET", "/v2/organizations")
+		req.url = "%gh&%ij"
+		resp, err := client.DoRequest(req)
+		So(resp, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+	})
+}
+
+func TestMakeRequestWithTimeout(t *testing.T) {
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress:        server.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
+			HttpClient:        &http.Client{Timeout: 10 * time.Nanosecond},
+		}
+		client, err := NewClient(c)
+		So(err, ShouldNotBeNil)
+		So(client, ShouldBeNil)
+	})
+}
+
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
 		c := &Config{
 			ApiAddress: server.URL,
 			Username:   "foo",

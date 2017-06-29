@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type AppResponse struct {
@@ -24,6 +25,8 @@ type AppResource struct {
 
 type App struct {
 	Guid                     string                 `json:"guid"`
+	CreatedAt                string                 `json:"created_at"`
+	UpdatedAt                string                 `json:"updated_at"`
 	Name                     string                 `json:"name"`
 	Memory                   int                    `json:"memory"`
 	Instances                int                    `json:"instances"`
@@ -31,6 +34,7 @@ type App struct {
 	SpaceGuid                string                 `json:"space_guid"`
 	StackGuid                string                 `json:"stack_guid"`
 	State                    string                 `json:"state"`
+	PackageState             string                 `json:"package_state"`
 	Command                  string                 `json:"command"`
 	Buildpack                string                 `json:"buildpack"`
 	DetectedBuildpack        string                 `json:"detected_buildpack"`
@@ -49,6 +53,7 @@ type App struct {
 	Ports                    []int                  `json:"ports"`
 	SpaceURL                 string                 `json:"space_url"`
 	SpaceData                SpaceResource          `json:"space"`
+	PackageUpdatedAt         string                 `json:"package_updated_at"`
 	c                        *Client
 }
 
@@ -128,12 +133,18 @@ func (s *statTime) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	time, err := time.Parse("2006-01-02 15:04:05 -0700", timeString)
-	if err != nil {
-		return err
+
+	possibleFormats := [...]string{time.RFC3339, time.RFC3339Nano, "2006-01-02 15:04:05 -0700", "2006-01-02 15:04:05 MST"}
+
+	var value time.Time
+	for _, possibleFormat := range possibleFormats {
+		if value, err = time.Parse(possibleFormat, timeString); err == nil {
+			*s = statTime{value}
+			return nil
+		}
 	}
-	*s = statTime{time}
-	return nil
+
+	return fmt.Errorf("%s was not in any of the expected Date Formats %v", timeString, possibleFormats)
 }
 
 func (s statTime) ToTime() time.Time {
@@ -146,17 +157,17 @@ func (a *App) Space() (Space, error) {
 	r := a.c.NewRequest("GET", a.SpaceURL)
 	resp, err := a.c.DoRequest(r)
 	if err != nil {
-		return Space{}, fmt.Errorf("Error requesting space: %v", err)
+		return Space{}, errors.Wrap(err, "Error requesting space")
 	}
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading space request: %v", err)
+		return Space{}, errors.Wrap(err, "Error reading space response")
 	}
 
 	err = json.Unmarshal(resBody, &spaceResource)
 	if err != nil {
-		return Space{}, fmt.Errorf("Error unmarshaling space: %v", err)
+		return Space{}, errors.Wrap(err, "Error unmarshalling body")
 	}
 	spaceResource.Entity.Guid = spaceResource.Meta.Guid
 	spaceResource.Entity.c = a.c
@@ -172,21 +183,23 @@ func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
-			return nil, fmt.Errorf("Error requesting apps %v", err)
+			return nil, errors.Wrap(err, "Error requesting apps")
 		}
 		defer resp.Body.Close()
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("Error reading app request %v", resBody)
+			return nil, errors.Wrap(err, "Error reading app request")
 		}
 
 		err = json.Unmarshal(resBody, &appResp)
 		if err != nil {
-			return nil, fmt.Errorf("Error unmarshaling app %v", err)
+			return nil, errors.Wrap(err, "Error unmarshalling app")
 		}
 
 		for _, app := range appResp.Resources {
 			app.Entity.Guid = app.Meta.Guid
+			app.Entity.CreatedAt = app.Meta.CreatedAt
+			app.Entity.UpdatedAt = app.Meta.UpdatedAt
 			app.Entity.SpaceData.Entity.Guid = app.Entity.SpaceData.Meta.Guid
 			app.Entity.SpaceData.Entity.OrgData.Entity.Guid = app.Entity.SpaceData.Entity.OrgData.Meta.Guid
 			app.Entity.c = c
@@ -214,16 +227,16 @@ func (c *Client) GetAppInstances(guid string) (map[string]AppInstance, error) {
 	r := c.NewRequest("GET", requestURL)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return nil, fmt.Errorf("Error requesting app instances %v", err)
+		return nil, errors.Wrap(err, "Error requesting app instances")
 	}
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading app instances %v", err)
+		return nil, errors.Wrap(err, "Error reading app instances")
 	}
 	err = json.Unmarshal(resBody, &appInstances)
 	if err != nil {
-		return nil, fmt.Errorf("Error unmarshalling app instances %v", err)
+		return nil, errors.Wrap(err, "Error unmarshalling app instances")
 	}
 	return appInstances, nil
 }
@@ -235,16 +248,16 @@ func (c *Client) GetAppEnv(guid string) (AppEnv, error) {
 	r := c.NewRequest("GET", requestURL)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return appEnv, fmt.Errorf("Error requesting app env %v", err)
+		return appEnv, errors.Wrap(err, "Error requesting app env")
 	}
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return appEnv, fmt.Errorf("Error reading app env %v", err)
+		return appEnv, errors.Wrap(err, "Error reading app env")
 	}
 	err = json.Unmarshal(resBody, &appEnv)
 	if err != nil {
-		return appEnv, fmt.Errorf("Error unmarshalling app env %v", err)
+		return appEnv, errors.Wrap(err, "Error unmarshalling app env")
 	}
 	return appEnv, nil
 }
@@ -260,16 +273,16 @@ func (c *Client) GetAppStats(guid string) (map[string]AppStats, error) {
 	r := c.NewRequest("GET", requestURL)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return nil, fmt.Errorf("Error requesting app stats %v", err)
+		return nil, errors.Wrap(err, "Error requesting app stats")
 	}
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading app stats %v", err)
+		return nil, errors.Wrap(err, "Error reading app stats")
 	}
 	err = json.Unmarshal(resBody, &appStats)
 	if err != nil {
-		return nil, fmt.Errorf("Error unmarshalling app stats %v", err)
+		return nil, errors.Wrap(err, "Error unmarshalling app stats")
 	}
 	return appStats, nil
 }
@@ -279,11 +292,11 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 	r := c.NewRequest("DELETE", requestURL)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
+		return errors.Wrapf(err, "Error stopping app %s at index %s", guid, index)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 204 {
-		return fmt.Errorf("Error stopping app %s at index %s", guid, index)
+		return errors.Wrapf(err, "Error stopping app %s at index %s", guid, index)
 	}
 	return nil
 }
@@ -293,21 +306,41 @@ func (c *Client) AppByGuid(guid string) (App, error) {
 	r := c.NewRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return App{}, fmt.Errorf("Error requesting apps: %v", err)
+		return App{}, errors.Wrap(err, "Error requesting apps")
 	}
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading app request %v", resBody)
+		return App{}, errors.Wrap(err, "Error reading app response body")
 	}
 
 	err = json.Unmarshal(resBody, &appResource)
 	if err != nil {
-		return App{}, fmt.Errorf("Error unmarshaling app: %v", err)
+		return App{}, errors.Wrap(err, "Error unmarshalling app")
 	}
 	appResource.Entity.Guid = appResource.Meta.Guid
 	appResource.Entity.SpaceData.Entity.Guid = appResource.Entity.SpaceData.Meta.Guid
 	appResource.Entity.SpaceData.Entity.OrgData.Entity.Guid = appResource.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	appResource.Entity.c = c
 	return appResource.Entity, nil
+}
+
+//AppByName takes an appName, and GUIDs for a space and org, and performs
+// the API lookup with those query parameters set to return you the desired
+// App object.
+func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err error) {
+	query := url.Values{}
+	query.Add("q", fmt.Sprintf("organization_guid:%s", orgGuid))
+	query.Add("q", fmt.Sprintf("space_guid:%s", spaceGuid))
+	query.Add("q", fmt.Sprintf("name:%s", appName))
+	apps, err := c.ListAppsByQuery(query)
+	if err != nil {
+		return
+	}
+	if len(apps) == 0 {
+		err = fmt.Errorf("No app found with name: `%s` in space with GUID `%s` and org with GUID `%s`", appName, spaceGuid, orgGuid)
+		return
+	}
+	app = apps[0]
+	return
 }
