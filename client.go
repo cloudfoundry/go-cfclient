@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -98,16 +98,32 @@ func NewClient(config *Config) (client *Client, err error) {
 	if len(config.UserAgent) == 0 {
 		config.UserAgent = defConfig.UserAgent
 	}
+
+	if config.HttpClient == nil {
+		config.HttpClient = defConfig.HttpClient
+	}
+
+	if config.HttpClient.Transport == nil {
+		config.HttpClient.Transport = shallowDefaultTransport()
+	}
+
+	tp := config.HttpClient.Transport.(*http.Transport)
+	if tp.TLSClientConfig == nil {
+		tp.TLSClientConfig = &tls.Config{}
+	}
+
+	// we want to keep the Timeout value from config.HttpClient
+	timeout := config.HttpClient.Timeout
+
 	ctx := context.Background()
 
-	tr := http.DefaultTransport.(*http.Transport)
-	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: config.SkipSslValidation}
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, &http.Client{Transport: tr})
+	tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, config.HttpClient)
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
 
 	if err != nil {
-		return nil, fmt.Errorf("Could not get api /v2/info: %v", err)
+		return nil, errors.Wrap(err, "Could not get api /v2/info")
 	}
 
 	switch {
@@ -121,12 +137,24 @@ func NewClient(config *Config) (client *Client, err error) {
 			return nil, err
 		}
 	}
-
+	// make sure original Timeout value will be used
+	if config.HttpClient.Timeout != timeout {
+		config.HttpClient.Timeout = timeout
+	}
 	client = &Client{
 		config:   *config,
 		Endpoint: *endpoint,
 	}
 	return client, nil
+}
+
+func shallowDefaultTransport() *http.Transport {
+	defaultTransport := http.DefaultTransport.(*http.Transport)
+	return &http.Transport{
+		Proxy:                 defaultTransport.Proxy,
+		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
+	}
 }
 
 func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Config, error) {
@@ -142,7 +170,7 @@ func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Conf
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
 
 	if err != nil {
-		return nil, fmt.Errorf("Error getting token: %v", err)
+		return nil, errors.Wrap(err, "Error getting token")
 	}
 
 	config.TokenSource = authConfig.TokenSource(ctx, token)
@@ -239,7 +267,19 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	}
 
 	resp, err := c.config.HttpClient.Do(req)
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		var cfErr CloudFoundryError
+		if err := decodeBody(resp, &cfErr); err != nil {
+			return resp, errors.Wrap(err, "Unable to decode body")
+		}
+		return nil, cfErr
+	}
+
+	return resp, nil
 }
 
 // toHTTP converts the request to an HTTP request
@@ -278,7 +318,7 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 func (c *Client) GetToken() (string, error) {
 	token, err := c.config.TokenSource.Token()
 	if err != nil {
-		return "", fmt.Errorf("Error getting bearer token: %v", err)
+		return "", errors.Wrap(err, "Error getting bearer token")
 	}
 	return "bearer " + token.AccessToken, nil
 }

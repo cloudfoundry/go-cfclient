@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
-	"reflect"
-	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type SecGroupResponse struct {
@@ -15,6 +14,12 @@ type SecGroupResponse struct {
 	Pages     int                `json:"total_pages"`
 	NextUrl   string             `json:"next_url"`
 	Resources []SecGroupResource `json:"resources"`
+}
+
+type SecGroupCreateResponse struct {
+	Code        int    `json:"code"`
+	ErrorCode   string `json:"error_code"`
+	Description string `json:"description"`
 }
 
 type SecGroupResource struct {
@@ -51,16 +56,16 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 		resp, err := c.DoRequest(r)
 
 		if err != nil {
-			return nil, fmt.Errorf("Error requesting sec groups %v", err)
+			return nil, errors.Wrap(err, "Error requesting sec groups")
 		}
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("Error reading sec group request %v", string(resBody))
+			return nil, errors.Wrap(err, "Error reading sec group response body")
 		}
 
 		err = json.Unmarshal(resBody, &secGroupResp)
 		if err != nil {
-			return nil, fmt.Errorf("Error unmarshaling sec group %v", err)
+			return nil, errors.Wrap(err, "Error unmarshaling sec group")
 		}
 
 		for _, secGroup := range secGroupResp.Resources {
@@ -95,16 +100,16 @@ func (c *Client) GetSecGroupByName(name string) (secGroup SecGroup, err error) {
 	resp, err := c.DoRequest(r)
 
 	if err != nil {
-		return secGroup, fmt.Errorf("Error requesting sec groups %v", err)
+		return secGroup, errors.Wrap(err, "Error requesting sec groups")
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading sec group request %v", string(resBody))
+		return secGroup, errors.Wrap(err, "Error reading sec group response body")
 	}
 
 	err = json.Unmarshal(resBody, &secGroupResp)
 	if err != nil {
-		return secGroup, fmt.Errorf("Error unmarshaling sec group %v", err)
+		return secGroup, errors.Wrap(err, "Error unmarshaling sec group")
 	}
 	if len(secGroupResp.Resources) == 0 {
 		return secGroup, fmt.Errorf("No security group with name %v found", name)
@@ -264,15 +269,13 @@ func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	//get the json from the response body
 	bodyRaw, err := ioutil.ReadAll(body)
 	if err != nil {
-		return nil, fmt.Errorf("Could not read response body: %s", err.Error())
+		return nil, errors.Wrap(err, "Could not read response body")
 	}
 	jStruct := SecGroupResource{}
 	//make it a SecGroup
 	err = json.Unmarshal([]byte(bodyRaw), &jStruct)
 	if err != nil {
-		return nil, fmt.Errorf(`Could not unmarshal response body as json.
-		body: %s
-		error: %s`, bodyRaw, err.Error())
+		return nil, errors.Wrap(err, "Could not unmarshal response body as json")
 	}
 	//pull a few extra fields from other places
 	ret := jStruct.Entity
@@ -343,7 +346,21 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 		return nil, err
 	}
 	if resp.StatusCode != 201 { // Both create and update should give 201 CREATED
-		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		var response SecGroupCreateResponse
+
+		bodyRaw, _ := ioutil.ReadAll(resp.Body)
+
+		err = json.Unmarshal(bodyRaw, &response)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling response")
+		}
+
+		return nil, fmt.Errorf(`Request failed CF API returned with status code %d
+-------------------------------
+Error Code  %s
+Code        %d
+Description %s`,
+			resp.StatusCode, response.ErrorCode, response.Code, response.Description)
 	}
 	//get the json from the response body
 	return respBodyToSecGroup(resp.Body, c)

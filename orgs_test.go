@@ -9,8 +9,8 @@ import (
 func TestListOrgs(t *testing.T) {
 	Convey("List Org", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/organizations", listOrgsPayload, "", 200},
-			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200},
+			{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -32,7 +32,7 @@ func TestListOrgs(t *testing.T) {
 
 func TestGetOrgByGuid(t *testing.T) {
 	Convey("List Org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -51,7 +51,7 @@ func TestGetOrgByGuid(t *testing.T) {
 
 func TestOrgSpaces(t *testing.T) {
 	Convey("Get spaces by org", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations/foo/spaces", orgSpacesPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -71,7 +71,7 @@ func TestOrgSpaces(t *testing.T) {
 
 func TestOrgSummary(t *testing.T) {
 	Convey("Get org summary", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -104,7 +104,7 @@ func TestOrgSummary(t *testing.T) {
 
 func TestOrgQuota(t *testing.T) {
 	Convey("Get org quota", t, func() {
-		setup(MockRoute{"GET", "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b", orgQuotaPayload, "", 200}, t)
+		setup(MockRoute{"GET", "/v2/quota_definitions/a537761f-9d93-4b30-af17-3d73dbca181b", orgQuotaPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -138,7 +138,7 @@ func TestOrgQuota(t *testing.T) {
 
 func TestCreateOrg(t *testing.T) {
 	Convey("Create org", t, func() {
-		setup(MockRoute{"POST", "/v2/organizations", createOrgPayload, "", 201}, t)
+		setup(MockRoute{"POST", "/v2/organizations", createOrgPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -155,7 +155,7 @@ func TestCreateOrg(t *testing.T) {
 
 func TestDeleteOrg(t *testing.T) {
 	Convey("Delete org", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -164,14 +164,14 @@ func TestDeleteOrg(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b")
+		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b", false)
 		So(err, ShouldBeNil)
 	})
 }
 
 func TestAssociateManager(t *testing.T) {
 	Convey("Associate manager", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", associateOrgManagerPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", associateOrgManagerPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -193,7 +193,7 @@ func TestAssociateManager(t *testing.T) {
 
 func TestAssociateAuditor(t *testing.T) {
 	Convey("Associate auditor", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", associateOrgAuditorPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", associateOrgAuditorPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -215,7 +215,7 @@ func TestAssociateAuditor(t *testing.T) {
 
 func TestAssociateUser(t *testing.T) {
 	Convey("Associate user", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", associateOrgUserPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -237,7 +237,7 @@ func TestAssociateUser(t *testing.T) {
 
 func TestAssociateManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgManagerPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgManagerPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -259,7 +259,7 @@ func TestAssociateManagerByUsername(t *testing.T) {
 
 func TestAssociateAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgAuditorPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgAuditorPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -281,7 +281,7 @@ func TestAssociateAuditorByUsername(t *testing.T) {
 
 func TestAssociateUserByUsername(t *testing.T) {
 	Convey("Associate user by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -303,7 +303,7 @@ func TestAssociateUserByUsername(t *testing.T) {
 
 func TestRemoveManager(t *testing.T) {
 	Convey("Remove manager", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -324,7 +324,7 @@ func TestRemoveManager(t *testing.T) {
 
 func TestRemoveAuditor(t *testing.T) {
 	Convey("Remove auditor", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -345,7 +345,7 @@ func TestRemoveAuditor(t *testing.T) {
 
 func TestRemoveUser(t *testing.T) {
 	Convey("Remove user", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -366,7 +366,7 @@ func TestRemoveUser(t *testing.T) {
 
 func TestRemoveManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -387,7 +387,7 @@ func TestRemoveManagerByUsername(t *testing.T) {
 
 func TestRemoveAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -408,7 +408,7 @@ func TestRemoveAuditorByUsername(t *testing.T) {
 
 func TestRemoveUserByUsername(t *testing.T) {
 	Convey("Remove user by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", "", "", 204}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", "", "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
