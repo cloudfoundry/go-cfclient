@@ -45,8 +45,8 @@ type SecGroupRule struct {
 	Ports       string `json:"ports,omitempty"`       //e.g. "4000-5000,9142"
 	Destination string `json:"destination"`           //CIDR Format
 	Description string `json:"description,omitempty"` //Optional description
-	Code        int    `json:"code,omitempty"`        // ICMP code
-	Type        int    `json:"type,omitempty"`        //ICMP type. Only valid if Protocol=="icmp"
+	Code        int    `json:"code"`                  // ICMP code
+	Type        int    `json:"type"`                  //ICMP type. Only valid if Protocol=="icmp"
 	Log         bool   `json:"log,omitempty"`         //If true, log this rule
 }
 
@@ -286,13 +286,60 @@ func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	return &ret, nil
 }
 
+func ConvertStructToMap(st interface{}) map[string]interface{} {
+
+	reqRules := make(map[string]interface{})
+
+	v := reflect.ValueOf(st)
+	t := reflect.TypeOf(st)
+
+	for i := 0; i < v.NumField(); i++ {
+		key := strings.ToLower(t.Field(i).Name)
+		typ := v.FieldByName(t.Field(i).Name).Kind().String()
+		structTag := t.Field(i).Tag.Get("json")
+		jsonName := strings.TrimSpace(strings.Split(structTag, ",")[0])
+		value := v.FieldByName(t.Field(i).Name)
+
+		// if jsonName is not empty use it for the key
+		if jsonName != "" {
+			key = jsonName
+		}
+
+		if typ == "string" {
+			if !(value.String() == "" && strings.Contains(structTag, "omitempty")) {
+				reqRules[key] = value.String()
+			}
+		} else if typ == "int" {
+			reqRules[key] = value.Int()
+		} else {
+			reqRules[key] = value.Interface()
+		}
+
+	}
+
+	return reqRules
+}
+
 //Create and Update secGroup pretty much do the same thing, so this function abstracts those out.
 func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroupRule, spaceGuids []string) (*SecGroup, error) {
+	reqRules := make([]map[string]interface{}, len(rules))
+
+	for i, rule := range rules {
+		reqRules[i] = ConvertStructToMap(rule)
+		protocol := strings.ToLower(reqRules[i]["protocol"].(string))
+
+		// if not icmp protocol need to remove the Code/Type fields
+		if protocol != "icmp" {
+			delete(reqRules[i], "code")
+			delete(reqRules[i], "type")
+		}
+	}
+
 	req := c.NewRequest(method, url)
 	//set up request body
 	req.obj = map[string]interface{}{
 		"name":        name,
-		"rules":       rules,
+		"rules":       reqRules,
 		"space_guids": spaceGuids,
 	}
 	//fire off the request and check for problems
