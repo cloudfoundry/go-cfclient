@@ -86,7 +86,7 @@ func (c *Client) ListServiceInstances() ([]ServiceInstance, error) {
 	return c.ListServiceInstancesByQuery(nil)
 }
 
-func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
+func (c *Client) GetServiceInstanceByGuid(guid string) (ServiceInstance, error) {
 	var sir ServiceInstanceResource
 	req := c.NewRequest("GET", "/v2/service_instances/"+guid)
 	res, err := c.DoRequest(req)
@@ -105,4 +105,8 @@ func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
 	sir.Entity.Guid = sir.Meta.Guid
 	sir.Entity.c = c
 	return sir.Entity, nil
+}
+
+func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
+	return c.GetServiceInstanceByGuid(guid)
 }
