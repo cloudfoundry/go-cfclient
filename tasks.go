@@ -179,7 +179,7 @@ func (c *Client) CreateTask(tr TaskRequest) (task Task, err error) {
 }
 
 // TaskByGuid returns a task structure by requesting it with the tasks GUID.
-func (c *Client) TaskByGuid(guid string) (task Task, err error) {
+func (c *Client) GetTaskByGuid(guid string) (task Task, err error) {
 	request := fmt.Sprintf("/v3/tasks/%s", guid)
 	req := c.NewRequest("GET", request)
 
@@ -199,6 +199,10 @@ func (c *Client) TaskByGuid(guid string) (task Task, err error) {
 		return task, errors.Wrap(err, "Error unmarshaling task")
 	}
 	return task, err
+}
+
+func (c *Client) TaskByGuid(guid string) (task Task, err error) {
+	return c.GetTaskByGuid(guid)
 }
 
 // TerminateTask cancels a task identified by its GUID.

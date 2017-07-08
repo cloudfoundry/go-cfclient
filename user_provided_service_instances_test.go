@@ -19,7 +19,7 @@ func TestUserProvidedServiceInstanceByGuid(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		instance, err := client.UserProvidedServiceInstanceByGuid("e9358711-0ad9-4f2a-b3dc-289d47c17c87")
+		instance, err := client.GetUserProvidedServiceInstanceByGuid("e9358711-0ad9-4f2a-b3dc-289d47c17c87")
 		So(err, ShouldBeNil)
 
 		So(instance.Guid, ShouldEqual, "e9358711-0ad9-4f2a-b3dc-289d47c17c87")

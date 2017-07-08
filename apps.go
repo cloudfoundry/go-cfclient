@@ -301,7 +301,7 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 	return nil
 }
 
-func (c *Client) AppByGuid(guid string) (App, error) {
+func (c *Client) GetAppByGuid(guid string) (App, error) {
 	var appResource AppResource
 	r := c.NewRequest("GET", "/v2/apps/"+guid+"?inline-relations-depth=2")
 	resp, err := c.DoRequest(r)
@@ -323,6 +323,10 @@ func (c *Client) AppByGuid(guid string) (App, error) {
 	appResource.Entity.SpaceData.Entity.OrgData.Entity.Guid = appResource.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	appResource.Entity.c = c
 	return appResource.Entity, nil
+}
+
+func (c *Client) AppByGuid(guid string) (App, error) {
+	return c.GetAppByGuid(guid)
 }
 
 //AppByName takes an appName, and GUIDs for a space and org, and performs

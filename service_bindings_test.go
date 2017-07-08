@@ -48,7 +48,7 @@ func TestServiceBindingByGuid(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		serviceBinding, err := client.ServiceBindingByGuid("foo-bar-baz")
+		serviceBinding, err := client.GetServiceBindingByGuid("foo-bar-baz")
 		So(err, ShouldBeNil)
 
 		So(serviceBinding.Guid, ShouldEqual, "foo-bar-baz")
