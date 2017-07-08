@@ -16,7 +16,7 @@ import (
 
 //Client used to communicate with Cloud Foundry
 type Client struct {
-	config   Config
+	Config   Config
 	Endpoint Endpoint
 }
 
@@ -142,7 +142,7 @@ func NewClient(config *Config) (client *Client, err error) {
 		config.HttpClient.Timeout = timeout
 	}
 	client = &Client{
-		config:   *config,
+		Config:   *config,
 		Endpoint: *endpoint,
 	}
 	return client, nil
@@ -238,7 +238,7 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 func (c *Client) NewRequest(method, path string) *request {
 	r := &request{
 		method: method,
-		url:    c.config.ApiAddress + path,
+		url:    c.Config.ApiAddress + path,
 		params: make(map[string][]string),
 	}
 	return r
@@ -261,12 +261,12 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", c.config.UserAgent)
+	req.Header.Set("User-Agent", c.Config.UserAgent)
 	if r.body != nil {
 		req.Header.Set("Content-type", "application/json")
 	}
 
-	resp, err := c.config.HttpClient.Do(req)
+	resp, err := c.Config.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +316,7 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 }
 
 func (c *Client) GetToken() (string, error) {
-	token, err := c.config.TokenSource.Token()
+	token, err := c.Config.TokenSource.Token()
 	if err != nil {
 		return "", errors.Wrap(err, "Error getting bearer token")
 	}
