@@ -72,7 +72,7 @@ func TestAppByGuid(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		app, err := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		app, err := client.GetAppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
 		So(err, ShouldBeNil)
 
 		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
@@ -89,7 +89,7 @@ func TestAppByGuid(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		app, err := client.AppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
+		app, err := client.GetAppByGuid("9902530c-c634-4864-a189-71d763cb12e2")
 		So(err, ShouldBeNil)
 
 		So(app.Environment["string"], ShouldEqual, "string")

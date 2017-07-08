@@ -145,7 +145,7 @@ func TestGetTask(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		task, err := client.TaskByGuid("740ebd2b-162b-469a-bd72-3edb96fabd9a")
+		task, err := client.GetTaskByGuid("740ebd2b-162b-469a-bd72-3edb96fabd9a")
 		So(err, ShouldBeNil)
 
 		So(task.Command, ShouldEqual, "rake db:migrate")

@@ -38,7 +38,7 @@ func TestServiceInstanceByGuid(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		service, err := client.ServiceInstanceByGuid("8423ca96-90ad-411f-b77a-0907844949fc")
+		service, err := client.GetServiceInstanceByGuid("8423ca96-90ad-411f-b77a-0907844949fc")
 		So(err, ShouldBeNil)
 
 		expected := ServiceInstance{

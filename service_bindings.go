@@ -63,7 +63,7 @@ func (c *Client) ListServiceBindings() ([]ServiceBinding, error) {
 	return c.ListServiceBindingsByQuery(nil)
 }
 
-func (c *Client) ServiceBindingByGuid(guid string) (ServiceBinding, error) {
+func (c *Client) GetServiceBindingByGuid(guid string) (ServiceBinding, error) {
 	var serviceBinding ServiceBindingResource
 	r := c.NewRequest("GET", "/v2/service_bindings/"+url.QueryEscape(guid))
 	resp, err := c.DoRequest(r)
@@ -82,4 +82,8 @@ func (c *Client) ServiceBindingByGuid(guid string) (ServiceBinding, error) {
 	serviceBinding.Entity.Guid = serviceBinding.Meta.Guid
 	serviceBinding.Entity.c = c
 	return serviceBinding.Entity, nil
+}
+
+func (c *Client) ServiceBindingByGuid(guid string) (ServiceBinding, error) {
+	return c.GetServiceBindingByGuid(guid)
 }
