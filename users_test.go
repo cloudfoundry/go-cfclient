@@ -108,6 +108,78 @@ func TestListUserAuditedSpaces(t *testing.T) {
 	})
 }
 
+func TestListUserOrgs(t *testing.T) {
+	Convey("List User Spaces", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/organizations", listUserOrgsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListUserOrgs("cadd6389-fcf6-4928-84f0-6153556bf693")
+		So(err, ShouldBeNil)
+
+		So(len(orgs), ShouldEqual, 1)
+		So(orgs[0].Guid, ShouldEqual, "9881c79e-d269-4a53-9d77-cb21b745356e")
+		So(orgs[0].Name, ShouldEqual, "dev")
+		So(orgs[0].QuotaDefinitionGuid, ShouldEqual, "6a2a2d18-7620-43cf-a332-353824b431b2")
+	})
+}
+
+func ListUserAuditedOrgs(t *testing.T) {
+	Convey("List User Audited Spaces", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_organizations", listUserOrgsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListUserAuditedOrgs("cadd6389-fcf6-4928-84f0-6153556bf693")
+		So(err, ShouldBeNil)
+
+		So(len(orgs), ShouldEqual, 1)
+		So(orgs[0].Guid, ShouldEqual, "9881c79e-d269-4a53-9d77-cb21b745356e")
+		So(orgs[0].Name, ShouldEqual, "dev")
+		So(orgs[0].QuotaDefinitionGuid, ShouldEqual, "6a2a2d18-7620-43cf-a332-353824b431b2")
+	})
+}
+
+func TestUserBillingManagedOrgs(t *testing.T) {
+	Convey("List User Managed Spaces", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/billing_managed_organizations", listUserOrgsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListUserBillingManagedOrgs("cadd6389-fcf6-4928-84f0-6153556bf693")
+		So(err, ShouldBeNil)
+
+		So(len(orgs), ShouldEqual, 1)
+		So(orgs[0].Guid, ShouldEqual, "9881c79e-d269-4a53-9d77-cb21b745356e")
+		So(orgs[0].Name, ShouldEqual, "dev")
+		So(orgs[0].QuotaDefinitionGuid, ShouldEqual, "6a2a2d18-7620-43cf-a332-353824b431b2")
+	})
+}
+
 func TestGetUserByUsername(t *testing.T) {
 	Convey("Get User by Username", t, func() {
 		user1 := User{Guid: "ccec6d06-5f71-48a0-a4c5-c91a1d9f2fac", Username: "testUser1"}

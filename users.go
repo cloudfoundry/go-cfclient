@@ -83,6 +83,18 @@ func (c *Client) ListUserManagedSpaces(userGuid string) ([]Space, error) {
 	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", userGuid))
 }
 
+func (c *Client) ListUserOrgs(userGuid string) ([]Org, error) {
+	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/organizations", userGuid))
+}
+
+func (c *Client) ListUserAuditedOrgs(userGuid string) ([]Org, error) {
+	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/audited_organizations", userGuid))
+}
+
+func (c *Client) ListUserBillingManagedOrgs(userGuid string) ([]Org, error) {
+	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/billing_managed_organizations", userGuid))
+}
+
 func (c *Client) CreateUser(req UserRequest) (User, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(req)
