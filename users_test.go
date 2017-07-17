@@ -132,6 +132,30 @@ func TestListUserOrgs(t *testing.T) {
 	})
 }
 
+func TestListUserManagedOrgs(t *testing.T) {
+	Convey("List User Spaces", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_organizations", listUserOrgsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListUserManagedOrgs("cadd6389-fcf6-4928-84f0-6153556bf693")
+		So(err, ShouldBeNil)
+
+		So(len(orgs), ShouldEqual, 1)
+		So(orgs[0].Guid, ShouldEqual, "9881c79e-d269-4a53-9d77-cb21b745356e")
+		So(orgs[0].Name, ShouldEqual, "dev")
+		So(orgs[0].QuotaDefinitionGuid, ShouldEqual, "6a2a2d18-7620-43cf-a332-353824b431b2")
+	})
+}
+
 func ListUserAuditedOrgs(t *testing.T) {
 	Convey("List User Audited Spaces", t, func() {
 		mocks := []MockRoute{
