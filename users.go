@@ -87,6 +87,10 @@ func (c *Client) ListUserOrgs(userGuid string) ([]Org, error) {
 	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/organizations", userGuid))
 }
 
+func (c *Client) ListUserManagedOrgs(userGuid string) ([]Org, error) {
+	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/managed_organizations", userGuid))
+}
+
 func (c *Client) ListUserAuditedOrgs(userGuid string) ([]Org, error) {
 	return c.fetchOrgs(fmt.Sprintf("/v2/users/%s/audited_organizations", userGuid))
 }
