@@ -113,25 +113,6 @@ func (c *Client) GetOrgByGuid(guid string) (Org, error) {
 	return orgRes.Entity, nil
 }
 
-func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
-	var orgResp OrgResponse
-	r := c.NewRequest("GET", requestUrl)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return OrgResponse{}, errors.Wrap(err, "Error requesting orgs")
-	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return OrgResponse{}, errors.Wrap(err, "Error reading org request")
-	}
-	err = json.Unmarshal(resBody, &orgResp)
-	if err != nil {
-		return OrgResponse{}, errors.Wrap(err, "Error unmarshalling org")
-	}
-	return orgResp, nil
-}
-
 func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	var spaces []Space
 	var spaceResp SpaceResponse
@@ -478,6 +459,45 @@ func (c *Client) DeleteOrg(guid string, recursive bool) error {
 		return errors.Wrapf(err, "Error deleting organization %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
+	var orgResp OrgResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return OrgResponse{}, errors.Wrap(err, "Error requesting orgs")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return OrgResponse{}, errors.Wrap(err, "Error reading org request")
+	}
+	err = json.Unmarshal(resBody, &orgResp)
+	if err != nil {
+		return OrgResponse{}, errors.Wrap(err, "Error unmarshalling org")
+	}
+	return orgResp, nil
+}
+
+func (c *Client) fetchOrgs(requestUrl string) ([]Org, error) {
+	var orgs []Org
+	for {
+		orgResp, err := c.getOrgResponse(requestUrl)
+		if err != nil {
+			return []Org{}, err
+		}
+		for _, org := range orgResp.Resources {
+			org.Entity.Guid = org.Meta.Guid
+			org.Entity.c = c
+			orgs = append(orgs, org.Entity)
+		}
+		requestUrl = orgResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return orgs, nil
 }
 
 func (c *Client) handleOrgResp(resp *http.Response) (Org, error) {
