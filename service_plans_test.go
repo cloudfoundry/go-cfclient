@@ -25,7 +25,7 @@ func TestListServicePlans(t *testing.T) {
 		So(servicePlans[0].Name, ShouldEqual, "name-1575")
 		So(servicePlans[0].Description, ShouldEqual, "desc-109")
 		So(servicePlans[0].ServiceGuid, ShouldEqual, "1ccab853-87c9-45a6-bf99-603032d17fe5")
-		So(servicePlans[0].Extra, ShouldEqual, nil)
+		So(servicePlans[0].Extra, ShouldBeNil)
 		So(servicePlans[0].UniqueId, ShouldEqual, "1bc2884c-ee3d-4f82-a78b-1a657f79aeac")
 		So(servicePlans[0].Public, ShouldEqual, true)
 		So(servicePlans[0].Active, ShouldEqual, true)
