@@ -176,6 +176,7 @@ func (a *App) Space() (Space, error) {
 
 // ListAppsByQueryWithLimits queries totalPages app info. When totalPages is
 // less and equal than 0, it queries all app info
+// When there are no more than totalPages apps on server side, all apps info will be returned
 func (c *Client) ListAppsByQueryWithLimits(query url.Values, totalPages int) ([]App, error) {
 	return c.listApps("/v2/apps?" + query.Encode(), totalPages)
 }
