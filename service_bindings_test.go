@@ -29,7 +29,7 @@ func TestListServiceBindings(t *testing.T) {
 			serviceBindings[0].Credentials,
 			map[string]interface{}{"creds-key-66": "creds-val-66"}), ShouldBeTrue)
 		So(serviceBindings[0].BindingOptions, ShouldBeEmpty)
-		So(serviceBindings[0].GatewayData, ShouldEqual, nil)
+		So(serviceBindings[0].GatewayData, ShouldBeNil)
 		So(serviceBindings[0].GatewayName, ShouldEqual, "")
 		So(serviceBindings[0].SyslogDrainUrl, ShouldEqual, "")
 		So(serviceBindings[0].VolumeMounts, ShouldBeEmpty)
