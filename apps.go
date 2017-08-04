@@ -174,8 +174,15 @@ func (a *App) Space() (Space, error) {
 	return spaceResource.Entity, nil
 }
 
+// ListAppsByQueryWithLimits queries totalPages app info. When totalPages is
+// less and equal than 0, it queries all app info
+// When there are no more than totalPages apps on server side, all apps info will be returned
+func (c *Client) ListAppsByQueryWithLimits(query url.Values, totalPages int) ([]App, error) {
+	return c.listApps("/v2/apps?" + query.Encode(), totalPages)
+}
+
 func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
-	return c.listApps("/v2/apps?" + query.Encode())
+	return c.listApps("/v2/apps?" + query.Encode(), -1)
 }
 
 func (c *Client) ListApps() ([]App, error) {
@@ -185,10 +192,11 @@ func (c *Client) ListApps() ([]App, error) {
 }
 
 func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
-	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid))
+	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), -1)
 }
 
-func (c *Client) listApps(requestUrl string) ([]App, error) {
+func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
+	pages := 0
 	apps := []App{}
 	for {
 		var appResp AppResponse
@@ -220,6 +228,11 @@ func (c *Client) listApps(requestUrl string) ([]App, error) {
 
 		requestUrl = appResp.NextUrl
 		if requestUrl == "" {
+			break
+		}
+
+		pages += 1
+		if totalPages > 0 && pages >= totalPages {
 			break
 		}
 	}
