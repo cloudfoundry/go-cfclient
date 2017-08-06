@@ -1,12 +1,12 @@
 package cfclient
 
 import (
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
-	"net/http"
-	"time"
 )
 
 func TestDefaultConfig(t *testing.T) {

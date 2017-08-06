@@ -1,10 +1,11 @@
 package cfclient
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateIsolationSegement(t *testing.T) {

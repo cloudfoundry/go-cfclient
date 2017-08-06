@@ -48,7 +48,7 @@ func TestCreateTcpRoute(t *testing.T) {
 
 		routeRequest := RouteRequest{
 			DomainGuid: "08167353-32da-4ed9-9ef5-aa7b31bbc009",
-			SpaceGuid: "b65a9a76-8c55-460b-9162-18b396da66cf",
+			SpaceGuid:  "b65a9a76-8c55-460b-9162-18b396da66cf",
 		}
 
 		route, err := client.CreateTcpRoute(routeRequest)
@@ -56,7 +56,7 @@ func TestCreateTcpRoute(t *testing.T) {
 
 		So(route.SpaceGuid, ShouldEqual, "b65a9a76-8c55-460b-9162-18b396da66cf")
 		So(route.DomainGuid, ShouldEqual, "08167353-32da-4ed9-9ef5-aa7b31bbc009")
-		So(route.Port, ShouldEqual,1099)
+		So(route.Port, ShouldEqual, 1099)
 
 	})
 }

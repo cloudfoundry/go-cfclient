@@ -1,7 +1,6 @@
 package cfclient
 
 import (
-	_ "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	_ "github.com/onsi/gomega"
 
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
