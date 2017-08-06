@@ -83,15 +83,30 @@ type AppStats struct {
 }
 
 type AppSummary struct {
-	Guid             string `json:"guid"`
-	Name             string `json:"name"`
-	ServiceCount     int    `json:"service_count"`
-	RunningInstances int    `json:"running_instances"`
-	Memory           int    `json:"memory"`
-	Instances        int    `json:"instances"`
-	DiskQuota        int    `json:"disk_quota"`
-	State            string `json:"state"`
-	Diego            bool   `json:"diego"`
+	Guid                     string                 `json:"guid"`
+	Name                     string                 `json:"name"`
+	ServiceCount             int                    `json:"service_count"`
+	RunningInstances         int                    `json:"running_instances"`
+	SpaceGuid                string                 `json:"space_guid"`
+	StackGuid                string                 `json:"stack_guid"`
+	Buildpack                string                 `json:"buildpack"`
+	DetectedBuildpack        string                 `json:"detected_buildpack"`
+	Environment              map[string]interface{} `json:"environment_json"`
+	Memory                   int                    `json:"memory"`
+	Instances                int                    `json:"instances"`
+	DiskQuota                int                    `json:"disk_quota"`
+	State                    string                 `json:"state"`
+	Command                  string                 `json:"command"`
+	PackageState             string                 `json:"package_state"`
+	HealthCheckType          string                 `json:"health_check_type"`
+	HealthCheckTimeout       int                    `json:"health_check_timeout"`
+	StagingFailedReason      string                 `json:"staging_failed_reason"`
+	StagingFailedDescription string                 `json:"staging_failed_description"`
+	Diego                    bool                   `json:"diego"`
+	DockerImage              string                 `json:"docker_image"`
+	DetectedStartCommand     string                 `json:"detected_start_command"`
+	EnableSSH                bool                   `json:"enable_ssh"`
+	DockerCredentials        map[string]interface{} `json:"docker_credentials_json"`
 }
 
 type AppEnv struct {
@@ -178,11 +193,11 @@ func (a *App) Space() (Space, error) {
 // less and equal than 0, it queries all app info
 // When there are no more than totalPages apps on server side, all apps info will be returned
 func (c *Client) ListAppsByQueryWithLimits(query url.Values, totalPages int) ([]App, error) {
-	return c.listApps("/v2/apps?" + query.Encode(), totalPages)
+	return c.listApps("/v2/apps?"+query.Encode(), totalPages)
 }
 
 func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
-	return c.listApps("/v2/apps?" + query.Encode(), -1)
+	return c.listApps("/v2/apps?"+query.Encode(), -1)
 }
 
 func (c *Client) ListApps() ([]App, error) {
