@@ -13,6 +13,8 @@
 go get github.com/cloudfoundry-community/go-cfclient
 ```
 
+NOTE: Currently this project is not versioning its releases and so breaking changes might be introduced. Whilst hopefully notifications of breaking changes are made via commit messages, ideally your project will use a local vendoring system to lock in a version of `go-cfclient` that is known to work for you. This will allow you to control the timing and maintenance of upgrades to newer versions of this library.
+
 Some example code:
 
 ```go
