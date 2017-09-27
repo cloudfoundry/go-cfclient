@@ -1647,7 +1647,7 @@ var serviceInstancePayload = `{
       "guid": "8423ca96-90ad-411f-b77a-0907844949fc",
       "url": "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc",
       "created_at": "2016-10-21T18:22:56Z",
-      "updated_at": null
+      "updated_at": "2016-10-21T18:22:56Z"
    },
    "entity": {
       "name": "fortunes-db",
