@@ -69,6 +69,21 @@ func TestCreateSpace(t *testing.T) {
 	})
 }
 
+func TestDeleteSpace(t *testing.T) {
+	Convey("Delete org", t, func() {
+		setup(MockRoute{"DELETE", "/v2/spaces/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false&async=false", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteSpace("a537761f-9d93-4b30-af17-3d73dbca181b", false, false)
+		So(err, ShouldBeNil)
+	})
+}
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
 		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200, "", nil}, t)

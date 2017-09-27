@@ -187,6 +187,17 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 	return c.handleSpaceResp(resp)
 }
 
+func (c *Client) DeleteSpace(guid string, recursive, async bool) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/spaces/%s?recursive=%t&async=%t", guid, recursive, async)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting space %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Space, error) {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.AssociateDeveloperByUsername(name)
