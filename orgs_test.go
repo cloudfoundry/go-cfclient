@@ -155,7 +155,7 @@ func TestCreateOrg(t *testing.T) {
 
 func TestDeleteOrg(t *testing.T) {
 	Convey("Delete org", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false&async=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -164,7 +164,7 @@ func TestDeleteOrg(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b", false)
+		err = client.DeleteOrg("a537761f-9d93-4b30-af17-3d73dbca181b", false, false)
 		So(err, ShouldBeNil)
 	})
 }
