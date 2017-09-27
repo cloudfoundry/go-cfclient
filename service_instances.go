@@ -22,6 +22,8 @@ type ServiceInstanceResource struct {
 
 type ServiceInstance struct {
 	Name               string                 `json:"name"`
+	CreatedAt          string                 `json:"created_at"`
+	UpdatedAt          string                 `json:"updated_at"`
 	Credentials        map[string]interface{} `json:"credentials"`
 	ServicePlanGuid    string                 `json:"service_plan_guid"`
 	SpaceGuid          string                 `json:"space_guid"`
@@ -69,9 +71,7 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]ServiceInstanc
 			return nil, errors.Wrap(err, "Error unmarshaling service instances")
 		}
 		for _, instance := range sir.Resources {
-			instance.Entity.Guid = instance.Meta.Guid
-			instance.Entity.c = c
-			instances = append(instances, instance.Entity)
+			instances = append(instances, c.mergeServiceInstance(instance))
 		}
 
 		requestUrl = sir.NextUrl
@@ -102,11 +102,17 @@ func (c *Client) GetServiceInstanceByGuid(guid string) (ServiceInstance, error) 
 	if err != nil {
 		return ServiceInstance{}, errors.Wrap(err, "Error JSON parsing service instance response")
 	}
-	sir.Entity.Guid = sir.Meta.Guid
-	sir.Entity.c = c
-	return sir.Entity, nil
+	return c.mergeServiceInstance(sir), nil
 }
 
 func (c *Client) ServiceInstanceByGuid(guid string) (ServiceInstance, error) {
 	return c.GetServiceInstanceByGuid(guid)
+}
+
+func (c *Client) mergeServiceInstance(instance ServiceInstanceResource) ServiceInstance {
+	instance.Entity.Guid = instance.Meta.Guid
+	instance.Entity.CreatedAt = instance.Meta.CreatedAt
+	instance.Entity.UpdatedAt = instance.Meta.UpdatedAt
+	instance.Entity.c = c
+	return instance.Entity
 }

@@ -43,6 +43,8 @@ func TestServiceInstanceByGuid(t *testing.T) {
 
 		expected := ServiceInstance{
 			Guid:        "8423ca96-90ad-411f-b77a-0907844949fc",
+			CreatedAt:   "2016-10-21T18:22:56Z",
+			UpdatedAt:   "2016-10-21T18:22:56Z",
 			Credentials: map[string]interface{}{},
 			Name:        "fortunes-db",
 			LastOperation: LastOperation{
