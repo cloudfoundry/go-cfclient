@@ -448,8 +448,8 @@ func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
 	return c.handleOrgResp(resp)
 }
 
-func (c *Client) DeleteOrg(guid string, recursive bool) error {
-	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/organizations/%s?recursive=%t", guid, recursive)))
+func (c *Client) DeleteOrg(guid string, recursive, async bool) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/organizations/%s?recursive=%t&async=%t", guid, recursive, async)))
 	if err != nil {
 		return err
 	}
