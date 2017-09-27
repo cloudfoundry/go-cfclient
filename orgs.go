@@ -26,6 +26,8 @@ type OrgResource struct {
 
 type Org struct {
 	Guid                string `json:"guid"`
+	CreatedAt           string `json:"created_at"`
+	UpdatedAt           string `json:"updated_at"`
 	Name                string `json:"name"`
 	QuotaDefinitionGuid string `json:"quota_definition_guid"`
 	c                   *Client
@@ -62,9 +64,7 @@ func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 			return []Org{}, err
 		}
 		for _, org := range orgResp.Resources {
-			org.Entity.Guid = org.Meta.Guid
-			org.Entity.c = c
-			orgs = append(orgs, org.Entity)
+			orgs = append(orgs, c.mergeOrgResource(org))
 		}
 		requestUrl = orgResp.NextUrl
 		if requestUrl == "" {
@@ -108,9 +108,7 @@ func (c *Client) GetOrgByGuid(guid string) (Org, error) {
 	if err != nil {
 		return Org{}, err
 	}
-	orgRes.Entity.Guid = orgRes.Meta.Guid
-	orgRes.Entity.c = c
-	return orgRes.Entity, nil
+	return c.mergeOrgResource(orgRes), nil
 }
 
 func (c *Client) OrgSpaces(guid string) ([]Space, error) {
@@ -488,9 +486,7 @@ func (c *Client) fetchOrgs(requestUrl string) ([]Org, error) {
 			return []Org{}, err
 		}
 		for _, org := range orgResp.Resources {
-			org.Entity.Guid = org.Meta.Guid
-			org.Entity.c = c
-			orgs = append(orgs, org.Entity)
+			orgs = append(orgs, c.mergeOrgResource(org))
 		}
 		requestUrl = orgResp.NextUrl
 		if requestUrl == "" {
@@ -511,8 +507,13 @@ func (c *Client) handleOrgResp(resp *http.Response) (Org, error) {
 	if err != nil {
 		return Org{}, err
 	}
-	org := orgResource.Entity
-	org.Guid = orgResource.Meta.Guid
-	org.c = c
-	return org, nil
+	return c.mergeOrgResource(orgResource), nil
+}
+
+func (c *Client) mergeOrgResource(org OrgResource) Org {
+	org.Entity.Guid = org.Meta.Guid
+	org.Entity.CreatedAt = org.Meta.CreatedAt
+	org.Entity.UpdatedAt = org.Meta.UpdatedAt
+	org.Entity.c = c
+	return org.Entity
 }

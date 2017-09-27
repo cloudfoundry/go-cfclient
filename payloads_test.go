@@ -392,7 +392,7 @@ const listSpacesPayload = `{
             "guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "url": "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1",
             "created_at": "2014-09-24T13:54:54+00:00",
-            "updated_at": null
+            "updated_at": "2014-09-24T13:54:54+00:00"
          },
          "entity": {
             "name": "dev",
@@ -416,7 +416,7 @@ const listSpacesPayload = `{
             "guid": "657b5923-7de0-486a-9928-b4d78ee24931",
             "url": "/v2/spaces/657b5923-7de0-486a-9928-b4d78ee24931",
             "created_at": "2014-09-26T13:37:31+00:00",
-            "updated_at": null
+            "updated_at": "2014-09-26T13:37:31+00:00"
          },
          "entity": {
             "name": "demo",
@@ -449,7 +449,7 @@ const listSpacesPayloadPage2 = `{
             "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
             "url": "/v2/spaces/9ffd7c5c-d83c-4786-b399-b7bd54883977",
             "created_at": "2014-09-24T13:54:54+00:00",
-            "updated_at": null
+            "updated_at": "2014-09-24T13:54:54+00:00"
          },
          "entity": {
             "name": "test",
@@ -473,7 +473,7 @@ const listSpacesPayloadPage2 = `{
             "guid": "329b5923-7de0-486a-9928-b4d78ee24982",
             "url": "/v2/spaces/329b5923-7de0-486a-9928-b4d78ee24982",
             "created_at": "2014-09-26T13:37:31+00:00",
-            "updated_at": null
+            "updated_at": "2014-09-26T13:37:31+00:00"
          },
          "entity": {
             "name": "prod",

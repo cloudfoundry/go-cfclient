@@ -37,6 +37,8 @@ type SpaceResource struct {
 
 type Space struct {
 	Guid                string      `json:"guid"`
+	CreatedAt           string      `json:"created_at"`
+	UpdatedAt           string      `json:"updated_at"`
 	Name                string      `json:"name"`
 	OrganizationGuid    string      `json:"organization_guid"`
 	OrgURL              string      `json:"organization_url"`
@@ -97,9 +99,7 @@ func (s *Space) Org() (Org, error) {
 	if err != nil {
 		return Org{}, errors.Wrap(err, "Error unmarshaling org")
 	}
-	orgResource.Entity.Guid = orgResource.Meta.Guid
-	orgResource.Entity.c = s.c
-	return orgResource.Entity, nil
+	return s.c.mergeOrgResource(orgResource), nil
 }
 
 func (s *Space) Quota() (*SpaceQuota, error) {
@@ -294,9 +294,7 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 			return []Space{}, err
 		}
 		for _, space := range spaceResp.Resources {
-			space.Entity.Guid = space.Meta.Guid
-			space.Entity.c = c
-			spaces = append(spaces, space.Entity)
+			spaces = append(spaces, c.mergeSpaceResource(space))
 		}
 		requestUrl = spaceResp.NextUrl
 		if requestUrl == "" {
@@ -382,8 +380,13 @@ func (c *Client) handleSpaceResp(resp *http.Response) (Space, error) {
 	if err != nil {
 		return Space{}, err
 	}
-	space := spaceResource.Entity
-	space.Guid = spaceResource.Meta.Guid
-	space.c = c
-	return space, nil
+	return c.mergeSpaceResource(spaceResource), nil
+}
+
+func (c *Client) mergeSpaceResource(space SpaceResource) Space {
+	space.Entity.Guid = space.Meta.Guid
+	space.Entity.CreatedAt = space.Meta.CreatedAt
+	space.Entity.UpdatedAt = space.Meta.UpdatedAt
+	space.Entity.c = c
+	return space.Entity
 }
