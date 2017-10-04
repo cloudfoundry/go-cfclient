@@ -1,8 +1,10 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -13,6 +15,12 @@ type ServiceInstancesResponse struct {
 	Pages     int                       `json:"total_pages"`
 	NextUrl   string                    `json:"next_url"`
 	Resources []ServiceInstanceResource `json:"resources"`
+}
+
+type ServiceInstanceRequest struct {
+	Name            string `json:"name"`
+	SpaceGuid       string `json:"space_guid"`
+	ServicePlanGuid string `json:"service_plan_guid"`
 }
 
 type ServiceInstanceResource struct {
@@ -115,4 +123,37 @@ func (c *Client) mergeServiceInstance(instance ServiceInstanceResource) ServiceI
 	instance.Entity.UpdatedAt = instance.Meta.UpdatedAt
 	instance.Entity.c = c
 	return instance.Entity
+}
+
+func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInstance, error) {
+	var sir ServiceInstanceResource
+
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return ServiceInstance{}, err
+	}
+
+	r := c.NewRequestWithBody("POST", "/v2/service_instances?accepts_incomplete=true", buf)
+
+	res, err := c.DoRequest(r)
+	if err != nil {
+		return ServiceInstance{}, err
+	}
+
+	if res.StatusCode != http.StatusAccepted {
+		return ServiceInstance{}, errors.Wrapf(err, "Error creating service, response code: %d", res.StatusCode)
+	}
+
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return ServiceInstance{}, errors.Wrap(err, "Error reading service instance response")
+	}
+
+	err = json.Unmarshal(data, &sir)
+	if err != nil {
+		return ServiceInstance{}, errors.Wrap(err, "Error JSON parsing service instance response")
+	}
+
+	return c.mergeServiceInstance(sir), nil
 }
