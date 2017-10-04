@@ -74,7 +74,7 @@ func TestServiceInstanceByGuid(t *testing.T) {
 
 func TestCreateServiceInstance(t *testing.T) {
 	Convey("Create service instance", t, func() {
-		setup(MockRoute{"POST", "/v2/service_instances?accepts_incomplete=true", serviceInstancePayload, "", 202, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_instances", serviceInstancePayload, "", 202, "accepts_incomplete=true", nil}, t)
 		defer teardown()
 
 		c := &Config{
