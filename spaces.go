@@ -20,7 +20,7 @@ type SpaceRequest struct {
 	DomainGuid         []string `json:"domain_guids"`
 	SecurityGroupGuids []string `json:"security_group_guids"`
 	SpaceQuotaDefGuid  []string `json:"space_quota_definition_guid"`
-	AllowSSH           []string `json:"allow_ssh"`
+	AllowSSH           bool     `json:"allow_ssh"`
 }
 
 type SpaceResponse struct {
@@ -44,6 +44,7 @@ type Space struct {
 	OrgURL              string      `json:"organization_url"`
 	OrgData             OrgResource `json:"organization"`
 	QuotaDefinitionGuid string      `json:"space_quota_definition_guid"`
+	AllowSSH            bool        `json:"allow_ssh"`
 	c                   *Client
 }
 

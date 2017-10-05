@@ -59,13 +59,14 @@ func TestCreateSpace(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		spaceRequest := SpaceRequest{Name: "test-space", OrganizationGuid: "da0dba14-6064-4f7a-b15a-ff9e677e49b2"}
+		spaceRequest := SpaceRequest{Name: "test-space", OrganizationGuid: "da0dba14-6064-4f7a-b15a-ff9e677e49b2", AllowSSH: false}
 
 		space, err := client.CreateSpace(spaceRequest)
 		So(err, ShouldBeNil)
 
 		So(space.Name, ShouldEqual, "test-space")
 		So(space.OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
+		So(space.AllowSSH, ShouldEqual, false)
 	})
 }
 
