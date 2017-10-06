@@ -71,7 +71,7 @@ func TestCreateSpace(t *testing.T) {
 }
 
 func TestDeleteSpace(t *testing.T) {
-	Convey("Delete org", t, func() {
+	Convey("Delete space", t, func() {
 		setup(MockRoute{"DELETE", "/v2/spaces/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false&async=false", nil}, t)
 		defer teardown()
 		c := &Config{
