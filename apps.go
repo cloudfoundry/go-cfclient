@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -369,6 +370,17 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 	}
 	app = apps[0]
 	return
+}
+
+func (c *Client) DeleteApp(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/apps/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (c *Client) mergeAppResource(app AppResource) App {
