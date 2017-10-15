@@ -76,7 +76,7 @@ func respBodyToIsolationSegment(body io.ReadCloser, c *Client) (*IsolationSegmen
 		return nil, err
 	}
 	isr := IsolationSegementResponse{}
-	err = json.Unmarshal([]byte(bodyRaw), &isr)
+	err = json.Unmarshal(bodyRaw, &isr)
 	if err != nil {
 		return nil, err
 	}

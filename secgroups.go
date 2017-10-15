@@ -275,7 +275,7 @@ func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	}
 	jStruct := SecGroupResource{}
 	//make it a SecGroup
-	err = json.Unmarshal([]byte(bodyRaw), &jStruct)
+	err = json.Unmarshal(bodyRaw, &jStruct)
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not unmarshal response body as json")
 	}
