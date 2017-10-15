@@ -183,7 +183,7 @@ func respBodyToDomain(body io.ReadCloser, c *Client) (*Domain, error) {
 		return nil, err
 	}
 	domainRes := DomainResource{}
-	err = json.Unmarshal([]byte(bodyRaw), &domainRes)
+	err = json.Unmarshal(bodyRaw, &domainRes)
 	if err != nil {
 		return nil, err
 	}

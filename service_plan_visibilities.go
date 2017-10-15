@@ -89,7 +89,7 @@ func respBodyToServicePlanVisibility(body io.ReadCloser, c *Client) (ServicePlan
 		return ServicePlanVisibility{}, err
 	}
 	servicePlanVisibilityRes := ServicePlanVisibilityResource{}
-	err = json.Unmarshal([]byte(bodyRaw), &servicePlanVisibilityRes)
+	err = json.Unmarshal(bodyRaw, &servicePlanVisibilityRes)
 	if err != nil {
 		return ServicePlanVisibility{}, err
 	}
