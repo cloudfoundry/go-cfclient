@@ -71,7 +71,7 @@ type ServiceOfferingResponse struct {
 	Count     int                       `json:"total_results"`
 	Pages     int                       `json:"total_pages"`
 	NextUrl   string                    `json:"next_url"`
-	PrevUrl   string                    `json:"next_url"`
+	PrevUrl   string                    `json:"prev_url"`
 	Resources []ServiceOfferingResource `json:"resources"`
 }
 
