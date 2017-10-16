@@ -1306,6 +1306,46 @@ const spacePayload = `{
    }
 }`
 
+const spaceServiceOfferingsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "6ec97e21-e879-4f72-9a80-8ec550ffec30",
+        "url": "/v2/services/6ec97e21-e879-4f72-9a80-8ec550ffec30",
+        "created_at": "2017-10-03T23:47:16Z",
+        "updated_at": "2017-10-10T20:53:28Z"
+      },
+      "entity": {
+        "label": "cool-service",
+        "provider": null,
+        "url": null,
+        "description": "Cool service for CF",
+        "long_description": null,
+        "version": null,
+        "info_url": null,
+        "active": 1,
+        "bindable": 1,
+        "unique_id": "beb05948-0fa8-48bf-bfb2-7b09e6687d37",
+        "extra": "{\"displayName\":\"Super cool service\",\"longDescription\":\"Very cool service.\",\"documentationUrl\":\"https://readthedocs.org\"}",
+        "tags": [
+          "cool"
+        ],
+        "requires": [
+
+        ],
+        "documentation_url": null,
+        "service_broker_guid": "6b3da2f0-c530-4f2b-8fd2-7cd68a21e907",
+        "plan_updateable": 1,
+        "service_plans_url": "/v2/services/6ec97e21-e879-4f72-9a80-8ec550ffec30/service_plans"
+      }
+    }
+  ]
+}`
+
 const orgPayload = `{
    "metadata": {
       "guid": "da0dba14-6064-4f7a-b15a-ff9e677e49b2",
