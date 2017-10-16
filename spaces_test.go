@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -334,5 +335,37 @@ func TestGetSpaceByGuid(t *testing.T) {
 
 		So(space.Guid, ShouldEqual, "8efd7c5c-d83c-4786-b399-b7bd548839e1")
 		So(space.Name, ShouldEqual, "dev")
+	})
+}
+
+func TestGetSpaceServiceOfferings(t *testing.T) {
+	guid := `8efd7c5c-d83c-4786-b399-b7bd548839e1`
+	Convey("Get service offerings for space", t, func() {
+		setup(MockRoute{
+			Method:      "GET",
+			Endpoint:    fmt.Sprintf("/v2/spaces/%s/services", guid),
+			Output:      spaceServiceOfferingsPayload,
+			UserAgent:   "",
+			Status:      200,
+			QueryString: "",
+			PostForm:    nil,
+		}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: guid,
+			c:    client,
+		}
+
+		offerings, err := space.GetServiceOfferings()
+		So(offerings, ShouldNotBeEmpty)
+		So(err, ShouldBeNil)
 	})
 }

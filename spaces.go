@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -33,6 +34,45 @@ type SpaceResponse struct {
 type SpaceResource struct {
 	Meta   Meta  `json:"metadata"`
 	Entity Space `json:"entity"`
+}
+
+type ServicePlanEntity struct {
+	Name                string                  `json:"name"`
+	Free                bool                    `json:"free"`
+	Public              bool                    `json:"public"`
+	Active              bool                    `json:"active"`
+	Description         string                  `json:"description"`
+	ServiceOfferingGUID string                  `json:"service_guid"`
+	ServiceOffering     ServiceOfferingResource `json:"service"`
+}
+
+type ServiceOfferingExtra struct {
+	DisplayName      string `json:"displayName"`
+	DocumentationURL string `json:"documentationURL"`
+	LongDescription  string `json:"longDescription"`
+}
+
+type ServiceOfferingEntity struct {
+	Label        string
+	Description  string
+	Provider     string        `json:"provider"`
+	BrokerGUID   string        `json:"service_broker_guid"`
+	Requires     []string      `json:"requires"`
+	ServicePlans []interface{} `json:"service_plans"`
+	Extra        ServiceOfferingExtra
+}
+
+type ServiceOfferingResource struct {
+	Metadata Meta
+	Entity   ServiceOfferingEntity
+}
+
+type ServiceOfferingResponse struct {
+	Count     int                       `json:"total_results"`
+	Pages     int                       `json:"total_pages"`
+	NextUrl   string                    `json:"next_url"`
+	PrevUrl   string                    `json:"prev_url"`
+	Resources []ServiceOfferingResource `json:"resources"`
 }
 
 type Space struct {
@@ -290,6 +330,29 @@ func (s *Space) RemoveAuditorByUsername(name string) error {
 	return nil
 }
 
+func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
+	var response ServiceOfferingResponse
+	requestURL := fmt.Sprintf("/v2/spaces/%s/services", s.Guid)
+	req := s.c.NewRequest("GET", requestURL)
+
+	resp, err := s.c.DoRequest(req)
+	if err != nil {
+		return ServiceOfferingResponse{}, errors.Wrap(err, "Error requesting service offerings")
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return ServiceOfferingResponse{}, errors.Wrap(err, "Error reading service offering response")
+	}
+
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return ServiceOfferingResponse{}, errors.Wrap(err, "Error unmarshalling service offering response")
+	}
+
+	return response, nil
+}
+
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 	return c.fetchSpaces("/v2/spaces?" + query.Encode())
 }
@@ -401,4 +464,28 @@ func (c *Client) mergeSpaceResource(space SpaceResource) Space {
 	space.Entity.UpdatedAt = space.Meta.UpdatedAt
 	space.Entity.c = c
 	return space.Entity
+}
+
+type serviceOfferingExtra ServiceOfferingExtra
+
+func (resource *ServiceOfferingExtra) UnmarshalJSON(rawData []byte) error {
+	if string(rawData) == "null" {
+		return nil
+	}
+
+	extra := serviceOfferingExtra{}
+
+	unquoted, err := strconv.Unquote(string(rawData))
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal([]byte(unquoted), &extra)
+	if err != nil {
+		return err
+	}
+
+	*resource = ServiceOfferingExtra(extra)
+
+	return nil
 }
