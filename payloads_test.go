@@ -2580,24 +2580,6 @@ const listIsolationSegmentsPayload = `{
    ]
 }`
 
-const addOrgToIsolationSegmentPayload = `{
-   "guid": "033b4c58-12bb-499a-b05d-4b6fc9e2993b",
-   "name": "shared",
-   "created_at": "2016-10-19T20:25:04Z",
-   "updated_at": "2016-11-08T16:41:26Z",
-   "links": {
-      "self": {
-         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b"
-      },
-      "spaces": {
-         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/spaces"
-      },
-      "organizations": {
-         "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/organizations"
-      }
-   }
-}`
-
 const listServiceKeysPayload = `{
    "total_results": 2,
    "total_pages": 1,
