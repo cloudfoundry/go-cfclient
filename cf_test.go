@@ -35,10 +35,6 @@ func setup(mock MockRoute, t *testing.T) {
 	setupMultiple([]MockRoute{mock}, t)
 }
 
-type PostBody struct {
-	Data []map[string]string `json:"data"`
-}
-
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
 	value, _ := url.QueryUnescape(QueryString)
 
