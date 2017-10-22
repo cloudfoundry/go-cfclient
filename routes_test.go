@@ -60,3 +60,35 @@ func TestCreateTcpRoute(t *testing.T) {
 
 	})
 }
+
+func TestDeleteRoute(t *testing.T) {
+	Convey("Delete route", t, func() {
+		Convey("When a successful status code is returned", func() {
+			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "", nil}, t)
+			defer teardown()
+			c := &Config{
+				ApiAddress: server.URL,
+				Token:      "foobar",
+			}
+			client, err := NewClient(c)
+			So(err, ShouldBeNil)
+
+			err = client.DeleteRoute("a537761f-9d93-4b30-af17-3d73dbca181b")
+			So(err, ShouldBeNil)
+		})
+
+		Convey("When an error status code is returned", func() {
+			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 404, "", nil}, t)
+			defer teardown()
+			c := &Config{
+				ApiAddress: server.URL,
+				Token:      "foobar",
+			}
+			client, err := NewClient(c)
+			So(err, ShouldBeNil)
+
+			err = client.DeleteRoute("a537761f-9d93-4b30-af17-3d73dbca181b")
+			So(err, ShouldNotBeNil)
+		})
+	})
+}

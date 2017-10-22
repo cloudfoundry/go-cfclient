@@ -3,7 +3,9 @@ package cfclient
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -114,4 +116,15 @@ func (c *Client) createRoute(requestUrl string, routeRequest RouteRequest) (Rout
 		return RoutesResource{}, errors.Wrap(err, "Error unmarshalling routes")
 	}
 	return routeResp, nil
+}
+
+func (c *Client) DeleteRoute(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/routes/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting route %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
 }
