@@ -54,7 +54,7 @@ func TestGetServiceKeyByName(t *testing.T) {
 		So(serviceKey.Name, ShouldEqual, "test01_key")
 		So(serviceKey.ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
 		So(serviceKey.Credentials, ShouldNotEqual, nil)
-		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/ecf26687-e176-4784-b181-b3c942fecb62")
 	})
 }
 
@@ -76,6 +76,33 @@ func TestGetServiceKeyByGuid(t *testing.T) {
 		So(serviceKey.Name, ShouldEqual, "test01_key")
 		So(serviceKey.ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
 		So(serviceKey.Credentials, ShouldNotEqual, nil)
-		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKey.ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/ecf26687-e176-4784-b181-b3c942fecb62")
+	})
+}
+
+func TestGetServiceKeysByGuid(t *testing.T) {
+	Convey("Get service key by guid", t, func() {
+		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeysPayload, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		serviceKeys, err := client.GetServiceKeysByInstanceGuid("ecf26687-e176-4784-b181-b3c942fecb62")
+		So(err, ShouldBeNil)
+		So(len(serviceKeys), ShouldEqual, 2)
+
+		So(serviceKeys[0].Name, ShouldEqual, "test01_key")
+		So(serviceKeys[0].ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKeys[0].Credentials, ShouldNotEqual, nil)
+		So(serviceKeys[0].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/ecf26687-e176-4784-b181-b3c942fecb62")
+
+		So(serviceKeys[1].Name, ShouldEqual, "test02_key")
+		So(serviceKeys[1].ServiceInstanceGuid, ShouldEqual, "ecf26687-e176-4784-b181-b3c942fecb62")
+		So(serviceKeys[1].Credentials, ShouldNotEqual, nil)
+		So(serviceKeys[1].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/ecf26687-e176-4784-b181-b3c942fecb62")
 	})
 }

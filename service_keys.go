@@ -72,6 +72,7 @@ func (c *Client) GetServiceKeyByName(name string) (ServiceKey, error) {
 	return serviceKeys[0], nil
 }
 
+// GetServiceKeyByInstanceGuid is deprecated in favor of GetServiceKeysByInstanceGuid
 func (c *Client) GetServiceKeyByInstanceGuid(guid string) (ServiceKey, error) {
 	var serviceKey ServiceKey
 	q := url.Values{}
@@ -84,4 +85,17 @@ func (c *Client) GetServiceKeyByInstanceGuid(guid string) (ServiceKey, error) {
 		return serviceKey, fmt.Errorf("Unable to find service key for guid %s", guid)
 	}
 	return serviceKeys[0], nil
+}
+
+func (c *Client) GetServiceKeysByInstanceGuid(guid string) ([]ServiceKey, error) {
+	q := url.Values{}
+	q.Set("q", "service_instance_guid:"+guid)
+	serviceKeys, err := c.ListServiceKeysByQuery(q)
+	if err != nil {
+		return serviceKeys, err
+	}
+	if len(serviceKeys) == 0 {
+		return serviceKeys, fmt.Errorf("Unable to find service key for guid %s", guid)
+	}
+	return serviceKeys, nil
 }
