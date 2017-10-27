@@ -1,9 +1,11 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -18,6 +20,12 @@ type ServiceKeysResponse struct {
 type ServiceKeyResource struct {
 	Meta   Meta       `json:"metadata"`
 	Entity ServiceKey `json:"entity"`
+}
+
+type CreateServiceKeyRequest struct {
+	Name                string      `json:"name"`
+	ServiceInstanceGuid string      `json:"service_instance_guid"`
+	Parameters          interface{} `json:"parameters,omitempty"`
 }
 
 type ServiceKey struct {
@@ -87,6 +95,8 @@ func (c *Client) GetServiceKeyByInstanceGuid(guid string) (ServiceKey, error) {
 	return serviceKeys[0], nil
 }
 
+// GetServiceKeysByInstanceGuid returns the service keys for a service instance.
+// If none are found, it returns an error.
 func (c *Client) GetServiceKeysByInstanceGuid(guid string) ([]ServiceKey, error) {
 	q := url.Values{}
 	q.Set("q", "service_instance_guid:"+guid)
@@ -98,4 +108,36 @@ func (c *Client) GetServiceKeysByInstanceGuid(guid string) ([]ServiceKey, error)
 		return serviceKeys, fmt.Errorf("Unable to find service key for guid %s", guid)
 	}
 	return serviceKeys, nil
+}
+
+// CreateServiceKey creates a service key from the request. If a service key
+// exists already, it returns an error containing `CF-ServiceKeyNameTaken`
+func (c *Client) CreateServiceKey(csr CreateServiceKeyRequest) (ServiceKey, error) {
+	var serviceKeyResource ServiceKeyResource
+
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(csr)
+	if err != nil {
+		return ServiceKey{}, err
+	}
+	req := c.NewRequestWithBody("POST", "/v2/service_keys", buf)
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return ServiceKey{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return ServiceKey{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return ServiceKey{}, err
+	}
+	err = json.Unmarshal(body, &serviceKeyResource)
+	if err != nil {
+		return ServiceKey{}, err
+	}
+
+	return serviceKeyResource.Entity, nil
 }

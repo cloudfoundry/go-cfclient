@@ -2745,3 +2745,46 @@ const getServiceKeysPayload = `{
 
   ]
 }`
+
+const postServiceKeysPayload = `{
+  "metadata": {
+    "guid": "9361b5dc-9262-4a83-8969-9b3469211884",
+    "url": "/v2/service_keys/9361b5dc-9262-4a83-8969-9b3469211884",
+    "created_at": "2017-10-25T17:31:23Z",
+    "updated_at": "2017-10-25T17:31:23Z"
+  },
+  "entity": {
+    "name": "key1",
+    "service_instance_guid": "ecf26687-e176-4784-b181-b3c942fecb62",
+    "credentials": {
+      "jms": "nhp://100.100.47.11:9008",
+      "js_uri": "http://100.100.47.11:9008",
+      "amqp": "amqp://100.100.47.11:9008",
+      "nhp": "nhp://100.100.47.11:9009",
+      "mqtt": "tcp://100.100.47.11.100:9008",
+      "name": "ecf26687-e176-4784-b181-b3c942fecb62",
+      "nsp": "nsp://100.100.47.11:9008",
+      "userid": "cfu-7fb486c4-4d9e-49cb-b121-3241ece5dc10",
+      "uri": "nhp://100.100.47.11:9008",
+      "uriInfos": [
+        {
+          "host": "100.100.47.11",
+          "port": 9008
+        }
+      ]
+    },
+    "service_instance_url": "/v2/service_instances/ecf26687-e176-4784-b181-b3c942fecb62"
+  }
+}`
+
+const postServiceKeysDuplicatePayload = `{
+    "description": "The service key name is taken: key1",
+    "error_code": "CF-ServiceKeyNameTaken",
+    "code": 360001
+}`
+
+const postServiceKeysBadPayload = `{
+  "description": "The service key name is taken: key1",
+  "error_code": "CF-ServiceKeyNameTaken",
+  "code": 360001
+`
