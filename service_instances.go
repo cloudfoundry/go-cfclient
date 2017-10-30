@@ -18,9 +18,11 @@ type ServiceInstancesResponse struct {
 }
 
 type ServiceInstanceRequest struct {
-	Name            string `json:"name"`
-	SpaceGuid       string `json:"space_guid"`
-	ServicePlanGuid string `json:"service_plan_guid"`
+	Name            string                 `json:"name"`
+	SpaceGuid       string                 `json:"space_guid"`
+	ServicePlanGuid string                 `json:"service_plan_guid"`
+	Parameters      map[string]interface{} `json:"parameters,omitempty"`
+	Tags            []string               `json:"tags,omitempty"`
 }
 
 type ServiceInstanceResource struct {
