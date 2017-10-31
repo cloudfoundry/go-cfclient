@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 
@@ -37,25 +38,33 @@ type ServicePlan struct {
 
 func (c *Client) ListServicePlansByQuery(query url.Values) ([]ServicePlan, error) {
 	var servicePlans []ServicePlan
-	var servicePlansResp ServicePlansResponse
-	r := c.NewRequest("GET", "/v2/service_plans?"+query.Encode())
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error requesting service plans")
+	if query == nil {
+		query = url.Values{}
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error reading service plans request:")
-	}
+	done := false
+	for currPage := 1; !done; currPage++ {
+		var servicePlansResp ServicePlansResponse
+		query.Set("page", fmt.Sprintf("%d", currPage))
+		r := c.NewRequest("GET", "/v2/service_plans?"+query.Encode())
+		resp, err := c.DoRequest(r)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting service plans")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading service plans request:")
+		}
 
-	err = json.Unmarshal(resBody, &servicePlansResp)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error unmarshaling service plans")
-	}
-	for _, servicePlan := range servicePlansResp.Resources {
-		servicePlan.Entity.Guid = servicePlan.Meta.Guid
-		servicePlan.Entity.c = c
-		servicePlans = append(servicePlans, servicePlan.Entity)
+		err = json.Unmarshal(resBody, &servicePlansResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling service plans")
+		}
+		done = (servicePlansResp.Pages == currPage)
+		for _, servicePlan := range servicePlansResp.Resources {
+			servicePlan.Entity.Guid = servicePlan.Meta.Guid
+			servicePlan.Entity.c = c
+			servicePlans = append(servicePlans, servicePlan.Entity)
+		}
 	}
 	return servicePlans, nil
 }
