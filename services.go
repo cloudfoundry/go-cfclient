@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 
@@ -33,25 +34,33 @@ type ServiceSummary struct {
 
 func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	var services []Service
-	var serviceResp ServicesResponse
-	r := c.NewRequest("GET", "/v2/services?"+query.Encode())
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error requesting services")
+	if query == nil {
+		query = url.Values{}
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error reading services request:")
-	}
+	done := false
+	for currPage := 1; !done; currPage++ {
+		var serviceResp ServicesResponse
+		query.Set("page", fmt.Sprintf("%d", currPage))
+		r := c.NewRequest("GET", "/v2/services?"+query.Encode())
+		resp, err := c.DoRequest(r)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting services")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading services request:")
+		}
 
-	err = json.Unmarshal(resBody, &serviceResp)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error unmarshaling services")
-	}
-	for _, service := range serviceResp.Resources {
-		service.Entity.Guid = service.Meta.Guid
-		service.Entity.c = c
-		services = append(services, service.Entity)
+		err = json.Unmarshal(resBody, &serviceResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling services")
+		}
+		done = (serviceResp.Pages == currPage)
+		for _, service := range serviceResp.Resources {
+			service.Entity.Guid = service.Meta.Guid
+			service.Entity.c = c
+			services = append(services, service.Entity)
+		}
 	}
 	return services, nil
 }
