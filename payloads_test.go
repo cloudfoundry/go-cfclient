@@ -2788,3 +2788,28 @@ const postServiceKeysBadPayload = `{
   "error_code": "CF-ServiceKeyNameTaken",
   "code": 360001
 `
+
+const listServiceBrokersPayload = `
+{
+  "total_results": 3,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "90a413fd-a636-4133-8bfb-a94b07839e96",
+        "url": "/v2/service_brokers/90a413fd-a636-4133-8bfb-a94b07839e96",
+        "created_at": "2016-06-08T16:41:22Z",
+        "updated_at": "2016-06-08T16:41:22Z"
+      },
+      "entity": {
+        "name": "name-85",
+        "broker_url": "https://foo.com/url-2",
+        "auth_username": "auth_username-2",
+        "space_guid": "1d43e64d-ed64-43dd-9046-11f422bd407b"
+      }
+    }
+  ]
+}
+`
