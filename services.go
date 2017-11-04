@@ -2,7 +2,6 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 
@@ -12,6 +11,7 @@ import (
 type ServicesResponse struct {
 	Count     int                `json:"total_results"`
 	Pages     int                `json:"total_pages"`
+	NextUrl   string             `json:"next_url"`
 	Resources []ServicesResource `json:"resources"`
 }
 
@@ -34,14 +34,10 @@ type ServiceSummary struct {
 
 func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 	var services []Service
-	if query == nil {
-		query = url.Values{}
-	}
-	done := false
-	for currPage := 1; !done; currPage++ {
+	requestUrl := "/v2/services?" + query.Encode()
+	for {
 		var serviceResp ServicesResponse
-		query.Set("page", fmt.Sprintf("%d", currPage))
-		r := c.NewRequest("GET", "/v2/services?"+query.Encode())
+		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting services")
@@ -55,11 +51,14 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error unmarshaling services")
 		}
-		done = (serviceResp.Pages == currPage)
 		for _, service := range serviceResp.Resources {
 			service.Entity.Guid = service.Meta.Guid
 			service.Entity.c = c
 			services = append(services, service.Entity)
+		}
+		requestUrl = serviceResp.NextUrl
+		if requestUrl == "" {
+			break
 		}
 	}
 	return services, nil
