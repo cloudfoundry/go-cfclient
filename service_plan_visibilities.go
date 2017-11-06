@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -67,6 +68,15 @@ func (c *Client) ListServicePlanVisibilities() ([]ServicePlanVisibility, error) 
 	return c.ListServicePlanVisibilitiesByQuery(nil)
 }
 
+func (c *Client) GetServicePlanVisibilityByGuid(guid string) (ServicePlanVisibility, error) {
+	r := c.NewRequest("GET", "/v2/service_plan_visibilities/"+guid)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return ServicePlanVisibility{}, err
+	}
+	return respBodyToServicePlanVisibility(resp.Body, c)
+}
+
 func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
 	req := c.NewRequest("POST", "/v2/service_plan_visibilities")
 	req.obj = map[string]interface{}{
@@ -79,6 +89,48 @@ func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizatio
 	}
 	if resp.StatusCode != http.StatusCreated {
 		return ServicePlanVisibility{}, errors.Wrapf(err, "Error creating service plan visibility, response code: %d", resp.StatusCode)
+	}
+	return respBodyToServicePlanVisibility(resp.Body, c)
+}
+
+func (c *Client) DeleteServicePlanVisibilityByPlanAndOrg(servicePlanGuid string, organizationGuid string, async bool) error {
+	q := url.Values{}
+	q.Set("q", fmt.Sprintf("organization_guid:%s;service_plan_guid:%s", organizationGuid, servicePlanGuid))
+	plans, err := c.ListServicePlanVisibilitiesByQuery(q)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Couldn't find a service plan visibility for service plan %s and org %s", servicePlanGuid, organizationGuid))
+	}
+	if len(plans) != 1 {
+		return errors.New(fmt.Sprintf("Query for a service plan visibility did not return exactly one result when searching for a service plan visibility for service plan %s and org %s",
+			servicePlanGuid, organizationGuid))
+	}
+	return c.DeleteServicePlanVisibility(plans[0].Guid, async)
+}
+
+func (c *Client) DeleteServicePlanVisibility(guid string, async bool) error {
+	req := c.NewRequest("DELETE", fmt.Sprintf("/v2/service_plan_visibilities/%s?async=%v", guid, async))
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting service plan visibility, response code: %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) UpdateServicePlanVisibility(guid string, servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
+	req := c.NewRequest("PUT", "/v2/service_plan_visibilities/"+guid)
+	req.obj = map[string]interface{}{
+		"service_plan_guid": servicePlanGuid,
+		"organization_guid": organizationGuid,
+	}
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return ServicePlanVisibility{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return ServicePlanVisibility{}, errors.Wrapf(err, "Error updating service plan visibility, response code: %d", resp.StatusCode)
 	}
 	return respBodyToServicePlanVisibility(resp.Body, c)
 }
