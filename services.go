@@ -11,6 +11,7 @@ import (
 type ServicesResponse struct {
 	Count     int                `json:"total_results"`
 	Pages     int                `json:"total_pages"`
+	NextUrl   string             `json:"next_url"`
 	Resources []ServicesResource `json:"resources"`
 }
 
@@ -20,9 +21,15 @@ type ServicesResource struct {
 }
 
 type Service struct {
-	Guid  string `json:"guid"`
-	Label string `json:"label"`
-	c     *Client
+	Guid              string   `json:"guid"`
+	Label             string   `json:"label"`
+	Description       string   `json:"description"`
+	Active            bool     `json:"active"`
+	Bindable          bool     `json:"bindable"`
+	ServiceBrokerGuid string   `json:"service_broker_guid"`
+	PlanUpdateable    bool     `json:"plan_updateable"`
+	Tags              []string `json:"tags"`
+	c                 *Client
 }
 
 type ServiceSummary struct {
@@ -31,27 +38,55 @@ type ServiceSummary struct {
 	BoundAppCount int    `json:"bound_app_count"`
 }
 
-func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
-	var services []Service
-	var serviceResp ServicesResponse
-	r := c.NewRequest("GET", "/v2/services?"+query.Encode())
+func (c *Client) GetServiceByGuid(guid string) (Service, error) {
+	var serviceRes ServicesResource
+	r := c.NewRequest("GET", "/v2/services/"+guid)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error requesting services")
+		return Service{}, err
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
-		return nil, errors.Wrap(err, "Error reading services request:")
+		return Service{}, err
 	}
+	err = json.Unmarshal(body, &serviceRes)
+	if err != nil {
+		return Service{}, err
+	}
+	serviceRes.Entity.Guid = serviceRes.Meta.Guid
+	return serviceRes.Entity, nil
 
-	err = json.Unmarshal(resBody, &serviceResp)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error unmarshaling services")
-	}
-	for _, service := range serviceResp.Resources {
-		service.Entity.Guid = service.Meta.Guid
-		service.Entity.c = c
-		services = append(services, service.Entity)
+}
+
+func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
+	var services []Service
+	requestUrl := "/v2/services?" + query.Encode()
+	for {
+		var serviceResp ServicesResponse
+		r := c.NewRequest("GET", requestUrl)
+		resp, err := c.DoRequest(r)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting services")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading services request:")
+		}
+
+		err = json.Unmarshal(resBody, &serviceResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling services")
+		}
+		for _, service := range serviceResp.Resources {
+			service.Entity.Guid = service.Meta.Guid
+			service.Entity.c = c
+			services = append(services, service.Entity)
+		}
+		requestUrl = serviceResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
 	}
 	return services, nil
 }
