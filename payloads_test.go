@@ -2788,3 +2788,62 @@ const postServiceKeysBadPayload = `{
   "error_code": "CF-ServiceKeyNameTaken",
   "code": 360001
 `
+
+const listServiceBrokersPayload = `
+{
+  "total_results": 3,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "90a413fd-a636-4133-8bfb-a94b07839e96",
+        "url": "/v2/service_brokers/90a413fd-a636-4133-8bfb-a94b07839e96",
+        "created_at": "2016-06-08T16:41:22Z",
+        "updated_at": "2016-06-08T16:41:22Z"
+      },
+      "entity": {
+        "name": "name-85",
+        "broker_url": "https://foo.com/url-2",
+        "auth_username": "auth_username-2",
+        "space_guid": "1d43e64d-ed64-43dd-9046-11f422bd407b"
+      }
+    }
+  ]
+}
+`
+
+const getServiceByGuidPayload = `
+{
+  "metadata": {
+    "guid": "53f52780-e93c-4af7-a96c-6958311c40e5",
+    "url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5",
+    "created_at": "2016-06-08T16:41:32Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "label": "label-58",
+    "provider": null,
+    "url": null,
+    "description": "desc-135",
+    "long_description": null,
+    "version": null,
+    "info_url": null,
+    "active": true,
+    "bindable": true,
+    "unique_id": "c181996b-f233-43d1-8901-3a43eafcaacf",
+    "extra": null,
+    "tags": [
+
+    ],
+    "requires": [
+
+    ],
+    "documentation_url": null,
+    "service_broker_guid": "0e7250aa-364f-42c2-8fd2-808b0224376f",
+    "plan_updateable": false,
+    "service_plans_url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans"
+  }
+}
+`
