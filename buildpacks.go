@@ -20,12 +20,14 @@ type BuildpackResource struct {
 }
 
 type Buildpack struct {
-	Guid     string `json:"guid"`
-	Name     string `json:"name"`
-	Enabled  bool   `json:"enabled"`
-	Locked   bool   `json:"locked"`
-	Filename string `json:"filename"`
-	c        *Client
+	Guid      string `json:"guid"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	Name      string `json:"name"`
+	Enabled   bool   `json:"enabled"`
+	Locked    bool   `json:"locked"`
+	Filename  string `json:"filename"`
+	c         *Client
 }
 
 func (c *Client) ListBuildpacks() ([]Buildpack, error) {
@@ -37,9 +39,7 @@ func (c *Client) ListBuildpacks() ([]Buildpack, error) {
 			return []Buildpack{}, err
 		}
 		for _, buildpack := range buildpackResp.Resources {
-			buildpack.Entity.Guid = buildpack.Meta.Guid
-			buildpack.Entity.c = c
-			buildpacks = append(buildpacks, buildpack.Entity)
+			buildpacks = append(buildpacks, c.mergeBuildpackResource(buildpack))
 		}
 		requestUrl = buildpackResp.NextUrl
 		if requestUrl == "" {
@@ -66,4 +66,12 @@ func (c *Client) getBuildpackResponse(requestUrl string) (BuildpackResponse, err
 		return BuildpackResponse{}, errors.Wrap(err, "Error unmarshalling buildpack")
 	}
 	return buildpackResp, nil
+}
+
+func (c *Client) mergeBuildpackResource(buildpack BuildpackResource) Buildpack {
+	buildpack.Entity.Guid = buildpack.Meta.Guid
+	buildpack.Entity.CreatedAt = buildpack.Meta.CreatedAt
+	buildpack.Entity.UpdatedAt = buildpack.Meta.UpdatedAt
+	buildpack.Entity.c = c
+	return buildpack.Entity
 }

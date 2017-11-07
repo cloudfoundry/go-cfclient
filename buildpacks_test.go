@@ -26,6 +26,8 @@ func TestListBuildpacks(t *testing.T) {
 
 		So(len(buildpacks), ShouldEqual, 6)
 		So(buildpacks[0].Guid, ShouldEqual, "c92b6f5f-d2a4-413a-b515-647d059723aa")
+		So(buildpacks[0].CreatedAt, ShouldEqual, "2016-06-08T16:41:31Z")
+		So(buildpacks[0].UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 		So(buildpacks[0].Name, ShouldEqual, "name_1")
 	})
 }
