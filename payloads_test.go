@@ -1115,7 +1115,7 @@ const appEnvPayload = `{
   }
 }`
 
-const appPayloadWithEnvironment_json = `{
+const appPayloadWithEnvironment = `{
    "metadata": {
    },
    "entity": {

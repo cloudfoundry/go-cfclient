@@ -128,11 +128,11 @@ func NewClient(config *Config) (client *Client, err error) {
 
 	switch {
 	case config.Token != "":
-		config = getUserTokenAuth(config, endpoint, ctx)
+		config = getUserTokenAuth(ctx, config, endpoint)
 	case config.ClientID != "":
-		config = getClientAuth(config, endpoint, ctx)
+		config = getClientAuth(ctx, config, endpoint)
 	default:
-		config, err = getUserAuth(config, endpoint, ctx)
+		config, err = getUserAuth(ctx, config, endpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +157,7 @@ func shallowDefaultTransport() *http.Transport {
 	}
 }
 
-func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Config, error) {
+func getUserAuth(ctx context.Context, config *Config, endpoint *Endpoint) (*Config, error) {
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
@@ -179,7 +179,7 @@ func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Conf
 	return config, err
 }
 
-func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Config {
+func getClientAuth(ctx context.Context, config *Config, endpoint *Endpoint) *Config {
 	authConfig := &clientcredentials.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -191,8 +191,8 @@ func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Con
 	return config
 }
 
-// Initialize client credentials from existing bearer token
-func getUserTokenAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Config {
+// getUserTokenAuth initializes client credentials from existing bearer token.
+func getUserTokenAuth(ctx context.Context, config *Config, endpoint *Endpoint) *Config {
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
