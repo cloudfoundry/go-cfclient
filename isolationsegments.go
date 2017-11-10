@@ -177,7 +177,7 @@ func (i *IsolationSegment) AddOrg(orgGuid string) error {
 		GUID string `json:"guid"`
 	}
 	req.obj = map[string]interface{}{
-		"data": []Entry{Entry{GUID: orgGuid}},
+		"data": []Entry{{GUID: orgGuid}},
 	}
 	resp, err := i.c.DoRequest(req)
 	if err != nil {
