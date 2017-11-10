@@ -107,17 +107,28 @@ func NewClient(config *Config) (client *Client, err error) {
 		config.HttpClient.Transport = shallowDefaultTransport()
 	}
 
-	tp := config.HttpClient.Transport.(*http.Transport)
-	if tp.TLSClientConfig == nil {
-		tp.TLSClientConfig = &tls.Config{}
+	var tp *http.Transport
+
+	switch t := config.HttpClient.Transport.(type) {
+	case *http.Transport:
+		tp = t
+	case *oauth2.Transport:
+		if bt, ok := t.Base.(*http.Transport); ok {
+			tp = bt
+		}
+	}
+
+	if tp != nil {
+		if tp.TLSClientConfig == nil {
+			tp.TLSClientConfig = &tls.Config{}
+		}
+		tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
 	}
 
 	// we want to keep the Timeout value from config.HttpClient
 	timeout := config.HttpClient.Timeout
 
 	ctx := context.Background()
-
-	tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
 	ctx = context.WithValue(ctx, oauth2.HTTPClient, config.HttpClient)
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
