@@ -101,8 +101,8 @@ func (c *Client) DeleteServicePlanVisibilityByPlanAndOrg(servicePlanGuid string,
 		return errors.Wrap(err, fmt.Sprintf("Couldn't find a service plan visibility for service plan %s and org %s", servicePlanGuid, organizationGuid))
 	}
 	if len(plans) != 1 {
-		return errors.New(fmt.Sprintf("Query for a service plan visibility did not return exactly one result when searching for a service plan visibility for service plan %s and org %s",
-			servicePlanGuid, organizationGuid))
+		return fmt.Errorf("Query for a service plan visibility did not return exactly one result when searching for a service plan visibility for service plan %s and org %s",
+			servicePlanGuid, organizationGuid)
 	}
 	return c.DeleteServicePlanVisibility(plans[0].Guid, async)
 }
