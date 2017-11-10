@@ -20,6 +20,8 @@ type Users []User
 
 type User struct {
 	Guid                  string `json:"guid"`
+	CreatedAt             string `json:"created_at"`
+	UpdatedAt             string `json:"updated_at"`
 	Admin                 bool   `json:"admin"`
 	Active                bool   `json:"active"`
 	DefaultSpaceGUID      string `json:"default_space_guid"`
@@ -44,6 +46,26 @@ type UserResponse struct {
 	Pages     int            `json:"total_pages"`
 	NextUrl   string         `json:"next_url"`
 	Resources []UserResource `json:"resources"`
+}
+
+// GetUserByGUID retrieves the user with the provided guid.
+func (c *Client) GetUserByGUID(guid string) (User, error) {
+	var userRes UserResource
+	r := c.NewRequest("GET", "/v2/users/"+guid)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return User{}, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return User{}, err
+	}
+	err = json.Unmarshal(body, &userRes)
+	if err != nil {
+		return User{}, err
+	}
+	return c.mergeUserResource(userRes), nil
 }
 
 func (c *Client) ListUsersByQuery(query url.Values) (Users, error) {
@@ -166,4 +188,12 @@ func (c *Client) getUserResponse(requestUrl string) (UserResponse, error) {
 		return UserResponse{}, errors.Wrap(err, "Error unmarshalling user")
 	}
 	return userResp, nil
+}
+
+func (c *Client) mergeUserResource(u UserResource) User {
+	u.Entity.Guid = u.Meta.Guid
+	u.Entity.CreatedAt = u.Meta.CreatedAt
+	u.Entity.UpdatedAt = u.Meta.UpdatedAt
+	u.Entity.c = c
+	return u.Entity
 }
