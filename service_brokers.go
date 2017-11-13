@@ -39,6 +39,7 @@ type CreateServiceBrokerRequest struct {
 }
 
 type ServiceBroker struct {
+	Guid      string `json:"guid"`
 	Name      string `json:"name"`
 	BrokerURL string `json:"broker_url"`
 	Username  string `json:"auth_username"`
@@ -87,7 +88,7 @@ func (c *Client) UpdateServiceBroker(guid string, usb UpdateServiceBrokerRequest
 	if err != nil {
 		return ServiceBroker{}, err
 	}
-
+	serviceBrokerResource.Entity.Guid = serviceBrokerResource.Meta.Guid
 	return serviceBrokerResource.Entity, nil
 }
 
@@ -118,6 +119,7 @@ func (c *Client) CreateServiceBroker(csb CreateServiceBrokerRequest) (ServiceBro
 		return ServiceBroker{}, err
 	}
 
+	serviceBrokerResource.Entity.Guid = serviceBrokerResource.Meta.Guid
 	return serviceBrokerResource.Entity, nil
 }
 
@@ -130,6 +132,7 @@ func (c *Client) ListServiceBrokersByQuery(query url.Values) ([]ServiceBroker, e
 			return []ServiceBroker{}, err
 		}
 		for _, sb := range serviceBrokerResp.Resources {
+			sb.Entity.Guid = sb.Meta.Guid
 			sbs = append(sbs, sb.Entity)
 		}
 		requestUrl = serviceBrokerResp.NextUrl
@@ -160,6 +163,7 @@ func (c *Client) GetServiceBrokerByGuid(guid string) (ServiceBroker, error) {
 	if err != nil {
 		return ServiceBroker{}, err
 	}
+	serviceBrokerRes.Entity.Guid = serviceBrokerRes.Meta.Guid
 	return serviceBrokerRes.Entity, nil
 }
 

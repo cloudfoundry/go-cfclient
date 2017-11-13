@@ -77,6 +77,17 @@ func (c *Client) GetServicePlanVisibilityByGuid(guid string) (ServicePlanVisibil
 	return respBodyToServicePlanVisibility(resp.Body, c)
 }
 
+//a uniqueID is the id of the service in the catalog and not in cf internal db
+func (c *Client) CreateServicePlanVisibilityByUniqueId(uniqueId string, organizationGuid string) (ServicePlanVisibility, error) {
+	q := url.Values{}
+	q.Set("q", fmt.Sprintf("unique_id:%s", uniqueId))
+	plans, err := c.ListServicePlansByQuery(q)
+	if err != nil {
+		return ServicePlanVisibility{}, errors.Wrap(err, fmt.Sprintf("Couldn't find a service plan with unique_id: %s", uniqueId))
+	}
+	return c.CreateServicePlanVisibility(plans[0].Guid, organizationGuid)
+}
+
 func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
 	req := c.NewRequest("POST", "/v2/service_plan_visibilities")
 	req.obj = map[string]interface{}{
