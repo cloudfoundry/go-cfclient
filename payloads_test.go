@@ -1115,7 +1115,7 @@ const appEnvPayload = `{
   }
 }`
 
-const appPayloadWithEnvironment_json = `{
+const appPayloadWithEnvironment = `{
    "metadata": {
    },
    "entity": {
@@ -2316,6 +2316,28 @@ const ListBuildpacksPayload2 = `{
       }
     }
   ]
+}`
+
+const userByGUIDPayload = `{
+  "metadata": {
+    "guid": "72ccf759-43aa-4954-903f-7d892c268e80",
+    "url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80",
+    "created_at": "2017-11-03T01:33:31Z",
+    "updated_at": "2017-11-03T01:33:31Z"
+  },
+  "entity": {
+    "admin": false,
+    "active": false,
+    "default_space_guid": null,
+    "username": "user@example.com",
+    "spaces_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/spaces",
+    "organizations_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/organizations",
+    "managed_organizations_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/managed_organizations",
+    "billing_managed_organizations_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/billing_managed_organizations",
+    "audited_organizations_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/audited_organizations",
+    "managed_spaces_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/managed_spaces",
+    "audited_spaces_url": "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80/audited_spaces"
+  }
 }`
 
 const listUsersPayload = `{

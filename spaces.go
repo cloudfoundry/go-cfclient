@@ -75,6 +75,13 @@ type ServiceOfferingResponse struct {
 	Resources []ServiceOfferingResource `json:"resources"`
 }
 
+type SpaceManagerResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextURL   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+
 type Space struct {
 	Guid                string      `json:"guid"`
 	CreatedAt           string      `json:"created_at"`
@@ -237,6 +244,29 @@ func (c *Client) DeleteSpace(guid string, recursive, async bool) error {
 		return errors.Wrapf(err, "Error deleting space %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) ListSpaceManagersByQuery(spaceGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/spaces/%s/managers?%s", spaceGUID, query.Encode())
+	for {
+		smResp, err := c.getSpaceManagerResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range smResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = smResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListSpaceManagers(spaceGUID string) ([]User, error) {
+	return c.ListSpaceManagersByQuery(spaceGUID, nil)
 }
 
 func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Space, error) {
@@ -488,4 +518,22 @@ func (resource *ServiceOfferingExtra) UnmarshalJSON(rawData []byte) error {
 	*resource = ServiceOfferingExtra(extra)
 
 	return nil
+}
+
+func (c *Client) getSpaceManagerResponse(requestURL string) (SpaceManagerResponse, error) {
+	var smResp SpaceManagerResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return SpaceManagerResponse{}, errors.Wrap(err, "error requesting space managers")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return SpaceManagerResponse{}, errors.Wrap(err, "error reading space managers response body")
+	}
+	if err := json.Unmarshal(resBody, &smResp); err != nil {
+		return SpaceManagerResponse{}, errors.Wrap(err, "error unmarshaling space managers")
+	}
+	return smResp, nil
 }

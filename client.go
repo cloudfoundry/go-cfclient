@@ -107,17 +107,28 @@ func NewClient(config *Config) (client *Client, err error) {
 		config.HttpClient.Transport = shallowDefaultTransport()
 	}
 
-	tp := config.HttpClient.Transport.(*http.Transport)
-	if tp.TLSClientConfig == nil {
-		tp.TLSClientConfig = &tls.Config{}
+	var tp *http.Transport
+
+	switch t := config.HttpClient.Transport.(type) {
+	case *http.Transport:
+		tp = t
+	case *oauth2.Transport:
+		if bt, ok := t.Base.(*http.Transport); ok {
+			tp = bt
+		}
+	}
+
+	if tp != nil {
+		if tp.TLSClientConfig == nil {
+			tp.TLSClientConfig = &tls.Config{}
+		}
+		tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
 	}
 
 	// we want to keep the Timeout value from config.HttpClient
 	timeout := config.HttpClient.Timeout
 
 	ctx := context.Background()
-
-	tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
 	ctx = context.WithValue(ctx, oauth2.HTTPClient, config.HttpClient)
 
 	endpoint, err := getInfo(config.ApiAddress, oauth2.NewClient(ctx, nil))
@@ -128,11 +139,11 @@ func NewClient(config *Config) (client *Client, err error) {
 
 	switch {
 	case config.Token != "":
-		config = getUserTokenAuth(config, endpoint, ctx)
+		config = getUserTokenAuth(ctx, config, endpoint)
 	case config.ClientID != "":
-		config = getClientAuth(config, endpoint, ctx)
+		config = getClientAuth(ctx, config, endpoint)
 	default:
-		config, err = getUserAuth(config, endpoint, ctx)
+		config, err = getUserAuth(ctx, config, endpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +168,7 @@ func shallowDefaultTransport() *http.Transport {
 	}
 }
 
-func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Config, error) {
+func getUserAuth(ctx context.Context, config *Config, endpoint *Endpoint) (*Config, error) {
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
@@ -179,7 +190,7 @@ func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Conf
 	return config, err
 }
 
-func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Config {
+func getClientAuth(ctx context.Context, config *Config, endpoint *Endpoint) *Config {
 	authConfig := &clientcredentials.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -191,8 +202,8 @@ func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Con
 	return config
 }
 
-// Initialize client credentials from existing bearer token
-func getUserTokenAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Config {
+// getUserTokenAuth initializes client credentials from existing bearer token.
+func getUserTokenAuth(ctx context.Context, config *Config, endpoint *Endpoint) *Config {
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},

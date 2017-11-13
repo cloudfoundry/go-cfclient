@@ -132,7 +132,7 @@ func (c *Client) GetDomainByName(name string) (Domain, error) {
 		return Domain{}, errors.Wrapf(err, "Error during domain lookup %s", name)
 	}
 	if len(domains) == 0 {
-		return Domain{}, errors.New(fmt.Sprintf("Unable to find domain %s", name))
+		return Domain{}, fmt.Errorf("Unable to find domain %s", name)
 	}
 	return domains[0], nil
 }
@@ -145,7 +145,7 @@ func (c *Client) GetSharedDomainByName(name string) (SharedDomain, error) {
 		return SharedDomain{}, errors.Wrapf(err, "Error during shared domain lookup %s", name)
 	}
 	if len(domains) == 0 {
-		return SharedDomain{}, errors.New(fmt.Sprintf("Unable to find shared domain %s", name))
+		return SharedDomain{}, fmt.Errorf("Unable to find shared domain %s", name)
 	}
 	return domains[0], nil
 }

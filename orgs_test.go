@@ -31,7 +31,7 @@ func TestListOrgs(t *testing.T) {
 }
 
 func TestGetOrgByGuid(t *testing.T) {
-	Convey("List Org", t, func() {
+	Convey("Get org by GUID", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", orgByGuidPayload, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{

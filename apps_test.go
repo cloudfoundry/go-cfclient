@@ -105,7 +105,7 @@ func TestAppByGuid(t *testing.T) {
 	})
 
 	Convey("App By GUID with environment variables with different types", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment_json, "", 200, "inline-relations-depth=2", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment, "", 200, "inline-relations-depth=2", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

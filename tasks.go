@@ -178,7 +178,7 @@ func (c *Client) CreateTask(tr TaskRequest) (task Task, err error) {
 	return task, err
 }
 
-// TaskByGuid returns a task structure by requesting it with the tasks GUID.
+// GetTaskByGuid returns a task structure by requesting it with the tasks GUID.
 func (c *Client) GetTaskByGuid(guid string) (task Task, err error) {
 	request := fmt.Sprintf("/v3/tasks/%s", guid)
 	req := c.NewRequest("GET", request)
