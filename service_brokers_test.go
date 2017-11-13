@@ -21,6 +21,7 @@ func TestListServiceBrokers(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		So(len(servicePlans), ShouldEqual, 1)
+		So(servicePlans[0].Guid, ShouldEqual, "90a413fd-a636-4133-8bfb-a94b07839e96")
 		So(servicePlans[0].Name, ShouldEqual, "name-85")
 		So(servicePlans[0].BrokerURL, ShouldEqual, "https://foo.com/url-2")
 		So(servicePlans[0].Username, ShouldEqual, "auth_username-2")
