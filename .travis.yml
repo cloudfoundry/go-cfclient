@@ -3,6 +3,7 @@ sudo: false
 go:
   - 1.8
   - 1.9
+  - tip
 
 before_install:
   - go get -u golang.org/x/tools/cmd/goimports
@@ -14,4 +15,5 @@ script:
   - go tool vet $FILES
   - goimports -d $FILES
   # testing
+  - go generate
   - go test -v -race
