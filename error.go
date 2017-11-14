@@ -1,5 +1,7 @@
 package cfclient
 
+//go:generate go run gen_error.go
+
 import "fmt"
 
 type CloudFoundryErrors struct {
