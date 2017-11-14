@@ -15,4 +15,5 @@ script:
   - go tool vet $FILES
   - goimports -d $FILES
   # testing
+  - go generate
   - go test -v -race
