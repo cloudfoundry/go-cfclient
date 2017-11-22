@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -51,6 +52,10 @@ func main() {
 		d.CFCode = c
 		definitions = append(definitions, d)
 	}
+
+	sort.Slice(definitions, func(i, j int) bool {
+		return definitions[i].CFCode < definitions[j].CFCode
+	})
 
 	buf := &bytes.Buffer{}
 
