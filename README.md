@@ -34,22 +34,6 @@ func main() {
 }
 ```
 
-### Developing
-
-You can use Godep to restore the dependency
-Tested with go1.5.3
-```bash
-godep go build
-```
-
-#### Set up
-
-Vendor dependencies are managed with `govendor`:
-
-```
-go get -u github.com/kardianos/govendor
-```
-
 #### Errors
 
 If the Cloud Foundry error definitions change at https://github.com/cloudfoundry/cloud_controller_ng/blob/master/vendor/errors/v2.yml then the error predicate functions in this package need to be regenerated.
