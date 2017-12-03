@@ -1,5 +1,115 @@
 package cfclient
 
+const listEventsPage1Payload = `{
+  "total_results": 4,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": "/v2/events-2?page=2",
+  "resources": [
+    {
+      "metadata": {
+        "guid": "b8ede8e1-afc8-40a1-baae-236a0a77b27b",
+        "url": "/v2/events/b8ede8e1-afc8-40a1-baae-236a0a77b27b",
+        "created_at": "2016-06-08T16:41:23Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "type": "name-167",
+        "actor": "guid-008640fc-d316-4602-9251-c8d09bbdc750",
+        "actor_type": "name-168",
+        "actor_name": "name-169",
+        "actee": "guid-e7790fa4-be2b-4a0f-aa82-c124342b0bb4",
+        "actee_type": "name-170",
+        "actee_name": "name-171",
+        "timestamp": "2016-06-08T16:41:23Z",
+        "metadata": {
+
+        },
+        "space_guid": "3a1368e7-e3b7-46af-a98d-57b9c71445e7",
+        "organization_guid": "86aa12ee-8c4f-4b26-b391-2be6c1730dbc"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "2ccf53a8-d0eb-4807-9bb9-7dd844e65267",
+        "url": "/v2/events/2ccf53a8-d0eb-4807-9bb9-7dd844e65267",
+        "created_at": "2016-06-08T16:41:23Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "type": "name-175",
+        "actor": "guid-52cb38f4-d52d-4201-87e3-8e5650efc8c1",
+        "actor_type": "name-176",
+        "actor_name": "name-177",
+        "actee": "guid-5c4214a1-f295-42ae-bd92-38e7cb8be538",
+        "actee_type": "name-178",
+        "actee_name": "name-179",
+        "timestamp": "2016-06-08T16:41:23Z",
+        "metadata": {
+
+        },
+        "space_guid": "10f0fd9d-dd68-428e-8e93-c00bb8eff0a6",
+        "organization_guid": "aa3fdaaa-42c8-4141-bc22-9792c37aa62f"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "4f9b1fef-2ce4-4877-85e1-0da9114a92cb",
+        "url": "/v2/events/4f9b1fef-2ce4-4877-85e1-0da9114a92cb",
+        "created_at": "2016-06-08T16:41:23Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "type": "name-183",
+        "actor": "guid-d3be7ed1-1c08-43f6-a20d-5cd9287492e1",
+        "actor_type": "name-184",
+        "actor_name": "name-185",
+        "actee": "guid-9844795f-943d-47ed-a997-2c04ee611f5a",
+        "actee_type": "name-186",
+        "actee_name": "name-187",
+        "timestamp": "2016-06-08T16:41:23Z",
+        "metadata": {
+
+        },
+        "space_guid": "f9ef235c-25df-4aa1-bcb4-15eec6f92146",
+        "organization_guid": "24a920db-f551-46af-bf73-e1db972f652a"
+      }
+    }
+  ]
+}`
+
+const listEventsPage2Payload = `{
+  "total_results": 4,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "4f9b1fef-2ce4-4877-85e1-0da9114a92cb",
+        "url": "/v2/events/4f9b1fef-2ce4-4877-85e1-0da9114a92cb",
+        "created_at": "2016-06-08T16:41:23Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "type": "name-183",
+        "actor": "guid-d3be7ed1-1c08-43f6-a20d-5cd9287492e1",
+        "actor_type": "name-184",
+        "actor_name": "name-185",
+        "actee": "guid-9844795f-943d-47ed-a997-2c04ee611f5a",
+        "actee_type": "name-186",
+        "actee_name": "name-187",
+        "timestamp": "2016-06-08T16:41:23Z",
+        "metadata": {
+
+        },
+        "space_guid": "f9ef235c-25df-4aa1-bcb4-15eec6f92146",
+        "organization_guid": "24a920db-f551-46af-bf73-e1db972f652a"
+      }
+    }
+  ]
+}`
+
 const listOrgsPayload = `{
 "total_results": 6,
 "total_pages": 1,
