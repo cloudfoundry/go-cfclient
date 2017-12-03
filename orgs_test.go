@@ -7,7 +7,7 @@ import (
 )
 
 func TestListOrgs(t *testing.T) {
-	Convey("List Org", t, func() {
+	Convey("List Orgs", t, func() {
 		mocks := []MockRoute{
 			{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil},
 			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200, "", nil},
