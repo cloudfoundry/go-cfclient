@@ -286,8 +286,7 @@ func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	return &ret, nil
 }
 
-func ConvertStructToMap(st interface{}) map[string]interface{} {
-
+func convertStructToMap(st interface{}) map[string]interface{} {
 	reqRules := make(map[string]interface{})
 
 	v := reflect.ValueOf(st)
@@ -325,7 +324,7 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 	reqRules := make([]map[string]interface{}, len(rules))
 
 	for i, rule := range rules {
-		reqRules[i] = ConvertStructToMap(rule)
+		reqRules[i] = convertStructToMap(rule)
 		protocol := strings.ToLower(reqRules[i]["protocol"].(string))
 
 		// if not icmp protocol need to remove the Code/Type fields
