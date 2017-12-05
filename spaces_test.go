@@ -49,6 +49,61 @@ func TestListSpaces(t *testing.T) {
 	})
 }
 
+func TestListSpaceManagers(t *testing.T) {
+	Convey("ListSpaceManagers()", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/foo/managers", listSpacePeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListSpaceManagers("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+func TestListSpaceAuditors(t *testing.T) {
+	Convey("ListSpaceAuditors()", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/foo/auditors", listSpacePeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListSpaceAuditors("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+func TestListSpaceDevelopers(t *testing.T) {
+	Convey("ListSpaceDevelopers()", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/foo/developers", listSpacePeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListSpaceDevelopers("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+
 func TestCreateSpace(t *testing.T) {
 	Convey("Create Space", t, func() {
 		setup(MockRoute{"POST", "/v2/spaces", spacePayload, "", 201, "", nil}, t)

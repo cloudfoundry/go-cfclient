@@ -31,6 +31,20 @@ type OrgManagerResponse struct {
 	Resources []UserResource `json:"resources"`
 }
 
+type OrgAuditorResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextURL   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+
+type BillingManagerResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextURL   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+
 type Org struct {
 	Guid                string `json:"guid"`
 	CreatedAt           string `json:"created_at"`
@@ -213,6 +227,52 @@ func (c *Client) ListOrgManagersByQuery(orgGUID string, query url.Values) ([]Use
 
 func (c *Client) ListOrgManagers(orgGUID string) ([]User, error) {
 	return c.ListOrgManagersByQuery(orgGUID, nil)
+}
+
+func (c *Client) ListOrgAuditorsByQuery(orgGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/organizations/%s/auditors?%s", orgGUID, query.Encode())
+	for {
+		omResp, err := c.getOrgAuditorResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range omResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = omResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListOrgAuditors(orgGUID string) ([]User, error) {
+	return c.ListOrgAuditorsByQuery(orgGUID, nil)
+}
+
+func (c *Client) ListBillingManagersByQuery(orgGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/organizations/%s/billing_managers?%s", orgGUID, query.Encode())
+	for {
+		omResp, err := c.getBillingManagerResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range omResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = omResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListBillingManagers(orgGUID string) ([]User, error) {
+	return c.ListBillingManagersByQuery(orgGUID, nil)
 }
 
 func (c *Client) AssociateOrgManager(orgGUID, userGUID string) (Org, error) {
@@ -556,6 +616,42 @@ func (c *Client) getOrgManagerResponse(requestURL string) (OrgManagerResponse, e
 		return OrgManagerResponse{}, errors.Wrap(err, "error unmarshaling org managers")
 	}
 	return omResp, nil
+}
+
+func (c *Client) getOrgAuditorResponse(requestURL string) (OrgAuditorResponse, error) {
+	var oaResp OrgAuditorResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return OrgAuditorResponse{}, errors.Wrap(err, "error requesting org auditors")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return OrgAuditorResponse{}, errors.Wrap(err, "error reading org auditors response body")
+	}
+	if err := json.Unmarshal(resBody, &oaResp); err != nil {
+		return OrgAuditorResponse{}, errors.Wrap(err, "error unmarshaling org auditors")
+	}
+	return oaResp, nil
+}
+
+func (c *Client) getBillingManagerResponse(requestURL string) (BillingManagerResponse, error) {
+	var bmResp BillingManagerResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return BillingManagerResponse{}, errors.Wrap(err, "error requesting billing managers")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return BillingManagerResponse{}, errors.Wrap(err, "error reading billing managers response body")
+	}
+	if err := json.Unmarshal(resBody, &bmResp); err != nil {
+		return BillingManagerResponse{}, errors.Wrap(err, "error unmarshaling billing managers")
+	}
+	return bmResp, nil
 }
 
 func (c *Client) mergeOrgResource(org OrgResource) Org {
