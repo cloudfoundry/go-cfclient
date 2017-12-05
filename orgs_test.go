@@ -69,6 +69,61 @@ func TestOrgSpaces(t *testing.T) {
 	})
 }
 
+func TestListOrgManagers(t *testing.T) {
+	Convey("Get Org Managers for an org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/foo/managers", listOrgPeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		managers, err := client.ListOrgManagers("foo")
+		So(err, ShouldBeNil)
+		So(len(managers), ShouldEqual, 2)
+		So(managers[0].Username, ShouldEqual, "user1")
+		So(managers[1].Username, ShouldEqual, "user2")
+	})
+}
+func TestListOrgAuditors(t *testing.T) {
+	Convey("Get Org Auditors for an org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/foo/auditors", listOrgPeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListOrgAuditors("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+func TestListBillingManagers(t *testing.T) {
+	Convey("Get Billing Manager for an org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/foo/billing_managers", listOrgPeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		managers, err := client.ListBillingManagers("foo")
+		So(err, ShouldBeNil)
+		So(len(managers), ShouldEqual, 2)
+		So(managers[0].Username, ShouldEqual, "user1")
+		So(managers[1].Username, ShouldEqual, "user2")
+	})
+}
+
 func TestOrgSummary(t *testing.T) {
 	Convey("Get org summary", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/summary", orgSummaryPayload, "", 200, "", nil}, t)

@@ -224,6 +224,59 @@ const listOrgsPayloadPage2 = `{
 ]
 }`
 
+const listOrgPeoplePayload = `
+{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "uaa-id-231",
+        "url": "/v2/users/uaa-id-231",
+        "created_at": "2016-06-08T16:41:34Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user1",
+        "spaces_url": "/v2/users/uaa-id-231/spaces",
+        "organizations_url": "/v2/users/uaa-id-231/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-231/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-231/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-231/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-231/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-231/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "uaa-id-232",
+        "url": "/v2/users/uaa-id-232",
+        "created_at": "2016-06-08T16:41:34Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user2",
+        "spaces_url": "/v2/users/uaa-id-232/spaces",
+        "organizations_url": "/v2/users/uaa-id-232/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-232/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-232/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-232/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-232/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-232/audited_spaces"
+      }
+    }
+  ]
+}
+`
+
 const orgByGuidPayload = `{
   "metadata": {
     "guid": "1c0e6074-777f-450e-9abc-c42f39d9b75b",
