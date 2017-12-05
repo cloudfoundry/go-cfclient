@@ -81,6 +81,18 @@ type SpaceManagerResponse struct {
 	NextURL   string         `json:"next_url"`
 	Resources []UserResource `json:"resources"`
 }
+type SpaceAuditorResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextURL   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+type SpaceDeveloperResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextURL   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
 
 type Space struct {
 	Guid                string      `json:"guid"`
@@ -267,6 +279,52 @@ func (c *Client) ListSpaceManagersByQuery(spaceGUID string, query url.Values) ([
 
 func (c *Client) ListSpaceManagers(spaceGUID string) ([]User, error) {
 	return c.ListSpaceManagersByQuery(spaceGUID, nil)
+}
+
+func (c *Client) ListSpaceAuditorsByQuery(spaceGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/spaces/%s/auditors?%s", spaceGUID, query.Encode())
+	for {
+		saResp, err := c.getSpaceAuditorResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range saResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = saResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListSpaceAuditors(spaceGUID string) ([]User, error) {
+	return c.ListSpaceAuditorsByQuery(spaceGUID, nil)
+}
+
+func (c *Client) ListSpaceDevelopersByQuery(spaceGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/spaces/%s/developers?%s", spaceGUID, query.Encode())
+	for {
+		saResp, err := c.getSpaceDeveloperResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range saResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = saResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListSpaceDevelopers(spaceGUID string) ([]User, error) {
+	return c.ListSpaceDevelopersByQuery(spaceGUID, nil)
 }
 
 func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Space, error) {
@@ -536,4 +594,38 @@ func (c *Client) getSpaceManagerResponse(requestURL string) (SpaceManagerRespons
 		return SpaceManagerResponse{}, errors.Wrap(err, "error unmarshaling space managers")
 	}
 	return smResp, nil
+}
+func (c *Client) getSpaceAuditorResponse(requestURL string) (SpaceAuditorResponse, error) {
+	var saResp SpaceAuditorResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return SpaceAuditorResponse{}, errors.Wrap(err, "error requesting space auditors")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return SpaceAuditorResponse{}, errors.Wrap(err, "error reading space auditors response body")
+	}
+	if err := json.Unmarshal(resBody, &saResp); err != nil {
+		return SpaceAuditorResponse{}, errors.Wrap(err, "error unmarshaling space auditors")
+	}
+	return saResp, nil
+}
+func (c *Client) getSpaceDeveloperResponse(requestURL string) (SpaceDeveloperResponse, error) {
+	var sdResp SpaceDeveloperResponse
+	r := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return SpaceDeveloperResponse{}, errors.Wrap(err, "error requesting space developers")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return SpaceDeveloperResponse{}, errors.Wrap(err, "error reading space developers response body")
+	}
+	if err := json.Unmarshal(resBody, &sdResp); err != nil {
+		return SpaceDeveloperResponse{}, errors.Wrap(err, "error unmarshaling space developers")
+	}
+	return sdResp, nil
 }
