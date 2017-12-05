@@ -226,7 +226,7 @@ const listOrgsPayloadPage2 = `{
 
 const listOrgPeoplePayload = `
 {
-  "total_results": 1,
+  "total_results": 2,
   "total_pages": 1,
   "prev_url": null,
   "next_url": null,
@@ -656,6 +656,57 @@ const listSpacesPayloadPage2 = `{
          }
       }
    ]
+}`
+
+const listSpacePeoplePayload = `{
+  "total_results": 2,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "uaa-id-411",
+        "url": "/v2/users/uaa-id-411",
+        "created_at": "2016-06-08T16:41:42Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user1",
+        "spaces_url": "/v2/users/uaa-id-411/spaces",
+        "organizations_url": "/v2/users/uaa-id-411/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-411/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-411/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-411/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-411/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-411/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "uaa-id-412",
+        "url": "/v2/users/uaa-id-412",
+        "created_at": "2016-06-08T16:41:42Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user2",
+        "spaces_url": "/v2/users/uaa-id-412/spaces",
+        "organizations_url": "/v2/users/uaa-id-412/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-412/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-412/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-412/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-412/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-412/audited_spaces"
+      }
+    }
+  ]
 }`
 
 const spaceByGuidPayload = `{
