@@ -131,6 +131,13 @@ type SpaceRole struct {
 	c                              *Client
 }
 
+type SpaceUserResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextUrl   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+
 func (s *Space) Org() (Org, error) {
 	var orgResource OrgResource
 	r := s.c.NewRequest("GET", s.OrgURL)
@@ -537,3 +544,86 @@ func (c *Client) getSpaceManagerResponse(requestURL string) (SpaceManagerRespons
 	}
 	return smResp, nil
 }
+
+func (c *Client) getSpaceUserResponse(requestUrl string) (SpaceUserResponse, error) {
+	var roleResp SpaceUserResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error requesting org roles")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error reading org roles request")
+	}
+	err = json.Unmarshal(resBody, &roleResp)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error unmarshalling org roles")
+	}
+	return roleResp, nil
+}
+
+func (c *Client) GetManagersBySpaceGuid(spaceGUID string) ([]User, error) {
+	var spaceManagers []User
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/managers", spaceGUID)
+	for {
+		spaceManagerResp, err := c.getSpaceUserResponse(requestUrl)
+		if err != nil {
+			return spaceManagers, err
+		}
+		for _, role := range spaceManagerResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			spaceManagers = append(spaceManagers, role.Entity)
+		}
+		requestUrl = spaceManagerResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return spaceManagers, nil
+}
+
+func (c *Client) GetDevelopersBySpaceGuid(spaceGUID string) ([]User, error) {
+	var spaceDeveloper []User
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/developers", spaceGUID)
+	for {
+		spaceDeveloperResp, err := c.getSpaceUserResponse(requestUrl)
+		if err != nil {
+			return spaceDeveloper, err
+		}
+		for _, role := range spaceDeveloperResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			spaceDeveloper = append(spaceDeveloper, role.Entity)
+		}
+		requestUrl = spaceDeveloperResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return spaceDeveloper, nil
+}
+
+func (c *Client) GetAuditorsBySpaceGuid(spaceGUID string) ([]User, error) {
+	var spaceAuditor []User
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/auditors", spaceGUID)
+	for {
+		spaceAuditorResp, err := c.getSpaceUserResponse(requestUrl)
+		if err != nil {
+			return spaceAuditor, err
+		}
+		for _, role := range spaceAuditorResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			spaceAuditor = append(spaceAuditor, role.Entity)
+		}
+		requestUrl = spaceAuditorResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return spaceAuditor, nil
+}
+

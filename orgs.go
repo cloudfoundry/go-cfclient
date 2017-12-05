@@ -62,6 +62,42 @@ type OrgRequest struct {
 	QuotaDefinitionGuid string `json:"quota_definition_guid,omitempty"`
 }
 
+type OrgRoleResponse struct {
+	Count     int               `json:"total_results"`
+	Pages     int               `json:"total_pages"`
+	NextUrl   string            `json:"next_url"`
+	Resources []OrgRoleResource `json:"resources"`
+}
+
+type OrgUserResponse struct {
+	Count     int            `json:"total_results"`
+	Pages     int            `json:"total_pages"`
+	NextUrl   string         `json:"next_url"`
+	Resources []UserResource `json:"resources"`
+}
+
+type OrgRoleResource struct {
+	Meta   Meta    `json:"metadata"`
+	Entity OrgRole `json:"entity"`
+}
+
+type OrgRole struct {
+	Guid                           string   `json:"guid"`
+	Admin                          bool     `json:"admin"`
+	Active                         bool     `json:"active"`
+	DefaultSpaceGuid               string   `json:"default_space_guid"`
+	Username                       string   `json:"username"`
+	OrgRoles                       []string `json:"organization_roles"`
+	SpacesUrl                      string   `json:"spaces_url"`
+	OrganizationsUrl               string   `json:"organizations_url"`
+	ManagedOrganizationsUrl        string   `json:"managed_organizations_url"`
+	BillingManagedOrganizationsUrl string   `json:"billing_managed_organizations_url"`
+	AuditedOrganizationsUrl        string   `json:"audited_organizations_url"`
+	ManagedSpacesUrl               string   `json:"managed_spaces_url"`
+	AuditedSpacesUrl               string   `json:"audited_spaces_url"`
+	c                              *Client
+}
+
 func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 	var orgs []Org
 	requestUrl := "/v2/organizations?" + query.Encode()
@@ -564,4 +600,126 @@ func (c *Client) mergeOrgResource(org OrgResource) Org {
 	org.Entity.UpdatedAt = org.Meta.UpdatedAt
 	org.Entity.c = c
 	return org.Entity
+}
+
+func (c *Client) Roles(guid string) ([]OrgRole, error) {
+	var roles []OrgRole
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/user_roles", guid)
+	for {
+		rolesResp, err := c.getOrgRolesResponse(requestUrl)
+		if err != nil {
+			return roles, err
+		}
+		for _, role := range rolesResp.Resources {
+			role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			roles = append(roles, role.Entity)
+		}
+		requestUrl = rolesResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return roles, nil
+}
+
+func (c *Client) getOrgRolesResponse(requestUrl string) (OrgRoleResponse, error) {
+	var roleResp OrgRoleResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error requesting org roles")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error reading org roles request")
+	}
+	err = json.Unmarshal(resBody, &roleResp)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error unmarshalling org roles")
+	}
+	return roleResp, nil
+}
+
+func (c *Client) getOrgUserResponse(requestUrl string) (OrgUserResponse, error) {
+	var roleResp OrgUserResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error requesting org roles")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error reading org roles request")
+	}
+	err = json.Unmarshal(resBody, &roleResp)
+	if err != nil {
+		return roleResp, errors.Wrap(err, "Error unmarshalling org roles")
+	}
+	return roleResp, nil
+}
+
+func (c *Client) GetManagersByOrgGuid(orgGUID string) ([]User, error) {
+	var orgManagers []User
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers", orgGUID)
+	for {
+		orgManagerResp, err := c.getOrgUserResponse(requestUrl)
+		if err != nil {
+			return orgManagers, err
+		}
+		for _, role := range orgManagerResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			orgManagers = append(orgManagers, role.Entity)
+		}
+		requestUrl = orgManagerResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return orgManagers, nil
+}
+
+func (c *Client) GetBillingManagersByOrgGuid(orgGUID string) ([]User, error) {
+	var orgBillingManager []User
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/billing_managers", orgGUID)
+	for {
+		orgBillingManagerResp, err := c.getOrgUserResponse(requestUrl)
+		if err != nil {
+			return orgBillingManager, err
+		}
+		for _, role := range orgBillingManagerResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			orgBillingManager = append(orgBillingManager, role.Entity)
+		}
+		requestUrl = orgBillingManagerResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return orgBillingManager, nil
+}
+
+func (c *Client) GetAuditorsByOrgGuid(orgGUID string) ([]User, error) {
+	var orgAuditor []User
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/auditors", orgGUID)
+	for {
+		orgAuditorResp, err := c.getOrgUserResponse(requestUrl)
+		if err != nil {
+			return orgAuditor, err
+		}
+		for _, role := range orgAuditorResp.Resources {
+			//role.Entity.Guid = role.Meta.Guid
+			role.Entity.c = c
+			orgAuditor = append(orgAuditor, role.Entity)
+		}
+		requestUrl = orgAuditorResp.NextUrl
+		if requestUrl == "" {
+			break
+		}
+	}
+	return orgAuditor, nil
 }
