@@ -10,10 +10,10 @@ import (
 
 // EventsResponse is a type that wraps a collection of event resources.
 type EventsResponse struct {
-	Count     int             `json:"total_results"`
-	Pages     int             `json:"total_pages"`
-	NextURL   string          `json:"next_url"`
-	Resources []EventResource `json:"resources"`
+	TotalResults int             `json:"total_results"`
+	Pages        int             `json:"total_pages"`
+	NextURL      string          `json:"next_url"`
+	Resources    []EventResource `json:"resources"`
 }
 
 // EventResource is a type that contains metadata and the entity for an event.
@@ -69,4 +69,24 @@ func (c *Client) ListEventsByQuery(query url.Values) ([]Event, error) {
 // ListEvents lists all unfiltered events.
 func (c *Client) ListEvents() ([]Event, error) {
 	return c.ListEventsByQuery(nil)
+}
+
+// TotalEventsByQuery returns the number of events matching the provided query.
+func (c *Client) TotalEventsByQuery(query url.Values) (int, error) {
+	r := c.NewRequest("GET", fmt.Sprintf("/v2/events?%s", query.Encode()))
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return 0, errors.Wrap(err, "error requesting events")
+	}
+	defer resp.Body.Close()
+	var apiResp EventsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
+		return 0, errors.Wrap(err, "error unmarshaling events")
+	}
+	return apiResp.TotalResults, nil
+}
+
+// TotalEvents returns the number of unfiltered events.
+func (c *Client) TotalEvents() (int, error) {
+	return c.TotalEventsByQuery(nil)
 }

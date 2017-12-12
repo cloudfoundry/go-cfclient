@@ -29,3 +29,24 @@ func TestListEvents(t *testing.T) {
 		So(events[0].Actor, ShouldEqual, "guid-008640fc-d316-4602-9251-c8d09bbdc750")
 	})
 }
+
+func TestTotalEvents(t *testing.T) {
+	Convey("Total Events", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/events", totalEventsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		total, err := client.TotalEvents()
+		So(err, ShouldBeNil)
+
+		So(total, ShouldEqual, 4)
+	})
+}
