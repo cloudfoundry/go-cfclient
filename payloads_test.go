@@ -110,6 +110,14 @@ const listEventsPage2Payload = `{
   ]
 }`
 
+const totalEventsPayload = `{
+  "total_results": 4,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": []
+}`
+
 const listOrgsPayload = `{
 "total_results": 6,
 "total_pages": 1,
