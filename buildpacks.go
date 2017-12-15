@@ -24,6 +24,7 @@ type Buildpack struct {
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 	Name      string `json:"name"`
+	Position  int    `json:"position"`
 	Enabled   bool   `json:"enabled"`
 	Locked    bool   `json:"locked"`
 	Filename  string `json:"filename"`
