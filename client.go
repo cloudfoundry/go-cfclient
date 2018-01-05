@@ -158,12 +158,11 @@ func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config
 	}
 
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
-	config.tokenSourceDeadline = &token.Expiry
-
 	if err != nil {
 		return config, errors.Wrap(err, "Error getting token")
 	}
 
+	config.tokenSourceDeadline = &token.Expiry
 	config.TokenSource = authConfig.TokenSource(ctx, token)
 	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
 
