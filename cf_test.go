@@ -68,7 +68,7 @@ func testPostQuery(req *http.Request, postFormBody *string, t *testing.T) {
 func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
-	fakeUAAServer = FakeUAAServer()
+	fakeUAAServer = FakeUAAServer(3)
 	m := martini.New()
 	m.Use(render.Renderer())
 	r := martini.NewRouter()
@@ -120,7 +120,7 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	mux.Handle("/", m)
 }
 
-func FakeUAAServer() *httptest.Server {
+func FakeUAAServer(expiresIn int) *httptest.Server {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
 	m := martini.New()
@@ -132,7 +132,7 @@ func FakeUAAServer() *httptest.Server {
 			"token_type":    "bearer",
 			"access_token":  "foobar" + strconv.Itoa(count),
 			"refresh_token": "barfoo",
-			"expires_in":    3,
+			"expires_in":    expiresIn,
 		})
 		count = count + 1
 	})
