@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"net/url"
 
+	"time"
+
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
-	"time"
 )
 
 //Client used to communicate with Cloud Foundry
@@ -57,13 +58,13 @@ type request struct {
 //Need to be remove in close future
 func DefaultConfig() *Config {
 	return &Config{
-		ApiAddress:         "http://api.bosh-lite.com",
-		Username:           "admin",
-		Password:           "admin",
-		Token:              "",
-		SkipSslValidation:  false,
-		HttpClient:         http.DefaultClient,
-		UserAgent:          "Go-CF-client/1.1",
+		ApiAddress:        "http://api.bosh-lite.com",
+		Username:          "admin",
+		Password:          "admin",
+		Token:             "",
+		SkipSslValidation: false,
+		HttpClient:        http.DefaultClient,
+		UserAgent:         "Go-CF-client/1.1",
 	}
 }
 
@@ -301,6 +302,7 @@ func (c *Client) refreshEndpoint() error {
 		c.Config.HttpClient.Timeout = timeout
 	}
 
+	c.Endpoint = *endpoint
 	return nil
 }
 
