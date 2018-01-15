@@ -79,6 +79,27 @@ func (c *Client) ListServiceKeysByQuery(query url.Values) ([]ServiceKey, error) 
 	return serviceKeys, nil
 }
 
+func (c *Client) GetServiceKeyByGuid(guid string) (ServiceKey, error) {
+       var serviceKey ServiceKeyResource
+       r := c.NewRequest("GET", "/v2/service_keys/"+url.QueryEscape(guid))
+       resp, err := c.DoRequest(r)
+       if err != nil {
+               return ServiceKey{}, errors.Wrap(err, "Error requesting serving Key")
+       }
+       defer resp.Body.Close()
+       resBody, err := ioutil.ReadAll(resp.Body)
+       if err != nil {
+               return ServiceKey{}, errors.Wrap(err, "Error reading service Key response body")
+       }
+       err = json.Unmarshal(resBody, &serviceKey)
+       if err != nil {
+               return ServiceKey{}, errors.Wrap(err, "Error unmarshalling service Key")
+       }
+       serviceKey.Entity.Guid = serviceKey.Meta.Guid
+       serviceKey.Entity.c = c
+       return serviceKey.Entity, nil
+}
+
 func (c *Client) ListServiceKeys() ([]ServiceKey, error) {
 	return c.ListServiceKeysByQuery(nil)
 }
