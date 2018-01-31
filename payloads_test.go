@@ -2432,7 +2432,7 @@ const postDomainPayload = `{
   }
 }`
 
-const ListBuildpacksPayload = `{
+const listBuildpacksPayload = `{
   "total_results": 3,
   "total_pages": 1,
   "prev_url": null,
@@ -2486,7 +2486,7 @@ const ListBuildpacksPayload = `{
   ]
 }`
 
-const ListBuildpacksPayload2 = `{
+const listBuildpacksPayload2 = `{
   "total_results": 3,
   "total_pages": 1,
   "prev_url": "/v2/buildpacks",
@@ -2538,6 +2538,22 @@ const ListBuildpacksPayload2 = `{
       }
     }
   ]
+}`
+
+const buildpackPayload = `{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name_1",
+    "position": 1,
+    "enabled": true,
+    "locked": false,
+    "filename": "name-1616"
+  }
 }`
 
 const userByGUIDPayload = `{
