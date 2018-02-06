@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	"fmt"
 	"github.com/pkg/errors"
+	"net/http"
 )
 
 type BuildpackResponse struct {
@@ -74,4 +76,27 @@ func (c *Client) mergeBuildpackResource(buildpack BuildpackResource) Buildpack {
 	buildpack.Entity.UpdatedAt = buildpack.Meta.UpdatedAt
 	buildpack.Entity.c = c
 	return buildpack.Entity
+}
+
+func (c *Client) GetBuildpackByGuid(buidpackGUID string) (Buildpack, error) {
+	requestUrl := fmt.Sprintf("/v2/buildpacks/%s", buidpackGUID)
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Buildpack{}, errors.Wrap(err, "Error requestion buildpack info")
+	}
+	return c.handleBuildpackResp(resp)
+}
+
+func (c *Client) handleBuildpackResp(resp *http.Response) (Buildpack, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Buildpack{}, err
+	}
+	var buildpackResource BuildpackResource
+	if err := json.Unmarshal(body, &buildpackResource); err != nil {
+		return Buildpack{}, err
+	}
+	return c.mergeBuildpackResource(buildpackResource), nil
 }
