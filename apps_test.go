@@ -86,6 +86,54 @@ func assertAppList(apps []App, err error) {
 	So(apps[1].Name, ShouldEqual, "app-test2")
 }
 
+func TestGetAppByGuidNoInlineCall(t *testing.T) {
+	Convey("App By GUID", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload, "Test-golang", 200, "", nil},
+			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "Test-golang", 200, "", nil},
+			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", orgPayload, "Test-golang", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+			UserAgent:  "Test-golang",
+		}
+
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		app, err := client.GetAppByGuidNoInlineCall("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+
+		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
+		So(app.Name, ShouldEqual, "test-env")
+	})
+
+	Convey("App By GUID with environment variables with different types", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment, "Test-golang", 200, "", nil},
+			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "Test-golang", 200, "", nil},
+			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", orgPayload, "Test-golang", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+			UserAgent:  "Test-golang",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		app, err := client.GetAppByGuidNoInlineCall("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+		So(app.Environment["string"], ShouldEqual, "string")
+		So(app.Environment["int"], ShouldEqual, 1)
+	})
+}
+
 func TestAppByGuid(t *testing.T) {
 	Convey("App By GUID", t, func() {
 		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload, "", 200, "inline-relations-depth=2", nil}, t)
