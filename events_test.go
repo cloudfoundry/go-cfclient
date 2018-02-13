@@ -27,6 +27,7 @@ func TestListEvents(t *testing.T) {
 		So(len(events), ShouldEqual, 4)
 		So(events[0].GUID, ShouldEqual, "b8ede8e1-afc8-40a1-baae-236a0a77b27b")
 		So(events[0].Actor, ShouldEqual, "guid-008640fc-d316-4602-9251-c8d09bbdc750")
+		So(events[0].CreatedAt, ShouldEqual, "2016-06-08T16:41:23Z")
 	})
 }
 
