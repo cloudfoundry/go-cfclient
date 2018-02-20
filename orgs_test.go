@@ -69,6 +69,25 @@ func TestOrgSpaces(t *testing.T) {
 	})
 }
 
+func TestListOrgUsers(t *testing.T) {
+	Convey("Get Org Users for an org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/foo/users", listOrgPeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListOrgUsers("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+
 func TestListOrgManagers(t *testing.T) {
 	Convey("Get Org Managers for an org", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/foo/managers", listOrgPeoplePayload, "", 200, "", nil}, t)
@@ -87,6 +106,7 @@ func TestListOrgManagers(t *testing.T) {
 		So(managers[1].Username, ShouldEqual, "user2")
 	})
 }
+
 func TestListOrgAuditors(t *testing.T) {
 	Convey("Get Org Auditors for an org", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/foo/auditors", listOrgPeoplePayload, "", 200, "", nil}, t)
