@@ -206,6 +206,29 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	return orgQuota, nil
 }
 
+func (c *Client) ListOrgUsersByQuery(orgGUID string, query url.Values) ([]User, error) {
+	var users []User
+	requestURL := fmt.Sprintf("/v2/organizations/%s/users?%s", orgGUID, query.Encode())
+	for {
+		omResp, err := c.getOrgManagerResponse(requestURL)
+		if err != nil {
+			return []User{}, err
+		}
+		for _, u := range omResp.Resources {
+			users = append(users, c.mergeUserResource(u))
+		}
+		requestURL = omResp.NextURL
+		if requestURL == "" {
+			break
+		}
+	}
+	return users, nil
+}
+
+func (c *Client) ListOrgUsers(orgGUID string) ([]User, error) {
+	return c.ListOrgUsersByQuery(orgGUID, nil)
+}
+
 func (c *Client) ListOrgManagersByQuery(orgGUID string, query url.Values) ([]User, error) {
 	var users []User
 	requestURL := fmt.Sprintf("/v2/organizations/%s/managers?%s", orgGUID, query.Encode())
