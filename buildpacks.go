@@ -2,11 +2,16 @@ package cfclient
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
+	"os"
 
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/cloudfoundry/gofileutils/fileutils"
+	"github.com/pkg/errors"
 )
 
 type BuildpackResponse struct {
@@ -28,8 +33,37 @@ type Buildpack struct {
 	Name      string `json:"name"`
 	Enabled   bool   `json:"enabled"`
 	Locked    bool   `json:"locked"`
+	Position  int    `json:"position"`
 	Filename  string `json:"filename"`
 	c         *Client
+}
+
+type BuildpackRequest struct {
+	// These are all pointers to the values so that we can tell
+	// whether people wanted position 0, or enable/unlock values,
+	// vs whether they didn't specify them and want them unchanged/default.
+	Name     *string `json:"name,omitempty"`
+	Enabled  *bool   `json:"enabled,omitempty"`
+	Locked   *bool   `json:"locked,omitempty"`
+	Position *int    `json:"position,omitempty"`
+}
+
+func (c *Client) CreateBuildpack(bpr *BuildpackRequest) (*Buildpack, error) {
+	if bpr.Name == nil || *bpr.Name == "" {
+		return nil, errors.New("Unable to create a buidlpack with no name")
+	}
+	requestUrl := "/v2/buildpacks"
+	req := c.NewRequest("POST", requestUrl)
+	req.obj = bpr
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error creating buildpack:")
+	}
+	bp, err := c.handleBuildpackResp(resp)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error creating buildpack:")
+	}
+	return &bp, nil
 }
 
 func (c *Client) ListBuildpacks() ([]Buildpack, error) {
@@ -78,12 +112,12 @@ func (c *Client) mergeBuildpackResource(buildpack BuildpackResource) Buildpack {
 	return buildpack.Entity
 }
 
-func (c *Client) GetBuildpackByGuid(buidpackGUID string) (Buildpack, error) {
-	requestUrl := fmt.Sprintf("/v2/buildpacks/%s", buidpackGUID)
+func (c *Client) GetBuildpackByGuid(buildpackGUID string) (Buildpack, error) {
+	requestUrl := fmt.Sprintf("/v2/buildpacks/%s", buildpackGUID)
 	r := c.NewRequest("GET", requestUrl)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return Buildpack{}, errors.Wrap(err, "Error requestion buildpack info")
+		return Buildpack{}, errors.Wrap(err, "Error requesting buildpack info")
 	}
 	return c.handleBuildpackResp(resp)
 }
@@ -99,4 +133,99 @@ func (c *Client) handleBuildpackResp(resp *http.Response) (Buildpack, error) {
 		return Buildpack{}, err
 	}
 	return c.mergeBuildpackResource(buildpackResource), nil
+}
+
+func (b *Buildpack) Upload(file io.Reader, fileName string) error {
+	var capturedErr error
+	fileutils.TempFile("requests", func(requestFile *os.File, err error) {
+		if err != nil {
+			capturedErr = err
+			return
+		}
+		writer := multipart.NewWriter(requestFile)
+		part, err := writer.CreateFormFile("buildpack", fileName)
+
+		if err != nil {
+			_ = writer.Close()
+			capturedErr = err
+			return
+		}
+
+		_, err = io.Copy(part, file)
+		if err != nil {
+			capturedErr = fmt.Errorf("Error creating upload: %s", err.Error())
+			return
+		}
+
+		err = writer.Close()
+		if err != nil {
+			capturedErr = err
+			return
+		}
+
+		requestFile.Seek(0, 0)
+		fileStats, err := requestFile.Stat()
+		if err != nil {
+			capturedErr = fmt.Errorf("Error getting file info: %s", err)
+		}
+
+		req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v2/buildpacks/%s/bits", b.c.Config.ApiAddress, b.Guid), requestFile)
+		if err != nil {
+			capturedErr = err
+			return
+		}
+
+		req.ContentLength = fileStats.Size()
+		contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
+		req.Header.Set("Content-Type", contentType)
+		resp, err := b.c.Do(req) //client.Do() handles the HTTP status code checking for us
+		if err != nil {
+			capturedErr = err
+			return
+		}
+		defer resp.Body.Close()
+	})
+
+	return errors.Wrap(capturedErr, "Error uploading buildpack:")
+}
+
+func (b *Buildpack) Update(bpr *BuildpackRequest) error {
+	requestUrl := fmt.Sprintf("/v2/buildpacks/%s", b.Guid)
+	req := b.c.NewRequest("PUT", requestUrl)
+	req.obj = bpr
+	resp, err := b.c.DoRequest(req)
+	if err != nil {
+		return errors.Wrap(err, "Error updating buildpack:")
+	}
+	newBp, err := b.c.handleBuildpackResp(resp)
+	if err != nil {
+		return errors.Wrap(err, "Error updating buildpack:")
+	}
+	b.Name = newBp.Name
+	b.Locked = newBp.Locked
+	b.Enabled = newBp.Enabled
+	return nil
+}
+
+func (bpr *BuildpackRequest) Lock() {
+	b := true
+	bpr.Locked = &b
+}
+func (bpr *BuildpackRequest) Unlock() {
+	b := false
+	bpr.Locked = &b
+}
+func (bpr *BuildpackRequest) Enable() {
+	b := true
+	bpr.Enabled = &b
+}
+func (bpr *BuildpackRequest) Disable() {
+	b := false
+	bpr.Enabled = &b
+}
+func (bpr *BuildpackRequest) SetPosition(i int) {
+	bpr.Position = &i
+}
+func (bpr *BuildpackRequest) SetName(s string) {
+	bpr.Name = &s
 }
