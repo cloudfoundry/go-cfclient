@@ -3107,3 +3107,38 @@ const getServiceByGuidPayload = `
   }
 }
 `
+
+const buildpackUploadPayload = `{ "metadata":{ "guid": "my-job-guid" } }`
+
+const buildpackUpdatePayload = `
+{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:31Z"
+  },
+  "entity": {
+    "name": "renamed-buildpack",
+    "position": 2,
+    "enabled": true,
+    "locked": true,
+    "filename": "my-file"
+  }
+}`
+const buildpackCreatePayload = `
+{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:31Z"
+  },
+  "entity": {
+    "name": "test-buildpack",
+    "position": 10,
+    "enabled": true,
+    "locked": false,
+    "filename": null
+  }
+}`

@@ -252,8 +252,12 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	return c.Do(req)
+}
+
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Set("User-Agent", c.Config.UserAgent)
-	if r.body != nil {
+	if req.Body != nil && req.Header.Get("Content-type") == "" {
 		req.Header.Set("Content-type", "application/json")
 	}
 

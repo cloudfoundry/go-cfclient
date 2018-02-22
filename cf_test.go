@@ -52,14 +52,27 @@ func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 	}
 }
 
-func testPostQuery(req *http.Request, postFormBody *string, t *testing.T) {
+func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
 	if postFormBody != nil {
 		if body, err := ioutil.ReadAll(req.Body); err != nil {
 			t.Fatal("No request body but expected one")
 		} else {
 			defer req.Body.Close()
 			if strings.TrimSpace(string(body)) != strings.TrimSpace(*postFormBody) {
-				t.Fatalf("Expected POST body (%s) does not equal POST body (%s)", *postFormBody, body)
+				t.Fatalf("Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
+			}
+		}
+	}
+}
+
+func testBodyContains(req *http.Request, expected *string, t *testing.T) {
+	if expected != nil {
+		if body, err := ioutil.ReadAll(req.Body); err != nil {
+			t.Fatal("No request body but expected one")
+		} else {
+			defer req.Body.Close()
+			if !strings.Contains(string(body), *expected) {
+				t.Fatalf("Expected request body (%s) was not found in actual request body (%s)", *expected, body)
 			}
 		}
 	}
@@ -90,7 +103,7 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
-				testPostQuery(req, postFormBody, t)
+				testReqBody(req, postFormBody, t)
 				return status, output
 			})
 		} else if method == "DELETE" {
@@ -103,6 +116,13 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
+				testReqBody(req, postFormBody, t)
+				return status, output
+			})
+		} else if method == "PUT-FILE" {
+			r.Put(endpoint, func(req *http.Request) (int, string) {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testBodyContains(req, postFormBody, t)
 				return status, output
 			})
 		}
