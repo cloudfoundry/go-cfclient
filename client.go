@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"time"
 
@@ -127,6 +128,8 @@ func NewClient(config *Config) (client *Client, err error) {
 		}
 		tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
 	}
+
+	config.ApiAddress = strings.TrimRight(config.ApiAddress, "/")
 
 	client = &Client{
 		Config: *config,
