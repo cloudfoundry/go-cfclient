@@ -92,3 +92,79 @@ func TestSecGroupListSpaceResources(t *testing.T) {
 		So(spaces[3].Entity.Name, ShouldEqual, "prod")
 	})
 }
+
+func TestBindRunningSecGroups(t *testing.T) {
+	Convey("Unbind Running Sec Groups", t, func() {
+		mocks := []MockRoute{
+			{"PUT", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.BindRunningSecGroup("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestUnbindRunningSecGroups(t *testing.T) {
+	Convey("Unbind Running Sec Groups", t, func() {
+		mocks := []MockRoute{
+			{"DELETE", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 204, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.UnbindRunningSecGroup("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestBindStagingSecGroups(t *testing.T) {
+	Convey("Unbind Staging Sec Groups", t, func() {
+		mocks := []MockRoute{
+			{"PUT", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.BindStagingSecGroup("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestUnbindStagingSecGroups(t *testing.T) {
+	Convey("Unbind Staging Sec Groups", t, func() {
+		mocks := []MockRoute{
+			{"DELETE", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 204, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.UnbindStagingSecGroup("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+	})
+}
