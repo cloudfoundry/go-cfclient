@@ -336,11 +336,15 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 
 	req := c.NewRequest(method, url)
 	//set up request body
-	req.obj = map[string]interface{}{
-		"name":        name,
-		"rules":       reqRules,
-		"space_guids": spaceGuids,
+	inputs := map[string]interface{}{
+		"name":  name,
+		"rules": reqRules,
 	}
+
+	if spaceGuids != nil {
+		inputs["space_guids"] = spaceGuids
+	}
+	req.obj = inputs
 	//fire off the request and check for problems
 	resp, err := c.DoRequest(req)
 	if err != nil {
