@@ -393,6 +393,56 @@ func (s *Space) removeUserByRole(name, role string) error {
 	return nil
 }
 
+func (c *Client) ListSpaceSecGroups(spaceGUID string) (secGroups []SecGroup, err error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.ListSecGroups()
+}
+
+func (s *Space) ListSecGroups() (secGroups []SecGroup, err error) {
+	requestURL := fmt.Sprintf("/v2/spaces/%s/security_groups?inline-relations-depth=1", s.Guid)
+	for requestURL != "" {
+		var secGroupResp SecGroupResponse
+		r := s.c.NewRequest("GET", requestURL)
+		resp, err := s.c.DoRequest(r)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting sec groups")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading sec group response body")
+		}
+
+		err = json.Unmarshal(resBody, &secGroupResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling sec group")
+		}
+
+		for _, secGroup := range secGroupResp.Resources {
+			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = s.c
+			for i, space := range secGroup.Entity.SpacesData {
+				space.Entity.Guid = space.Meta.Guid
+				secGroup.Entity.SpacesData[i] = space
+			}
+			if len(secGroup.Entity.SpacesData) == 0 {
+				spaces, err := secGroup.Entity.ListSpaceResources()
+				if err != nil {
+					return nil, err
+				}
+				for _, space := range spaces {
+					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
+				}
+			}
+			secGroups = append(secGroups, secGroup.Entity)
+		}
+
+		requestURL = secGroupResp.NextUrl
+		resp.Body.Close()
+	}
+	return secGroups, nil
+}
+
 func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
 	var response ServiceOfferingResponse
 	requestURL := fmt.Sprintf("/v2/spaces/%s/services", s.Guid)
