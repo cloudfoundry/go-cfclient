@@ -21,6 +21,19 @@ func TestDefaultConfig(t *testing.T) {
 	})
 }
 
+func TestRemovalofTrailingSlashOnAPIAddress(t *testing.T) {
+	Convey("Test removal of trailing slash of the API Address", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL + "/",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+		So(client.Config.ApiAddress, ShouldNotEndWith, "/")
+	})
+}
+
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request b", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
@@ -105,9 +118,9 @@ func TestEndpointRefresh(t *testing.T) {
 		fakeUAAServer = FakeUAAServer(0)
 
 		c := &Config{
-			ApiAddress:         server.URL,
-			Username:           "foo",
-			Password:           "bar",
+			ApiAddress: server.URL,
+			Username:   "foo",
+			Password:   "bar",
 		}
 
 		client, err := NewClient(c)
