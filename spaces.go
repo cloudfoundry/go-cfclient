@@ -235,6 +235,11 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 	return c.handleSpaceResp(resp)
 }
 
+func (c *Client) UpdateSpace(spaceGUID string, req SpaceRequest) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.Update(req)
+}
+
 func (c *Client) DeleteSpace(guid string, recursive, async bool) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/spaces/%s?recursive=%t&async=%t", guid, recursive, async)))
 	if err != nil {
@@ -399,6 +404,23 @@ func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
 	}
 
 	return response, nil
+}
+
+func (s *Space) Update(req SpaceRequest) (Space, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return Space{}, err
+	}
+	r := s.c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/spaces/%s", s.Guid), buf)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return Space{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return s.c.handleSpaceResp(resp)
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
