@@ -137,9 +137,9 @@ func TestUpdateSpace(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		spaceRequest := SpaceRequest{Name: "test-space", OrganizationGuid: "da0dba14-6064-4f7a-b15a-ff9e677e49b2", AllowSSH: false}
+		updateSpaceRequest := UpdateSpaceRequest{AllowSSH: false}
 
-		space, err := client.UpdateSpace("a72fa1e8-c694-47b3-85f2-55f61fd00d73",spaceRequest)
+		space, err := client.UpdateSpace("a72fa1e8-c694-47b3-85f2-55f61fd00d73",updateSpaceRequest)
 		So(err, ShouldBeNil)
 
 		So(space.Guid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
