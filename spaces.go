@@ -12,6 +12,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+type UpdateSpaceRequest struct {
+	DeveloperGuid      []string `json:"developer_guids,omitempty"`
+	ManagerGuid        []string `json:"manager_guids,omitempty"`
+	AuditorGuid        []string `json:"auditor_guids,omitempty"`
+	DomainGuid         []string `json:"domain_guids,omitempty"`
+	SecurityGroupGuids []string `json:"security_group_guids,omitempty"`
+	SpaceQuotaDefGuid  string   `json:"space_quota_definition_guid,omitempty"`
+	AllowSSH           bool     `json:"allow_ssh,omitempty"`
+}
+
 type SpaceRequest struct {
 	Name               string   `json:"name"`
 	OrganizationGuid   string   `json:"organization_guid"`
@@ -75,19 +85,7 @@ type ServiceOfferingResponse struct {
 	Resources []ServiceOfferingResource `json:"resources"`
 }
 
-type SpaceManagerResponse struct {
-	Count     int            `json:"total_results"`
-	Pages     int            `json:"total_pages"`
-	NextURL   string         `json:"next_url"`
-	Resources []UserResource `json:"resources"`
-}
-type SpaceAuditorResponse struct {
-	Count     int            `json:"total_results"`
-	Pages     int            `json:"total_pages"`
-	NextURL   string         `json:"next_url"`
-	Resources []UserResource `json:"resources"`
-}
-type SpaceDeveloperResponse struct {
+type SpaceUserResponse struct {
 	Count     int            `json:"total_results"`
 	Pages     int            `json:"total_pages"`
 	NextURL   string         `json:"next_url"`
@@ -247,6 +245,11 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 	return c.handleSpaceResp(resp)
 }
 
+func (c *Client) UpdateSpace(spaceGUID string, req UpdateSpaceRequest) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.Update(req)
+}
+
 func (c *Client) DeleteSpace(guid string, recursive, async bool) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/spaces/%s?recursive=%t&async=%t", guid, recursive, async)))
 	if err != nil {
@@ -259,22 +262,7 @@ func (c *Client) DeleteSpace(guid string, recursive, async bool) error {
 }
 
 func (c *Client) ListSpaceManagersByQuery(spaceGUID string, query url.Values) ([]User, error) {
-	var users []User
-	requestURL := fmt.Sprintf("/v2/spaces/%s/managers?%s", spaceGUID, query.Encode())
-	for {
-		smResp, err := c.getSpaceManagerResponse(requestURL)
-		if err != nil {
-			return []User{}, err
-		}
-		for _, u := range smResp.Resources {
-			users = append(users, c.mergeUserResource(u))
-		}
-		requestURL = smResp.NextURL
-		if requestURL == "" {
-			break
-		}
-	}
-	return users, nil
+	return c.listSpaceUsersByRoleAndQuery(spaceGUID, "managers", query)
 }
 
 func (c *Client) ListSpaceManagers(spaceGUID string) ([]User, error) {
@@ -282,22 +270,7 @@ func (c *Client) ListSpaceManagers(spaceGUID string) ([]User, error) {
 }
 
 func (c *Client) ListSpaceAuditorsByQuery(spaceGUID string, query url.Values) ([]User, error) {
-	var users []User
-	requestURL := fmt.Sprintf("/v2/spaces/%s/auditors?%s", spaceGUID, query.Encode())
-	for {
-		saResp, err := c.getSpaceAuditorResponse(requestURL)
-		if err != nil {
-			return []User{}, err
-		}
-		for _, u := range saResp.Resources {
-			users = append(users, c.mergeUserResource(u))
-		}
-		requestURL = saResp.NextURL
-		if requestURL == "" {
-			break
-		}
-	}
-	return users, nil
+	return c.listSpaceUsersByRoleAndQuery(spaceGUID, "auditors", query)
 }
 
 func (c *Client) ListSpaceAuditors(spaceGUID string) ([]User, error) {
@@ -305,17 +278,21 @@ func (c *Client) ListSpaceAuditors(spaceGUID string) ([]User, error) {
 }
 
 func (c *Client) ListSpaceDevelopersByQuery(spaceGUID string, query url.Values) ([]User, error) {
+	return c.listSpaceUsersByRoleAndQuery(spaceGUID, "developers", query)
+}
+
+func (c *Client) listSpaceUsersByRoleAndQuery(spaceGUID, role string, query url.Values) ([]User, error) {
 	var users []User
-	requestURL := fmt.Sprintf("/v2/spaces/%s/developers?%s", spaceGUID, query.Encode())
+	requestURL := fmt.Sprintf("/v2/spaces/%s/%s?%s", spaceGUID, role, query.Encode())
 	for {
-		saResp, err := c.getSpaceDeveloperResponse(requestURL)
+		userResp, err := c.getUserResponse(requestURL)
 		if err != nil {
 			return []User{}, err
 		}
-		for _, u := range saResp.Resources {
+		for _, u := range userResp.Resources {
 			users = append(users, c.mergeUserResource(u))
 		}
-		requestURL = saResp.NextURL
+		requestURL = userResp.NextUrl
 		if requestURL == "" {
 			break
 		}
@@ -347,43 +324,41 @@ func (c *Client) RemoveSpaceAuditorByUsername(spaceGUID, name string) error {
 	return space.RemoveAuditorByUsername(name)
 }
 
+func (c *Client) AssociateSpaceManagerByUsername(spaceGUID, name string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateManagerByUsername(name)
+}
+
+func (c *Client) RemoveSpaceManagerByUsername(spaceGUID, name string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveManagerByUsername(name)
+}
+
 func (s *Space) AssociateDeveloperByUsername(name string) (Space, error) {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/developers", s.Guid)
-	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
-	if err != nil {
-		return Space{}, err
-	}
-	r := s.c.NewRequestWithBody("PUT", requestUrl, buf)
-	resp, err := s.c.DoRequest(r)
-	if err != nil {
-		return Space{}, err
-	}
-	if resp.StatusCode != http.StatusCreated {
-		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
-	}
-	return s.c.handleSpaceResp(resp)
+	return s.associateUserByRole(name, "developers")
 }
 
 func (s *Space) RemoveDeveloperByUsername(name string) error {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/developers", s.Guid)
-	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
-	if err != nil {
-		return err
-	}
-	r := s.c.NewRequestWithBody("DELETE", requestUrl, buf)
-	resp, err := s.c.DoRequest(r)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
-	}
-	return nil
+	return s.removeUserByRole(name, "developers")
 }
 func (s *Space) AssociateAuditorByUsername(name string) (Space, error) {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/auditors", s.Guid)
+	return s.associateUserByRole(name, "auditors")
+}
+
+func (s *Space) RemoveAuditorByUsername(name string) error {
+	return s.removeUserByRole(name, "auditors")
+}
+
+func (s *Space) AssociateManagerByUsername(name string) (Space, error) {
+	return s.associateUserByRole(name, "managers")
+}
+
+func (s *Space) RemoveManagerByUsername(name string) error {
+	return s.removeUserByRole(name, "managers")
+}
+
+func (s *Space) associateUserByRole(name, role string) (Space, error) {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s", s.Guid, role)
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
 	if err != nil {
@@ -400,8 +375,8 @@ func (s *Space) AssociateAuditorByUsername(name string) (Space, error) {
 	return s.c.handleSpaceResp(resp)
 }
 
-func (s *Space) RemoveAuditorByUsername(name string) error {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/auditors", s.Guid)
+func (s *Space) removeUserByRole(name, role string) error {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s", s.Guid, role)
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
 	if err != nil {
@@ -416,6 +391,56 @@ func (s *Space) RemoveAuditorByUsername(name string) error {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) ListSpaceSecGroups(spaceGUID string) (secGroups []SecGroup, err error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.ListSecGroups()
+}
+
+func (s *Space) ListSecGroups() (secGroups []SecGroup, err error) {
+	requestURL := fmt.Sprintf("/v2/spaces/%s/security_groups?inline-relations-depth=1", s.Guid)
+	for requestURL != "" {
+		var secGroupResp SecGroupResponse
+		r := s.c.NewRequest("GET", requestURL)
+		resp, err := s.c.DoRequest(r)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting sec groups")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading sec group response body")
+		}
+
+		err = json.Unmarshal(resBody, &secGroupResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling sec group")
+		}
+
+		for _, secGroup := range secGroupResp.Resources {
+			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = s.c
+			for i, space := range secGroup.Entity.SpacesData {
+				space.Entity.Guid = space.Meta.Guid
+				secGroup.Entity.SpacesData[i] = space
+			}
+			if len(secGroup.Entity.SpacesData) == 0 {
+				spaces, err := secGroup.Entity.ListSpaceResources()
+				if err != nil {
+					return nil, err
+				}
+				for _, space := range spaces {
+					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
+				}
+			}
+			secGroups = append(secGroups, secGroup.Entity)
+		}
+
+		requestURL = secGroupResp.NextUrl
+		resp.Body.Close()
+	}
+	return secGroups, nil
 }
 
 func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
@@ -439,6 +464,23 @@ func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
 	}
 
 	return response, nil
+}
+
+func (s *Space) Update(req UpdateSpaceRequest) (Space, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return Space{}, err
+	}
+	r := s.c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/spaces/%s", s.Guid), buf)
+	resp, err := s.c.DoRequest(r)
+	if err != nil {
+		return Space{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Space{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return s.c.handleSpaceResp(resp)
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
@@ -576,56 +618,4 @@ func (resource *ServiceOfferingExtra) UnmarshalJSON(rawData []byte) error {
 	*resource = ServiceOfferingExtra(extra)
 
 	return nil
-}
-
-func (c *Client) getSpaceManagerResponse(requestURL string) (SpaceManagerResponse, error) {
-	var smResp SpaceManagerResponse
-	r := c.NewRequest("GET", requestURL)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return SpaceManagerResponse{}, errors.Wrap(err, "error requesting space managers")
-	}
-	defer resp.Body.Close()
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return SpaceManagerResponse{}, errors.Wrap(err, "error reading space managers response body")
-	}
-	if err := json.Unmarshal(resBody, &smResp); err != nil {
-		return SpaceManagerResponse{}, errors.Wrap(err, "error unmarshaling space managers")
-	}
-	return smResp, nil
-}
-func (c *Client) getSpaceAuditorResponse(requestURL string) (SpaceAuditorResponse, error) {
-	var saResp SpaceAuditorResponse
-	r := c.NewRequest("GET", requestURL)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return SpaceAuditorResponse{}, errors.Wrap(err, "error requesting space auditors")
-	}
-	defer resp.Body.Close()
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return SpaceAuditorResponse{}, errors.Wrap(err, "error reading space auditors response body")
-	}
-	if err := json.Unmarshal(resBody, &saResp); err != nil {
-		return SpaceAuditorResponse{}, errors.Wrap(err, "error unmarshaling space auditors")
-	}
-	return saResp, nil
-}
-func (c *Client) getSpaceDeveloperResponse(requestURL string) (SpaceDeveloperResponse, error) {
-	var sdResp SpaceDeveloperResponse
-	r := c.NewRequest("GET", requestURL)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return SpaceDeveloperResponse{}, errors.Wrap(err, "error requesting space developers")
-	}
-	defer resp.Body.Close()
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return SpaceDeveloperResponse{}, errors.Wrap(err, "error reading space developers response body")
-	}
-	if err := json.Unmarshal(resBody, &sdResp); err != nil {
-		return SpaceDeveloperResponse{}, errors.Wrap(err, "error unmarshaling space developers")
-	}
-	return sdResp, nil
 }
