@@ -276,7 +276,7 @@ func TestDeleteOrg(t *testing.T) {
 
 func TestAssociateManager(t *testing.T) {
 	Convey("Associate manager", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", associateOrgManagerPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/user-guid", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -298,7 +298,7 @@ func TestAssociateManager(t *testing.T) {
 
 func TestAssociateAuditor(t *testing.T) {
 	Convey("Associate auditor", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", associateOrgAuditorPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/user-guid", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -313,6 +313,28 @@ func TestAssociateAuditor(t *testing.T) {
 		}
 
 		newOrg, err := org.AssociateAuditor("user-guid")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateBillingManager(t *testing.T) {
+	Convey("Associate billing manager", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers/user-guid", associateOrgUserPayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateBillingManager("user-guid")
 		So(err, ShouldBeNil)
 		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
 	})
@@ -342,7 +364,7 @@ func TestAssociateUser(t *testing.T) {
 
 func TestAssociateManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgManagerPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -364,7 +386,7 @@ func TestAssociateManagerByUsername(t *testing.T) {
 
 func TestAssociateAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgAuditorPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -379,6 +401,28 @@ func TestAssociateAuditorByUsername(t *testing.T) {
 		}
 
 		newOrg, err := org.AssociateAuditorByUsername("user-name")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateBillingManagerByUsername(t *testing.T) {
+	Convey("Associate billing manager by username", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", associateOrgUserPayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateBillingManagerByUsername("user-name")
 		So(err, ShouldBeNil)
 		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
 	})
@@ -448,6 +492,27 @@ func TestRemoveAuditor(t *testing.T) {
 	})
 }
 
+func TestRemoveBillingManager(t *testing.T) {
+	Convey("Remove billing manager", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers/user-guid", "", "", 204, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveBillingManager("user-guid")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestRemoveUser(t *testing.T) {
 	Convey("Remove user", t, func() {
 		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/user-guid", "", "", 204, "", nil}, t)
@@ -507,6 +572,27 @@ func TestRemoveAuditorByUsername(t *testing.T) {
 		}
 
 		err = org.RemoveAuditorByUsername("user-name")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveBillingManagerByUsername(t *testing.T) {
+	Convey("Remove billing manager by username", t, func() {
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", "", "", 204, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveBillingManagerByUsername("user-name")
 		So(err, ShouldBeNil)
 	})
 }
