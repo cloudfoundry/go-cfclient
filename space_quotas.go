@@ -112,58 +112,58 @@ func (c *Client) getSpaceQuotasResponse(requestUrl string) (SpaceQuotasResponse,
 	return spaceQuotasResp, nil
 }
 
-func (c *Client) CreateSpaceQuota(spaceQuote SpaceQuotaRequest) (SpaceQuota, error) {
+func (c *Client) CreateSpaceQuota(spaceQuote SpaceQuotaRequest) (*SpaceQuota, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(spaceQuote)
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	r := c.NewRequestWithBody("POST", "/v2/space_quota_definitions", buf)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return SpaceQuota{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return c.handleSpaceQuotaResp(resp)
 }
 
-func (c *Client) UpdateSpaceQuota(spaceQuotaGUID string, spaceQuote SpaceQuotaRequest) (SpaceQuota, error) {
+func (c *Client) UpdateSpaceQuota(spaceQuotaGUID string, spaceQuote SpaceQuotaRequest) (*SpaceQuota, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(spaceQuote)
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	r := c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/space_quota_definitions/%s", spaceQuotaGUID), buf)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return SpaceQuota{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return c.handleSpaceQuotaResp(resp)
 }
 
-func (c *Client) handleSpaceQuotaResp(resp *http.Response) (SpaceQuota, error) {
+func (c *Client) handleSpaceQuotaResp(resp *http.Response) (*SpaceQuota, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	var spaceQuotasResource SpaceQuotasResource
 	err = json.Unmarshal(body, &spaceQuotasResource)
 	if err != nil {
-		return SpaceQuota{}, err
+		return nil, err
 	}
 	return c.mergeSpaceQuotaResource(spaceQuotasResource), nil
 }
 
-func (c *Client) mergeSpaceQuotaResource(spaceQuote SpaceQuotasResource) SpaceQuota {
+func (c *Client) mergeSpaceQuotaResource(spaceQuote SpaceQuotasResource) *SpaceQuota {
 	spaceQuote.Entity.Guid = spaceQuote.Meta.Guid
 	spaceQuote.Entity.CreatedAt = spaceQuote.Meta.CreatedAt
 	spaceQuote.Entity.UpdatedAt = spaceQuote.Meta.UpdatedAt
 	spaceQuote.Entity.c = c
-	return spaceQuote.Entity
+	return &spaceQuote.Entity
 }
