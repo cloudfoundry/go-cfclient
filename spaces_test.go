@@ -48,7 +48,56 @@ func TestListSpaces(t *testing.T) {
 		So(spaces[3].OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 	})
 }
+func TestListSpaceSecGroups(t *testing.T) {
+	Convey("List Space SecGroups", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups", listSecGroupsPayload, "", 200, "inline-relations-depth=1", nil},
+			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
 
+		secGroups, err := client.ListSpaceSecGroups("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+
+		So(len(secGroups), ShouldEqual, 2)
+		So(secGroups[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
+		So(secGroups[0].Name, ShouldEqual, "secgroup-test")
+		So(secGroups[0].Running, ShouldEqual, true)
+		So(secGroups[0].Staging, ShouldEqual, true)
+		So(secGroups[0].Rules[0].Protocol, ShouldEqual, "tcp")
+		So(secGroups[0].Rules[0].Ports, ShouldEqual, "443,4443")
+		So(secGroups[0].Rules[0].Destination, ShouldEqual, "1.1.1.1")
+		So(secGroups[0].Rules[1].Protocol, ShouldEqual, "udp")
+		So(secGroups[0].Rules[1].Ports, ShouldEqual, "1111")
+		So(secGroups[0].Rules[1].Destination, ShouldEqual, "1.2.3.4")
+		So(secGroups[0].SpacesURL, ShouldEqual, "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces")
+		So(secGroups[0].SpacesData, ShouldBeEmpty)
+		So(secGroups[1].Guid, ShouldEqual, "f9ad202b-76dd-44ec-b7c2-fd2417a561e8")
+		So(secGroups[1].Name, ShouldEqual, "secgroup-test2")
+		So(secGroups[1].Running, ShouldEqual, false)
+		So(secGroups[1].Staging, ShouldEqual, false)
+		So(secGroups[1].Rules[0].Protocol, ShouldEqual, "udp")
+		So(secGroups[1].Rules[0].Ports, ShouldEqual, "2222")
+		So(secGroups[1].Rules[0].Destination, ShouldEqual, "2.2.2.2")
+		So(secGroups[1].Rules[1].Protocol, ShouldEqual, "tcp")
+		So(secGroups[1].Rules[1].Ports, ShouldEqual, "443,4443")
+		So(secGroups[1].Rules[1].Destination, ShouldEqual, "4.3.2.1")
+		So(secGroups[1].SpacesData[0].Entity.Guid, ShouldEqual, "e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4")
+		So(secGroups[1].SpacesData[0].Entity.Name, ShouldEqual, "space-test")
+		So(secGroups[1].SpacesData[1].Entity.Guid, ShouldEqual, "a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333")
+		So(secGroups[1].SpacesData[1].Entity.Name, ShouldEqual, "space-test2")
+		So(secGroups[1].SpacesData[2].Entity.Guid, ShouldEqual, "c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1")
+		So(secGroups[1].SpacesData[2].Entity.Name, ShouldEqual, "space-test3")
+	})
+}
 func TestListSpaceManagers(t *testing.T) {
 	Convey("ListSpaceManagers()", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foo/managers", listSpacePeoplePayload, "", 200, "", nil}, t)
@@ -120,6 +169,29 @@ func TestCreateSpace(t *testing.T) {
 		space, err := client.CreateSpace(spaceRequest)
 		So(err, ShouldBeNil)
 
+		So(space.Name, ShouldEqual, "test-space")
+		So(space.OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
+		So(space.AllowSSH, ShouldEqual, false)
+	})
+}
+
+func TestUpdateSpace(t *testing.T) {
+	Convey("Update Space", t, func() {
+		setup(MockRoute{"PUT", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		updateSpaceRequest := UpdateSpaceRequest{AllowSSH: false}
+
+		space, err := client.UpdateSpace("a72fa1e8-c694-47b3-85f2-55f61fd00d73",updateSpaceRequest)
+		So(err, ShouldBeNil)
+
+		So(space.Guid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
 		So(space.Name, ShouldEqual, "test-space")
 		So(space.OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 		So(space.AllowSSH, ShouldEqual, false)
@@ -291,7 +363,7 @@ func TestSpaceRoles(t *testing.T) {
 
 func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceAuditorPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -313,7 +385,7 @@ func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 
 func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Associate developer by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceDeveloperPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -328,6 +400,28 @@ func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 		}
 
 		newSpace, err := space.AssociateDeveloperByUsername("user-name")
+		So(err, ShouldBeNil)
+		So(newSpace.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateSpaceManagerByUsername(t *testing.T) {
+	Convey("Associate manager by username", t, func() {
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newSpace, err := space.AssociateManagerByUsername("user-name")
 		So(err, ShouldBeNil)
 		So(newSpace.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
 	})
@@ -370,6 +464,27 @@ func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 		}
 
 		err = space.RemoveAuditorByUsername("user-name")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveSpaceManagerByUsername(t *testing.T) {
+	Convey("Remove manager by username", t, func() {
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = space.RemoveManagerByUsername("user-name")
 		So(err, ShouldBeNil)
 	})
 }

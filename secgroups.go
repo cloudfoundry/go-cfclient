@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"reflect"
 	"strings"
 
@@ -234,6 +235,22 @@ func (c *Client) BindRunningSecGroup(secGUID string) error {
 }
 
 /*
+UnbindRunningSecGroup contacts the CF endpoint to dis-associate  a security group
+secGUID: identifies the security group to add a space to
+*/
+func (c *Client) UnbindRunningSecGroup(secGUID string) error {
+	//Perform the PUT and check for errors
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/config/running_security_groups/%s", secGUID)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent { //204
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
 BindStagingSecGroup contacts the CF endpoint to associate a space with a security group
 secGUID: identifies the security group to add a space to
 */
@@ -244,6 +261,22 @@ func (c *Client) BindStagingSecGroup(secGUID string) error {
 		return err
 	}
 	if resp.StatusCode != 200 { //200
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
+UnbindStagingSecGroup contacts the CF endpoint to dis-associate a space with a security group
+secGUID: identifies the security group to add a space to
+*/
+func (c *Client) UnbindStagingSecGroup(secGUID string) error {
+	//Perform the PUT and check for errors
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/config/staging_security_groups/%s", secGUID)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent { //204
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -336,11 +369,15 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 
 	req := c.NewRequest(method, url)
 	//set up request body
-	req.obj = map[string]interface{}{
-		"name":        name,
-		"rules":       reqRules,
-		"space_guids": spaceGuids,
+	inputs := map[string]interface{}{
+		"name":  name,
+		"rules": reqRules,
 	}
+
+	if spaceGuids != nil {
+		inputs["space_guids"] = spaceGuids
+	}
+	req.obj = inputs
 	//fire off the request and check for problems
 	resp, err := c.DoRequest(req)
 	if err != nil {
