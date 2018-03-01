@@ -358,6 +358,30 @@ func (c *Client) RemoveOrgAuditorByUsername(orgGUID, name string) error {
 	return org.RemoveAuditorByUsername(name)
 }
 
+func (c *Client) ListOrgSpaceQuotas(orgGUID string) ([]SpaceQuota, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.ListSpaceQuotas()
+}
+
+func (o *Org) ListSpaceQuotas() ([]SpaceQuota, error) {
+	var spaceQuotas []SpaceQuota
+	requestURL := fmt.Sprintf("/v2/organizations/%s/space_quota_definitions", o.Guid)
+	for {
+		spaceQuotasResp, err := o.c.getSpaceQuotasResponse(requestURL)
+		if err != nil {
+			return []SpaceQuota{}, err
+		}
+		for _, resource := range spaceQuotasResp.Resources {
+			spaceQuotas = append(spaceQuotas, *o.c.mergeSpaceQuotaResource(resource))
+		}
+		requestURL = spaceQuotasResp.NextUrl
+		if requestURL == "" {
+			break
+		}
+	}
+	return spaceQuotas, nil
+}
+
 func (o *Org) AssociateManager(userGUID string) (Org, error) {
 	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
 	r := o.c.NewRequest("PUT", requestUrl)

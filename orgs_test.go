@@ -531,3 +531,36 @@ func TestRemoveUserByUsername(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestListOrgSpaceQuotas(t *testing.T) {
+	Convey("List Org Space Quotas", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/space_quota_definitions", listSpaceQuotasPayloadPage1, "", 200, "", nil},
+			{"GET", "/v2/space_quota_definitions_page_2", listSpaceQuotasPayloadPage2, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		spaceQuotas, err := client.ListOrgSpaceQuotas("06dcedd4-1f24-49a6-adc1-cce9131a1b2c")
+		So(err, ShouldBeNil)
+
+		So(len(spaceQuotas), ShouldEqual, 2)
+		So(spaceQuotas[0].Guid, ShouldEqual, "889aa2ed-a883-4cc0-abe5-804b2503f15d")
+		So(spaceQuotas[0].Name, ShouldEqual, "test-1")
+		So(spaceQuotas[0].NonBasicServicesAllowed, ShouldEqual, true)
+		So(spaceQuotas[0].TotalServices, ShouldEqual, -1)
+		So(spaceQuotas[0].TotalRoutes, ShouldEqual, 100)
+		So(spaceQuotas[0].MemoryLimit, ShouldEqual, 102400)
+		So(spaceQuotas[0].InstanceMemoryLimit, ShouldEqual, -1)
+		So(spaceQuotas[0].AppInstanceLimit, ShouldEqual, -1)
+		So(spaceQuotas[0].AppTaskLimit, ShouldEqual, -1)
+		So(spaceQuotas[0].TotalServiceKeys, ShouldEqual, -1)
+		So(spaceQuotas[0].TotalReservedRoutePorts, ShouldEqual, -1)
+	})
+}
