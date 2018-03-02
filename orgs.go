@@ -252,12 +252,12 @@ func (c *Client) ListOrgAuditors(orgGUID string) ([]User, error) {
 	return c.ListOrgAuditorsByQuery(orgGUID, nil)
 }
 
-func (c *Client) ListBillingManagersByQuery(orgGUID string, query url.Values) ([]User, error) {
+func (c *Client) ListOrgBillingManagersByQuery(orgGUID string, query url.Values) ([]User, error) {
 	return c.listOrgRolesByQuery(orgGUID, "billing_managers", query)
 }
 
-func (c *Client) ListBillingManagers(orgGUID string) ([]User, error) {
-	return c.ListBillingManagersByQuery(orgGUID, nil)
+func (c *Client) ListOrgBillingManagers(orgGUID string) ([]User, error) {
+	return c.ListOrgBillingManagersByQuery(orgGUID, nil)
 }
 
 func (c *Client) AssociateOrgManager(orgGUID, userGUID string) (Org, error) {

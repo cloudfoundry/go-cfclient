@@ -166,7 +166,7 @@ func TestListBillingManagers(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		managers, err := client.ListBillingManagers("foo")
+		managers, err := client.ListOrgBillingManagers("foo")
 		So(err, ShouldBeNil)
 		So(len(managers), ShouldEqual, 2)
 		So(managers[0].Username, ShouldEqual, "user1")
