@@ -258,6 +258,23 @@ func TestCreateOrg(t *testing.T) {
 	})
 }
 
+func TestUpdateOrg(t *testing.T) {
+	Convey("Update org", t, func() {
+		setup(MockRoute{"PUT", "/v2/organizations", createOrgPayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org, err := client.UpdateOrg(OrgRequest{Name: "my-org"})
+		So(err, ShouldBeNil)
+		So(org.Guid, ShouldEqual, "22b3b0a0-6511-47e5-8f7a-93bbd2ff446e")
+	})
+}
+
 func TestDeleteOrg(t *testing.T) {
 	Convey("Delete org", t, func() {
 		setup(MockRoute{"DELETE", "/v2/organizations/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false&async=false", nil}, t)

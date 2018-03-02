@@ -32,12 +32,13 @@ type OrgUserResponse struct {
 }
 
 type Org struct {
-	Guid                string `json:"guid"`
-	CreatedAt           string `json:"created_at"`
-	UpdatedAt           string `json:"updated_at"`
-	Name                string `json:"name"`
-	QuotaDefinitionGuid string `json:"quota_definition_guid"`
-	c                   *Client
+	Guid                        string `json:"guid"`
+	CreatedAt                   string `json:"created_at"`
+	UpdatedAt                   string `json:"updated_at"`
+	Name                        string `json:"name"`
+	QuotaDefinitionGuid         string `json:"quota_definition_guid"`
+	DefaultIsolationSegmentGuid string `json:"default_isolation_segment_guid"`
+	c                           *Client
 }
 
 type OrgSummary struct {
@@ -57,9 +58,10 @@ type OrgSummarySpaces struct {
 }
 
 type OrgRequest struct {
-	Name                string `json:"name"`
-	Status              string `json:"status,omitempty"`
-	QuotaDefinitionGuid string `json:"quota_definition_guid,omitempty"`
+	Name                        string `json:"name"`
+	Status                      string `json:"status,omitempty"`
+	QuotaDefinitionGuid         string `json:"quota_definition_guid,omitempty"`
+	DefaultIsolationSegmentGuid string `json:"default_isolation_segment_guid,omitempty"`
 }
 
 func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
@@ -547,6 +549,23 @@ func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
 	}
 	if resp.StatusCode != http.StatusCreated {
 		return Org{}, errors.Wrapf(err, "Error creating organization, response code: %d", resp.StatusCode)
+	}
+	return c.handleOrgResp(resp)
+}
+
+func (c *Client) UpdateOrg(orgRequest OrgRequest) (Org, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(orgRequest)
+	if err != nil {
+		return Org{}, err
+	}
+	r := c.NewRequestWithBody("PUT", "/v2/organizations", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, errors.Wrapf(err, "Error updating organization, response code: %d", resp.StatusCode)
 	}
 	return c.handleOrgResp(resp)
 }
