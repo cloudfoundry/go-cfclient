@@ -553,13 +553,13 @@ func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
 	return c.handleOrgResp(resp)
 }
 
-func (c *Client) UpdateOrg(orgRequest OrgRequest) (Org, error) {
+func (c *Client) UpdateOrg(orgGUID string, orgRequest OrgRequest) (Org, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(orgRequest)
 	if err != nil {
 		return Org{}, err
 	}
-	r := c.NewRequestWithBody("PUT", "/v2/organizations", buf)
+	r := c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/organizations/%s", orgGUID), buf)
 	resp, err := c.DoRequest(r)
 	if err != nil {
 		return Org{}, err

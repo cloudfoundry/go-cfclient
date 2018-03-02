@@ -260,7 +260,7 @@ func TestCreateOrg(t *testing.T) {
 
 func TestUpdateOrg(t *testing.T) {
 	Convey("Update org", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations", createOrgPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/organizations/22b3b0a0-6511-47e5-8f7a-93bbd2ff446e", createOrgPayload, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -269,7 +269,7 @@ func TestUpdateOrg(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		org, err := client.UpdateOrg(OrgRequest{Name: "my-org"})
+		org, err := client.UpdateOrg("22b3b0a0-6511-47e5-8f7a-93bbd2ff446e", OrgRequest{Name: "my-org"})
 		So(err, ShouldBeNil)
 		So(org.Guid, ShouldEqual, "22b3b0a0-6511-47e5-8f7a-93bbd2ff446e")
 	})
