@@ -192,3 +192,28 @@ func respBodyToDomain(body io.ReadCloser, c *Client) (*Domain, error) {
 	domain.c = c
 	return &domain, nil
 }
+
+func (c *Client) getDomainsResponse(requestUrl string) (DomainsResponse, error) {
+	var domainResp DomainsResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return DomainsResponse{}, errors.Wrap(err, "Error requesting domains")
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return DomainsResponse{}, errors.Wrap(err, "Error reading domains request")
+	}
+	err = json.Unmarshal(resBody, &domainResp)
+	if err != nil {
+		return DomainsResponse{}, errors.Wrap(err, "Error unmarshalling org")
+	}
+	return domainResp, nil
+}
+
+func (c *Client) mergeDomainResource(domainResource DomainResource) *Domain {
+	domainResource.Entity.Guid = domainResource.Meta.Guid
+	domainResource.Entity.c = c
+	return &domainResource.Entity
+}

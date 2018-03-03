@@ -345,6 +345,11 @@ func (c *Client) ListOrgSpaceQuotas(orgGUID string) ([]SpaceQuota, error) {
 	return org.ListSpaceQuotas()
 }
 
+func (c *Client) ListOrgPrivateDomains(orgGUID string) ([]Domain, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.ListPrivateDomains()
+}
+
 func (o *Org) ListSpaceQuotas() ([]SpaceQuota, error) {
 	var spaceQuotas []SpaceQuota
 	requestURL := fmt.Sprintf("/v2/organizations/%s/space_quota_definitions", o.Guid)
@@ -362,6 +367,25 @@ func (o *Org) ListSpaceQuotas() ([]SpaceQuota, error) {
 		}
 	}
 	return spaceQuotas, nil
+}
+
+func (o *Org) ListPrivateDomains() ([]Domain, error) {
+	var domains []Domain
+	requestURL := fmt.Sprintf("/v2/organizations/%s/private_domains", o.Guid)
+	for {
+		domainsResp, err := o.c.getDomainsResponse(requestURL)
+		if err != nil {
+			return []Domain{}, err
+		}
+		for _, resource := range domainsResp.Resources {
+			domains = append(domains, *o.c.mergeDomainResource(resource))
+		}
+		requestURL = domainsResp.NextUrl
+		if requestURL == "" {
+			break
+		}
+	}
+	return domains, nil
 }
 
 func (o *Org) associateRole(userGUID, role string) (Org, error) {

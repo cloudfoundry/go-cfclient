@@ -667,3 +667,25 @@ func TestListOrgSpaceQuotas(t *testing.T) {
 		So(spaceQuotas[0].TotalReservedRoutePorts, ShouldEqual, -1)
 	})
 }
+
+func TestListOrgPrivateDomains(t *testing.T) {
+	Convey("List Org Space Quotas", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/organizations/06dcedd4-1f24-49a6-adc1-cce9131a1b2c/private_domains", listDomainsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		privateDomains, err := client.ListOrgPrivateDomains("06dcedd4-1f24-49a6-adc1-cce9131a1b2c")
+		So(err, ShouldBeNil)
+
+		So(len(privateDomains), ShouldEqual, 4)
+
+	})
+}
