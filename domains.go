@@ -3,7 +3,6 @@ package cfclient
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -163,7 +162,7 @@ func (c *Client) CreateDomain(name, orgGuid string) (*Domain, error) {
 	if resp.StatusCode != http.StatusCreated {
 		return nil, errors.Wrapf(err, "Error creating domain %s, response code: %d", name, resp.StatusCode)
 	}
-	return respBodyToDomain(resp.Body, c)
+	return c.handleDomainResp(resp)
 }
 
 func (c *Client) DeleteDomain(guid string) error {
@@ -176,21 +175,18 @@ func (c *Client) DeleteDomain(guid string) error {
 	}
 	return nil
 }
-
-func respBodyToDomain(body io.ReadCloser, c *Client) (*Domain, error) {
-	bodyRaw, err := ioutil.ReadAll(body)
+func (c *Client) handleDomainResp(resp *http.Response) (*Domain, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
-	domainRes := DomainResource{}
-	err = json.Unmarshal(bodyRaw, &domainRes)
+	var domainResource DomainResource
+	err = json.Unmarshal(body, &domainResource)
 	if err != nil {
 		return nil, err
 	}
-	domain := domainRes.Entity
-	domain.Guid = domainRes.Meta.Guid
-	domain.c = c
-	return &domain, nil
+	return c.mergeDomainResource(domainResource), nil
 }
 
 func (c *Client) getDomainsResponse(requestUrl string) (DomainsResponse, error) {

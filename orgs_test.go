@@ -689,3 +689,45 @@ func TestListOrgPrivateDomains(t *testing.T) {
 
 	})
 }
+
+func TestShareOrgPrivateDomain(t *testing.T) {
+	Convey("Share Org Private Domain", t, func() {
+		mocks := []MockRoute{
+			{"PUT", "/v2/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/private_domains/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", sharePrivateDomainPayload, "", 201, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		domain, err := client.ShareOrgPrivateDomain("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+		So(domain.Guid, ShouldEqual, "3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+
+	})
+}
+
+func TestUnshareOrgPrivateDomain(t *testing.T) {
+	Convey("Unshare Org Private Domain", t, func() {
+		mocks := []MockRoute{
+			{"DELETE", "/v2/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/private_domains/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", sharePrivateDomainPayload, "", 201, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.UnshareOrgPrivateDomain("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+	})
+}

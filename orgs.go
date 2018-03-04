@@ -350,6 +350,16 @@ func (c *Client) ListOrgPrivateDomains(orgGUID string) ([]Domain, error) {
 	return org.ListPrivateDomains()
 }
 
+func (c *Client) ShareOrgPrivateDomain(orgGUID, privateDomainGUID string) (*Domain, error) {
+	org := Org{Guid: orgGUID, c: c}
+	return org.SharePrivateDomain(privateDomainGUID)
+}
+
+func (c *Client) UnshareOrgPrivateDomain(orgGUID, privateDomainGUID string) error {
+	org := Org{Guid: orgGUID, c: c}
+	return org.UnsharePrivateDomain(privateDomainGUID)
+}
+
 func (o *Org) ListSpaceQuotas() ([]SpaceQuota, error) {
 	var spaceQuotas []SpaceQuota
 	requestURL := fmt.Sprintf("/v2/organizations/%s/space_quota_definitions", o.Guid)
@@ -386,6 +396,32 @@ func (o *Org) ListPrivateDomains() ([]Domain, error) {
 		}
 	}
 	return domains, nil
+}
+
+func (o *Org) SharePrivateDomain(privateDomainGUID string) (*Domain, error) {
+	requestURL := fmt.Sprintf("/v2/organizations/%s/private_domains/%s", o.Guid, privateDomainGUID)
+	r := o.c.NewRequest("PUT", requestURL)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return nil, errors.Wrapf(err, "Error sharing domain %s for org %s, response code: %d", privateDomainGUID, o.Guid, resp.StatusCode)
+	}
+	return o.c.handleDomainResp(resp)
+}
+
+func (o *Org) UnsharePrivateDomain(privateDomainGUID string) error {
+	requestURL := fmt.Sprintf("/v2/organizations/%s/private_domains/%s", o.Guid, privateDomainGUID)
+	r := o.c.NewRequest("DELETE", requestURL)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error unsharing domain %s for org %s, response code: %d", privateDomainGUID, o.Guid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (o *Org) associateRole(userGUID, role string) (Org, error) {
