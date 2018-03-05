@@ -116,3 +116,20 @@ func TestUpdateSpaceQuota(t *testing.T) {
 
 	})
 }
+
+
+func TestAssignSpaceQuota(t *testing.T) {
+	Convey("Assign Space Quota", t, func() {
+		setup(MockRoute{"PUT", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.AssignSpaceQuota("9ffd7c5c-d83c-4786-b399-b7bd54883977", "8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+	})
+}

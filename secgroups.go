@@ -239,7 +239,7 @@ UnbindRunningSecGroup contacts the CF endpoint to dis-associate  a security grou
 secGUID: identifies the security group to add a space to
 */
 func (c *Client) UnbindRunningSecGroup(secGUID string) error {
-	//Perform the PUT and check for errors
+	//Perform the DELETE and check for errors
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/config/running_security_groups/%s", secGUID)))
 	if err != nil {
 		return err
@@ -271,7 +271,7 @@ UnbindStagingSecGroup contacts the CF endpoint to dis-associate a space with a s
 secGUID: identifies the security group to add a space to
 */
 func (c *Client) UnbindStagingSecGroup(secGUID string) error {
-	//Perform the PUT and check for errors
+	//Perform the DELETE and check for errors
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/config/staging_security_groups/%s", secGUID)))
 	if err != nil {
 		return err

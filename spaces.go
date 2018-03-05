@@ -12,16 +12,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type UpdateSpaceRequest struct {
-	DeveloperGuid      []string `json:"developer_guids,omitempty"`
-	ManagerGuid        []string `json:"manager_guids,omitempty"`
-	AuditorGuid        []string `json:"auditor_guids,omitempty"`
-	DomainGuid         []string `json:"domain_guids,omitempty"`
-	SecurityGroupGuids []string `json:"security_group_guids,omitempty"`
-	SpaceQuotaDefGuid  string   `json:"space_quota_definition_guid,omitempty"`
-	AllowSSH           bool     `json:"allow_ssh,omitempty"`
-}
-
 type SpaceRequest struct {
 	Name               string   `json:"name"`
 	OrganizationGuid   string   `json:"organization_guid"`
@@ -93,16 +83,17 @@ type SpaceUserResponse struct {
 }
 
 type Space struct {
-	Guid                string      `json:"guid"`
-	CreatedAt           string      `json:"created_at"`
-	UpdatedAt           string      `json:"updated_at"`
-	Name                string      `json:"name"`
-	OrganizationGuid    string      `json:"organization_guid"`
-	OrgURL              string      `json:"organization_url"`
-	OrgData             OrgResource `json:"organization"`
-	QuotaDefinitionGuid string      `json:"space_quota_definition_guid"`
-	AllowSSH            bool        `json:"allow_ssh"`
-	c                   *Client
+	Guid                 string      `json:"guid"`
+	CreatedAt            string      `json:"created_at"`
+	UpdatedAt            string      `json:"updated_at"`
+	Name                 string      `json:"name"`
+	OrganizationGuid     string      `json:"organization_guid"`
+	OrgURL               string      `json:"organization_url"`
+	OrgData              OrgResource `json:"organization"`
+	QuotaDefinitionGuid  string      `json:"space_quota_definition_guid"`
+	IsolationSegmentGuid string      `json:"isolation_segment_guid"`
+	AllowSSH             bool        `json:"allow_ssh"`
+	c                    *Client
 }
 
 type SpaceSummary struct {
@@ -245,7 +236,7 @@ func (c *Client) CreateSpace(req SpaceRequest) (Space, error) {
 	return c.handleSpaceResp(resp)
 }
 
-func (c *Client) UpdateSpace(spaceGUID string, req UpdateSpaceRequest) (Space, error) {
+func (c *Client) UpdateSpace(spaceGUID string, req SpaceRequest) (Space, error) {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.Update(req)
 }
@@ -466,7 +457,7 @@ func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
 	return response, nil
 }
 
-func (s *Space) Update(req UpdateSpaceRequest) (Space, error) {
+func (s *Space) Update(req SpaceRequest) (Space, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(req)
 	if err != nil {
