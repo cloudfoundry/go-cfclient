@@ -83,16 +83,17 @@ type SpaceUserResponse struct {
 }
 
 type Space struct {
-	Guid                string      `json:"guid"`
-	CreatedAt           string      `json:"created_at"`
-	UpdatedAt           string      `json:"updated_at"`
-	Name                string      `json:"name"`
-	OrganizationGuid    string      `json:"organization_guid"`
-	OrgURL              string      `json:"organization_url"`
-	OrgData             OrgResource `json:"organization"`
-	QuotaDefinitionGuid string      `json:"space_quota_definition_guid"`
-	AllowSSH            bool        `json:"allow_ssh"`
-	c                   *Client
+	Guid                 string      `json:"guid"`
+	CreatedAt            string      `json:"created_at"`
+	UpdatedAt            string      `json:"updated_at"`
+	Name                 string      `json:"name"`
+	OrganizationGuid     string      `json:"organization_guid"`
+	OrgURL               string      `json:"organization_url"`
+	OrgData              OrgResource `json:"organization"`
+	QuotaDefinitionGuid  string      `json:"space_quota_definition_guid"`
+	IsolationSegmentGuid string      `json:"isolation_segment_guid"`
+	AllowSSH             bool        `json:"allow_ssh"`
+	c                    *Client
 }
 
 type SpaceSummary struct {
