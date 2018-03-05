@@ -3,7 +3,6 @@ package cfclient
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -163,7 +162,7 @@ func (c *Client) CreateDomain(name, orgGuid string) (*Domain, error) {
 	if resp.StatusCode != http.StatusCreated {
 		return nil, errors.Wrapf(err, "Error creating domain %s, response code: %d", name, resp.StatusCode)
 	}
-	return respBodyToDomain(resp.Body, c)
+	return c.handleDomainResp(resp)
 }
 
 func (c *Client) DeleteDomain(guid string) error {
@@ -176,19 +175,41 @@ func (c *Client) DeleteDomain(guid string) error {
 	}
 	return nil
 }
+func (c *Client) handleDomainResp(resp *http.Response) (*Domain, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	var domainResource DomainResource
+	err = json.Unmarshal(body, &domainResource)
+	if err != nil {
+		return nil, err
+	}
+	return c.mergeDomainResource(domainResource), nil
+}
 
-func respBodyToDomain(body io.ReadCloser, c *Client) (*Domain, error) {
-	bodyRaw, err := ioutil.ReadAll(body)
+func (c *Client) getDomainsResponse(requestUrl string) (DomainsResponse, error) {
+	var domainResp DomainsResponse
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
 	if err != nil {
-		return nil, err
+		return DomainsResponse{}, errors.Wrap(err, "Error requesting domains")
 	}
-	domainRes := DomainResource{}
-	err = json.Unmarshal(bodyRaw, &domainRes)
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
-		return nil, err
+		return DomainsResponse{}, errors.Wrap(err, "Error reading domains request")
 	}
-	domain := domainRes.Entity
-	domain.Guid = domainRes.Meta.Guid
-	domain.c = c
-	return &domain, nil
+	err = json.Unmarshal(resBody, &domainResp)
+	if err != nil {
+		return DomainsResponse{}, errors.Wrap(err, "Error unmarshalling org")
+	}
+	return domainResp, nil
+}
+
+func (c *Client) mergeDomainResource(domainResource DomainResource) *Domain {
+	domainResource.Entity.Guid = domainResource.Meta.Guid
+	domainResource.Entity.c = c
+	return &domainResource.Entity
 }
