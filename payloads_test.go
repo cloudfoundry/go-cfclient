@@ -3328,3 +3328,57 @@ const sharePrivateDomainPayload = `{
   }
 }
 `
+const AppUpdatePayload = `
+{
+  "metadata": {
+    "guid": "97f7e56b-addf-4d26-be82-998a06600011",
+    "url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011",
+    "created_at": "2018-03-04T16:05:36Z",
+    "updated_at": "2018-03-06T20:46:26Z"
+  },
+  "entity": {
+    "name": "NewName",
+    "production": false,
+    "space_guid": "d17d98b9-5f88-44c6-8dbc-6036c9607ce0",
+    "stack_guid": "46ff2259-d51b-48a3-ac7e-72a86c51d85c",
+    "buildpack": "go_buildpack",
+    "detected_buildpack": "",
+    "detected_buildpack_guid": "d42d6cd9-7c1f-4a01-9251-178b51d1ed47",
+    "environment_json": {
+      "GOPACKAGENAME": "MichaelIsMetal"
+    },
+    "memory": 65,
+    "instances": 1,
+    "disk_quota": 1024,
+    "state": "STOPPED",
+    "version": "ac75afb9-bfa6-426e-b0f6-96866e295f2c",
+    "command": "MichaelIsMetal",
+    "console": false,
+    "debug": "",
+    "staging_task_id": "6379fc80-a71b-4848-812f-520faec910a5",
+    "package_state": "STAGED",
+    "health_check_http_endpoint": "",
+    "health_check_type": "port",
+    "health_check_timeout": 0,
+    "staging_failed_reason": "",
+    "staging_failed_description": "",
+    "diego": true,
+    "docker_image": "",
+    "docker_credentials": {
+      "username": "",
+      "password": ""
+    },
+    "package_updated_at": "2018-03-04T21:31:10Z",
+    "detected_start_command": "./bin/MichaelIsMetal",
+    "enable_ssh": true,
+    "ports": [
+      8080
+    ],
+    "space_url": "/v2/spaces/d17d98b9-5f88-44c6-8dbc-6036c9607ce0",
+    "stack_url": "/v2/stacks/46ff2259-d51b-48a3-ac7e-72a86c51d85c",
+    "routes_url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/routes",
+    "events_url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/events",
+    "service_bindings_url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/service_bindings",
+    "route_mappings_url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/route_mappings"
+  }
+}`

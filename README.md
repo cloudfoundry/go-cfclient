@@ -2,7 +2,7 @@
 
 ### Overview
 
-`cfclient` is a package to assist you in writing apps that need information out of [Cloud Foundry](http://cloudfoundry.org). It provides functions and structures to retrieve
+`cfclient` is a package to assist you in writing apps that need to interact with [Cloud Foundry](http://cloudfoundry.org). It provides functions and structures to retrieve and update
 
 
 ### Usage
