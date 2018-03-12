@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -110,9 +111,9 @@ func (c *Client) GetIsolationSegmentByGUID(guid string) (*IsolationSegment, erro
 	return &IsolationSegment{Name: isr.Name, GUID: isr.GUID, CreatedAt: isr.CreatedAt, UpdatedAt: isr.UpdatedAt, c: c}, nil
 }
 
-func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
+func (c *Client) ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegment, error) {
 	var iss []IsolationSegment
-	requestUrl := "/v3/isolation_segments"
+	requestUrl := "/v3/isolation_segments?" + query.Encode()
 	for {
 		var isr ListIsolationSegmentsResponse
 		r := c.NewRequest("GET", requestUrl)
@@ -147,6 +148,10 @@ func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
 		}
 	}
 	return iss, nil
+}
+
+func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
+	return c.ListIsolationSegmentsByQuery(nil)
 }
 
 // TODO listOrgsForIsolationSegments
