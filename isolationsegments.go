@@ -173,6 +173,26 @@ func (i *IsolationSegment) Delete() error {
 	return i.c.DeleteIsolationSegmentByGUID(i.GUID)
 }
 
+func (c *Client) AddIsolationSegmentToOrg(isolationSegmentGUID, orgGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.AddOrg(orgGUID)
+}
+
+func (c *Client) RemoveIsolationSegmentFromOrg(isolationSegmentGUID, orgGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.RemoveOrg(orgGUID)
+}
+
+func (c *Client) AddIsolationSegmentToSpace(isolationSegmentGUID, spaceGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.AddSpace(spaceGUID)
+}
+
+func (c *Client) RemoveIsolationSegmentFromSpace(isolationSegmentGUID, spaceGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.RemoveSpace(spaceGUID)
+}
+
 func (i *IsolationSegment) AddOrg(orgGuid string) error {
 	if i == nil || i.c == nil {
 		return errors.New("No communication handle.")
