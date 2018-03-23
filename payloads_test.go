@@ -3382,3 +3382,29 @@ const AppUpdatePayload = `
     "route_mappings_url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/route_mappings"
   }
 }`
+
+const postServiceBindingPayload = `{
+  "metadata": {
+    "guid": "4e690cd4-66ef-4052-a23d-0d748316f18c",
+    "url": "/v2/service_bindings/4e690cd4-66ef-4052-a23d-0d748316f18c",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "app_guid": "081d55a0-1bfa-4e51-8d08-273f764988db",
+    "service_instance_guid": "a0029c76-7017-4a74-94b0-54a04ad94b80",
+    "credentials": {
+      "creds-key-63": "creds-val-63"
+    },
+    "name": "prod-db",
+    "binding_options": {
+    },
+    "gateway_data": null,
+    "gateway_name": "",
+    "syslog_drain_url": null,
+    "volume_mounts": [
+    ],
+    "app_url": "/v2/apps/081d55a0-1bfa-4e51-8d08-273f764988db",
+    "service_instance_url": "/v2/user_provided_service_instances/a0029c76-7017-4a74-94b0-54a04ad94b80"
+  }
+}`

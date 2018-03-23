@@ -2,7 +2,9 @@ package cfclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -101,4 +103,47 @@ func (c *Client) GetServiceBindingByGuid(guid string) (ServiceBinding, error) {
 
 func (c *Client) ServiceBindingByGuid(guid string) (ServiceBinding, error) {
 	return c.GetServiceBindingByGuid(guid)
+}
+
+func (c *Client) DeleteServiceBinding(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/service_bindings/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting service binding %s, response code %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) CreateServiceBinding(appGUID, serviceInstanceGUID string) (*ServiceBinding, error) {
+	req := c.NewRequest("POST", fmt.Sprintf("/v2/service_bindings"))
+	req.obj = map[string]interface{}{
+		"app_guid":              appGUID,
+		"service_instance_guid": serviceInstanceGUID,
+	}
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return nil, errors.Wrapf(err, "Error binding app %s to service instance %s, response code %d", appGUID, serviceInstanceGUID, resp.StatusCode)
+	}
+	return c.handleServiceBindingResp(resp)
+}
+
+func (c *Client) handleServiceBindingResp(resp *http.Response) (*ServiceBinding, error) {
+	defer resp.Body.Close()
+	var sb ServiceBindingResource
+	err := json.NewDecoder(resp.Body).Decode(&sb)
+	if err != nil {
+		return nil, err
+	}
+	return c.mergeServiceBindingResource(sb), nil
+}
+
+func (c *Client) mergeServiceBindingResource(serviceBinding ServiceBindingResource) *ServiceBinding {
+	serviceBinding.Entity.Guid = serviceBinding.Meta.Guid
+	serviceBinding.Entity.c = c
+	return &serviceBinding.Entity
 }
