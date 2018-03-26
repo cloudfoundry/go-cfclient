@@ -13,15 +13,16 @@ import (
 )
 
 type SpaceRequest struct {
-	Name               string   `json:"name"`
-	OrganizationGuid   string   `json:"organization_guid"`
-	DeveloperGuid      []string `json:"developer_guids,omitempty"`
-	ManagerGuid        []string `json:"manager_guids,omitempty"`
-	AuditorGuid        []string `json:"auditor_guids,omitempty"`
-	DomainGuid         []string `json:"domain_guids,omitempty"`
-	SecurityGroupGuids []string `json:"security_group_guids,omitempty"`
-	SpaceQuotaDefGuid  string   `json:"space_quota_definition_guid,omitempty"`
-	AllowSSH           bool     `json:"allow_ssh,omitempty"`
+	Name                 string   `json:"name"`
+	OrganizationGuid     string   `json:"organization_guid"`
+	DeveloperGuid        []string `json:"developer_guids,omitempty"`
+	ManagerGuid          []string `json:"manager_guids,omitempty"`
+	AuditorGuid          []string `json:"auditor_guids,omitempty"`
+	DomainGuid           []string `json:"domain_guids,omitempty"`
+	SecurityGroupGuids   []string `json:"security_group_guids,omitempty"`
+	SpaceQuotaDefGuid    string   `json:"space_quota_definition_guid,omitempty"`
+	IsolationSegmentGuid string   `json:"isolation_segment_guid,omitempty"`
+	AllowSSH             bool     `json:"allow_ssh,omitempty"`
 }
 
 type SpaceResponse struct {
