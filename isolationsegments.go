@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -110,9 +111,9 @@ func (c *Client) GetIsolationSegmentByGUID(guid string) (*IsolationSegment, erro
 	return &IsolationSegment{Name: isr.Name, GUID: isr.GUID, CreatedAt: isr.CreatedAt, UpdatedAt: isr.UpdatedAt, c: c}, nil
 }
 
-func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
+func (c *Client) ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegment, error) {
 	var iss []IsolationSegment
-	requestUrl := "/v3/isolation_segments"
+	requestUrl := "/v3/isolation_segments?" + query.Encode()
 	for {
 		var isr ListIsolationSegmentsResponse
 		r := c.NewRequest("GET", requestUrl)
@@ -149,6 +150,10 @@ func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
 	return iss, nil
 }
 
+func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
+	return c.ListIsolationSegmentsByQuery(nil)
+}
+
 // TODO listOrgsForIsolationSegments
 // TODO listSpacesForIsolationSegments
 // TODO setDefaultIsolationSegmentForOrg
@@ -166,6 +171,26 @@ func (c *Client) DeleteIsolationSegmentByGUID(guid string) error {
 
 func (i *IsolationSegment) Delete() error {
 	return i.c.DeleteIsolationSegmentByGUID(i.GUID)
+}
+
+func (c *Client) AddIsolationSegmentToOrg(isolationSegmentGUID, orgGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.AddOrg(orgGUID)
+}
+
+func (c *Client) RemoveIsolationSegmentFromOrg(isolationSegmentGUID, orgGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.RemoveOrg(orgGUID)
+}
+
+func (c *Client) AddIsolationSegmentToSpace(isolationSegmentGUID, spaceGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.AddSpace(spaceGUID)
+}
+
+func (c *Client) RemoveIsolationSegmentFromSpace(isolationSegmentGUID, spaceGUID string) error {
+	isoSegment := IsolationSegment{GUID: isolationSegmentGUID, c: c}
+	return isoSegment.RemoveSpace(spaceGUID)
 }
 
 func (i *IsolationSegment) AddOrg(orgGuid string) error {
