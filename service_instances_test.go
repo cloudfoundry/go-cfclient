@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"net/http"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -121,5 +122,22 @@ func TestCreateServiceInstance(t *testing.T) {
 			c:                  client,
 		}
 		So(service, ShouldResemble, expected)
+	})
+}
+
+func TestDeleteServiceInstance(t *testing.T) {
+	Convey("Delete service instance", t, func() {
+		setup(MockRoute{"DELETE", "/v2/service_instances/guid", "", "", http.StatusAccepted, "recursive=true&async=false", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteServiceInstance("guid", true, false)
+		So(err, ShouldBeNil)
 	})
 }
