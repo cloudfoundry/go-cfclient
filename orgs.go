@@ -518,7 +518,7 @@ func (o *Org) removeRole(userGUID, role string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.Wrapf(err, "Error removing manager %s, response code: %d", userGUID, resp.StatusCode)
+		return errors.Wrapf(err, "Error removing %s %s, response code: %d", role, userGUID, resp.StatusCode)
 	}
 	return nil
 }
