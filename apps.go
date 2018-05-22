@@ -416,6 +416,45 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 	return
 }
 
+// GetAppBits downloads the application's bits as a tar file
+func (c *Client) GetAppBits(guid string) ([]byte, error) {
+	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
+	httpRequest, _ := c.NewRequest("GET", requestURL).toHTTP()
+	httpRequest.Header.Set("Content-type", "application/zip")
+
+	// temporarily don't follow redirects
+	prevCheckRedirect := c.Config.HttpClient.CheckRedirect
+	c.Config.HttpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	defer func() {
+		c.Config.HttpClient.CheckRedirect = prevCheckRedirect
+	}()
+
+	resp, err := c.Do(httpRequest)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error downloading app bits")
+	}
+	if isRedirect(resp) {
+		// directly download the bits using a non cloud controller transport
+		blobStoreLocation := resp.Header.Get("Location")
+		resp, err = http.Get(blobStoreLocation)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error downloading app bits from blobstore")
+		}
+	} else {
+		return nil, errors.Wrap(err, "Error downloading app bits, expected a redirect to a blobstore")
+	}
+
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Error downloading app bits")
+	}
+	return resBody, nil
+}
+
 func (c *Client) DeleteApp(guid string) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/apps/%s", guid)))
 	if err != nil {
@@ -435,4 +474,12 @@ func (c *Client) mergeAppResource(app AppResource) App {
 	app.Entity.SpaceData.Entity.OrgData.Entity.Guid = app.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	app.Entity.c = c
 	return app.Entity
+}
+
+func isRedirect(res *http.Response) bool {
+	switch res.StatusCode {
+	case http.StatusTemporaryRedirect, http.StatusPermanentRedirect, http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther:
+		return true
+	}
+	return false
 }
