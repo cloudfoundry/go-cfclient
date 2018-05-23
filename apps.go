@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -438,7 +439,11 @@ func (c *Client) GetAppBits(guid string) ([]byte, error) {
 	if isRedirect(resp) {
 		// directly download the bits using a non cloud controller transport
 		blobStoreLocation := resp.Header.Get("Location")
-		resp, err = http.Get(blobStoreLocation)
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: c.Config.SkipSslValidation},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(blobStoreLocation)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error downloading app bits from blobstore")
 		}
