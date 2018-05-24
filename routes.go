@@ -26,7 +26,7 @@ type RoutesResource struct {
 type RouteRequest struct {
 	DomainGuid string `json:"domain_guid"`
 	SpaceGuid  string `json:"space_guid"`
-	Host       string `json:"host"`
+	Host       string `json:"host"` // required for http routes
 }
 
 type Route struct {
@@ -40,6 +40,7 @@ type Route struct {
 	c                   *Client
 }
 
+// CreateRoute creates a regular http route
 func (c *Client) CreateRoute(routeRequest RouteRequest) (Route, error) {
 	routesResource, err := c.createRoute("/v2/routes", routeRequest)
 	if nil != err {
@@ -48,6 +49,7 @@ func (c *Client) CreateRoute(routeRequest RouteRequest) (Route, error) {
 	return c.mergeRouteResource(routesResource), nil
 }
 
+// CreateTcpRoute creates a TCP route
 func (c *Client) CreateTcpRoute(routeRequest RouteRequest) (Route, error) {
 	routesResource, err := c.createRoute("/v2/routes?generate_port=true", routeRequest)
 	if nil != err {
@@ -56,13 +58,14 @@ func (c *Client) CreateTcpRoute(routeRequest RouteRequest) (Route, error) {
 	return c.mergeRouteResource(routesResource), nil
 }
 
-func (r *Route) BindToApp(appGuid string) error {
-	resp, err := r.c.DoRequest(r.c.NewRequest("PUT", fmt.Sprintf("/v2/routes/%s/apps/%s", r.Guid, appGuid)))
+// BindRoute associates the specified route with the application
+func (c *Client) BindRoute(routeGUID, appGUID string) error {
+	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/routes/%s/apps/%s", routeGUID, appGUID)))
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Error binding route %s to app %s", routeGUID, appGUID)
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return errors.Wrapf(err, "Error binding route %s to %s, response code: %d", r.Guid, appGuid, resp.StatusCode)
+		return fmt.Errorf("Error binding route %s to app %s, response code: %d", routeGUID, appGUID, resp.StatusCode)
 	}
 	return nil
 }
