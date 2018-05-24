@@ -26,6 +26,7 @@ type RoutesResource struct {
 type RouteRequest struct {
 	DomainGuid string `json:"domain_guid"`
 	SpaceGuid  string `json:"space_guid"`
+	Host       string `json:"host"`
 }
 
 type Route struct {
@@ -39,12 +40,31 @@ type Route struct {
 	c                   *Client
 }
 
+func (c *Client) CreateRoute(routeRequest RouteRequest) (Route, error) {
+	routesResource, err := c.createRoute("/v2/routes", routeRequest)
+	if nil != err {
+		return Route{}, err
+	}
+	return c.mergeRouteResource(routesResource), nil
+}
+
 func (c *Client) CreateTcpRoute(routeRequest RouteRequest) (Route, error) {
 	routesResource, err := c.createRoute("/v2/routes?generate_port=true", routeRequest)
 	if nil != err {
 		return Route{}, err
 	}
-	return routesResource.Entity, nil
+	return c.mergeRouteResource(routesResource), nil
+}
+
+func (r *Route) BindToApp(appGuid string) error {
+	resp, err := r.c.DoRequest(r.c.NewRequest("PUT", fmt.Sprintf("/v2/routes/%s/apps/%s", r.Guid, appGuid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return errors.Wrapf(err, "Error binding route %s to %s, response code: %d", r.Guid, appGuid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (c *Client) ListRoutesByQuery(query url.Values) ([]Route, error) {
@@ -115,6 +135,7 @@ func (c *Client) createRoute(requestUrl string, routeRequest RouteRequest) (Rout
 	if err != nil {
 		return RoutesResource{}, errors.Wrap(err, "Error unmarshalling routes")
 	}
+	routeResp.Entity.c = c
 	return routeResp, nil
 }
 
@@ -127,4 +148,10 @@ func (c *Client) DeleteRoute(guid string) error {
 		return errors.Wrapf(err, "Error deleting route %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) mergeRouteResource(rr RoutesResource) Route {
+	rr.Entity.Guid = rr.Meta.Guid
+	rr.Entity.c = c
+	return rr.Entity
 }

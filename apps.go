@@ -1,15 +1,21 @@
 package cfclient
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/cloudfoundry/gofileutils/fileutils"
 	"github.com/pkg/errors"
 )
 
@@ -23,6 +29,11 @@ type AppResponse struct {
 type AppResource struct {
 	Meta   Meta `json:"metadata"`
 	Entity App  `json:"entity"`
+}
+
+type AppRequest struct {
+	Name      string `json:"name"`
+	SpaceGuid string `json:"space_guid"`
 }
 
 type App struct {
@@ -417,6 +428,75 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 	return
 }
 
+//Upload app bits
+func (c *Client) Upload(file io.Reader, guid string) error {
+	var capturedErr error
+	fileutils.TempFile("requests", func(requestFile *os.File, err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		writer := multipart.NewWriter(requestFile)
+		// err = writer.WriteField("async", "true")
+		// if err != nil {
+		//     capturedErr = fmt.Errorf("Error writing resource field %s", err)
+		// }
+
+		err = writer.WriteField("resources", "[]")
+		if err != nil {
+			capturedErr = fmt.Errorf("Error writing resource field %s", err)
+		}
+
+		part, err := writer.CreateFormFile("application", "application.zip")
+		if err != nil {
+			_ = writer.Close()
+			capturedErr = err
+			log.Fatal(err)
+
+		}
+
+		_, err = io.Copy(part, file)
+		if err != nil {
+			capturedErr = fmt.Errorf("Error creating upload: %s", err.Error())
+			log.Fatal(err)
+
+		}
+
+		err = writer.Close()
+		if err != nil {
+			capturedErr = err
+			log.Fatal(err)
+
+		}
+
+		requestFile.Seek(0, 0)
+		fileStats, err := requestFile.Stat()
+		if err != nil {
+			capturedErr = fmt.Errorf("Error getting file info: %s", err)
+		}
+
+		req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v2/apps/%s/bits", c.Config.ApiAddress, guid), requestFile)
+		if err != nil {
+			capturedErr = err
+			log.Fatal(err)
+		}
+
+		req.ContentLength = fileStats.Size()
+		contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
+		req.Header.Set("Content-Type", contentType)
+
+		resp, err := c.Do(req) //client.Do() handles the HTTP status code checking for us
+		if err != nil {
+			capturedErr = err
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		log.Printf("Response %s", resp.Status)
+	})
+
+	return errors.Wrap(capturedErr, "Error uploading application bits:")
+}
+
 // GetAppBits downloads the application's bits as a tar file
 func (c *Client) GetAppBits(guid string) ([]byte, error) {
 	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
@@ -458,6 +538,36 @@ func (c *Client) GetAppBits(guid string) ([]byte, error) {
 		return nil, errors.Wrap(err, "Error downloading app bits")
 	}
 	return resBody, nil
+}
+
+func (c *Client) CreateApp(name, spaceGuid string) (App, error) {
+	var appResp AppResource
+	app := &AppRequest{
+		Name:      name,
+		SpaceGuid: spaceGuid,
+	}
+	appBytes, err := json.Marshal(app)
+	if err != nil {
+		return App{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/apps", bytes.NewReader(appBytes))
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return App{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return App{}, errors.Wrapf(err, "Error creating app %s, response code: %d", name, resp.StatusCode)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return App{}, errors.Wrap(err, "Error creating app")
+	}
+	err = json.Unmarshal(resBody, &appResp)
+	if err != nil {
+		return App{}, errors.Wrap(err, "Error unmarshalling app")
+	}
+	return c.mergeAppResource(appResp), nil
 }
 
 func (c *Client) DeleteApp(guid string) error {
