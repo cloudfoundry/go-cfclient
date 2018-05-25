@@ -498,7 +498,7 @@ func (c *Client) Upload(file io.Reader, guid string) error {
 }
 
 // GetAppBits downloads the application's bits as a tar file
-func (c *Client) GetAppBits(guid string) (io.Reader, error) {
+func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
 	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
 	httpRequest, _ := c.NewRequest("GET", requestURL).toHTTP()
 	httpRequest.Header.Set("Content-type", "application/zip")
