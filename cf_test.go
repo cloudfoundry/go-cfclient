@@ -129,9 +129,22 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	}
 	r.Get("/v2/info", func(r render.Render) {
 		r.JSON(200, map[string]interface{}{
-			"authorization_endpoint": fakeUAAServer.URL,
-			"token_endpoint":         fakeUAAServer.URL,
-			"logging_endpoint":       server.URL,
+			"authorization_endpoint":       fakeUAAServer.URL,
+			"token_endpoint":               fakeUAAServer.URL,
+			"logging_endpoint":             server.URL,
+			"name":                         "",
+			"build":                        "",
+			"support":                      "https://support.example.net",
+			"version":                      0,
+			"description":                  "",
+			"min_cli_version":              "6.23.0",
+			"min_recommended_cli_version":  "6.23.0",
+			"api_version":                  "2.103.0",
+			"app_ssh_endpoint":             "ssh.example.net:2222",
+			"app_ssh_host_key_fingerprint": "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01",
+			"app_ssh_oauth_client":         "ssh-proxy",
+			"doppler_logging_endpoint":     "wss://doppler.example.net:443",
+			"routing_endpoint":             "https://api.example.net/routing",
 		})
 
 	})
