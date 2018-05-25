@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -121,30 +120,7 @@ func (c *Client) GetOrgByGuid(guid string) (Org, error) {
 }
 
 func (c *Client) OrgSpaces(guid string) ([]Space, error) {
-	var spaces []Space
-	var spaceResp SpaceResponse
-	path := fmt.Sprintf("/v2/organizations/%s/spaces", guid)
-	r := c.NewRequest("GET", path)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error requesting space")
-	}
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("Error reading space request %v", resBody)
-	}
-
-	err = json.Unmarshal(resBody, &spaceResp)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error space organization")
-	}
-	for _, space := range spaceResp.Resources {
-		space.Entity.Guid = space.Meta.Guid
-		space.Entity.c = c
-		spaces = append(spaces, space.Entity)
-	}
-
-	return spaces, nil
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", guid))
 }
 
 func (o *Org) Summary() (OrgSummary, error) {
@@ -518,7 +494,7 @@ func (o *Org) removeRole(userGUID, role string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.Wrapf(err, "Error removing manager %s, response code: %d", userGUID, resp.StatusCode)
+		return errors.Wrapf(err, "Error removing %s %s, response code: %d", role, userGUID, resp.StatusCode)
 	}
 	return nil
 }
