@@ -378,3 +378,26 @@ func TestDeleteApps(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestCreateApp(t *testing.T) {
+	Convey("Delete app", t, func() {
+		setup(MockRoute{"POST", "/v2/apps", appPayload, "", 201, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		req := AppCreateRequest{
+			Name:      "test-env",
+			SpaceGuid: "a72fa1e8-c694-47b3-85f2-55f61fd00d73",
+		}
+		app, err := client.CreateApp(req)
+		So(err, ShouldBeNil)
+		So(app.Guid, ShouldEqual, "9902530c-c634-4864-a189-71d763cb12e2")
+		So(app.Name, ShouldEqual, "test-env")
+		So(app.SpaceGuid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
+	})
+}

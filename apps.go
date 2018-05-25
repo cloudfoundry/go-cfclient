@@ -31,7 +31,7 @@ type AppResource struct {
 	Entity App  `json:"entity"`
 }
 
-type AppRequest struct {
+type AppCreateRequest struct {
 	Name      string `json:"name"`
 	SpaceGuid string `json:"space_guid"`
 }
@@ -533,32 +533,31 @@ func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
 	return resp.Body, nil
 }
 
-func (c *Client) CreateApp(name, spaceGuid string) (App, error) {
+// CreateApp creates a new empty application that still needs it's
+// app bit uploaded and to be started
+func (c *Client) CreateApp(req AppCreateRequest) (App, error) {
 	var appResp AppResource
-	app := &AppRequest{
-		Name:      name,
-		SpaceGuid: spaceGuid,
-	}
-	appBytes, err := json.Marshal(app)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
 	if err != nil {
 		return App{}, err
 	}
-	r := c.NewRequestWithBody("POST", "/v2/apps", bytes.NewReader(appBytes))
+	r := c.NewRequestWithBody("POST", "/v2/apps", buf)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return App{}, err
+		return App{}, errors.Wrapf(err, "Error creating app %s", req.Name)
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return App{}, errors.Wrapf(err, "Error creating app %s, response code: %d", name, resp.StatusCode)
+		return App{}, errors.Wrapf(err, "Error creating app %s, response code: %d", req.Name, resp.StatusCode)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return App{}, errors.Wrap(err, "Error creating app")
+		return App{}, errors.Wrapf(err, "Error reading app %s http response body", req.Name)
 	}
 	err = json.Unmarshal(resBody, &appResp)
 	if err != nil {
-		return App{}, errors.Wrap(err, "Error unmarshalling app")
+		return App{}, errors.Wrapf(err, "Error deserializing app %s response", req.Name)
 	}
 	return c.mergeAppResource(appResp), nil
 }
