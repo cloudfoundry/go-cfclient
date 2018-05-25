@@ -498,7 +498,7 @@ func (c *Client) Upload(file io.Reader, guid string) error {
 }
 
 // GetAppBits downloads the application's bits as a tar file
-func (c *Client) GetAppBits(w io.Writer, guid string) error {
+func (c *Client) GetAppBits(guid string) (io.Reader, error) {
 	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
 	httpRequest, _ := c.NewRequest("GET", requestURL).toHTTP()
 	httpRequest.Header.Set("Content-type", "application/zip")
@@ -514,7 +514,7 @@ func (c *Client) GetAppBits(w io.Writer, guid string) error {
 
 	resp, err := c.Do(httpRequest)
 	if err != nil {
-		return errors.Wrap(err, "Error downloading app bits")
+		return nil, errors.Wrap(err, "Error downloading app bits")
 	}
 	if isRedirect(resp) {
 		// directly download the bits using a non cloud controller transport
@@ -525,18 +525,12 @@ func (c *Client) GetAppBits(w io.Writer, guid string) error {
 		client := &http.Client{Transport: tr}
 		resp, err = client.Get(blobStoreLocation)
 		if err != nil {
-			return errors.Wrap(err, "Error downloading app bits from blobstore")
+			return nil, errors.Wrap(err, "Error downloading app bits from blobstore")
 		}
 	} else {
-		return errors.Wrap(err, "Error downloading app bits, expected a redirect to a blobstore")
+		return nil, errors.Wrap(err, "Error downloading app bits, expected a redirect to a blobstore")
 	}
-
-	defer resp.Body.Close()
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		return errors.Wrap(err, "Error downloading app bits")
-	}
-	return nil
+	return resp.Body, nil
 }
 
 func (c *Client) CreateApp(name, spaceGuid string) (App, error) {
