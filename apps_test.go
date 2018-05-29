@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -302,6 +303,30 @@ func TestGetAppRoutes(t *testing.T) {
 		So(routes[0].ServiceInstanceGuid, ShouldEqual, "")
 		So(routes[0].Port, ShouldEqual, 0)
 
+	})
+}
+
+func TestUploadAppBits(t *testing.T) {
+	Convey("Upload app bits", t, func() {
+		expectedPayload := "this should really be zipped binary data"
+		mr := MockRoute{
+			Method:   "PUT-FILE",
+			Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/bits",
+			Status:   201,
+			PostForm: &expectedPayload,
+		}
+		setup(mr, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		bits := bytes.NewBufferString(expectedPayload)
+		err = client.UploadAppBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
 	})
 }
 

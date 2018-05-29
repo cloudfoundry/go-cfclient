@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -15,7 +14,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cloudfoundry/gofileutils/fileutils"
 	"github.com/pkg/errors"
 )
 
@@ -428,73 +426,62 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 	return
 }
 
-//Upload app bits
-func (c *Client) Upload(file io.Reader, guid string) error {
-	var capturedErr error
-	fileutils.TempFile("requests", func(requestFile *os.File, err error) {
-		if err != nil {
-			log.Fatal(err)
-		}
+// UploadAppBits uploads the application's contents
+func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
+	requestFile, err := ioutil.TempFile("", "requests")
 
-		writer := multipart.NewWriter(requestFile)
-		// err = writer.WriteField("async", "true")
-		// if err != nil {
-		//     capturedErr = fmt.Errorf("Error writing resource field %s", err)
-		// }
+	defer func() {
+		requestFile.Close()
+		os.Remove(requestFile.Name())
+	}()
 
-		err = writer.WriteField("resources", "[]")
-		if err != nil {
-			capturedErr = fmt.Errorf("Error writing resource field %s", err)
-		}
+	writer := multipart.NewWriter(requestFile)
+	err = writer.WriteField("resources", "[]")
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
 
-		part, err := writer.CreateFormFile("application", "application.zip")
-		if err != nil {
-			_ = writer.Close()
-			capturedErr = err
-			log.Fatal(err)
+	part, err := writer.CreateFormFile("application", "application.zip")
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
 
-		}
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to copy all bytes", appGUID)
+	}
 
-		_, err = io.Copy(part, file)
-		if err != nil {
-			capturedErr = fmt.Errorf("Error creating upload: %s", err.Error())
-			log.Fatal(err)
+	err = writer.Close()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to close multipart writer", appGUID)
+	}
 
-		}
+	requestFile.Seek(0, 0)
+	fileStats, err := requestFile.Stat()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to get temp file stats", appGUID)
+	}
 
-		err = writer.Close()
-		if err != nil {
-			capturedErr = err
-			log.Fatal(err)
+	requestURL := fmt.Sprintf("/v2/apps/%s/bits", appGUID)
+	r := c.NewRequestWithBody("PUT", requestURL, requestFile)
+	req, err := r.toHTTP()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
 
-		}
+	req.ContentLength = fileStats.Size()
+	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
+	req.Header.Set("Content-Type", contentType)
 
-		requestFile.Seek(0, 0)
-		fileStats, err := requestFile.Stat()
-		if err != nil {
-			capturedErr = fmt.Errorf("Error getting file info: %s", err)
-		}
+	resp, err := c.Do(req)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return errors.Wrapf(err, "Error uploading app %s bits, response code: %d", appGUID, resp.StatusCode)
+	}
 
-		req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v2/apps/%s/bits", c.Config.ApiAddress, guid), requestFile)
-		if err != nil {
-			capturedErr = err
-			log.Fatal(err)
-		}
-
-		req.ContentLength = fileStats.Size()
-		contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
-		req.Header.Set("Content-Type", contentType)
-
-		resp, err := c.Do(req) //client.Do() handles the HTTP status code checking for us
-		if err != nil {
-			capturedErr = err
-			log.Fatal(err)
-		}
-		defer resp.Body.Close()
-		log.Printf("Response %s", resp.Status)
-	})
-
-	return errors.Wrap(capturedErr, "Error uploading application bits:")
+	return nil
 }
 
 // GetAppBits downloads the application's bits as a tar file
