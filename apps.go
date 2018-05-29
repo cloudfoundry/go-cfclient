@@ -500,24 +500,14 @@ func (c *Client) Upload(file io.Reader, guid string) error {
 // GetAppBits downloads the application's bits as a tar file
 func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
 	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
-	httpRequest, _ := c.NewRequest("GET", requestURL).toHTTP()
-	httpRequest.Header.Set("Content-type", "application/zip")
-
-	// temporarily don't follow redirects
-	prevCheckRedirect := c.Config.HttpClient.CheckRedirect
-	c.Config.HttpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}
-	defer func() {
-		c.Config.HttpClient.CheckRedirect = prevCheckRedirect
-	}()
-
-	resp, err := c.Do(httpRequest)
+	req := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequestWithoutRedirects(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error downloading app bits")
+		return nil, errors.Wrapf(err, "Error downloading app %s bits, API request failed", guid)
 	}
-	if isRedirect(resp) {
-		// directly download the bits using a non cloud controller transport
+	if isResponseRedirect(resp) {
+		// directly download the bits from blobstore using a non cloud controller transport
+		// some blobstores will return a 400 if an Authorization header is sent
 		blobStoreLocation := resp.Header.Get("Location")
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: c.Config.SkipSslValidation},
@@ -525,10 +515,10 @@ func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
 		client := &http.Client{Transport: tr}
 		resp, err = client.Get(blobStoreLocation)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error downloading app bits from blobstore")
+			return nil, errors.Wrapf(err, "Error downloading app %s bits from blobstore", guid)
 		}
 	} else {
-		return nil, errors.Wrap(err, "Error downloading app bits, expected a redirect to a blobstore")
+		return nil, errors.Wrapf(err, "Error downloading app %s bits, expected redirect to blobstore", guid)
 	}
 	return resp.Body, nil
 }
@@ -583,7 +573,7 @@ func (c *Client) mergeAppResource(app AppResource) App {
 	return app.Entity
 }
 
-func isRedirect(res *http.Response) bool {
+func isResponseRedirect(res *http.Response) bool {
 	switch res.StatusCode {
 	case http.StatusTemporaryRedirect, http.StatusPermanentRedirect, http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther:
 		return true

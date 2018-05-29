@@ -1,6 +1,9 @@
 package cfclient
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -299,6 +302,46 @@ func TestGetAppRoutes(t *testing.T) {
 		So(routes[0].ServiceInstanceGuid, ShouldEqual, "")
 		So(routes[0].Port, ShouldEqual, 0)
 
+	})
+}
+
+func TestGetAppBits(t *testing.T) {
+	Convey("Get app bits", t, func() {
+
+		next := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("Content-Type", "application/gzip")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("apptarbinarydata"))
+		})
+		s := httptest.NewServer(next)
+		defer s.Close()
+
+		mr := MockRouteWithRedirect{
+			MockRoute: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/download",
+				Status:   302,
+			},
+			RedirectLocation: s.URL,
+		}
+		setupWithRedirect(mr, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		bits, err := client.GetAppBits("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+		So(bits, ShouldNotBeNil)
+
+		var download string
+		if b, err := ioutil.ReadAll(bits); err == nil {
+			download = string(b)
+		}
+		So(download, ShouldEqual, "apptarbinarydata")
 	})
 }
 

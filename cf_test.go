@@ -31,8 +31,17 @@ type MockRoute struct {
 	PostForm    *string
 }
 
+type MockRouteWithRedirect struct {
+	MockRoute
+	RedirectLocation string
+}
+
 func setup(mock MockRoute, t *testing.T) {
 	setupMultiple([]MockRoute{mock}, t)
+}
+
+func setupWithRedirect(mock MockRouteWithRedirect, t *testing.T) {
+	setupMultipleWithRedirect([]MockRouteWithRedirect{mock}, t)
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
@@ -79,6 +88,17 @@ func testBodyContains(req *http.Request, expected *string, t *testing.T) {
 }
 
 func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
+	mockEndpointsWithRedirect := make([]MockRouteWithRedirect, len(mockEndpoints))
+	for i, mock := range mockEndpoints {
+		mockEndpointsWithRedirect[i] = MockRouteWithRedirect{
+			MockRoute:        mock,
+			RedirectLocation: "",
+		}
+	}
+	setupMultipleWithRedirect(mockEndpointsWithRedirect, t)
+}
+
+func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 	fakeUAAServer = FakeUAAServer(3)
@@ -93,10 +113,14 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 		status := mock.Status
 		queryString := mock.QueryString
 		postFormBody := mock.PostForm
+		redirectLocation := mock.RedirectLocation
 		if method == "GET" {
-			r.Get(endpoint, func(req *http.Request) (int, string) {
+			r.Get(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output
 			})
 		} else if method == "POST" {
