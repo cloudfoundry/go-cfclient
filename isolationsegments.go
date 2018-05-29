@@ -208,7 +208,7 @@ func (i *IsolationSegment) AddOrg(orgGuid string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error during adding org to isolation segment")
 	}
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Error adding org %s to isolation segment %s, response code: %d", orgGuid, i.Name, resp.StatusCode)
 	}
 	return nil
