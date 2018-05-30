@@ -90,6 +90,30 @@ func TestMakeRequestWithTimeout(t *testing.T) {
 	})
 }
 
+func TestHTTPErrorHandling(t *testing.T) {
+	Convey("Test making request b", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", "502 Bad Gateway", "", 502, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress:        server.URL,
+			Username:          "foo",
+			Password:          "bar",
+			SkipSslValidation: true,
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+		req := client.NewRequest("GET", "/v2/organizations")
+		resp, err := client.DoRequest(req)
+		So(err, ShouldNotBeNil)
+		So(resp, ShouldNotBeNil)
+
+		httpErr := err.(CloudFoundryHTTPError)
+		So(httpErr.StatusCode, ShouldEqual, 502)
+		So(httpErr.Status, ShouldEqual, "502 Bad Gateway")
+		So(string(httpErr.Body), ShouldEqual, "502 Bad Gateway")
+	})
+}
+
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -271,8 +272,21 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 
 	if resp.StatusCode >= http.StatusBadRequest {
 		var cfErr CloudFoundryError
-		if err := decodeBody(resp, &cfErr); err != nil {
-			return resp, errors.Wrap(err, "Unable to decode body")
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return resp, CloudFoundryHTTPError{
+				StatusCode: resp.StatusCode,
+				Status:     resp.Status,
+				Body:       body,
+			}
+		}
+		defer resp.Body.Close()
+		if err := json.Unmarshal(body, &cfErr); err != nil {
+			return resp, CloudFoundryHTTPError{
+				StatusCode: resp.StatusCode,
+				Status:     resp.Status,
+				Body:       body,
+			}
 		}
 		return nil, cfErr
 	}
