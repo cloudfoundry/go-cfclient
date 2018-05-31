@@ -3424,3 +3424,42 @@ const postRouteMappingsPayload = `{
     "route_url": "/v2/routes/e00fb1e1-f7d4-4e36-9912-f76a587e9858"
   }
 }`
+
+const listRouteMappingsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "63603ed7-bd4a-4475-a371-5b34381e0cf7",
+        "url": "/v2/route_mappings/63603ed7-bd4a-4475-a371-5b34381e0cf7",
+        "created_at": "2016-06-08T16:41:42Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "app_port": 8888,
+        "app_guid": "ee8b175a-2228-4931-be8a-1f6445bd63bc",
+        "route_guid": "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677",
+        "app_url": "/v2/apps/ee8b175a-2228-4931-be8a-1f6445bd63bc",
+        "route_url": "/v2/routes/eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677"
+      }
+    }
+	{
+      "metadata": {
+        "guid": "63603ed7-bd4a-4475-a371-5b34381e0cf8",
+        "url": "/v2/route_mappings/63603ed7-bd4a-4475-a371-5b34381e0cf8",
+        "created_at": "2016-06-08T16:41:43Z",
+        "updated_at": "2016-06-08T16:41:27Z"
+      },
+      "entity": {
+        "app_port": 8888,
+        "app_guid": "ee8b175a-2228-4931-be8a-1f6445bd63bd",
+        "route_guid": "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678",
+        "app_url": "/v2/apps/ee8b175a-2228-4931-be8a-1f6445bd63bd",
+        "route_url": "/v2/routes/eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678"
+      }
+    }
+  ]
+}`
