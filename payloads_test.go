@@ -3408,3 +3408,19 @@ const postServiceBindingPayload = `{
     "service_instance_url": "/v2/user_provided_service_instances/a0029c76-7017-4a74-94b0-54a04ad94b80"
   }
 }`
+
+const postRouteMappingsPayload = `{
+  "metadata": {
+    "guid": "f869fa46-22b1-40ee-b491-58e321345528",
+    "url": "/v2/route_mappings/f869fa46-22b1-40ee-b491-58e321345528",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "app_port": 8888,
+    "app_guid": "fa23ddfc-b635-4205-8283-844c53122888",
+    "route_guid": "e00fb1e1-f7d4-4e36-9912-f76a587e9858",
+    "app_url": "/v2/apps/fa23ddfc-b635-4205-8283-844c53122888",
+    "route_url": "/v2/routes/e00fb1e1-f7d4-4e36-9912-f76a587e9858"
+  }
+}`
