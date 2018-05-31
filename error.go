@@ -2,7 +2,9 @@ package cfclient
 
 //go:generate go run gen_error.go
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type CloudFoundryErrors struct {
 	Errors []CloudFoundryError `json:"errors"`
@@ -26,4 +28,14 @@ type CloudFoundryError struct {
 
 func (cfErr CloudFoundryError) Error() string {
 	return fmt.Sprintf("cfclient: error (%d): %s", cfErr.Code, cfErr.ErrorCode)
+}
+
+type CloudFoundryHTTPError struct {
+	StatusCode int
+	Status     string
+	Body       []byte
+}
+
+func (e CloudFoundryHTTPError) Error() string {
+	return fmt.Sprintf("cfclient: HTTP error (%d): %s", e.StatusCode, e.Status)
 }
