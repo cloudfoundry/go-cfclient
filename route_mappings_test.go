@@ -34,7 +34,7 @@ func TestListRouteMappings(t *testing.T) {
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
-			Token: "foobar",
+			Token:      "foobar",
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
@@ -48,6 +48,25 @@ func TestListRouteMappings(t *testing.T) {
 		So(routeMappings[0].AppGUID, ShouldEqual, "ee8b175a-2228-4931-be8a-1f6445bd63bc")
 		So(routeMappings[1].AppGUID, ShouldEqual, "ee8b175a-2228-4931-be8a-1f6445bd63bd")
 		So(routeMappings[0].RouteGUID, ShouldEqual, "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677")
-		So(routeMappings[0].RouteGUID, ShouldEqual, "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678")
+		So(routeMappings[1].RouteGUID, ShouldEqual, "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678")
+	})
+}
+
+func TestGetRouteMappingByGuid(t *testing.T) {
+	Convey("Get Route Mapping By Guid", t, func() {
+		setup(MockRoute{"GET", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", getRouteMappingByGuidPayload, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		routeMapping, err := client.GetRouteMappingByGuid("93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c")
+		So(err, ShouldBeNil)
+		So(routeMapping.Guid, ShouldEqual, "93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c")
+		So(routeMapping.AppGUID, ShouldEqual, "caf3e3a9-1f64-46d3-a0d5-a3d4ae3f4be4")
+		So(routeMapping.RouteGUID, ShouldEqual, "34931bf5-79d0-4303-b082-df023b3305ce")
 	})
 }

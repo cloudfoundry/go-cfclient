@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"github.com/pkg/errors"
 )
 
 type RouteMappingRequest struct {
@@ -17,9 +17,9 @@ type RouteMappingRequest struct {
 }
 
 type RouteMappingResponse struct {
-	Count         int                    `json:"total_results"`
-	Pages         int                    `json:"total_pages"`
-	NextUrl       string                 `json:"next_url"`
+	Count     int                    `json:"total_results"`
+	Pages     int                    `json:"total_pages"`
+	NextUrl   string                 `json:"next_url"`
 	Resources []RouteMappingResource `json:"resources"`
 }
 
@@ -78,13 +78,11 @@ func (c *Client) ListRouteMappingsByQuery(query url.Values) ([]*RouteMapping, er
 
 		err = json.Unmarshal(resBody, &routeMappingsResp)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error unmarshaling route mappings")
+			return nil, errors.Wrap(err, "Error unmarshalling route mappings")
 		}
 
 		for _, routeMapping := range routeMappingsResp.Resources {
-			routeMapping.Entity.Guid = routeMapping.Meta.Guid
-			routeMapping.Entity.c = c
-			routeMappings = append(routeMappings, &routeMapping.Entity)
+			routeMappings = append(routeMappings, c.mergeRouteMappingResource(routeMapping))
 		}
 		requestUrl = routeMappingsResp.NextUrl
 		if requestUrl == "" {
@@ -99,6 +97,28 @@ func (c *Client) ListRouteMappingsByQuery(query url.Values) ([]*RouteMapping, er
 	return routeMappings, nil
 }
 
+func (c *Client) GetRouteMappingByGuid(guid string) (*RouteMapping, error) {
+	var routeMapping RouteMappingResource
+	requestUrl := fmt.Sprintf("/v2/route_mappings/%s", guid)
+	r := c.NewRequest("GET", requestUrl)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error requesting route mapping")
+	}
+	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error reading service binding response body")
+	}
+	err = json.Unmarshal(resBody, &routeMapping)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error unmarshalling service binding")
+	}
+	routeMapping.Entity.Guid = routeMapping.Meta.Guid
+	routeMapping.Entity.c = c
+	return &routeMapping.Entity, nil
+}
+
 func (c *Client) handleMappingResp(resp *http.Response) (*RouteMapping, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
@@ -110,10 +130,10 @@ func (c *Client) handleMappingResp(resp *http.Response) (*RouteMapping, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.mergeMappingResource(mappingResource), nil
+	return c.mergeRouteMappingResource(mappingResource), nil
 }
 
-func (c *Client) mergeMappingResource(mapping RouteMappingResource) *RouteMapping {
+func (c *Client) mergeRouteMappingResource(mapping RouteMappingResource) *RouteMapping {
 	mapping.Entity.Guid = mapping.Meta.Guid
 	mapping.Entity.c = c
 	return &mapping.Entity
