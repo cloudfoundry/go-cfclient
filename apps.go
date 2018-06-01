@@ -1,11 +1,16 @@
 package cfclient
 
 import (
+	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -22,6 +27,11 @@ type AppResponse struct {
 type AppResource struct {
 	Meta   Meta `json:"metadata"`
 	Entity App  `json:"entity"`
+}
+
+type AppCreateRequest struct {
+	Name      string `json:"name"`
+	SpaceGuid string `json:"space_guid"`
 }
 
 type App struct {
@@ -416,6 +426,119 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 	return
 }
 
+// UploadAppBits uploads the application's contents
+func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
+	requestFile, err := ioutil.TempFile("", "requests")
+
+	defer func() {
+		requestFile.Close()
+		os.Remove(requestFile.Name())
+	}()
+
+	writer := multipart.NewWriter(requestFile)
+	err = writer.WriteField("resources", "[]")
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
+
+	part, err := writer.CreateFormFile("application", "application.zip")
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
+
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to copy all bytes", appGUID)
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to close multipart writer", appGUID)
+	}
+
+	requestFile.Seek(0, 0)
+	fileStats, err := requestFile.Stat()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to get temp file stats", appGUID)
+	}
+
+	requestURL := fmt.Sprintf("/v2/apps/%s/bits", appGUID)
+	r := c.NewRequestWithBody("PUT", requestURL, requestFile)
+	req, err := r.toHTTP()
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
+
+	req.ContentLength = fileStats.Size()
+	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
+	req.Header.Set("Content-Type", contentType)
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return errors.Wrapf(err, "Error uploading app %s bits, response code: %d", appGUID, resp.StatusCode)
+	}
+
+	return nil
+}
+
+// GetAppBits downloads the application's bits as a tar file
+func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
+	requestURL := fmt.Sprintf("/v2/apps/%s/download", guid)
+	req := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequestWithoutRedirects(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Error downloading app %s bits, API request failed", guid)
+	}
+	if isResponseRedirect(resp) {
+		// directly download the bits from blobstore using a non cloud controller transport
+		// some blobstores will return a 400 if an Authorization header is sent
+		blobStoreLocation := resp.Header.Get("Location")
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: c.Config.SkipSslValidation},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(blobStoreLocation)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Error downloading app %s bits from blobstore", guid)
+		}
+	} else {
+		return nil, errors.Wrapf(err, "Error downloading app %s bits, expected redirect to blobstore", guid)
+	}
+	return resp.Body, nil
+}
+
+// CreateApp creates a new empty application that still needs it's
+// app bit uploaded and to be started
+func (c *Client) CreateApp(req AppCreateRequest) (App, error) {
+	var appResp AppResource
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return App{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/apps", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return App{}, errors.Wrapf(err, "Error creating app %s", req.Name)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return App{}, errors.Wrapf(err, "Error creating app %s, response code: %d", req.Name, resp.StatusCode)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return App{}, errors.Wrapf(err, "Error reading app %s http response body", req.Name)
+	}
+	err = json.Unmarshal(resBody, &appResp)
+	if err != nil {
+		return App{}, errors.Wrapf(err, "Error deserializing app %s response", req.Name)
+	}
+	return c.mergeAppResource(appResp), nil
+}
+
 func (c *Client) DeleteApp(guid string) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/apps/%s", guid)))
 	if err != nil {
@@ -435,4 +558,12 @@ func (c *Client) mergeAppResource(app AppResource) App {
 	app.Entity.SpaceData.Entity.OrgData.Entity.Guid = app.Entity.SpaceData.Entity.OrgData.Meta.Guid
 	app.Entity.c = c
 	return app.Entity
+}
+
+func isResponseRedirect(res *http.Response) bool {
+	switch res.StatusCode {
+	case http.StatusTemporaryRedirect, http.StatusPermanentRedirect, http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther:
+		return true
+	}
+	return false
 }
