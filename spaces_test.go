@@ -187,11 +187,11 @@ func TestUpdateSpace(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		updateSpaceRequest := SpaceRequest{
-			Name: "test-space",
+			Name:     "test-space",
 			AllowSSH: false,
 		}
 
-		space, err := client.UpdateSpace("a72fa1e8-c694-47b3-85f2-55f61fd00d73",updateSpaceRequest)
+		space, err := client.UpdateSpace("a72fa1e8-c694-47b3-85f2-55f61fd00d73", updateSpaceRequest)
 		So(err, ShouldBeNil)
 
 		So(space.Guid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
