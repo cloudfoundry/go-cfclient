@@ -29,7 +29,7 @@ func TestMappingAppAndRoute(t *testing.T) {
 }
 
 func TestListRouteMappings(t *testing.T) {
-	Convey("List Route Mappings", t, func() {
+	Convey("List route mappings", t, func() {
 		setup(MockRoute{"GET", "/v2/route_mappings", listRouteMappingsPayload, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 		c := &Config{
@@ -53,7 +53,7 @@ func TestListRouteMappings(t *testing.T) {
 }
 
 func TestGetRouteMappingByGuid(t *testing.T) {
-	Convey("Get Route Mapping By Guid", t, func() {
+	Convey("Get route mapping by guid", t, func() {
 		setup(MockRoute{"GET", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", getRouteMappingByGuidPayload, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 		c := &Config{
@@ -68,5 +68,22 @@ func TestGetRouteMappingByGuid(t *testing.T) {
 		So(routeMapping.Guid, ShouldEqual, "93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c")
 		So(routeMapping.AppGUID, ShouldEqual, "caf3e3a9-1f64-46d3-a0d5-a3d4ae3f4be4")
 		So(routeMapping.RouteGUID, ShouldEqual, "34931bf5-79d0-4303-b082-df023b3305ce")
+	})
+}
+
+func TestDeleteRouteMapping(t *testing.T) {
+	Convey("Delete route mapping", t, func() {
+		setup(MockRoute{"DELETE", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", "", "", http.StatusNoContent, "", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteRouteMapping("93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c")
+		So(err, ShouldBeNil)
 	})
 }

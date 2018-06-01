@@ -108,15 +108,27 @@ func (c *Client) GetRouteMappingByGuid(guid string) (*RouteMapping, error) {
 	defer resp.Body.Close()
 	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error reading service binding response body")
+		return nil, errors.Wrap(err, "Error reading route mapping response body")
 	}
 	err = json.Unmarshal(resBody, &routeMapping)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error unmarshalling service binding")
+		return nil, errors.Wrap(err, "Error unmarshalling route mapping")
 	}
 	routeMapping.Entity.Guid = routeMapping.Meta.Guid
 	routeMapping.Entity.c = c
 	return &routeMapping.Entity, nil
+}
+
+func (c *Client) DeleteRouteMapping(guid string) error {
+	requestUrl := fmt.Sprintf("/v2/route_mappings/%s?", guid)
+	resp, err := c.DoRequest(c.NewRequest("DELETE", requestUrl))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting route mapping %s, response code %d", guid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (c *Client) handleMappingResp(resp *http.Response) (*RouteMapping, error) {
