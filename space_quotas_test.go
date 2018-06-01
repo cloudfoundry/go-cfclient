@@ -79,7 +79,7 @@ func TestCreateSpaceQuota(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		spaceQuotaRequest := SpaceQuotaRequest{
-			Name: "test-2",
+			Name:             "test-2",
 			OrganizationGuid: "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
 		}
 
@@ -104,7 +104,7 @@ func TestUpdateSpaceQuota(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		spaceQuotaRequest := SpaceQuotaRequest{
-			Name: "test-2",
+			Name:             "test-2",
 			OrganizationGuid: "06dcedd4-1f24-49a6-adc1-cce9131a1b2c",
 		}
 
@@ -116,7 +116,6 @@ func TestUpdateSpaceQuota(t *testing.T) {
 
 	})
 }
-
 
 func TestAssignSpaceQuota(t *testing.T) {
 	Convey("Assign Space Quota", t, func() {
