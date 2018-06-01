@@ -26,6 +26,7 @@ type RoutesResource struct {
 type RouteRequest struct {
 	DomainGuid string `json:"domain_guid"`
 	SpaceGuid  string `json:"space_guid"`
+	Host       string `json:"host"` // required for http routes
 }
 
 type Route struct {
@@ -39,12 +40,34 @@ type Route struct {
 	c                   *Client
 }
 
+// CreateRoute creates a regular http route
+func (c *Client) CreateRoute(routeRequest RouteRequest) (Route, error) {
+	routesResource, err := c.createRoute("/v2/routes", routeRequest)
+	if nil != err {
+		return Route{}, err
+	}
+	return c.mergeRouteResource(routesResource), nil
+}
+
+// CreateTcpRoute creates a TCP route
 func (c *Client) CreateTcpRoute(routeRequest RouteRequest) (Route, error) {
 	routesResource, err := c.createRoute("/v2/routes?generate_port=true", routeRequest)
 	if nil != err {
 		return Route{}, err
 	}
-	return routesResource.Entity, nil
+	return c.mergeRouteResource(routesResource), nil
+}
+
+// BindRoute associates the specified route with the application
+func (c *Client) BindRoute(routeGUID, appGUID string) error {
+	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/routes/%s/apps/%s", routeGUID, appGUID)))
+	if err != nil {
+		return errors.Wrapf(err, "Error binding route %s to app %s", routeGUID, appGUID)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("Error binding route %s to app %s, response code: %d", routeGUID, appGUID, resp.StatusCode)
+	}
+	return nil
 }
 
 func (c *Client) ListRoutesByQuery(query url.Values) ([]Route, error) {
@@ -115,6 +138,7 @@ func (c *Client) createRoute(requestUrl string, routeRequest RouteRequest) (Rout
 	if err != nil {
 		return RoutesResource{}, errors.Wrap(err, "Error unmarshalling routes")
 	}
+	routeResp.Entity.c = c
 	return routeResp, nil
 }
 
@@ -127,4 +151,10 @@ func (c *Client) DeleteRoute(guid string) error {
 		return errors.Wrapf(err, "Error deleting route %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) mergeRouteResource(rr RoutesResource) Route {
+	rr.Entity.Guid = rr.Meta.Guid
+	rr.Entity.c = c
+	return rr.Entity
 }
