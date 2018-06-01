@@ -3497,3 +3497,74 @@ const postServiceBindingPayload = `{
     "service_instance_url": "/v2/user_provided_service_instances/a0029c76-7017-4a74-94b0-54a04ad94b80"
   }
 }`
+
+const postRouteMappingsPayload = `{
+  "metadata": {
+    "guid": "f869fa46-22b1-40ee-b491-58e321345528",
+    "url": "/v2/route_mappings/f869fa46-22b1-40ee-b491-58e321345528",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "app_port": 8888,
+    "app_guid": "fa23ddfc-b635-4205-8283-844c53122888",
+    "route_guid": "e00fb1e1-f7d4-4e36-9912-f76a587e9858",
+    "app_url": "/v2/apps/fa23ddfc-b635-4205-8283-844c53122888",
+    "route_url": "/v2/routes/e00fb1e1-f7d4-4e36-9912-f76a587e9858"
+  }
+}`
+
+const listRouteMappingsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "63603ed7-bd4a-4475-a371-5b34381e0cf7",
+        "url": "/v2/route_mappings/63603ed7-bd4a-4475-a371-5b34381e0cf7",
+        "created_at": "2016-06-08T16:41:42Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "app_port": 8888,
+        "app_guid": "ee8b175a-2228-4931-be8a-1f6445bd63bc",
+        "route_guid": "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677",
+        "app_url": "/v2/apps/ee8b175a-2228-4931-be8a-1f6445bd63bc",
+        "route_url": "/v2/routes/eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677"
+      }
+    },
+	{
+      "metadata": {
+        "guid": "63603ed7-bd4a-4475-a371-5b34381e0cf8",
+        "url": "/v2/route_mappings/63603ed7-bd4a-4475-a371-5b34381e0cf8",
+        "created_at": "2016-06-08T16:41:42Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "app_port": 8888,
+        "app_guid": "ee8b175a-2228-4931-be8a-1f6445bd63bd",
+        "route_guid": "eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678",
+        "app_url": "/v2/apps/ee8b175a-2228-4931-be8a-1f6445bd63bd",
+        "route_url": "/v2/routes/eb1c4fcd-7d6d-41d2-bd2f-5811f53b6678"
+      }
+    }
+  ]
+}`
+
+const getRouteMappingByGuidPayload = `{
+  "metadata": {
+    "guid": "93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c",
+    "url": "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "app_port": 8888,
+    "app_guid": "caf3e3a9-1f64-46d3-a0d5-a3d4ae3f4be4",
+    "route_guid": "34931bf5-79d0-4303-b082-df023b3305ce",
+    "app_url": "/v2/apps/caf3e3a9-1f64-46d3-a0d5-a3d4ae3f4be4",
+    "route_url": "/v2/routes/34931bf5-79d0-4303-b082-df023b3305ce"
+  }
+}`
