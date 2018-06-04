@@ -35,6 +35,7 @@ type Org struct {
 	CreatedAt                   string `json:"created_at"`
 	UpdatedAt                   string `json:"updated_at"`
 	Name                        string `json:"name"`
+	Status                      string `json:"status"`
 	QuotaDefinitionGuid         string `json:"quota_definition_guid"`
 	DefaultIsolationSegmentGuid string `json:"default_isolation_segment_guid"`
 	c                           *Client
