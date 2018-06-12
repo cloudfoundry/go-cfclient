@@ -1,8 +1,11 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -33,6 +36,15 @@ type UserProvidedServiceInstance struct {
 	SyslogDrainUrl     string                 `json:"syslog_drain_url"`
 	Guid               string                 `json:"guid"`
 	c                  *Client
+}
+
+type UserProvidedServiceInstanceRequest struct {
+	Name            string                 `json:"name"`
+	Credentials     map[string]interface{} `json:"credentials"`
+	SpaceGuid       string                 `json:"space_guid"`
+	Tags            []string               `json:"tags"`
+	RouteServiceUrl string                 `json:"route_service_url"`
+	SyslogDrainUrl  string                 `json:"syslog_drain_url"`
 }
 
 func (c *Client) ListUserProvidedServiceInstancesByQuery(query url.Values) ([]UserProvidedServiceInstance, error) {
@@ -96,4 +108,42 @@ func (c *Client) GetUserProvidedServiceInstanceByGuid(guid string) (UserProvided
 
 func (c *Client) UserProvidedServiceInstanceByGuid(guid string) (UserProvidedServiceInstance, error) {
 	return c.GetUserProvidedServiceInstanceByGuid(guid)
+}
+
+func (c *Client) CreateUserProvidedServiceInstance(req UserProvidedServiceInstanceRequest) (UserProvidedServiceInstance, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return UserProvidedServiceInstance{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/user_provided_service_instances", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return UserProvidedServiceInstance{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return UserProvidedServiceInstance{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+
+	return c.handleUserProvidedServiceInstanceResp(resp)
+}
+
+func (c *Client) handleUserProvidedServiceInstanceResp(resp *http.Response) (UserProvidedServiceInstance, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return UserProvidedServiceInstance{}, err
+	}
+	var upsResource UserProvidedServiceInstanceResource
+	err = json.Unmarshal(body, &upsResource)
+	if err != nil {
+		return UserProvidedServiceInstance{}, err
+	}
+	return c.mergeUserProvidedServiceInstanceResource(upsResource), nil
+}
+
+func (c *Client) mergeUserProvidedServiceInstanceResource(ups UserProvidedServiceInstanceResource) UserProvidedServiceInstance {
+	ups.Entity.Guid = ups.Meta.Guid
+	ups.Entity.c = c
+	return ups.Entity
 }
