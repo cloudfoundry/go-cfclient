@@ -110,40 +110,40 @@ func (c *Client) UserProvidedServiceInstanceByGuid(guid string) (UserProvidedSer
 	return c.GetUserProvidedServiceInstanceByGuid(guid)
 }
 
-func (c *Client) CreateUserProvidedServiceInstance(req UserProvidedServiceInstanceRequest) (UserProvidedServiceInstance, error) {
+func (c *Client) CreateUserProvidedServiceInstance(req UserProvidedServiceInstanceRequest) (*UserProvidedServiceInstance, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(req)
 	if err != nil {
-		return UserProvidedServiceInstance{}, err
+		return nil, err
 	}
 	r := c.NewRequestWithBody("POST", "/v2/user_provided_service_instances", buf)
 	resp, err := c.DoRequest(r)
 	if err != nil {
-		return UserProvidedServiceInstance{}, err
+		return nil, err
 	}
 	if resp.StatusCode != http.StatusCreated {
-		return UserProvidedServiceInstance{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 
 	return c.handleUserProvidedServiceInstanceResp(resp)
 }
 
-func (c *Client) handleUserProvidedServiceInstanceResp(resp *http.Response) (UserProvidedServiceInstance, error) {
+func (c *Client) handleUserProvidedServiceInstanceResp(resp *http.Response) (*UserProvidedServiceInstance, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return UserProvidedServiceInstance{}, err
+		return nil, err
 	}
 	var upsResource UserProvidedServiceInstanceResource
 	err = json.Unmarshal(body, &upsResource)
 	if err != nil {
-		return UserProvidedServiceInstance{}, err
+		return nil, err
 	}
 	return c.mergeUserProvidedServiceInstanceResource(upsResource), nil
 }
 
-func (c *Client) mergeUserProvidedServiceInstanceResource(ups UserProvidedServiceInstanceResource) UserProvidedServiceInstance {
+func (c *Client) mergeUserProvidedServiceInstanceResource(ups UserProvidedServiceInstanceResource) *UserProvidedServiceInstance {
 	ups.Entity.Guid = ups.Meta.Guid
 	ups.Entity.c = c
-	return ups.Entity
+	return &ups.Entity
 }
