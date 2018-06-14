@@ -219,6 +219,23 @@ func (c *Client) BindSecGroup(secGUID, spaceGUID string) error {
 }
 
 /*
+BindSpaceStagingSecGroup contacts the CF endpoint to associate a space with a security group for staging functions only
+secGUID: identifies the security group to add a space to
+spaceGUID: identifies the space to associate
+*/
+func (c *Client) BindSpaceStagingSecGroup(secGUID, spaceGUID string) error {
+	//Perform the PUT and check for errors
+	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/security_groups/%s/staging_spaces/%s", secGUID, spaceGUID)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 201 { //201 Created
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
 BindRunningSecGroup contacts the CF endpoint to associate  a security group
 secGUID: identifies the security group to add a space to
 */
