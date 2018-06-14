@@ -1075,6 +1075,64 @@ const listSecGroupsPayloadPage2 = `{
    ]
 }`
 
+const listRunningSecGroupsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "3014fb5b-cb2c-4ac5-952c-e3a7e04ab028",
+        "url": "/v2/config/running_security_groups/3014fb5b-cb2c-4ac5-952c-e3a7e04ab028",
+        "created_at": "2016-06-08T16:41:21Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name-6",
+        "rules": [
+          {
+            "protocol": "udp",
+            "ports": "8080",
+            "destination": "198.41.191.47/1"
+          }
+        ],
+        "running_default": true,
+        "staging_default": false
+      }
+    }
+  ]
+}`
+
+const listStagingSecGroupsPayload = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "611bd883-4b93-403f-af92-3283de22e3f0",
+        "url": "/v2/config/staging_security_groups/611bd883-4b93-403f-af92-3283de22e3f0",
+        "created_at": "2016-06-08T16:41:27Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name-1372",
+        "rules": [
+          {
+            "protocol": "udp",
+            "ports": "8080",
+            "destination": "198.41.191.47/1"
+          }
+        ],
+        "running_default": false,
+        "staging_default": true
+      }
+    }
+  ]
+}`
+
 const listAppsPayload = `{
    "total_results": 28,
    "total_pages": 1,
