@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Masterminds/semver"
 	"github.com/pkg/errors"
 )
 
@@ -31,14 +32,16 @@ type SecGroupResource struct {
 }
 
 type SecGroup struct {
-	Guid       string          `json:"guid"`
-	Name       string          `json:"name"`
-	Rules      []SecGroupRule  `json:"rules"`
-	Running    bool            `json:"running_default"`
-	Staging    bool            `json:"staging_default"`
-	SpacesURL  string          `json:"spaces_url"`
-	SpacesData []SpaceResource `json:"spaces"`
-	c          *Client
+	Guid              string          `json:"guid"`
+	Name              string          `json:"name"`
+	Rules             []SecGroupRule  `json:"rules"`
+	Running           bool            `json:"running_default"`
+	Staging           bool            `json:"staging_default"`
+	SpacesURL         string          `json:"spaces_url"`
+	StagingSpacesURL  string          `json:"staging_spaces_url"`
+	SpacesData        []SpaceResource `json:"spaces"`
+	StagingSpacesData []SpaceResource `json:"staging_spaces"`
+	c                 *Client
 }
 
 type SecGroupRule struct {
@@ -50,6 +53,8 @@ type SecGroupRule struct {
 	Type        int    `json:"type"`                  //ICMP type. Only valid if Protocol=="icmp"
 	Log         bool   `json:"log,omitempty"`         //If true, log this rule
 }
+
+var MinStagingSpacesVersion *semver.Version = getMinStagingSpacesVersion()
 
 func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 	requestURL := "/v2/security_groups?inline-relations-depth=1"
@@ -85,6 +90,15 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 				}
 				for _, space := range spaces {
 					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
+				}
+			}
+			if len(secGroup.Entity.StagingSpacesData) == 0 {
+				spaces, err := secGroup.Entity.ListStagingSpaceResources()
+				if err != nil {
+					return nil, err
+				}
+				for _, space := range spaces {
+					secGroup.Entity.StagingSpacesData = append(secGroup.Entity.SpacesData, space)
 				}
 			}
 			secGroups = append(secGroups, secGroup.Entity)
@@ -131,6 +145,46 @@ func (secGroup *SecGroup) ListSpaceResources() ([]SpaceResource, error) {
 	for requestURL != "" {
 		spaceResp, err := secGroup.c.getSpaceResponse(requestURL)
 		if err != nil {
+			return []SpaceResource{}, err
+		}
+		for i, spaceRes := range spaceResp.Resources {
+			spaceRes.Entity.Guid = spaceRes.Meta.Guid
+			spaceResp.Resources[i] = spaceRes
+		}
+		spaceResources = append(spaceResources, spaceResp.Resources...)
+		requestURL = spaceResp.NextUrl
+	}
+	return spaceResources, nil
+}
+
+func (secGroup *SecGroup) ListStagingSpaceResources() ([]SpaceResource, error) {
+	var spaceResources []SpaceResource
+	requestURL := secGroup.StagingSpacesURL
+	for requestURL != "" {
+		spaceResp, err := secGroup.c.getSpaceResponse(requestURL)
+		if err != nil {
+			// if this is a 404, let's make sure that it's not because we're on a legacy system
+			if cause := errors.Cause(err); cause != nil {
+				if httpErr, ok := cause.(CloudFoundryHTTPError); ok {
+					if httpErr.StatusCode == 404 {
+						info, infoErr := secGroup.c.GetInfo()
+						if infoErr != nil {
+							return nil, infoErr
+						}
+
+						apiVersion, versionErr := semver.NewVersion(info.APIVersion)
+						if versionErr != nil {
+							return nil, versionErr
+						}
+
+						if MinStagingSpacesVersion.GreaterThan(apiVersion) {
+							// this is probably not really an error, we're just trying to use a non-existent api
+							return nil, nil
+						}
+					}
+				}
+			}
+
 			return []SpaceResource{}, err
 		}
 		for i, spaceRes := range spaceResp.Resources {
@@ -223,7 +277,7 @@ BindSpaceStagingSecGroup contacts the CF endpoint to associate a space with a se
 secGUID: identifies the security group to add a space to
 spaceGUID: identifies the space to associate
 */
-func (c *Client) BindSpaceStagingSecGroup(secGUID, spaceGUID string) error {
+func (c *Client) BindStagingSecGroupToSpace(secGUID, spaceGUID string) error {
 	//Perform the PUT and check for errors
 	resp, err := c.DoRequest(c.NewRequest("PUT", fmt.Sprintf("/v2/security_groups/%s/staging_spaces/%s", secGUID, spaceGUID)))
 	if err != nil {
@@ -419,4 +473,9 @@ Description %s`,
 	}
 	//get the json from the response body
 	return respBodyToSecGroup(resp.Body, c)
+}
+
+func getMinStagingSpacesVersion() *semver.Version {
+	v, _ := semver.NewVersion("2.68.0")
+	return v
 }
