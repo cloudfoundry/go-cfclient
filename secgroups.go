@@ -110,6 +110,74 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 	return secGroups, nil
 }
 
+func (c *Client) ListRunningSecGroups() ([]SecGroup, error) {
+	secGroups := make([]SecGroup, 0)
+	requestURL := "/v2/config/running_security_groups"
+	for requestURL != "" {
+		var secGroupResp SecGroupResponse
+		r := c.NewRequest("GET", requestURL)
+		resp, err := c.DoRequest(r)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting sec groups")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading sec group response body")
+		}
+
+		err = json.Unmarshal(resBody, &secGroupResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling sec group")
+		}
+
+		for _, secGroup := range secGroupResp.Resources {
+			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = c
+
+			secGroups = append(secGroups, secGroup.Entity)
+		}
+
+		requestURL = secGroupResp.NextUrl
+		resp.Body.Close()
+	}
+	return secGroups, nil
+}
+
+func (c *Client) ListStagingSecGroups() ([]SecGroup, error) {
+	secGroups := make([]SecGroup, 0)
+	requestURL := "/v2/config/staging_security_groups"
+	for requestURL != "" {
+		var secGroupResp SecGroupResponse
+		r := c.NewRequest("GET", requestURL)
+		resp, err := c.DoRequest(r)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting sec groups")
+		}
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading sec group response body")
+		}
+
+		err = json.Unmarshal(resBody, &secGroupResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshaling sec group")
+		}
+
+		for _, secGroup := range secGroupResp.Resources {
+			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = c
+
+			secGroups = append(secGroups, secGroup.Entity)
+		}
+
+		requestURL = secGroupResp.NextUrl
+		resp.Body.Close()
+	}
+	return secGroups, nil
+}
+
 func (c *Client) GetSecGroupByName(name string) (secGroup SecGroup, err error) {
 	requestURL := "/v2/security_groups?q=name:" + name
 	var secGroupResp SecGroupResponse
