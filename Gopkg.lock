@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/cloudfoundry/gofileutils"
   packages = ["fileutils"]
@@ -163,6 +169,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2426bab5e87b185073167a96769b155be9bc849eedf38109463fdf4ac7696117"
+  inputs-digest = "0ccf4d7764bd9ffec880cf26979fdad697cd14facbf927c5b90c0d71f549b718"
   solver-name = "gps-cdcl"
   solver-version = 1
