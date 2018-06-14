@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -48,6 +49,7 @@ type SharedDomain struct {
 	Name            string `json:"name"`
 	RouterGroupGuid string `json:"router_group_guid"`
 	RouterGroupType string `json:"router_group_type"`
+	Internal        bool   `json:"internal"`
 	c               *Client
 }
 
@@ -123,6 +125,29 @@ func (c *Client) ListSharedDomains() ([]SharedDomain, error) {
 	return c.ListSharedDomainsByQuery(nil)
 }
 
+func (c *Client) CreateSharedDomain(name string, internal bool, router_group_guid string) (*SharedDomain, error) {
+	req := c.NewRequest("POST", "/v2/shared_domains")
+	params := map[string]interface{}{
+		"name":     name,
+		"internal": internal,
+	}
+
+	if strings.TrimSpace(router_group_guid) != "" {
+		params["router_group_guid"] = router_group_guid
+	}
+
+	req.obj = params
+
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return nil, errors.Wrapf(err, "Error creating shared domain %s, response code: %d", name, resp.StatusCode)
+	}
+	return c.handleSharedDomainResp(resp)
+}
+
 func (c *Client) GetDomainByName(name string) (Domain, error) {
 	q := url.Values{}
 	q.Set("q", "name:"+name)
@@ -189,6 +214,20 @@ func (c *Client) handleDomainResp(resp *http.Response) (*Domain, error) {
 	return c.mergeDomainResource(domainResource), nil
 }
 
+func (c *Client) handleSharedDomainResp(resp *http.Response) (*SharedDomain, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	var domainResource SharedDomainResource
+	err = json.Unmarshal(body, &domainResource)
+	if err != nil {
+		return nil, err
+	}
+	return c.mergeSharedDomainResource(domainResource), nil
+}
+
 func (c *Client) getDomainsResponse(requestUrl string) (DomainsResponse, error) {
 	var domainResp DomainsResponse
 	r := c.NewRequest("GET", requestUrl)
@@ -209,6 +248,12 @@ func (c *Client) getDomainsResponse(requestUrl string) (DomainsResponse, error) 
 }
 
 func (c *Client) mergeDomainResource(domainResource DomainResource) *Domain {
+	domainResource.Entity.Guid = domainResource.Meta.Guid
+	domainResource.Entity.c = c
+	return &domainResource.Entity
+}
+
+func (c *Client) mergeSharedDomainResource(domainResource SharedDomainResource) *SharedDomain {
 	domainResource.Entity.Guid = domainResource.Meta.Guid
 	domainResource.Entity.c = c
 	return &domainResource.Entity
