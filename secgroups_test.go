@@ -131,6 +131,54 @@ func TestNegativeBindStagingSecGroupToSpaces(t *testing.T) {
 	})
 }
 
+func TestListRunningSecGroups(t *testing.T) {
+	Convey("List Running SecGroups", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/config/running_security_groups", listRunningSecGroupsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		secGroups, err := client.ListRunningSecGroups()
+		So(err, ShouldBeNil)
+
+		So(len(secGroups), ShouldEqual, 1)
+		for i := range secGroups {
+			So(secGroups[i].Running, ShouldBeTrue)
+		}
+	})
+}
+
+func TestListStagingSecGroups(t *testing.T) {
+	Convey("List Staging SecGroups", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/config/staging_security_groups", listStagingSecGroupsPayload, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		secGroups, err := client.ListStagingSecGroups()
+		So(err, ShouldBeNil)
+
+		So(len(secGroups), ShouldEqual, 1)
+		for i := range secGroups {
+			So(secGroups[i].Staging, ShouldBeTrue)
+		}
+	})
+}
+
 func TestBindRunningSecGroups(t *testing.T) {
 	Convey("Unbind Running Sec Groups", t, func() {
 		mocks := []MockRoute{
