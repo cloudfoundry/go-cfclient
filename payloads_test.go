@@ -2503,6 +2503,34 @@ const postDomainPayload = `{
   }
 }`
 
+const postExternalSharedDomainPayload = `{
+  "metadata": {
+    "guid": "b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
+    "url": "/v2/shared_domains/b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "shared-exmaple.com",
+    "internal": false,
+    "router_group_guid": "8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
+    "router_group_type": "tcp"
+  }
+}`
+
+const postInternalSharedDomainPayload = `{
+  "metadata": {
+    "guid": "b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
+    "url": "/v2/shared_domains/b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "shared-exmaple.com",
+    "internal": true
+  }
+}`
+
 const listBuildpacksPayload = `{
   "total_results": 3,
   "total_pages": 1,
