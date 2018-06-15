@@ -23,6 +23,8 @@ func TestListServices(t *testing.T) {
 		So(len(services), ShouldEqual, 2)
 		So(services[0].Guid, ShouldEqual, "a3d76c01-c08a-4505-b06d-8603265682a3")
 		So(services[0].Label, ShouldEqual, "nats")
+		So(services[0].CreatedAt, ShouldEqual, "2014-09-24T14:10:51+00:00")
+		So(services[0].UpdatedAt, ShouldEqual, "2014-10-08T00:06:30+00:00")
 		So(services[0].Description, ShouldEqual, "NATS is a lightweight cloud messaging system")
 		So(services[0].Active, ShouldEqual, true)
 		So(services[0].Bindable, ShouldEqual, true)

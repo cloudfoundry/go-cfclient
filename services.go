@@ -23,6 +23,8 @@ type ServicesResource struct {
 type Service struct {
 	Guid              string   `json:"guid"`
 	Label             string   `json:"label"`
+	CreatedAt         string   `json:"created_at"`
+	UpdatedAt         string   `json:"updated_at"`
 	Description       string   `json:"description"`
 	Active            bool     `json:"active"`
 	Bindable          bool     `json:"bindable"`
@@ -80,6 +82,8 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 		}
 		for _, service := range serviceResp.Resources {
 			service.Entity.Guid = service.Meta.Guid
+			service.Entity.CreatedAt = service.Meta.CreatedAt
+			service.Entity.UpdatedAt = service.Meta.UpdatedAt
 			service.Entity.c = c
 			services = append(services, service.Entity)
 		}
