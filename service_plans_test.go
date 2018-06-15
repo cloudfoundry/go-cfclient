@@ -23,6 +23,8 @@ func TestListServicePlans(t *testing.T) {
 		So(len(servicePlans), ShouldEqual, 1)
 		So(servicePlans[0].Guid, ShouldEqual, "6fecf53b-7553-4cb3-b97e-930f9c4e3385")
 		So(servicePlans[0].Name, ShouldEqual, "name-1575")
+		So(servicePlans[0].CreatedAt, ShouldEqual, "2016-06-08T16:41:30Z")
+		So(servicePlans[0].UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 		So(servicePlans[0].Description, ShouldEqual, "desc-109")
 		So(servicePlans[0].ServiceGuid, ShouldEqual, "1ccab853-87c9-45a6-bf99-603032d17fe5")
 		So(servicePlans[0].Extra, ShouldBeNil)
