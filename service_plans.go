@@ -70,3 +70,32 @@ func (c *Client) ListServicePlansByQuery(query url.Values) ([]ServicePlan, error
 func (c *Client) ListServicePlans() ([]ServicePlan, error) {
 	return c.ListServicePlansByQuery(nil)
 }
+
+func (c *Client) GetServicePlanByGUID(guid string) (*ServicePlan, error) {
+	var (
+		plan         *ServicePlan
+		planResponse ServicePlanResource
+	)
+
+	r := c.NewRequest("GET", "/v2/service_plans/"+guid)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &planResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	planResponse.Entity.Guid = planResponse.Meta.Guid
+	plan = &planResponse.Entity
+
+	return plan, nil
+}
