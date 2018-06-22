@@ -23,6 +23,7 @@ type Info struct {
 	AppSSHOauthClient        string `json:"app_ssh_oauth_client"`
 	DopplerLoggingEndpoint   string `json:"doppler_logging_endpoint"`
 	RoutingEndpoint          string `json:"routing_endpoint"`
+	User                     string `json:"user,omitempty"`
 }
 
 // GetInfo retrieves Info from the Cloud Controller API
