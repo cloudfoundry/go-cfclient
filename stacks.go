@@ -23,6 +23,8 @@ type StacksResource struct {
 type Stack struct {
 	Guid        string `json:"guid"`
 	Name        string `json:"name"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 	Description string `json:"description"`
 	c           *Client
 }
