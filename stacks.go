@@ -39,6 +39,8 @@ func (c *Client) ListStacksByQuery(query url.Values) ([]Stack, error) {
 		}
 		for _, stack := range stacksResp.Resources {
 			stack.Entity.Guid = stack.Meta.Guid
+			stack.Entity.CreatedAt = stack.Meta.CreatedAt
+			stack.Entity.UpdatedAt = stack.Meta.UpdatedAt
 			stack.Entity.c = c
 			stacks = append(stacks, stack.Entity)
 		}

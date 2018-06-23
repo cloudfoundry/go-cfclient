@@ -38,6 +38,8 @@ type SharedDomainResource struct {
 type Domain struct {
 	Guid                   string `json:"guid"`
 	Name                   string `json:"name"`
+	CreatedAt              string `json:"created_at"`
+	UpdatedAt              string `json:"updated_at"`
 	OwningOrganizationGuid string `json:"owning_organization_guid"`
 	OwningOrganizationUrl  string `json:"owning_organization_url"`
 	SharedOrganizationsUrl string `json:"shared_organizations_url"`
@@ -47,6 +49,8 @@ type Domain struct {
 type SharedDomain struct {
 	Guid            string `json:"guid"`
 	Name            string `json:"name"`
+	CreatedAt       string `json:"created_at"`
+	UpdatedAt       string `json:"updated_at"`
 	RouterGroupGuid string `json:"router_group_guid"`
 	RouterGroupType string `json:"router_group_type"`
 	Internal        bool   `json:"internal"`
@@ -74,6 +78,8 @@ func (c *Client) ListDomainsByQuery(query url.Values) ([]Domain, error) {
 		}
 		for _, domain := range domainResp.Resources {
 			domain.Entity.Guid = domain.Meta.Guid
+			domain.Entity.CreatedAt = domain.Meta.CreatedAt
+			domain.Entity.UpdatedAt = domain.Meta.UpdatedAt
 			domain.Entity.c = c
 			domains = append(domains, domain.Entity)
 		}
@@ -110,6 +116,8 @@ func (c *Client) ListSharedDomainsByQuery(query url.Values) ([]SharedDomain, err
 		}
 		for _, domain := range domainResp.Resources {
 			domain.Entity.Guid = domain.Meta.Guid
+			domain.Entity.CreatedAt = domain.Meta.CreatedAt
+			domain.Entity.UpdatedAt = domain.Meta.UpdatedAt
 			domain.Entity.c = c
 			domains = append(domains, domain.Entity)
 		}
