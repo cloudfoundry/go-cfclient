@@ -21,15 +21,22 @@ type ServicesResource struct {
 }
 
 type Service struct {
-	Guid              string   `json:"guid"`
-	Label             string   `json:"label"`
-	Description       string   `json:"description"`
-	Active            bool     `json:"active"`
-	Bindable          bool     `json:"bindable"`
-	ServiceBrokerGuid string   `json:"service_broker_guid"`
-	PlanUpdateable    bool     `json:"plan_updateable"`
-	Tags              []string `json:"tags"`
-	c                 *Client
+	Guid                 string   `json:"guid"`
+	Label                string   `json:"label"`
+	CreatedAt            string   `json:"created_at"`
+	UpdatedAt            string   `json:"updated_at"`
+	Description          string   `json:"description"`
+	Active               bool     `json:"active"`
+	Bindable             bool     `json:"bindable"`
+	ServiceBrokerGuid    string   `json:"service_broker_guid"`
+	PlanUpdateable       bool     `json:"plan_updateable"`
+	Tags                 []string `json:"tags"`
+	UniqueID             string   `json:"unique_id"`
+	Extra                string   `json:"extra"`
+	Requires             []string `json:"requires"`
+	InstancesRetrievable bool     `json:"instances_retrievable"`
+	BindingsRetrievable  bool     `json:"bindings_retrievable"`
+	c                    *Client
 }
 
 type ServiceSummary struct {
@@ -55,6 +62,8 @@ func (c *Client) GetServiceByGuid(guid string) (Service, error) {
 		return Service{}, err
 	}
 	serviceRes.Entity.Guid = serviceRes.Meta.Guid
+	serviceRes.Entity.CreatedAt = serviceRes.Meta.CreatedAt
+	serviceRes.Entity.UpdatedAt = serviceRes.Meta.UpdatedAt
 	return serviceRes.Entity, nil
 
 }
@@ -80,6 +89,8 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 		}
 		for _, service := range serviceResp.Resources {
 			service.Entity.Guid = service.Meta.Guid
+			service.Entity.CreatedAt = service.Meta.CreatedAt
+			service.Entity.UpdatedAt = service.Meta.UpdatedAt
 			service.Entity.c = c
 			services = append(services, service.Entity)
 		}
