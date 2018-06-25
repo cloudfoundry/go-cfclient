@@ -31,6 +31,8 @@ type CreateServiceKeyRequest struct {
 type ServiceKey struct {
 	Name                string      `json:"name"`
 	Guid                string      `json:"guid"`
+	CreatedAt           string      `json:"created_at"`
+	UpdatedAt           string      `json:"updated_at"`
 	ServiceInstanceGuid string      `json:"service_instance_guid"`
 	Credentials         interface{} `json:"credentials"`
 	ServiceInstanceUrl  string      `json:"service_instance_url"`
@@ -56,6 +58,8 @@ func (c *Client) ListServiceKeysByQuery(query url.Values) ([]ServiceKey, error) 
 	}
 	for _, serviceKey := range serviceKeysResp.Resources {
 		serviceKey.Entity.Guid = serviceKey.Meta.Guid
+		serviceKey.Entity.CreatedAt = serviceKey.Meta.CreatedAt
+		serviceKey.Entity.UpdatedAt = serviceKey.Meta.UpdatedAt
 		serviceKey.Entity.c = c
 		serviceKeys = append(serviceKeys, serviceKey.Entity)
 	}
