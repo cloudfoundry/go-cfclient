@@ -34,6 +34,8 @@ type SecGroupResource struct {
 type SecGroup struct {
 	Guid              string          `json:"guid"`
 	Name              string          `json:"name"`
+	CreatedAt         string          `json:"created_at"`
+	UpdatedAt         string          `json:"updated_at"`
 	Rules             []SecGroupRule  `json:"rules"`
 	Running           bool            `json:"running_default"`
 	Staging           bool            `json:"staging_default"`
@@ -78,6 +80,8 @@ func (c *Client) ListSecGroups() (secGroups []SecGroup, err error) {
 
 		for _, secGroup := range secGroupResp.Resources {
 			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.CreatedAt = secGroup.Meta.CreatedAt
+			secGroup.Entity.UpdatedAt = secGroup.Meta.UpdatedAt
 			secGroup.Entity.c = c
 			for i, space := range secGroup.Entity.SpacesData {
 				space.Entity.Guid = space.Meta.Guid
@@ -133,6 +137,8 @@ func (c *Client) ListRunningSecGroups() ([]SecGroup, error) {
 
 		for _, secGroup := range secGroupResp.Resources {
 			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.CreatedAt = secGroup.Meta.CreatedAt
+			secGroup.Entity.UpdatedAt = secGroup.Meta.UpdatedAt
 			secGroup.Entity.c = c
 
 			secGroups = append(secGroups, secGroup.Entity)
@@ -167,6 +173,8 @@ func (c *Client) ListStagingSecGroups() ([]SecGroup, error) {
 
 		for _, secGroup := range secGroupResp.Resources {
 			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.CreatedAt = secGroup.Meta.CreatedAt
+			secGroup.Entity.UpdatedAt = secGroup.Meta.UpdatedAt
 			secGroup.Entity.c = c
 
 			secGroups = append(secGroups, secGroup.Entity)
@@ -201,6 +209,8 @@ func (c *Client) GetSecGroupByName(name string) (secGroup SecGroup, err error) {
 	}
 	secGroup = secGroupResp.Resources[0].Entity
 	secGroup.Guid = secGroupResp.Resources[0].Meta.Guid
+	secGroup.CreatedAt = secGroupResp.Resources[0].Meta.CreatedAt
+	secGroup.UpdatedAt = secGroupResp.Resources[0].Meta.UpdatedAt
 	secGroup.c = c
 
 	resp.Body.Close()
@@ -217,6 +227,8 @@ func (secGroup *SecGroup) ListSpaceResources() ([]SpaceResource, error) {
 		}
 		for i, spaceRes := range spaceResp.Resources {
 			spaceRes.Entity.Guid = spaceRes.Meta.Guid
+			spaceRes.Entity.CreatedAt = spaceRes.Meta.CreatedAt
+			spaceRes.Entity.UpdatedAt = spaceRes.Meta.UpdatedAt
 			spaceResp.Resources[i] = spaceRes
 		}
 		spaceResources = append(spaceResources, spaceResp.Resources...)
@@ -257,6 +269,8 @@ func (secGroup *SecGroup) ListStagingSpaceResources() ([]SpaceResource, error) {
 		}
 		for i, spaceRes := range spaceResp.Resources {
 			spaceRes.Entity.Guid = spaceRes.Meta.Guid
+			spaceRes.Entity.CreatedAt = spaceRes.Meta.CreatedAt
+			spaceRes.Entity.UpdatedAt = spaceRes.Meta.UpdatedAt
 			spaceResp.Resources[i] = spaceRes
 		}
 		spaceResources = append(spaceResources, spaceResp.Resources...)
@@ -454,6 +468,8 @@ func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	//pull a few extra fields from other places
 	ret := jStruct.Entity
 	ret.Guid = jStruct.Meta.Guid
+	ret.CreatedAt = jStruct.Meta.CreatedAt
+	ret.UpdatedAt = jStruct.Meta.UpdatedAt
 	ret.c = c
 	return &ret, nil
 }

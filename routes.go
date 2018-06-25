@@ -31,6 +31,8 @@ type RouteRequest struct {
 
 type Route struct {
 	Guid                string `json:"guid"`
+	CreatedAt           string `json:"created_at"`
+	UpdatedAt           string `json:"updated_at"`
 	Host                string `json:"host"`
 	Path                string `json:"path"`
 	DomainGuid          string `json:"domain_guid"`
@@ -83,6 +85,8 @@ func (c *Client) fetchRoutes(requestUrl string) ([]Route, error) {
 		}
 		for _, route := range routesResp.Resources {
 			route.Entity.Guid = route.Meta.Guid
+			route.Entity.CreatedAt = route.Meta.CreatedAt
+			route.Entity.UpdatedAt = route.Meta.UpdatedAt
 			route.Entity.c = c
 			routes = append(routes, route.Entity)
 		}
@@ -155,6 +159,8 @@ func (c *Client) DeleteRoute(guid string) error {
 
 func (c *Client) mergeRouteResource(rr RoutesResource) Route {
 	rr.Entity.Guid = rr.Meta.Guid
+	rr.Entity.CreatedAt = rr.Meta.CreatedAt
+	rr.Entity.UpdatedAt = rr.Meta.UpdatedAt
 	rr.Entity.c = c
 	return rr.Entity
 }

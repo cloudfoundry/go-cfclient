@@ -24,6 +24,9 @@ type ServiceBindingResource struct {
 
 type ServiceBinding struct {
 	Guid                string      `json:"guid"`
+	Name                string      `json:"name"`
+	CreatedAt           string      `json:"created_at"`
+	UpdatedAt           string      `json:"updated_at"`
 	AppGuid             string      `json:"app_guid"`
 	ServiceInstanceGuid string      `json:"service_instance_guid"`
 	Credentials         interface{} `json:"credentials"`
@@ -60,6 +63,8 @@ func (c *Client) ListServiceBindingsByQuery(query url.Values) ([]ServiceBinding,
 		}
 		for _, serviceBinding := range serviceBindingsResp.Resources {
 			serviceBinding.Entity.Guid = serviceBinding.Meta.Guid
+			serviceBinding.Entity.CreatedAt = serviceBinding.Meta.CreatedAt
+			serviceBinding.Entity.UpdatedAt = serviceBinding.Meta.UpdatedAt
 			serviceBinding.Entity.c = c
 			serviceBindings = append(serviceBindings, serviceBinding.Entity)
 		}
@@ -97,6 +102,8 @@ func (c *Client) GetServiceBindingByGuid(guid string) (ServiceBinding, error) {
 		return ServiceBinding{}, errors.Wrap(err, "Error unmarshalling service binding")
 	}
 	serviceBinding.Entity.Guid = serviceBinding.Meta.Guid
+	serviceBinding.Entity.CreatedAt = serviceBinding.Meta.CreatedAt
+	serviceBinding.Entity.UpdatedAt = serviceBinding.Meta.UpdatedAt
 	serviceBinding.Entity.c = c
 	return serviceBinding.Entity, nil
 }
