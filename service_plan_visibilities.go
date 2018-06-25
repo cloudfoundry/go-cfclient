@@ -25,6 +25,8 @@ type ServicePlanVisibilityResource struct {
 
 type ServicePlanVisibility struct {
 	Guid             string `json:"guid"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
 	ServicePlanGuid  string `json:"service_plan_guid"`
 	OrganizationGuid string `json:"organization_guid"`
 	ServicePlanUrl   string `json:"service_plan_url"`
@@ -53,6 +55,8 @@ func (c *Client) ListServicePlanVisibilitiesByQuery(query url.Values) ([]Service
 		}
 		for _, servicePlanVisibility := range servicePlanVisibilitiesResp.Resources {
 			servicePlanVisibility.Entity.Guid = servicePlanVisibility.Meta.Guid
+			servicePlanVisibility.Entity.CreatedAt = servicePlanVisibility.Meta.CreatedAt
+			servicePlanVisibility.Entity.UpdatedAt = servicePlanVisibility.Meta.UpdatedAt
 			servicePlanVisibility.Entity.c = c
 			servicePlanVisibilities = append(servicePlanVisibilities, servicePlanVisibility.Entity)
 		}
@@ -158,6 +162,8 @@ func respBodyToServicePlanVisibility(body io.ReadCloser, c *Client) (ServicePlan
 	}
 	servicePlanVisibility := servicePlanVisibilityRes.Entity
 	servicePlanVisibility.Guid = servicePlanVisibilityRes.Meta.Guid
+	servicePlanVisibility.CreatedAt = servicePlanVisibilityRes.Meta.CreatedAt
+	servicePlanVisibility.UpdatedAt = servicePlanVisibilityRes.Meta.UpdatedAt
 	servicePlanVisibility.c = c
 	return servicePlanVisibility, nil
 }
