@@ -24,7 +24,10 @@ type UserProvidedServiceInstanceResource struct {
 }
 
 type UserProvidedServiceInstance struct {
+	Guid               string                 `json:"guid"`
 	Name               string                 `json:"name"`
+	CreatedAt          string                 `json:"created_at"`
+	UpdatedAt          string                 `json:"updated_at"`
 	Credentials        map[string]interface{} `json:"credentials"`
 	SpaceGuid          string                 `json:"space_guid"`
 	Type               string                 `json:"type"`
@@ -34,7 +37,6 @@ type UserProvidedServiceInstance struct {
 	RoutesUrl          string                 `json:"routes_url"`
 	RouteServiceUrl    string                 `json:"route_service_url"`
 	SyslogDrainUrl     string                 `json:"syslog_drain_url"`
-	Guid               string                 `json:"guid"`
 	c                  *Client
 }
 
@@ -69,6 +71,8 @@ func (c *Client) ListUserProvidedServiceInstancesByQuery(query url.Values) ([]Us
 		}
 		for _, instance := range sir.Resources {
 			instance.Entity.Guid = instance.Meta.Guid
+			instance.Entity.CreatedAt = instance.Meta.CreatedAt
+			instance.Entity.UpdatedAt = instance.Meta.UpdatedAt
 			instance.Entity.c = c
 			instances = append(instances, instance.Entity)
 		}
@@ -102,6 +106,8 @@ func (c *Client) GetUserProvidedServiceInstanceByGuid(guid string) (UserProvided
 		return UserProvidedServiceInstance{}, errors.Wrap(err, "Error JSON parsing user provided service instance response")
 	}
 	sir.Entity.Guid = sir.Meta.Guid
+	sir.Entity.CreatedAt = sir.Meta.CreatedAt
+	sir.Entity.UpdatedAt = sir.Meta.UpdatedAt
 	sir.Entity.c = c
 	return sir.Entity, nil
 }
@@ -144,6 +150,8 @@ func (c *Client) handleUserProvidedServiceInstanceResp(resp *http.Response) (*Us
 
 func (c *Client) mergeUserProvidedServiceInstanceResource(ups UserProvidedServiceInstanceResource) *UserProvidedServiceInstance {
 	ups.Entity.Guid = ups.Meta.Guid
+	ups.Entity.CreatedAt = ups.Meta.CreatedAt
+	ups.Entity.UpdatedAt = ups.Meta.UpdatedAt
 	ups.Entity.c = c
 	return &ups.Entity
 }
