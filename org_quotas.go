@@ -67,6 +67,8 @@ func (c *Client) ListOrgQuotasByQuery(query url.Values) ([]OrgQuota, error) {
 		}
 		for _, org := range orgQuotasResp.Resources {
 			org.Entity.Guid = org.Meta.Guid
+			org.Entity.CreatedAt = org.Meta.CreatedAt
+			org.Entity.UpdatedAt = org.Meta.UpdatedAt
 			org.Entity.c = c
 			orgQuotas = append(orgQuotas, org.Entity)
 		}
