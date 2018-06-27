@@ -27,6 +27,8 @@ type RouteRequest struct {
 	DomainGuid string `json:"domain_guid"`
 	SpaceGuid  string `json:"space_guid"`
 	Host       string `json:"host"` // required for http routes
+	Path       string `json:"path"`
+	Port       int    `json:"port"`
 }
 
 type Route struct {
