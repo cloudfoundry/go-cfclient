@@ -65,6 +65,8 @@ func (c *Client) ListSpaceQuotasByQuery(query url.Values) ([]SpaceQuota, error) 
 		}
 		for _, space := range spaceQuotasResp.Resources {
 			space.Entity.Guid = space.Meta.Guid
+			space.Entity.CreatedAt = space.Meta.CreatedAt
+			space.Entity.UpdatedAt = space.Meta.UpdatedAt
 			space.Entity.c = c
 			spaceQuotas = append(spaceQuotas, space.Entity)
 		}

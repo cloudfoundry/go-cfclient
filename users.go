@@ -78,6 +78,8 @@ func (c *Client) ListUsersByQuery(query url.Values) (Users, error) {
 		}
 		for _, user := range userResp.Resources {
 			user.Entity.Guid = user.Meta.Guid
+			user.Entity.CreatedAt = user.Meta.CreatedAt
+			user.Entity.UpdatedAt = user.Meta.UpdatedAt
 			user.Entity.c = c
 			users = append(users, user.Entity)
 		}
