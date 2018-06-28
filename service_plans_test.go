@@ -61,3 +61,49 @@ func TestGetServicePlanByGuid(t *testing.T) {
 		So(servicePlan.ServiceInstancesUrl, ShouldEqual, "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385/service_instances")
 	})
 }
+
+func TestMakeServicePlanPublic(t *testing.T) {
+	Convey("Make Service Plan public", t, func() {
+		setupMultiple([]MockRoute{
+			MockRoute{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 200, "", nil},
+			MockRoute{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 201, "", nil},
+		}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		servicePlan, err := client.GetServicePlanByGUID("6fecf53b-7553-4cb3-b97e-930f9c4e3385")
+		So(err, ShouldBeNil)
+		So(servicePlan.Public, ShouldBeFalse)
+
+		err = client.MakeServicePlanPublic("6fecf53b-7553-4cb3-b97e-930f9c4e3385")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestMakeServicePlanPrivate(t *testing.T) {
+	Convey("Make Service Plan private", t, func() {
+		setupMultiple([]MockRoute{
+			MockRoute{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 200, "", nil},
+			MockRoute{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 201, "", nil},
+		}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		servicePlan, err := client.GetServicePlanByGUID("6fecf53b-7553-4cb3-b97e-930f9c4e3385")
+		So(err, ShouldBeNil)
+		So(servicePlan.Public, ShouldBeTrue)
+
+		err = client.MakeServicePlanPrivate("6fecf53b-7553-4cb3-b97e-930f9c4e3385")
+		So(err, ShouldBeNil)
+	})
+}
