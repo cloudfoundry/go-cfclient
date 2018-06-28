@@ -1690,6 +1690,29 @@ const getServicePlanByGuidPayload = `{
 }
 `
 
+const privateServicePlanPayload = `{
+  "metadata": {
+    "guid": "6fecf53b-7553-4cb3-b97e-930f9c4e3385",
+    "url": "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385",
+    "created_at": "2016-06-08T16:41:30Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1575",
+    "free": false,
+    "description": "desc-109",
+    "service_guid": "1ccab853-87c9-45a6-bf99-603032d17fe5",
+    "extra": null,
+    "unique_id": "1bc2884c-ee3d-4f82-a78b-1a657f79aeac",
+    "public": false,
+    "active": true,
+    "bindable": true,
+    "service_url": "/v2/services/1ccab853-87c9-45a6-bf99-603032d17fe5",
+    "service_instances_url": "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385/service_instances"
+  }
+}
+`
+
 const listServicePayload = `{
    "total_results": 22,
    "total_pages": 1,

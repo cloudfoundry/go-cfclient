@@ -1,7 +1,9 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 
@@ -104,4 +106,24 @@ func (c *Client) GetServicePlanByGUID(guid string) (*ServicePlan, error) {
 	plan = &planResponse.Entity
 
 	return plan, nil
+}
+
+func (c *Client) MakeServicePlanPublic(servicePlanGUID string) error {
+	return c.setPlanGlobalVisibility(servicePlanGUID, true)
+}
+
+func (c *Client) MakeServicePlanPrivate(servicePlanGUID string) error {
+	return c.setPlanGlobalVisibility(servicePlanGUID, false)
+}
+
+func (c *Client) setPlanGlobalVisibility(servicePlanGUID string, public bool) error {
+	bodyString := fmt.Sprintf(`{"public": %t}`, public)
+	req := c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/service_plans/%s", servicePlanGUID), bytes.NewBufferString(bodyString))
+
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
 }
