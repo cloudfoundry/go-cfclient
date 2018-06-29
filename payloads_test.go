@@ -3700,3 +3700,8 @@ const getRouteMappingByGuidPayload = `{
     "route_url": "/v2/routes/34931bf5-79d0-4303-b082-df023b3305ce"
   }
 }`
+
+const getEVGPayload = `{
+  "foo": "bar",
+  "val": 3
+}`
