@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 type RouteMappingRequest struct {
@@ -25,6 +26,8 @@ type RouteMappingResponse struct {
 
 type RouteMapping struct {
 	Guid      string `json:"guid"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 	AppPort   int    `json:"app_port"`
 	AppGUID   string `json:"app_guid"`
 	RouteGUID string `json:"route_guid"`
@@ -115,6 +118,8 @@ func (c *Client) GetRouteMappingByGuid(guid string) (*RouteMapping, error) {
 		return nil, errors.Wrap(err, "Error unmarshalling route mapping")
 	}
 	routeMapping.Entity.Guid = routeMapping.Meta.Guid
+	routeMapping.Entity.CreatedAt = routeMapping.Meta.CreatedAt
+	routeMapping.Entity.UpdatedAt = routeMapping.Meta.UpdatedAt
 	routeMapping.Entity.c = c
 	return &routeMapping.Entity, nil
 }
@@ -147,6 +152,8 @@ func (c *Client) handleMappingResp(resp *http.Response) (*RouteMapping, error) {
 
 func (c *Client) mergeRouteMappingResource(mapping RouteMappingResource) *RouteMapping {
 	mapping.Entity.Guid = mapping.Meta.Guid
+	mapping.Entity.CreatedAt = mapping.Meta.CreatedAt
+	mapping.Entity.UpdatedAt = mapping.Meta.UpdatedAt
 	mapping.Entity.c = c
 	return &mapping.Entity
 }
