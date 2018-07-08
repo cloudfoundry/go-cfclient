@@ -22,7 +22,7 @@ type SpaceRequest struct {
 	SecurityGroupGuids   []string `json:"security_group_guids,omitempty"`
 	SpaceQuotaDefGuid    string   `json:"space_quota_definition_guid,omitempty"`
 	IsolationSegmentGuid string   `json:"isolation_segment_guid,omitempty"`
-	AllowSSH             bool     `json:"allow_ssh,omitempty"`
+	AllowSSH             bool     `json:"allow_ssh"`
 }
 
 type SpaceResponse struct {
