@@ -692,3 +692,29 @@ func (resource *ServiceOfferingExtra) UnmarshalJSON(rawData []byte) error {
 
 	return nil
 }
+
+func (c *Client) IsolationSegmentForSpace(spaceGUID, isolationSegmentGUID string) error {
+	return c.updateSpaceIsolationSegment(spaceGUID, map[string]interface{}{"guid": isolationSegmentGUID})
+}
+
+func (c *Client) ResetIsolationSegmentForSpace(spaceGUID string) error {
+	return c.updateSpaceIsolationSegment(spaceGUID, nil)
+}
+
+func (c *Client) updateSpaceIsolationSegment(spaceGUID string, data interface{}) error {
+	requestURL := fmt.Sprintf("/v3/spaces/%s/relationships/isolation_segment", spaceGUID)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]interface{}{"data": data})
+	if err != nil {
+		return err
+	}
+	r := c.NewRequestWithBody("PATCH", requestURL, buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.Wrapf(err, "Error setting isolation segment for space %s, response code: %d", spaceGUID, resp.StatusCode)
+	}
+	return nil
+}

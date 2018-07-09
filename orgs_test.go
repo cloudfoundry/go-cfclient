@@ -731,3 +731,45 @@ func TestUnshareOrgPrivateDomain(t *testing.T) {
 
 	})
 }
+
+func TestDefaultIsolationSegmentForOrg(t *testing.T) {
+	Convey("set Default IsolationSegment", t, func() {
+		defaultIsolationSegmentPayload := `{"data":{"guid":"3b6f763f-aae1-4177-9b93-f2de6f2a48f2"}}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/default_isolation_segment", "", "", 200, "", &defaultIsolationSegmentPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DefaultIsolationSegmentForOrg("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+	})
+}
+
+func TestResetDefaultIsolationSegmentForOrg(t *testing.T) {
+	Convey("Reset Default IsolationSegment", t, func() {
+		resetIsolationSegmentPayload := `{"data":null}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/default_isolation_segment", "", "", 200, "", &resetIsolationSegmentPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.ResetDefaultIsolationSegmentForOrg("3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+	})
+}
