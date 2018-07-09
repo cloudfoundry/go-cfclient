@@ -694,3 +694,29 @@ func (c *Client) mergeOrgResource(org OrgResource) Org {
 	org.Entity.c = c
 	return org.Entity
 }
+
+func (c *Client) DefaultIsolationSegmentForOrg(orgGUID, isolationSegmentGUID string) error {
+	return c.updateOrgDefaultIsolationSegment(orgGUID, map[string]interface{}{"guid": isolationSegmentGUID})
+}
+
+func (c *Client) ResetDefaultIsolationSegmentForOrg(orgGUID string) error {
+	return c.updateOrgDefaultIsolationSegment(orgGUID, nil)
+}
+
+func (c *Client) updateOrgDefaultIsolationSegment(orgGUID string, data interface{}) error {
+	requestURL := fmt.Sprintf("/v3/organizations/%s/relationships/default_isolation_segment", orgGUID)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]interface{}{"data": data})
+	if err != nil {
+		return err
+	}
+	r := c.NewRequestWithBody("PATCH", requestURL, buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.Wrapf(err, "Error setting default isolation segment for org %s, response code: %d", orgGUID, resp.StatusCode)
+	}
+	return nil
+}

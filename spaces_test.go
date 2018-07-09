@@ -542,3 +542,45 @@ func TestGetSpaceServiceOfferings(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestIsolationSegmentForSpace(t *testing.T) {
+	Convey("set Default IsolationSegment", t, func() {
+		defaultIsolationSegmentPayload := `{"data":{"guid":"3b6f763f-aae1-4177-9b93-f2de6f2a48f2"}}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", "", "", 200, "", &defaultIsolationSegmentPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.IsolationSegmentForSpace("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+	})
+}
+
+func TestResetIsolationSegmentForSpace(t *testing.T) {
+	Convey("Reset IsolationSegment", t, func() {
+		resetIsolationSegmentPayload := `{"data":null}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", "", "", 200, "", &resetIsolationSegmentPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.ResetIsolationSegmentForSpace("3b6f763f-aae1-4177-9b93-f2de6f2a48f2")
+		So(err, ShouldBeNil)
+
+	})
+}
