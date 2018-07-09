@@ -143,6 +143,13 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 				testReqBody(req, postFormBody, t)
 				return status, output
 			})
+		} else if method == "PATCH" {
+			r.Patch(endpoint, func(req *http.Request) (int, string) {
+				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
+				testQueryString(req.URL.RawQuery, queryString, t)
+				testReqBody(req, postFormBody, t)
+				return status, output
+			})
 		} else if method == "PUT-FILE" {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
