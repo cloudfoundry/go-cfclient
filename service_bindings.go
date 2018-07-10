@@ -139,6 +139,18 @@ func (c *Client) CreateServiceBinding(appGUID, serviceInstanceGUID string) (*Ser
 	return c.handleServiceBindingResp(resp)
 }
 
+func (c *Client) CreateRouteServiceBinding(routeGUID, serviceInstanceGUID string) error {
+	req := c.NewRequest("PUT", fmt.Sprintf("/v2/user_provided_service_instances/%s/routes/%s", serviceInstanceGUID, routeGUID))
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return errors.Wrapf(err, "Error binding route %s to service instance %s, response code %d", routeGUID, serviceInstanceGUID, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) handleServiceBindingResp(resp *http.Response) (*ServiceBinding, error) {
 	defer resp.Body.Close()
 	var sb ServiceBindingResource
