@@ -94,3 +94,20 @@ func TestCreateServiceBinding(t *testing.T) {
 		So(binding.ServiceInstanceGuid, ShouldEqual, "a0029c76-7017-4a74-94b0-54a04ad94b80")
 	})
 }
+
+func TestCreateRouteServiceBinding(t *testing.T) {
+	Convey("Create route service binding", t, func() {
+		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", "", "", http.StatusCreated, "", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.CreateRouteServiceBinding("237d9236-7997-4b1a-be8d-2aaf2d85421a", "5badd282-6e07-4fc6-a8c4-78be99040774")
+		So(err, ShouldBeNil)
+	})
+}
