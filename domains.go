@@ -156,6 +156,17 @@ func (c *Client) CreateSharedDomain(name string, internal bool, router_group_gui
 	return c.handleSharedDomainResp(resp)
 }
 
+func (c *Client) DeleteSharedDomain(guid string, async bool) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/shared_domains/%s?async=%t", guid, async)))
+	if err != nil {
+		return err
+	}
+	if (async && (resp.StatusCode != http.StatusAccepted)) || (!async && (resp.StatusCode != http.StatusNoContent)) {
+		return errors.Wrapf(err, "Error deleting organization %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) GetDomainByName(name string) (Domain, error) {
 	q := url.Values{}
 	q.Set("q", "name:"+name)
