@@ -208,3 +208,33 @@ func TestDeleteDomain(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestDeleteSharedDomain(t *testing.T) {
+	Convey("Delete shared domain synchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteSharedDomain("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", false)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Delete shared domain synchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteSharedDomain("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", true)
+		So(err, ShouldBeNil)
+	})
+}
