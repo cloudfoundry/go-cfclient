@@ -116,3 +116,33 @@ func TestUpdateOrgQuota(t *testing.T) {
 
 	})
 }
+
+func TestDeleteOrgQuota(t *testing.T) {
+	Convey("Delete org quota synchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteOrgQuota("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", false)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Delete org quota asynchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteOrgQuota("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", true)
+		So(err, ShouldBeNil)
+	})
+}
