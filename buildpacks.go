@@ -85,6 +85,17 @@ func (c *Client) ListBuildpacks() ([]Buildpack, error) {
 	return buildpacks, nil
 }
 
+func (c *Client) DeleteBuildpack(guid string, async bool) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/buildpacks/%s?async=%t", guid, async)))
+	if err != nil {
+		return err
+	}
+	if (async && (resp.StatusCode != http.StatusAccepted)) || (!async && (resp.StatusCode != http.StatusNoContent)) {
+		return errors.Wrapf(err, "Error deleting buildpack %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) getBuildpackResponse(requestUrl string) (BuildpackResponse, error) {
 	var buildpackResp BuildpackResponse
 	r := c.NewRequest("GET", requestUrl)

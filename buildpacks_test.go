@@ -280,3 +280,33 @@ func TestCreateBuildpack(t *testing.T) {
 		So(bp, ShouldBeNil)
 	})
 }
+
+func TestDeleteBuildpack(t *testing.T) {
+	Convey("Delete buildpack synchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteBuildpack("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", false)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Delete buildpack asynchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteBuildpack("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", true)
+		So(err, ShouldBeNil)
+	})
+}
