@@ -37,5 +37,5 @@ type CloudFoundryHTTPError struct {
 }
 
 func (e CloudFoundryHTTPError) Error() string {
-	return fmt.Sprintf("cfclient: HTTP error (%d): %s", e.StatusCode, e.Status)
+	return fmt.Sprintf("cfclient error %s(%d): %s", cfErr.Title, cfErr.Code, cfErr.Detail)
 }
