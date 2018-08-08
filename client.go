@@ -46,8 +46,8 @@ type Config struct {
 	UserAgent           string `json:"user_agent"`
 }
 
-// request is used to help build up a request
-type request struct {
+// Request is used to help build up a request
+type Request struct {
 	method string
 	url    string
 	params url.Values
@@ -229,9 +229,9 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 	return &endpoint, err
 }
 
-// NewRequest is used to create a new request
-func (c *Client) NewRequest(method, path string) *request {
-	r := &request{
+// NewRequest is used to create a new Request
+func (c *Client) NewRequest(method, path string) *Request {
+	r := &Request{
 		method: method,
 		url:    c.Config.ApiAddress + path,
 		params: make(map[string][]string),
@@ -241,7 +241,7 @@ func (c *Client) NewRequest(method, path string) *request {
 
 // NewRequestWithBody is used to create a new request with
 // arbigtrary body io.Reader.
-func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *request {
+func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *Request {
 	r := c.NewRequest(method, path)
 
 	// Set request body
@@ -251,7 +251,7 @@ func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *reques
 }
 
 // DoRequest runs a request with our client
-func (c *Client) DoRequest(r *request) (*http.Response, error) {
+func (c *Client) DoRequest(r *Request) (*http.Response, error) {
 	req, err := r.toHTTP()
 	if err != nil {
 		return nil, err
@@ -260,7 +260,7 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 }
 
 // DoRequestWithoutRedirects executes the request without following redirects
-func (c *Client) DoRequestWithoutRedirects(r *request) (*http.Response, error) {
+func (c *Client) DoRequestWithoutRedirects(r *Request) (*http.Response, error) {
 	prevCheckRedirect := c.Config.HttpClient.CheckRedirect
 	c.Config.HttpClient.CheckRedirect = func(httpReq *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
@@ -339,8 +339,8 @@ func (c *Client) refreshEndpoint() error {
 	return nil
 }
 
-// toHTTP converts the request to an HTTP request
-func (r *request) toHTTP() (*http.Request, error) {
+// toHTTP converts the request to an HTTP Request
+func (r *Request) toHTTP() (*http.Request, error) {
 
 	// Check if we should encode the body
 	if r.body == nil && r.obj != nil {
@@ -351,7 +351,7 @@ func (r *request) toHTTP() (*http.Request, error) {
 		r.body = b
 	}
 
-	// Create the HTTP request
+	// Create the HTTP Request
 	return http.NewRequest(r.method, r.url, r.body)
 }
 
