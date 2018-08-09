@@ -38,19 +38,6 @@ type IsolationSegementResponse struct {
 	} `json:"links"`
 }
 
-type Pagination struct {
-	TotalResults int `json:"total_results"`
-	TotalPages   int `json:"total_pages"`
-	First        struct {
-		Href string `json:"href"`
-	} `json:"first"`
-	Last struct {
-		Href string `json:"href"`
-	} `json:"last"`
-	Next     string `json:"next"`
-	Previous string `json:"previous"`
-}
-
 type ListIsolationSegmentsResponse struct {
 	Pagination Pagination                  `json:"pagination"`
 	Resources  []IsolationSegementResponse `json:"resources"`
@@ -142,8 +129,9 @@ func (c *Client) ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegm
 			})
 		}
 
-		requestUrl = isr.Pagination.Next
-		if requestUrl == "" {
+		var ok bool
+		requestUrl, ok = isr.Pagination.Next.(string)
+		if !ok || requestUrl == "" {
 			break
 		}
 	}
