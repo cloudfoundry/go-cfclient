@@ -134,6 +134,23 @@ func (c *Client) CreateUserProvidedServiceInstance(req UserProvidedServiceInstan
 	return c.handleUserProvidedServiceInstanceResp(resp)
 }
 
+func (c *Client) UpdateUserProvidedServiceInstance(guid string, req UserProvidedServiceInstanceRequest) (*UserProvidedServiceInstance, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return nil, err
+	}
+	r := c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/user_provided_service_instances/%s", guid), buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return c.handleUserProvidedServiceInstanceResp(resp)
+}
+
 func (c *Client) handleUserProvidedServiceInstanceResp(resp *http.Response) (*UserProvidedServiceInstance, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
