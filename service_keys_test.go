@@ -156,6 +156,21 @@ func TestCreateServiceKey(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
+	Convey("Delete a service key succeeds", t, func() {
+		setup(MockRoute{"DELETE", "/v2/service_keys/ecf26687-e176-4784-b181-b3c942fecb62", "", "", 200, "", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteServiceKey("ecf26687-e176-4784-b181-b3c942fecb62")
+		So(err, ShouldBeNil)
+	})
+
 	Convey("Create a duplicate service key", t, func() {
 		setup(MockRoute{"POST", "/v2/service_keys", postServiceKeysDuplicatePayload, "", 400, "", nil}, t)
 		defer teardown()

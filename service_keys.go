@@ -145,3 +145,15 @@ func (c *Client) CreateServiceKey(csr CreateServiceKeyRequest) (ServiceKey, erro
 
 	return serviceKeyResource.Entity, nil
 }
+
+// DeleteServiceKey removes a service key instance
+func (c *Client) DeleteServiceKey(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/service_keys/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting service instance key %s, response code %d", guid, resp.StatusCode)
+	}
+	return nil
+}
