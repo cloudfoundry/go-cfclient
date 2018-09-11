@@ -92,6 +92,24 @@ func TestCreateUserProvidedServiceInstance(t *testing.T) {
 	})
 }
 
+func TestDeleteUserProvidedServiceInstance(t *testing.T) {
+	Convey("Delete User Provided Service Instance", t, func() {
+		setup(MockRoute{"DELETE", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", "", "", 204, "", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteUserProvidedServiceInstance("e9358711-0ad9-4f2a-b3dc-289d47c17c87")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestUpdateUserProvidedServiceInstance(t *testing.T) {
 	Convey("Update User Provided Service Instance", t, func() {
 		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", userProvidedServiceInstancePayload, "", 201, "", nil}, t)
