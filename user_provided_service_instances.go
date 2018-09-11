@@ -134,6 +134,17 @@ func (c *Client) CreateUserProvidedServiceInstance(req UserProvidedServiceInstan
 	return c.handleUserProvidedServiceInstanceResp(resp)
 }
 
+func (c *Client) DeleteUserProvidedServiceInstance(guid string) error {
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/user_provided_service_instances/%s", guid)))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting user provided service instance %s, response code %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) UpdateUserProvidedServiceInstance(guid string, req UserProvidedServiceInstanceRequest) (*UserProvidedServiceInstance, error) {
 	buf := bytes.NewBuffer(nil)
 	err := json.NewEncoder(buf).Encode(req)

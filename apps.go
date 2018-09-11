@@ -29,9 +29,54 @@ type AppResource struct {
 	Entity App  `json:"entity"`
 }
 
+type AppState string
+
+const (
+	APP_STOPPED AppState = "STOPPED"
+	APP_STARTED AppState = "STARTED"
+)
+
+type HealthCheckType string
+
+const (
+	HEALTH_HTTP    HealthCheckType = "http"
+	HEALTH_PORT    HealthCheckType = "port"
+	HEALTH_PROCESS HealthCheckType = "process"
+)
+
+type DockerCredentials struct {
+	Username string `json:"username"`
+	Passowrd string `json:"password"`
+}
+
 type AppCreateRequest struct {
 	Name      string `json:"name"`
 	SpaceGuid string `json:"space_guid"`
+	// Memory for the app, in MB
+	Memory int `json:"memory,omitempty"`
+	// Instances to startup
+	Instances int `json:"instances,omitempty"`
+	// Disk quota in MB
+	DiskQuota int    `json:"disk_quota,omitempty"`
+	StackGuid string `json:"stack_guid,omitempty"`
+	// Desired state of the app. Either "STOPPED" or "STARTED"
+	State AppState `json:"state,omitempty"`
+	// Command to start an app
+	Command string `json:"command,omitempty"`
+	// Buildpack to build the app. Three options:
+	// 1. Blank for autodetection
+	// 2. GIT url
+	// 3. Name of an installed buildpack
+	Buildpack string `json:"buildpack,omitempty"`
+	// Endpoint to check if an app is healthy
+	HealthCheckHttpEndpoint string `json:"health_check_http_endpoint,omitempty"`
+	// How to check if an app is healthy. Defaults to HEALTH_PORT if not specified
+	HealthCheckType   HealthCheckType        `json:"health_check_type,omitempty"`
+	Diego             bool                   `json:"diego,omitempty"`
+	EnableSSH         bool                   `json:"enable_ssh,omitempty"`
+	DockerImage       string                 `json:"docker_image,omitempty"`
+	DockerCredentials DockerCredentials      `json:"docker_credentials,omitempty"`
+	Environment       map[string]interface{} `json:"environment_json,omitempty"`
 }
 
 type App struct {
