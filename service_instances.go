@@ -162,7 +162,7 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 }
 
 func (c *Client) DeleteServiceInstance(guid string, recursive, async bool) error {
-	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/service_instances/%s?recursive=%t&async=%t", guid, recursive, async)))
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/service_instances/%s?recursive=%t&accepts_incomplete=%t", guid, recursive, async)))
 	if err != nil {
 		return err
 	}
