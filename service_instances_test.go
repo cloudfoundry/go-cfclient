@@ -127,7 +127,7 @@ func TestCreateServiceInstance(t *testing.T) {
 
 func TestDeleteServiceInstance(t *testing.T) {
 	Convey("Delete service instance", t, func() {
-		setup(MockRoute{"DELETE", "/v2/service_instances/guid", "", "", http.StatusAccepted, "recursive=true&async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/service_instances/guid", "", "", http.StatusAccepted, "recursive=true&accepts_incomplete=false", nil}, t)
 		defer teardown()
 
 		c := &Config{
