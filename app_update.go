@@ -19,7 +19,7 @@ type AppUpdateResource struct {
 	DiskQuota                int                    `json:"disk_quota,omitempty"`
 	SpaceGuid                string                 `json:"space_guid,omitempty"`
 	StackGuid                string                 `json:"stack_guid,omitempty"`
-	State                    string                 `json:"state,omitempty"`
+	State                    AppState               `json:"state,omitempty"`
 	Command                  string                 `json:"command,omitempty"`
 	Buildpack                string                 `json:"buildpack,omitempty"`
 	HealthCheckHttpEndpoint  string                 `json:"health_check_http_endpoint,omitempty"`
