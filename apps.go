@@ -46,7 +46,7 @@ const (
 
 type DockerCredentials struct {
 	Username string `json:"username"`
-	Passowrd string `json:"password"`
+	Password string `json:"password"`
 }
 
 type AppCreateRequest struct {
