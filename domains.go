@@ -133,6 +133,17 @@ func (c *Client) ListSharedDomains() ([]SharedDomain, error) {
 	return c.ListSharedDomainsByQuery(nil)
 }
 
+func (c *Client) GetSharedDomainByGuid(guid string) (SharedDomain, error) {
+       r := c.NewRequest("GET", "/v2/shared_domains/"+guid)
+       resp, err := c.DoRequest(r)
+       if err != nil {
+               return SharedDomain{}, errors.Wrap(err, "Error requesting shared domain")
+       }
+       defer resp.Body.Close()
+       retval, err := c.handleSharedDomainResp(resp)
+       return *retval, err
+}
+
 func (c *Client) CreateSharedDomain(name string, internal bool, router_group_guid string) (*SharedDomain, error) {
 	req := c.NewRequest("POST", "/v2/shared_domains")
 	params := map[string]interface{}{

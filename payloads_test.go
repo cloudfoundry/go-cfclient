@@ -2526,6 +2526,22 @@ const listSharedDomainsPayload = `{
   ]
 }`
 
+const listSharedDomainByGuidPayload = `{
+   "metadata": {
+        "guid": "91977695-8ad9-40db-858f-4df782603ec3",
+        "url": "/v2/shared_domains/91977695-8ad9-40db-858f-4df782603ec3",
+        "created_at": "2016-06-08T16:41:37Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+   },
+   "entity": {
+      "name": "apps.some.random.cf.installation.example.com",
+      "internal": false,
+      "router_group_guid": null,
+      "router_group_type": null
+   }
+}
+`
+
 const listDomainsEmptyResponse = `{
   "total_results": 0,
   "total_pages": 0,
