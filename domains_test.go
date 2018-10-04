@@ -49,6 +49,24 @@ func TestListSharedDomains(t *testing.T) {
 		So(domains[0].RouterGroupGuid, ShouldEqual, "my-random-guid")
 		So(domains[0].RouterGroupType, ShouldEqual, "tcp")
 	})
+
+	Convey("List shared domain by guid", t, func() {
+		setup(MockRoute{"GET", "/v2/shared_domains/91977695-8ad9-40db-858f-4df782603ec3", listSharedDomainByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		domain, err := client.GetSharedDomainByGuid("91977695-8ad9-40db-858f-4df782603ec3")
+		So(err, ShouldBeNil)
+
+		So(domain.Guid, ShouldEqual, "91977695-8ad9-40db-858f-4df782603ec3")
+		So(domain.Name, ShouldEqual, "apps.some.random.cf.installation.example.com")
+	})
+
 }
 
 func TestGetDomainByName(t *testing.T) {
