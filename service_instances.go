@@ -144,7 +144,7 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 		return ServiceInstance{}, err
 	}
 
-	if res.StatusCode != http.StatusAccepted {
+	if res.StatusCode != http.StatusAccepted && res.StatusCode != http.StatusCreated {
 		return ServiceInstance{}, errors.Wrapf(err, "Error creating service, response code: %d", res.StatusCode)
 	}
 
