@@ -381,7 +381,8 @@ func TestAssociateUser(t *testing.T) {
 
 func TestAssociateManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgUserPayload, "", 201, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -401,9 +402,33 @@ func TestAssociateManagerByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate manager by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateManagerByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgUserPayload, "", 201, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -423,9 +448,33 @@ func TestAssociateAuditorByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateAuditorByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate auditor by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateAuditorByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateBillingManagerByUsername(t *testing.T) {
 	Convey("Associate billing manager by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", associateOrgUserPayload, "", 201, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -445,9 +494,33 @@ func TestAssociateBillingManagerByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateBillingManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate billing manager by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateBillingManagerByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateUserByUsername(t *testing.T) {
 	Convey("Associate user by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -462,6 +535,29 @@ func TestAssociateUserByUsername(t *testing.T) {
 		}
 
 		newOrg, err := org.AssociateUserByUsername("user-name")
+		So(err, ShouldBeNil)
+		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
+func TestAssociateUserByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate user by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", associateOrgUserPayload, "", 201, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newOrg, err := org.AssociateUserByUsernameAndOrigin("user-name", "ldap")
 		So(err, ShouldBeNil)
 		So(newOrg.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
 	})
@@ -553,7 +649,8 @@ func TestRemoveUser(t *testing.T) {
 
 func TestRemoveManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 204, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -572,9 +669,32 @@ func TestRemoveManagerByUsername(t *testing.T) {
 	})
 }
 
+func TestRemoveManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove manager by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 204, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveManagerByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestRemoveAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -592,10 +712,32 @@ func TestRemoveAuditorByUsername(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+func TestRemoveAuditorByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove auditor by username", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 204, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveAuditorByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+	})
+}
 
 func TestRemoveBillingManagerByUsername(t *testing.T) {
 	Convey("Remove billing manager by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", "", "", 204, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers/remove", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -614,9 +756,32 @@ func TestRemoveBillingManagerByUsername(t *testing.T) {
 	})
 }
 
+func TestRemoveBillingManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove billing manager by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers/remove", "", "", 204, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveBillingManagerByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestRemoveUserByUsername(t *testing.T) {
 	Convey("Remove user by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", "", "", 204, "", nil}, t)
+		expectedBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/remove", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -631,6 +796,28 @@ func TestRemoveUserByUsername(t *testing.T) {
 		}
 
 		err = org.RemoveUserByUsername("user-name")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveUserByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove user by username and origin", t, func() {
+		expectedBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/remove", "", "", 204, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org := &Org{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = org.RemoveUserByUsernameAndOrigin("user-name", "ldap")
 		So(err, ShouldBeNil)
 	})
 }
