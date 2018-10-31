@@ -306,6 +306,11 @@ func (c *Client) AssociateSpaceDeveloperByUsername(spaceGUID, name string) (Spac
 	return space.AssociateDeveloperByUsername(name)
 }
 
+func (c *Client) AssociateSpaceDeveloperByUsernameAndOrigin(spaceGUID, name, origin string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateDeveloperByUsernameAndOrigin(name, origin)
+}
+
 func (c *Client) RemoveSpaceDeveloper(spaceGUID, userGUID string) error {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.RemoveDeveloper(userGUID)
@@ -314,6 +319,11 @@ func (c *Client) RemoveSpaceDeveloper(spaceGUID, userGUID string) error {
 func (c *Client) RemoveSpaceDeveloperByUsername(spaceGUID, name string) error {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.RemoveDeveloperByUsername(name)
+}
+
+func (c *Client) RemoveSpaceDeveloperByUsernameAndOrigin(spaceGUID, name, origin string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveDeveloperByUsernameAndOrigin(name, origin)
 }
 
 func (c *Client) AssociateSpaceAuditor(spaceGUID, userGUID string) (Space, error) {
@@ -326,6 +336,11 @@ func (c *Client) AssociateSpaceAuditorByUsername(spaceGUID, name string) (Space,
 	return space.AssociateAuditorByUsername(name)
 }
 
+func (c *Client) AssociateSpaceAuditorByUsernameAndOrigin(spaceGUID, name, origin string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateAuditorByUsernameAndOrigin(name, origin)
+}
+
 func (c *Client) RemoveSpaceAuditor(spaceGUID, userGUID string) error {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.RemoveAuditor(userGUID)
@@ -334,6 +349,11 @@ func (c *Client) RemoveSpaceAuditor(spaceGUID, userGUID string) error {
 func (c *Client) RemoveSpaceAuditorByUsername(spaceGUID, name string) error {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.RemoveAuditorByUsername(name)
+}
+
+func (c *Client) RemoveSpaceAuditorByUsernameAndOrigin(spaceGUID, name, origin string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveAuditorByUsernameAndOrigin(name, origin)
 }
 
 func (c *Client) AssociateSpaceManager(spaceGUID, userGUID string) (Space, error) {
@@ -346,6 +366,11 @@ func (c *Client) AssociateSpaceManagerByUsername(spaceGUID, name string) (Space,
 	return space.AssociateManagerByUsername(name)
 }
 
+func (c *Client) AssociateSpaceManagerByUsernameAndOrigin(spaceGUID, name, origin string) (Space, error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.AssociateManagerByUsernameAndOrigin(name, origin)
+}
+
 func (c *Client) RemoveSpaceManager(spaceGUID, userGUID string) error {
 	space := Space{Guid: spaceGUID, c: c}
 	return space.RemoveManager(userGUID)
@@ -356,12 +381,21 @@ func (c *Client) RemoveSpaceManagerByUsername(spaceGUID, name string) error {
 	return space.RemoveManagerByUsername(name)
 }
 
+func (c *Client) RemoveSpaceManagerByUsernameAndOrigin(spaceGUID, name, origin string) error {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.RemoveManagerByUsernameAndOrigin(name, origin)
+}
+
 func (s *Space) AssociateDeveloper(userGUID string) (Space, error) {
 	return s.associateRole(userGUID, "developers")
 }
 
 func (s *Space) AssociateDeveloperByUsername(name string) (Space, error) {
-	return s.associateUserByRole(name, "developers")
+	return s.associateUserByRole(name, "developers", "")
+}
+
+func (s *Space) AssociateDeveloperByUsernameAndOrigin(name, origin string) (Space, error) {
+	return s.associateUserByRole(name, "developers", origin)
 }
 
 func (s *Space) RemoveDeveloper(userGUID string) error {
@@ -369,7 +403,11 @@ func (s *Space) RemoveDeveloper(userGUID string) error {
 }
 
 func (s *Space) RemoveDeveloperByUsername(name string) error {
-	return s.removeUserByRole(name, "developers")
+	return s.removeUserByRole(name, "developers", "")
+}
+
+func (s *Space) RemoveDeveloperByUsernameAndOrigin(name, origin string) error {
+	return s.removeUserByRole(name, "developers", origin)
 }
 
 func (s *Space) AssociateAuditor(userGUID string) (Space, error) {
@@ -377,7 +415,11 @@ func (s *Space) AssociateAuditor(userGUID string) (Space, error) {
 }
 
 func (s *Space) AssociateAuditorByUsername(name string) (Space, error) {
-	return s.associateUserByRole(name, "auditors")
+	return s.associateUserByRole(name, "auditors", "")
+}
+
+func (s *Space) AssociateAuditorByUsernameAndOrigin(name, origin string) (Space, error) {
+	return s.associateUserByRole(name, "auditors", origin)
 }
 
 func (s *Space) RemoveAuditor(userGUID string) error {
@@ -385,7 +427,11 @@ func (s *Space) RemoveAuditor(userGUID string) error {
 }
 
 func (s *Space) RemoveAuditorByUsername(name string) error {
-	return s.removeUserByRole(name, "auditors")
+	return s.removeUserByRole(name, "auditors", "")
+}
+
+func (s *Space) RemoveAuditorByUsernameAndOrigin(name, origin string) error {
+	return s.removeUserByRole(name, "auditors", origin)
 }
 
 func (s *Space) AssociateManager(userGUID string) (Space, error) {
@@ -393,7 +439,11 @@ func (s *Space) AssociateManager(userGUID string) (Space, error) {
 }
 
 func (s *Space) AssociateManagerByUsername(name string) (Space, error) {
-	return s.associateUserByRole(name, "managers")
+	return s.associateUserByRole(name, "managers", "")
+}
+
+func (s *Space) AssociateManagerByUsernameAndOrigin(name, origin string) (Space, error) {
+	return s.associateUserByRole(name, "managers", origin)
 }
 
 func (s *Space) RemoveManager(userGUID string) error {
@@ -401,7 +451,10 @@ func (s *Space) RemoveManager(userGUID string) error {
 }
 
 func (s *Space) RemoveManagerByUsername(name string) error {
-	return s.removeUserByRole(name, "managers")
+	return s.removeUserByRole(name, "managers", "")
+}
+func (s *Space) RemoveManagerByUsernameAndOrigin(name, origin string) error {
+	return s.removeUserByRole(name, "managers", origin)
 }
 
 func (s *Space) associateRole(userGUID, role string) (Space, error) {
@@ -417,10 +470,15 @@ func (s *Space) associateRole(userGUID, role string) (Space, error) {
 	return s.c.handleSpaceResp(resp)
 }
 
-func (s *Space) associateUserByRole(name, role string) (Space, error) {
+func (s *Space) associateUserByRole(name, role, origin string) (Space, error) {
 	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s", s.Guid, role)
 	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	payload := make(map[string]string)
+	payload["username"] = name
+	if origin != "" {
+		payload["origin"] = origin
+	}
+	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return Space{}, err
 	}
@@ -448,14 +506,19 @@ func (s *Space) removeRole(userGUID, role string) error {
 	return nil
 }
 
-func (s *Space) removeUserByRole(name, role string) error {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s", s.Guid, role)
+func (s *Space) removeUserByRole(name, role, origin string) error {
+	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s/remove", s.Guid, role)
 	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	payload := make(map[string]string)
+	payload["username"] = name
+	if origin != "" {
+		payload["origin"] = origin
+	}
+	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return err
 	}
-	r := s.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	r := s.c.NewRequestWithBody("POST", requestUrl, buf)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
 		return err
