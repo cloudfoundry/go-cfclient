@@ -366,7 +366,8 @@ func TestSpaceRoles(t *testing.T) {
 
 func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -386,9 +387,33 @@ func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateSpaceAuditorByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate auditor by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newSpace, err := space.AssociateAuditorByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newSpace.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Associate developer by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -408,9 +433,33 @@ func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate developer by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newSpace, err := space.AssociateDeveloperByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newSpace.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestAssociateSpaceManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -430,9 +479,33 @@ func TestAssociateSpaceManagerByUsername(t *testing.T) {
 	})
 }
 
+func TestAssociateSpaceManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Associate manager by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		newSpace, err := space.AssociateManagerByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+		So(newSpace.Guid, ShouldEqual, "bc7b4caf-f4b8-4d85-b126-0729b9351e56")
+	})
+}
+
 func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Remove developer by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", "", "", 200, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers/remove", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -450,9 +523,31 @@ func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+func TestRemoveSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove developer by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers/remove", "", "", 200, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = space.RemoveDeveloperByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+	})
+}
 func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 200, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -471,9 +566,32 @@ func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 	})
 }
 
+func TestRemoveSpaceAuditorByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove auditor by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 200, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = space.RemoveAuditorByUsernameAndOrigin("user-name", "ldap")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestRemoveSpaceManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 200, "", nil}, t)
+		requestBody := `{"username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -488,6 +606,28 @@ func TestRemoveSpaceManagerByUsername(t *testing.T) {
 		}
 
 		err = space.RemoveManagerByUsername("user-name")
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveSpaceManagerByUsernameAndOrigin(t *testing.T) {
+	Convey("Remove manager by username and origin", t, func() {
+		requestBody := `{"origin":"ldap","username":"user-name"}`
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 200, "", &requestBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		space := &Space{
+			Guid: "bc7b4caf-f4b8-4d85-b126-0729b9351e56",
+			c:    client,
+		}
+
+		err = space.RemoveManagerByUsernameAndOrigin("user-name", "ldap")
 		So(err, ShouldBeNil)
 	})
 }
