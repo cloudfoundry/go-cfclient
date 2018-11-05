@@ -650,7 +650,7 @@ func TestRemoveUser(t *testing.T) {
 func TestRemoveManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
 		expectedBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 204, "", &expectedBody}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -694,7 +694,7 @@ func TestRemoveManagerByUsernameAndOrigin(t *testing.T) {
 func TestRemoveAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
 		expectedBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 204, "", &expectedBody}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -737,7 +737,7 @@ func TestRemoveAuditorByUsernameAndOrigin(t *testing.T) {
 func TestRemoveBillingManagerByUsername(t *testing.T) {
 	Convey("Remove billing manager by username", t, func() {
 		expectedBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers/remove", "", "", 204, "", &expectedBody}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/billing_managers", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -781,7 +781,7 @@ func TestRemoveBillingManagerByUsernameAndOrigin(t *testing.T) {
 func TestRemoveUserByUsername(t *testing.T) {
 	Convey("Remove user by username", t, func() {
 		expectedBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users/remove", "", "", 204, "", &expectedBody}, t)
+		setup(MockRoute{"DELETE", "/v2/organizations/bc7b4caf-f4b8-4d85-b126-0729b9351e56/users", "", "", 204, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

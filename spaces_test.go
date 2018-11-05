@@ -505,7 +505,7 @@ func TestAssociateSpaceManagerByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Remove developer by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -547,7 +547,7 @@ func TestRemoveSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -591,7 +591,7 @@ func TestRemoveSpaceAuditorByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
