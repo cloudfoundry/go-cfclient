@@ -570,18 +570,25 @@ func (o *Org) removeRole(userGUID, role string) error {
 }
 
 func (o *Org) removeRoleByUsernameAndOrigin(name, role, origin string) error {
-	requestURL := fmt.Sprintf("/v2/organizations/%s/%s/remove", o.Guid, role)
+	var requestURL string
+	var method string
 	buf := bytes.NewBuffer(nil)
 	payload := make(map[string]string)
 	payload["username"] = name
 	if origin != "" {
+		requestURL = fmt.Sprintf("/v2/organizations/%s/%s/remove", o.Guid, role)
+		method = "POST"
 		payload["origin"] = origin
+	} else {
+		requestURL = fmt.Sprintf("/v2/organizations/%s/%s", o.Guid, role)
+		method = "DELETE"
 	}
 	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return err
 	}
-	r := o.c.NewRequestWithBody("POST", requestURL, buf)
+
+	r := o.c.NewRequestWithBody(method, requestURL, buf)
 	resp, err := o.c.DoRequest(r)
 	if err != nil {
 		return err
@@ -648,18 +655,24 @@ func (o *Org) RemoveUserByUsernameAndOrigin(name, origin string) error {
 }
 
 func (o *Org) removeUserByUsernameAndOrigin(name, origin string) error {
-	requestURL := fmt.Sprintf("/v2/organizations/%s/users/remove", o.Guid)
+	var requestURL string
+	var method string
 	buf := bytes.NewBuffer(nil)
 	payload := make(map[string]string)
 	payload["username"] = name
 	if origin != "" {
 		payload["origin"] = origin
+		requestURL = fmt.Sprintf("/v2/organizations/%s/users/remove", o.Guid)
+		method = "POST"
+	} else {
+		requestURL = fmt.Sprintf("/v2/organizations/%s/users", o.Guid)
+		method = "DELETE"
 	}
 	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return err
 	}
-	r := o.c.NewRequestWithBody("POST", requestURL, buf)
+	r := o.c.NewRequestWithBody(method, requestURL, buf)
 	resp, err := o.c.DoRequest(r)
 	if err != nil {
 		return err

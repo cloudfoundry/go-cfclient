@@ -507,18 +507,25 @@ func (s *Space) removeRole(userGUID, role string) error {
 }
 
 func (s *Space) removeUserByRole(name, role, origin string) error {
-	requestUrl := fmt.Sprintf("/v2/spaces/%s/%s/remove", s.Guid, role)
+	var requestURL string
+	var method string
+
 	buf := bytes.NewBuffer(nil)
 	payload := make(map[string]string)
 	payload["username"] = name
 	if origin != "" {
 		payload["origin"] = origin
+		requestURL = fmt.Sprintf("/v2/spaces/%s/%s/remove", s.Guid, role)
+		method = "POST"
+	} else {
+		requestURL = fmt.Sprintf("/v2/spaces/%s/%s", s.Guid, role)
+		method = "DELETE"
 	}
 	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return err
 	}
-	r := s.c.NewRequestWithBody("POST", requestUrl, buf)
+	r := s.c.NewRequestWithBody(method, requestURL, buf)
 	resp, err := s.c.DoRequest(r)
 	if err != nil {
 		return err
