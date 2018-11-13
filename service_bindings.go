@@ -42,11 +42,11 @@ type ServiceBinding struct {
 
 func (c *Client) ListServiceBindingsByQuery(query url.Values) ([]ServiceBinding, error) {
 	var serviceBindings []ServiceBinding
-	var serviceBindingsResp ServiceBindingsResponse
-	pages := 0
-
 	requestUrl := "/v2/service_bindings?" + query.Encode()
+
 	for {
+		var serviceBindingsResp ServiceBindingsResponse
+
 		r := c.NewRequest("GET", requestUrl)
 		resp, err := c.DoRequest(r)
 		if err != nil {
@@ -72,12 +72,8 @@ func (c *Client) ListServiceBindingsByQuery(query url.Values) ([]ServiceBinding,
 		if requestUrl == "" {
 			break
 		}
-		pages += 1
-		totalPages := serviceBindingsResp.Pages
-		if totalPages > 0 && pages >= totalPages {
-			break
-		}
 	}
+
 	return serviceBindings, nil
 }
 

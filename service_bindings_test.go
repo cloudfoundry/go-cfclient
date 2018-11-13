@@ -10,7 +10,21 @@ import (
 
 func TestListServiceBindings(t *testing.T) {
 	Convey("List Service Bindings", t, func() {
-		setup(MockRoute{"GET", "/v2/service_bindings", listServiceBindingsPayload, "", 200, "", nil}, t)
+		mocks := []MockRoute{
+			{
+				Method:   "GET",
+				Endpoint: "/v2/service_bindings",
+				Output:   listServiceBindingsPayloadPage1,
+				Status:   200,
+			},
+			{
+				Method:   "GET",
+				Endpoint: "/v2/service_bindings2",
+				Output:   listServiceBindingsPayloadPage2,
+				Status:   200,
+			},
+		}
+		setupMultiple(mocks, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -22,7 +36,7 @@ func TestListServiceBindings(t *testing.T) {
 		serviceBindings, err := client.ListServiceBindings()
 		So(err, ShouldBeNil)
 
-		So(len(serviceBindings), ShouldEqual, 1)
+		So(len(serviceBindings), ShouldEqual, 2)
 		So(serviceBindings[0].Guid, ShouldEqual, "aa599bb3-4811-405a-bbe3-a68c7c55afc8")
 		So(serviceBindings[0].AppGuid, ShouldEqual, "b26e7e98-f002-41a8-a663-1b60f808a92a")
 		So(serviceBindings[0].ServiceInstanceGuid, ShouldEqual, "bde206e0-1ee8-48ad-b794-44c857633d50")
@@ -36,6 +50,20 @@ func TestListServiceBindings(t *testing.T) {
 		So(serviceBindings[0].VolumeMounts, ShouldBeEmpty)
 		So(serviceBindings[0].AppUrl, ShouldEqual, "/v2/apps/b26e7e98-f002-41a8-a663-1b60f808a92a")
 		So(serviceBindings[0].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/bde206e0-1ee8-48ad-b794-44c857633d50")
+		So(serviceBindings[1].Guid, ShouldEqual, "8201b87d-b273-4fdf-8dd4-4b42ce970cc7")
+		So(serviceBindings[1].AppGuid, ShouldEqual, "636bbf83-5b54-488d-9528-066f680a99dc")
+		So(serviceBindings[1].ServiceInstanceGuid, ShouldEqual, "c3023201-44f5-4dc8-a903-c69c9eba9809")
+		So(reflect.DeepEqual(
+			serviceBindings[1].Credentials,
+			map[string]interface{}{"creds-key-66": "creds-val-66"}), ShouldBeTrue)
+		So(serviceBindings[1].BindingOptions, ShouldBeEmpty)
+		So(serviceBindings[1].GatewayData, ShouldBeNil)
+		So(serviceBindings[1].GatewayName, ShouldEqual, "")
+		So(serviceBindings[1].SyslogDrainUrl, ShouldEqual, "")
+		So(serviceBindings[1].VolumeMounts, ShouldBeEmpty)
+		So(serviceBindings[1].AppUrl, ShouldEqual, "/v2/apps/636bbf83-5b54-488d-9528-066f680a99dc")
+		So(serviceBindings[1].ServiceInstanceUrl, ShouldEqual, "/v2/service_instances/c3023201-44f5-4dc8-a903-c69c9eba9809")
+
 	})
 }
 func TestServiceBindingByGuid(t *testing.T) {
