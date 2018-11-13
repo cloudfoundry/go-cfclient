@@ -1575,11 +1575,11 @@ const orgPayload = `{
    }
 }`
 
-const listServiceBindingsPayload = `{
-  "total_results": 1,
-  "total_pages": 1,
+const listServiceBindingsPayloadPage1 = `{
+  "total_results": 2,
+  "total_pages": 2,
   "prev_url": null,
-  "next_url": null,
+  "next_url": "/v2/service_bindings2",
   "resources": [
     {
       "metadata": {
@@ -1605,6 +1605,41 @@ const listServiceBindingsPayload = `{
         ],
         "app_url": "/v2/apps/b26e7e98-f002-41a8-a663-1b60f808a92a",
         "service_instance_url": "/v2/service_instances/bde206e0-1ee8-48ad-b794-44c857633d50"
+      }
+    }
+  ]
+}`
+
+const listServiceBindingsPayloadPage2 = `{
+  "total_results": 2,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "8201b87d-b273-4fdf-8dd4-4b42ce970cc7",
+        "url": "/v2/service_bindings/aa599bb3-4811-405a-bbe3-a68c7c55afc8",
+        "created_at": "2016-06-08T16:41:43Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "app_guid": "636bbf83-5b54-488d-9528-066f680a99dc",
+        "service_instance_guid": "c3023201-44f5-4dc8-a903-c69c9eba9809",
+        "credentials": {
+          "creds-key-66": "creds-val-66"
+        },
+        "binding_options": {
+
+        },
+        "gateway_data": null,
+        "gateway_name": "",
+        "syslog_drain_url": null,
+        "volume_mounts": [
+
+        ],
+        "app_url": "/v2/apps/636bbf83-5b54-488d-9528-066f680a99dc",
+        "service_instance_url": "/v2/service_instances/c3023201-44f5-4dc8-a903-c69c9eba9809"
       }
     }
   ]
@@ -3001,9 +3036,66 @@ const listIsolationSegmentsPayload = `{
    ]
 }`
 
-const listServiceKeysPayload = `{
-   "total_results": 2,
-   "total_pages": 1,
+const listServiceKeysPayloadPage1 = `{
+   "total_results": 4,
+   "total_pages": 2,
+   "prev_url": null,
+   "next_url": "/v2/service_keys2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "3b933598-64ed-4613-a0f5-b7e8c0379368",
+            "url": "/v2/service_keys/3b933598-64ed-4613-a0f5-b7e8c0379368",
+            "created_at": "2016-08-01T15:17:35Z",
+            "updated_at": "2016-08-01T15:17:35Z"
+         },
+         "entity": {
+            "name": "RedisMonitoringKey",
+            "service_instance_guid": "ad98f310-a3a0-47aa-9116-f8295d41a9b2",
+            "credentials": {
+               "host": "10.10.10.10",
+               "password": "some-password",
+               "port": 12345
+            },
+            "service_instance_url": "/v2/service_instances/ad98f310-a3a0-47aa-9116-f8295d41a9b2"
+         }
+      },
+      {
+         "metadata": {
+            "guid": "8be3911b-c621-4467-8866-f8b924aaee57",
+            "url": "/v2/service_keys/8be3911b-c621-4467-8866-f8b924aaee57",
+            "created_at": "2017-05-16T12:14:46Z",
+            "updated_at": "2017-05-16T12:14:46Z"
+         },
+         "entity": {
+            "name": "test01_key",
+            "service_instance_guid": "ecf26687-e176-4784-b181-b3c942fecb62",
+            "credentials": {
+               "jms": "nhp://100.100.100.100:9008",
+               "js_uri": "http://100.100.100.100:9008",
+               "amqp": "amqp://100.100.100.100:9008",
+               "nhp": "nhp://100.100.100.100:9009",
+               "mqtt": "tcp://100.100.100.100:9008",
+               "name": "fcf26687-e176-4784-b181-b3c942fecb62",
+               "nsp": "nsp://100.100.100.100:9008",
+               "userid": "cfu-9be3911b-c621-4467-8866-f8b924aaee57",
+               "uri": "nhp://100.100.100.100:9008",
+               "uriInfos": [
+                  {
+                     "host": "100.100.100.100",
+                     "port": 9008
+                  }
+               ]
+            },
+            "service_instance_url": "/v2/service_instances/fcf26687-e176-4784-b181-b3c942fecb62"
+        }
+    }
+  ]
+}`
+
+const listServiceKeysPayloadPage2 = `{
+   "total_results": 4,
+   "total_pages": 2,
    "prev_url": null,
    "next_url": null,
    "resources": [
