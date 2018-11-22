@@ -283,16 +283,27 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		var cfErr CloudFoundryError
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return resp, CloudFoundryHTTPError{
-				StatusCode: resp.StatusCode,
-				Status:     resp.Status,
-				Body:       body,
-			}
+		return c.handleError(resp)
+	}
+
+	return resp, nil
+}
+
+func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return resp, CloudFoundryHTTPError{
+			StatusCode: resp.StatusCode,
+			Status:     resp.Status,
+			Body:       body,
 		}
-		defer resp.Body.Close()
+	}
+	defer resp.Body.Close()
+
+	// Unmarshal V2 error response
+	if strings.HasPrefix(resp.Request.URL.Path, "/v2/") {
+		var cfErr CloudFoundryError
 		if err := json.Unmarshal(body, &cfErr); err != nil {
 			return resp, CloudFoundryHTTPError{
 				StatusCode: resp.StatusCode,
@@ -303,7 +314,16 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		return nil, cfErr
 	}
 
-	return resp, nil
+	// Unmarshal a V3 error response and convert it into a V2 model
+	var cfErrorsV3 CloudFoundryErrorsV3
+	if err := json.Unmarshal(body, &cfErrorsV3); err != nil {
+		return resp, CloudFoundryHTTPError{
+			StatusCode: resp.StatusCode,
+			Status:     resp.Status,
+			Body:       body,
+		}
+	}
+	return nil, NewCloudFoundryErrorFromV3Errors(cfErrorsV3)
 }
 
 func (c *Client) refreshEndpoint() error {

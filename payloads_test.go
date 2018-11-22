@@ -2474,6 +2474,18 @@ const createTaskPayload = `
   }
 }
 `
+
+const errorV3Payload = `{
+  "errors": [
+    {
+      "code": 10008,
+      "title": "CF-UnprocessableEntity",
+      "detail": "something went wrong"
+    }
+  ]
+}
+`
+
 const listDomainsPayload = `{
   "total_results": 4,
   "total_pages": 1,
