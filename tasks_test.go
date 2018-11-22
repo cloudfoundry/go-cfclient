@@ -112,6 +112,34 @@ func TestCreateTask(t *testing.T) {
 	})
 }
 
+func TestCreateTaskFails(t *testing.T) {
+	Convey("Create Task fails", t, func() {
+		mocks := []MockRoute{
+			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", errorV3Payload, "", 400, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		tr := TaskRequest{
+			Command:          "rake db:migrate",
+			Name:             "migrate",
+			MemoryInMegabyte: 512,
+			DiskInMegabyte:   1024,
+			DropletGUID:      "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+		}
+
+		task, err := client.CreateTask(tr)
+		So(err.Error(), ShouldEqual, "Error creating task: cfclient error (CF-UnprocessableEntity|10008): something went wrong")
+		So(task.Name, ShouldBeEmpty)
+	})
+}
+
 func TestTerminateTask(t *testing.T) {
 	Convey("Terminate Task", t, func() {
 		mocks := []MockRoute{
