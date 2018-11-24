@@ -162,14 +162,14 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 	return c.mergeServiceInstance(sir), nil
 }
 
-func (c *Client) UpdateServiceInstance(guid string, body io.Reader, async bool) error {
-	u := fmt.Sprintf("/v2/service_instances/%s?accepts_incomplete=%t", guid, async)
-	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", u, body))
+func (c *Client) UpdateServiceInstance(serviceInstanceGuid string, updatedConfiguration io.Reader, async bool) error {
+	u := fmt.Sprintf("/v2/service_instances/%s?accepts_incomplete=%t", serviceInstanceGuid, async)
+	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", u, updatedConfiguration))
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != http.StatusAccepted {
-		return errors.Wrapf(err, "Error updating service instance %s, response code %d", guid, resp.StatusCode)
+		return errors.Wrapf(err, "Error updating service instance %s, response code %d", serviceInstanceGuid, resp.StatusCode)
 	}
 	return nil
 }
