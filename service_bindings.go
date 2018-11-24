@@ -147,6 +147,18 @@ func (c *Client) CreateRouteServiceBinding(routeGUID, serviceInstanceGUID string
 	return nil
 }
 
+func (c *Client) DeleteRouteServiceBinding(routeGUID, serviceInstanceGUID string) error {
+	req := c.NewRequest("DELETE", fmt.Sprintf("/v2/service_instances/%s/routes/%s", serviceInstanceGUID, routeGUID))
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.Wrapf(err, "Error deleting bound route %s from service instance %s, response code %d", routeGUID, serviceInstanceGUID, resp.StatusCode)
+	}
+	return nil
+}
+
 func (c *Client) handleServiceBindingResp(resp *http.Response) (*ServiceBinding, error) {
 	defer resp.Body.Close()
 	var sb ServiceBindingResource
