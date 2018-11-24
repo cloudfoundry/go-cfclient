@@ -139,3 +139,20 @@ func TestCreateRouteServiceBinding(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestDeleteRouteServiceBinding(t *testing.T) {
+	Convey("Delete route service binding", t, func() {
+		setup(MockRoute{"DELETE", "/v2/service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", "", "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteRouteServiceBinding("237d9236-7997-4b1a-be8d-2aaf2d85421a", "5badd282-6e07-4fc6-a8c4-78be99040774")
+		So(err, ShouldBeNil)
+	})
+}
