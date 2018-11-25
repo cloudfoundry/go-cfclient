@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -582,6 +583,30 @@ func (c *Client) CreateApp(req AppCreateRequest) (App, error) {
 		return App{}, errors.Wrapf(err, "Error deserializing app %s response", req.Name)
 	}
 	return c.mergeAppResource(appResp), nil
+}
+
+func (c *Client) StartApp(guid string) error {
+	startRequest := strings.NewReader(`{ "state": "STARTED" }`)
+	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/apps/%s", guid), startRequest))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) StopApp(guid string) error {
+	stopRequest := strings.NewReader(`{ "state": "STOPPED" }`)
+	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/apps/%s", guid), stopRequest))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
+	}
+	return nil
 }
 
 func (c *Client) DeleteApp(guid string) error {
