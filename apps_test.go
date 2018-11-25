@@ -469,3 +469,35 @@ func TestCreateApp(t *testing.T) {
 		So(app.SpaceGuid, ShouldEqual, "a72fa1e8-c694-47b3-85f2-55f61fd00d73")
 	})
 }
+
+func TestStartApp(t *testing.T) {
+	Convey("Start app", t, func() {
+		expectedBody := `{ "state": "STARTED" }`
+		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", appPayload, "", http.StatusCreated, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		So(client.StartApp("a537761f-9d93-4b30-af17-3d73dbca181b"), ShouldBeNil)
+	})
+}
+
+func TestStopApp(t *testing.T) {
+	Convey("Stop app", t, func() {
+		expectedBody := `{ "state": "STOPPED" }`
+		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", appPayload, "", http.StatusCreated, "", &expectedBody}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		So(client.StopApp("a537761f-9d93-4b30-af17-3d73dbca181b"), ShouldBeNil)
+	})
+}
