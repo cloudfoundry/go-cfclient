@@ -592,7 +592,7 @@ func (c *Client) StartApp(guid string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
+		return errors.Wrapf(err, "Error starting app %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
 }
@@ -604,7 +604,7 @@ func (c *Client) StopApp(guid string) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
+		return errors.Wrapf(err, "Error stopping app %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
 }
