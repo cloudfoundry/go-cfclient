@@ -2,7 +2,6 @@ package cfclient
 
 import (
 	"net/http"
-	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -128,9 +127,20 @@ func TestCreateServiceInstance(t *testing.T) {
 
 func TestUpdateServiceInstance(t *testing.T) {
 	Convey("Update service instance", t, func() {
-		updateBody := "myUpdate"
+		updateBody := ServiceInstanceUpdateRequest{
+			Parameters: map[string]interface{}{"my": "update"},
+			Tags:       []string{},
+		}
 
-		setup(MockRoute{"PUT", "/v2/service_instances/guid", "", "", http.StatusAccepted, "accepts_incomplete=false", &updateBody}, t)
+		expectedBody := `{"parameters":{"my":"update"}}`
+		setup(MockRoute{
+			Method: "PUT",
+			Endpoint: "/v2/service_instances/guid",
+			Status: http.StatusAccepted,
+			QueryString: "accepts_incomplete=false",
+			PostForm: &expectedBody,
+		}, t)
+
 		defer teardown()
 
 		c := &Config{
@@ -140,7 +150,7 @@ func TestUpdateServiceInstance(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		err = client.UpdateServiceInstance("guid", strings.NewReader(updateBody), false)
+		err = client.UpdateServiceInstance("guid", updateBody, false)
 		So(err, ShouldBeNil)
 	})
 }

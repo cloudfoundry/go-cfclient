@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -25,6 +24,11 @@ type ServiceInstanceRequest struct {
 	ServicePlanGuid string                 `json:"service_plan_guid"`
 	Parameters      map[string]interface{} `json:"parameters,omitempty"`
 	Tags            []string               `json:"tags,omitempty"`
+}
+
+type ServiceInstanceUpdateRequest struct {
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	Tags       []string               `json:"tags,omitempty"`
 }
 
 type ServiceInstanceResource struct {
@@ -162,9 +166,15 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 	return c.mergeServiceInstance(sir), nil
 }
 
-func (c *Client) UpdateServiceInstance(serviceInstanceGuid string, updatedConfiguration io.Reader, async bool) error {
+func (c *Client) UpdateServiceInstance(serviceInstanceGuid string, updatedConfiguration ServiceInstanceUpdateRequest, async bool) error {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(updatedConfiguration)
+	if err != nil {
+		return err
+	}
+
 	u := fmt.Sprintf("/v2/service_instances/%s?accepts_incomplete=%t", serviceInstanceGuid, async)
-	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", u, updatedConfiguration))
+	resp, err := c.DoRequest(c.NewRequestWithBody("PUT", u, buf))
 	if err != nil {
 		return err
 	}
