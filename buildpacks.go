@@ -35,6 +35,7 @@ type Buildpack struct {
 	Locked    bool   `json:"locked"`
 	Position  int    `json:"position"`
 	Filename  string `json:"filename"`
+	Stack     string `json:"stack"`
 	c         *Client
 }
 
@@ -46,6 +47,7 @@ type BuildpackRequest struct {
 	Enabled  *bool   `json:"enabled,omitempty"`
 	Locked   *bool   `json:"locked,omitempty"`
 	Position *int    `json:"position,omitempty"`
+	Stack    *string `json:"stack,omitempty"`
 }
 
 func (c *Client) CreateBuildpack(bpr *BuildpackRequest) (*Buildpack, error) {
@@ -239,4 +241,7 @@ func (bpr *BuildpackRequest) SetPosition(i int) {
 }
 func (bpr *BuildpackRequest) SetName(s string) {
 	bpr.Name = &s
+}
+func (bpr *BuildpackRequest) SetStack(s string) {
+	bpr.Stack = &s
 }

@@ -2658,7 +2658,8 @@ const listBuildpacksPayload = `{
         "position": 1,
         "enabled": true,
         "locked": false,
-        "filename": "name-1616"
+        "filename": "name-1616",
+        "stack": "cflinuxfs2"
       }
     },
     {
@@ -2673,7 +2674,8 @@ const listBuildpacksPayload = `{
         "position": 2,
         "enabled": true,
         "locked": false,
-        "filename": "name-1617"
+        "filename": "name-1617",
+        "stack": "cflinuxfs2"
       }
     },
     {
@@ -2688,7 +2690,8 @@ const listBuildpacksPayload = `{
         "position": 3,
         "enabled": true,
         "locked": false,
-        "filename": "name-1618"
+        "filename": "name-1618",
+        "stack": "cflinuxfs2"
       }
     }
   ]
@@ -2712,7 +2715,8 @@ const listBuildpacksPayload2 = `{
         "position": 1,
         "enabled": true,
         "locked": false,
-        "filename": "name-1616"
+        "filename": "name-1616",
+        "stack": "cflinuxfs2"
       }
     },
     {
@@ -2727,7 +2731,8 @@ const listBuildpacksPayload2 = `{
         "position": 2,
         "enabled": true,
         "locked": false,
-        "filename": "name-1617"
+        "filename": "name-1617",
+        "stack": "cflinuxfs2"
       }
     },
     {
@@ -2742,7 +2747,8 @@ const listBuildpacksPayload2 = `{
         "position": 3,
         "enabled": true,
         "locked": false,
-        "filename": "name-1618"
+        "filename": "name-1618",
+        "stack": "cflinuxfs2"
       }
     }
   ]
@@ -2760,7 +2766,8 @@ const buildpackPayload = `{
     "position": 1,
     "enabled": true,
     "locked": false,
-    "filename": "name-1616"
+    "filename": "name-1616",
+    "stack": "cflinuxfs2"
   }
 }`
 
@@ -3388,7 +3395,8 @@ const buildpackUpdatePayload = `
     "position": 2,
     "enabled": true,
     "locked": true,
-    "filename": "my-file"
+    "filename": "my-file",
+    "stack": "cflinuxfs2"
   }
 }`
 const buildpackCreatePayload = `
@@ -3404,7 +3412,8 @@ const buildpackCreatePayload = `
     "position": 10,
     "enabled": true,
     "locked": false,
-    "filename": null
+    "filename": null,
+    "stack": "cflinuxfs2"
   }
 }`
 
