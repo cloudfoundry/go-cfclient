@@ -54,6 +54,25 @@ func TestGetBuildpackByGuid(t *testing.T) {
 		So(buildpack.Name, ShouldEqual, "name_1")
 		So(buildpack.Stack, ShouldEqual, "cflinuxfs2")
 	})
+	Convey("A buildpack with no stack", t, func() {
+		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackPayloadBackwardsCompat, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		buildpack, err := client.GetBuildpackByGuid("c92b6f5f-d2a4-413a-b515-647d059723aa")
+		So(err, ShouldBeNil)
+
+		So(buildpack.Guid, ShouldEqual, "c92b6f5f-d2a4-413a-b515-647d059723aa")
+		So(buildpack.CreatedAt, ShouldEqual, "2016-06-08T16:41:31Z")
+		So(buildpack.UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
+		So(buildpack.Name, ShouldEqual, "name_1")
+		So(buildpack.Stack, ShouldEqual, "")
+	})
 }
 
 func TestUploadBuildpack(t *testing.T) {
@@ -198,6 +217,26 @@ func TestUpdateBuildpack(t *testing.T) {
 		}
 		buildpackRequest := &BuildpackRequest{}
 		buildpackRequest.SetStack("cflinuxfs2")
+		err = buildpack.Update(buildpackRequest)
+		So(err, ShouldNotBeNil)
+	})
+	Convey("Updating without a stack specified doesn't change anything", t, func() {
+		expectedPayload := `{"name":"new-name"}`
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		buildpack := Buildpack{
+			Guid: "c92b6f5f-d2a4-413a-b515-647d059723aa",
+			c:    client,
+		}
+		buildpackRequest := &BuildpackRequest{}
+		buildpackRequest.SetName("new-name")
 		err = buildpack.Update(buildpackRequest)
 		So(err, ShouldNotBeNil)
 	})
