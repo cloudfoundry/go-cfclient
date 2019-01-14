@@ -2754,6 +2754,22 @@ const listBuildpacksPayload2 = `{
   ]
 }`
 
+const buildpackPayloadBackwardsCompat = `{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name_1",
+    "position": 1,
+    "enabled": true,
+    "locked": false,
+    "filename": "name-1616"
+  }
+}`
+
 const buildpackPayload = `{
   "metadata": {
     "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
