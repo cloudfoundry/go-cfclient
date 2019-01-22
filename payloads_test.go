@@ -718,6 +718,61 @@ const associateSpaceUserPayload = `{
    }
 }`
 
+const appSummaryPayload = `{
+   "guid": "b5f0d1bd-a3a9-40a4-af1a-312ad26e5379",
+   "urls": [
+      "test-app.local.pcfdev.io"
+   ],
+   "routes": [
+      {
+         "guid": "0b44af3e-77e0-4821-abd6-18d8c79309e6",
+         "host": "test-app",
+         "port": null,
+         "path": "",
+         "domain": {
+            "guid": "0b183484-45cc-4855-94d4-892f80f20c13",
+            "name": "local.pcfdev.io"
+         }
+      }
+   ],
+   "service_count": 1,
+   "service_names": [
+      "test-service"
+   ],
+   "running_instances": 1,
+   "name": "test-app",
+   "production": false,
+   "space_guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
+   "stack_guid": "67e019a3-322a-407a-96e0-178e95bd0e55",
+   "buildpack": "ruby_buildpack",
+   "detected_buildpack": "",
+   "detected_buildpack_guid": "d5860c89-fb0a-49f4-a8b7-3220ff91c91d",
+   "environment_json": {},
+   "memory": 256,
+   "instances": 1,
+   "disk_quota": 512,
+   "state": "STARTED",
+   "version": "fa47ec0a-adba-4cc5-b0ee-a8570dc49b3d",
+   "command": null,
+   "console": false,
+   "debug": null,
+   "staging_task_id": "a21d69a7-0878-4841-ab53-4b515397dc27",
+   "package_state": "STAGED",
+   "health_check_type": "port",
+   "health_check_timeout": null,
+   "staging_failed_reason": null,
+   "staging_failed_description": null,
+   "diego": true,
+   "docker_image": null,
+   "package_updated_at": "2017-02-05T12:18:04Z",
+   "detected_start_command": "rackup -p $PORT",
+   "enable_ssh": true,
+   "docker_credentials_json": {
+      "redacted_message": "[PRIVATE DATA HIDDEN]"
+   },
+   "ports": null
+}`
+
 const spaceSummaryPayload = `{
    "guid": "494d8b64-8181-4183-a6d3-6279db8fec6e",
    "name": "test",
