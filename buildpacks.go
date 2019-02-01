@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cloudfoundry/gofileutils/fileutils"
+	"code.cloudfoundry.org/gofileutils/fileutils"
 	"github.com/pkg/errors"
 )
 
