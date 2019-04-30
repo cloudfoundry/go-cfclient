@@ -724,3 +724,49 @@ func TestResetIsolationSegmentForSpace(t *testing.T) {
 
 	})
 }
+
+func TestUpdateSpaceMetadata(t *testing.T) {
+	Convey("Set metadata on org", t, func() {
+		updateSpaceMetadataPayload := `{"metadata":{"annotations":{"hello":"world"},"labels":{"foo":"bar"}}}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "", "", 200, "", &updateSpaceMetadataPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		metadata := Metadata{}
+		metadata.AddAnnotation("hello", "world")
+		metadata.AddLabel("", "foo", "bar")
+
+		err = client.UpdateSpaceMetadata("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", metadata)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Remove metadata on space", t, func() {
+		updateSpaceMetadataPayload := `{"metadata":{"annotations":{"hello":null},"labels":{"foo":null}}}`
+		mocks := []MockRoute{
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "", "", 200, "", &updateSpaceMetadataPayload},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		metadata := Metadata{}
+		metadata.RemoveAnnotation("hello")
+		metadata.RemoveLabel("", "foo")
+
+		err = client.UpdateSpaceMetadata("3b6f763f-aae1-4177-9b93-f2de6f2a48f2", metadata)
+		So(err, ShouldBeNil)
+	})
+}
