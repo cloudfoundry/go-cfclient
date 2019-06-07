@@ -6,6 +6,8 @@ import (
 	"net/url"
 )
 
+// CloudFoundryClient provides a baseline reference for the currently supported APIs with Cloud Foundry. It can be used
+// for providing custom implementations or extensions beyond the base implementation provided with this package.
 type CloudFoundryClient interface {
 	ListAllProcesses() ([]Process, error)
 	ListAllProcessesByQuery(query url.Values) ([]Process, error)
