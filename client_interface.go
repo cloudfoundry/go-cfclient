@@ -192,8 +192,6 @@ type CloudFoundryClient interface {
 	CreateServiceBinding(appGUID, serviceInstanceGUID string) (*ServiceBinding, error)
 	CreateRouteServiceBinding(routeGUID, serviceInstanceGUID string) error
 	DeleteRouteServiceBinding(routeGUID, serviceInstanceGUID string) error
-	handleServiceBindingResp(resp *http.Response) (*ServiceBinding, error)
-	mergeServiceBindingResource(serviceBinding ServiceBindingResource) *ServiceBinding
 	UpdateApp(guid string, aur AppUpdateResource) (UpdateResponse, error)
 	ListServiceInstancesByQuery(query url.Values) ([]ServiceInstance, error)
 	ListServiceInstances() ([]ServiceInstance, error)
