@@ -30,3 +30,23 @@ func TestListStacks(t *testing.T) {
 		So(stacks[0].Description, ShouldEqual, "Cloud Foundry Linux-based filesystem")
 	})
 }
+
+func TestGetStackByGuid(t *testing.T) {
+	Convey("Get Stack By Guid", t, func() {
+		setup(MockRoute{"GET", "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844", stackByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		stack, err := client.GetStackByGuid("a9be2e10-0164-401d-94e0-88455d614844")
+		So(err, ShouldBeNil)
+
+		So(stack.Guid, ShouldEqual, "a9be2e10-0164-401d-94e0-88455d614844")
+		So(stack.Name, ShouldEqual, "windows2012R2")
+		So(stack.Description, ShouldEqual, "Experimental Windows runtime")
+	})
+}
