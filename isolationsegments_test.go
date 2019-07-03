@@ -131,6 +131,27 @@ func TestDeleteIsolationSegmentByGUID(t *testing.T) {
 	})
 }
 
+func TestListOrgsForIsolationSegments(t *testing.T) {
+	Convey("List Orgs entitled for the isolation segment", t, func() {
+		setup(MockRoute{"GET", "/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/organizations", listOrgsForIsolationSegmentPayload, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		orgs, err := client.ListOrgsForIsolationSegment("323f211e-fea3-4161-9bd1-615392327913")
+		So(err, ShouldBeNil)
+
+		So(orgs[0].Guid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
+		So(orgs[0].Name, ShouldEqual, "demo")
+		So(orgs[1].Guid, ShouldEqual, "b58e01ea-4919-467b-8249-a910cbdfff8d")
+		So(orgs[1].Name, ShouldEqual, "dev")
+	})
+}
+
 func TestIsolationSegmentMethods(t *testing.T) {
 
 	postData := `{"data":[{"guid":"theKittenIsTheShark"}]}`

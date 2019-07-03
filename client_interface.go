@@ -44,6 +44,7 @@ type CloudFoundryClient interface {
 	GetIsolationSegmentByGUID(guid string) (*IsolationSegment, error)
 	ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegment, error)
 	ListIsolationSegments() ([]IsolationSegment, error)
+	ListOrgsForIsolationSegments(guid string) ([]Org, error)
 	DeleteIsolationSegmentByGUID(guid string) error
 	AddIsolationSegmentToOrg(isolationSegmentGUID, orgGUID string) error
 	RemoveIsolationSegmentFromOrg(isolationSegmentGUID, orgGUID string) error

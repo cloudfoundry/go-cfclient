@@ -3075,6 +3075,47 @@ const createIsolationSegmentPayload = `{
    }
 }`
 
+const listOrgsForIsolationSegmentPayload = `{
+   "pagination": {
+      "total_results": 4,
+      "total_pages": 2,
+      "first": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/organizations?page=1&per_page=2"
+      },
+      "last": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/organizations?page=2&per_page=2"
+      },
+      "next": {
+			  "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/organizationsPage2?page=2&per_page=2"
+			},
+      "previous": null
+   },
+   "resources": [
+      {
+         "guid": "a537761f-9d93-4b30-af17-3d73dbca181b",
+         "name": "demo",
+         "created_at": "2017-04-02T11:22:04Z",
+         "updated_at": "2017-04-02T11:22:04Z",
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/organizations/a537761f-9d93-4b30-af17-3d73dbca181b"
+            }
+         }
+      },
+      {
+         "guid": "b58e01ea-4919-467b-8249-a910cbdfff8d",
+         "name": "dev",
+         "created_at": "2017-10-11T13:22:24Z",
+         "updated_at": "2017-10-11T13:22:24Z",
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/organizations/b58e01ea-4919-467b-8249-a910cbdfff8d"
+            }
+         }
+      }
+   ]
+}`
+
 const listIsolationSegmentsPayload = `{
    "pagination": {
       "total_results": 2,

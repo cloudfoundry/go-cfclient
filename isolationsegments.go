@@ -142,9 +142,44 @@ func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
 	return c.ListIsolationSegmentsByQuery(nil)
 }
 
-// TODO listOrgsForIsolationSegments
 // TODO listSpacesForIsolationSegments
 // TODO setDefaultIsolationSegmentForOrg
+func (c *Client) ListOrgsForIsolationSegment(guid string) ([]Org, error) {
+	var orgs []Org
+	requestURL := fmt.Sprintf("/v3/isolation_segments/%s/organizations", guid)
+	for {
+		var isr ListIsolationSegmentsResponse
+		req := c.NewRequest("GET", requestURL)
+		resp, err := c.DoRequest(req)
+		if err != nil {
+			return []Org{}, errors.Wrap(err, "Error requesting isolation segment organizations info")
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return []Org{}, errors.Wrap(err, "Error reading isolation segment organizations response")
+		}
+		err = json.Unmarshal(body, &isr)
+		if err != nil {
+			return []Org{}, errors.Wrap(err, "Error unmarshalling isolation segment organizations response")
+		}
+		for _, org := range isr.Resources {
+			orgs = append(orgs, Org{
+				Name:      org.Name,
+				Guid:      org.GUID,
+				CreatedAt: org.CreatedAt.String(),
+				UpdatedAt: org.UpdatedAt.String(),
+				c:         c,
+			})
+		}
+		var ok bool
+		requestURL, ok = isr.Pagination.Next.(string)
+		if !ok || requestURL == "" {
+			break
+		}
+	}
+	return orgs, nil
+}
 
 func (c *Client) DeleteIsolationSegmentByGUID(guid string) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v3/isolation_segments/%s", guid)))
