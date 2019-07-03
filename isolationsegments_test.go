@@ -152,6 +152,29 @@ func TestListOrgsForIsolationSegments(t *testing.T) {
 	})
 }
 
+func TestListSpacesForIsolationSegments(t *testing.T) {
+	Convey("List Spaces entitled for the isolation segment", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/relationships/spaces", listSpacesForIsolationSegmentPayload, "", http.StatusOK, "", nil},
+			{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", spaceByGuidPayload, "", http.StatusOK, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		spaces, err := client.ListSpacesForIsolationSegment("323f211e-fea3-4161-9bd1-615392327913")
+		So(err, ShouldBeNil)
+
+		So(spaces[0].Guid, ShouldEqual, "8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(spaces[0].Name, ShouldEqual, "dev")
+	})
+}
+
 func TestIsolationSegmentMethods(t *testing.T) {
 
 	postData := `{"data":[{"guid":"theKittenIsTheShark"}]}`

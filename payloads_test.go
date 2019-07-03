@@ -3116,6 +3116,19 @@ const listOrgsForIsolationSegmentPayload = `{
    ]
 }`
 
+const listSpacesForIsolationSegmentPayload = `{
+	 "data": [
+      {
+         "guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1"
+      }
+   ],
+   "links": {
+      "self": {
+         "href": "https://api.example.org/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913/relationships/spaces"
+      }
+   }
+}`
+
 const listIsolationSegmentsPayload = `{
    "pagination": {
       "total_results": 2,

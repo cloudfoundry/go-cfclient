@@ -142,7 +142,6 @@ func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
 	return c.ListIsolationSegmentsByQuery(nil)
 }
 
-// TODO listSpacesForIsolationSegments
 // TODO setDefaultIsolationSegmentForOrg
 func (c *Client) ListOrgsForIsolationSegment(guid string) ([]Org, error) {
 	var orgs []Org
@@ -179,6 +178,38 @@ func (c *Client) ListOrgsForIsolationSegment(guid string) ([]Org, error) {
 		}
 	}
 	return orgs, nil
+}
+
+func (c *Client) ListSpacesForIsolationSegment(guid string) ([]Space, error) {
+	var spaces []Space
+	var spacesRelationship struct {
+		Data []struct {
+			GUID string `json:"guid"`
+		} `json:"data"`
+	}
+	requestURL := fmt.Sprintf("/v3/isolation_segments/%s/relationships/spaces", guid)
+	req := c.NewRequest("GET", requestURL)
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return []Space{}, errors.Wrap(err, "Error requesting spaces info")
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return []Space{}, errors.Wrap(err, "Error reading spaces relationship response")
+	}
+	err = json.Unmarshal(body, &spacesRelationship)
+	if err != nil {
+		return []Space{}, errors.Wrap(err, "Error unmarshalling spaces relationship response")
+	}
+	for _, spaceGUID := range spacesRelationship.Data {
+		space, err := c.GetSpaceByGuid(spaceGUID.GUID)
+		if err != nil {
+			return []Space{}, errors.Wrap(err, "Error requesting space info")
+		}
+		spaces = append(spaces, space)
+	}
+	return spaces, nil
 }
 
 func (c *Client) DeleteIsolationSegmentByGUID(guid string) error {
