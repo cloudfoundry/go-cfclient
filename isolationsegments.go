@@ -142,7 +142,6 @@ func (c *Client) ListIsolationSegments() ([]IsolationSegment, error) {
 	return c.ListIsolationSegmentsByQuery(nil)
 }
 
-// TODO setDefaultIsolationSegmentForOrg
 func (c *Client) ListOrgsForIsolationSegment(guid string) ([]Org, error) {
 	var orgs []Org
 	requestURL := fmt.Sprintf("/v3/isolation_segments/%s/organizations", guid)
