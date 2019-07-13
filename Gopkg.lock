@@ -2,54 +2,71 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:458a7743018a51b622fac1a2c19f351673966b1a227586bc820d7c01a2c24f27"
+  name = "code.cloudfoundry.org/gofileutils"
+  packages = ["fileutils"]
+  pruneopts = ""
+  revision = "4d0c80011a0f37da1711c184028bc40137cd45af"
+
+[[projects]]
+  digest = "1:b856d8248663c39265a764561c1a1a149783f6cc815feb54a1f3a591b91f6eca"
   name = "github.com/Masterminds/semver"
   packages = ["."]
+  pruneopts = ""
   revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
   version = "v1.4.2"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/cloudfoundry/gofileutils"
-  packages = ["fileutils"]
-  revision = "4d0c80011a0f37da1711c184028bc40137cd45af"
-
-[[projects]]
+  digest = "1:2a7e5fec900c81706fdbbc095479c8c7fcc29c83feff18e266766bd8fe5dba52"
   name = "github.com/codegangsta/inject"
   packages = ["."]
+  pruneopts = ""
   revision = "37d7f8432a3e684eef9b2edece76bdfa6ac85b39"
   version = "v1.0-rc1"
 
 [[projects]]
+  digest = "1:7782dbd9103e57f5c100340040ea8a8f6cc374f21b8e631183e4ea907b21c63d"
   name = "github.com/go-martini/martini"
   packages = ["."]
+  pruneopts = ""
   revision = "49411a5b646861ad29a6ddd5351717a0a9c49b94"
   version = "v1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:3b760d3b93f994df8eb1d9ebfad17d3e9e37edcb7f7efaa15b427c0d7a64f4e4"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
+  pruneopts = ""
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
   branch = "master"
+  digest = "1:f1648d325872983461c860bc6641d8aaf8880f66856a5e0d9b39247556737d0d"
   name = "github.com/gopherjs/gopherjs"
   packages = ["js"]
+  pruneopts = ""
   revision = "444abdf920945de5d4a977b572bcc6c674d1e4eb"
 
 [[projects]]
+  digest = "1:387bc9c583e744c448f77cd90d0551634fc682d0af505d2fa955243a73f37c24"
   name = "github.com/jtolds/gls"
   packages = ["."]
-  revision = "77f18212c9c7edc9bd6a33d383a7b545ce62f064"
-  version = "v4.2.1"
+  pruneopts = ""
+  revision = "b4936e06046bbecbb94cae9c18127ebe510a2cb9"
+  version = "v4.20"
 
 [[projects]]
   branch = "master"
+  digest = "1:1379d4a84fd781bd1f28f67da1c829d5b0ca49ffb0bef227f7867cf2e04bcd56"
   name = "github.com/martini-contrib/render"
   packages = ["."]
+  pruneopts = ""
   revision = "ec18f8345a1181146728238980606fb1d6f40e8c"
 
 [[projects]]
+  digest = "1:a4e59d0b2821c983b58c317f141cd77df20570979632da8a7a352e5d12698de7"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -63,67 +80,81 @@
     "matchers/support/goraph/edge",
     "matchers/support/goraph/node",
     "matchers/support/goraph/util",
-    "types"
+    "types",
   ]
+  pruneopts = ""
   revision = "c893efa28eb45626cdaa76c9f653b62488858837"
   version = "v1.2.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:44606d787e9fefb9198bc4ee34abcaffa5c0fdc6159698f1f1b5540ebb794c27"
   name = "github.com/oxtoacart/bpool"
   packages = ["."]
+  pruneopts = ""
   revision = "4e1c5567d7c2dd59fa4c7c83d34c2f3528b025d6"
 
 [[projects]]
+  digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
+  pruneopts = ""
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:fbf54e9f8cf26ea8e66dc1e0cc615663efa95af8c8d806125ff7f7bb7311b9e0"
   name = "github.com/smartystreets/assertions"
   packages = [
     ".",
     "internal/go-render/render",
-    "internal/oglematchers"
+    "internal/oglematchers",
   ]
+  pruneopts = ""
   revision = "ff1918e1e5a13a74014644ae7c1e0ba2f791364d"
   version = "1.8.0"
 
 [[projects]]
+  digest = "1:dd808f0f1628ff85a1b54424d3e6a61c54a87353d5063b9b5c82ad360f0346d5"
   name = "github.com/smartystreets/goconvey"
   packages = [
     "convey",
     "convey/gotest",
-    "convey/reporting"
+    "convey/reporting",
   ]
+  pruneopts = ""
   revision = "9e8dc3f972df6c8fcc0375ef492c24d0bb204857"
   version = "1.6.3"
 
 [[projects]]
   branch = "master"
+  digest = "1:130b1bec86c62e121967ee0c69d9c263dc2d3ffe6c7c9a82aca4071c4d068861"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
     "html",
     "html/atom",
-    "html/charset"
+    "html/charset",
   ]
+  pruneopts = ""
   revision = "9dfe39835686865bff950a07b394c12a98ddc811"
 
 [[projects]]
   branch = "master"
+  digest = "1:f0df6dbfc8bd4903a81bc3c224edb13e87aa9c05bc8344d802687d610e152ca4"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "clientcredentials",
-    "internal"
+    "internal",
   ]
+  pruneopts = ""
   revision = "f95fa95eaa936d9d87489b15d1d18b97c1ba9c28"
 
 [[projects]]
   branch = "master"
+  digest = "1:39a1a71adca4b837a25dc6b5fcdd9d175e4597c6d3440f107dfeda31230218e4"
   name = "golang.org/x/text"
   packages = [
     "encoding",
@@ -142,11 +173,13 @@
     "language",
     "runes",
     "transform",
-    "unicode/cldr"
+    "unicode/cldr",
   ]
+  pruneopts = ""
   revision = "88f656faf3f37f690df1a32515b479415e1a6769"
 
 [[projects]]
+  digest = "1:934fb8966f303ede63aa405e2c8d7f0a427a05ea8df335dfdc1833dd4d40756f"
   name = "google.golang.org/appengine"
   packages = [
     "internal",
@@ -155,20 +188,35 @@
     "internal/log",
     "internal/remote_api",
     "internal/urlfetch",
-    "urlfetch"
+    "urlfetch",
   ]
+  pruneopts = ""
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
 [[projects]]
   branch = "v2"
+  digest = "1:f769ed60e075e4221612c2f4162fccc9d3795ef358fa463425e3b3d7a5debb27"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = ""
   revision = "287cf08546ab5e7e37d55a84f7ed3fd1db036de5"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2e35689146470eb531e3645c63fb933ad86066e63f57021c20e592e25299a02b"
+  input-imports = [
+    "code.cloudfoundry.org/gofileutils/fileutils",
+    "github.com/Masterminds/semver",
+    "github.com/go-martini/martini",
+    "github.com/martini-contrib/render",
+    "github.com/onsi/gomega",
+    "github.com/pkg/errors",
+    "github.com/smartystreets/goconvey/convey",
+    "golang.org/x/net/context",
+    "golang.org/x/oauth2",
+    "golang.org/x/oauth2/clientcredentials",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

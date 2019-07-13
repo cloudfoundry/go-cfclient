@@ -56,3 +56,8 @@
 [[constraint]]
   name = "github.com/Masterminds/semver"
   version = "1.4.2"
+
+# Fix tests failing on Go 1.12, see https://github.com/smartystreets/goconvey/issues/561
+[[override]]
+  name = "github.com/jtolds/gls"
+  version = "v4.20.0"
