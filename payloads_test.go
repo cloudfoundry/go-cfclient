@@ -23,7 +23,9 @@ const listEventsPage1Payload = `{
         "actee_name": "name-171",
         "timestamp": "2016-06-08T16:41:23Z",
         "metadata": {
-
+          "name-188": "value-188",
+          "name-189": 189,
+          "name-190": true
         },
         "space_guid": "3a1368e7-e3b7-46af-a98d-57b9c71445e7",
         "organization_guid": "86aa12ee-8c4f-4b26-b391-2be6c1730dbc"
