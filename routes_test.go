@@ -35,6 +35,25 @@ func TestListRoutes(t *testing.T) {
 	})
 }
 
+func TestGetRouteByGuid(t *testing.T) {
+	Convey("Get Route", t, func() {
+		setup(MockRoute{"GET", "/v2/routes/49df626e-8e87-4366-9fbc-f82186824e21", getRouteByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		route, err := client.GetRouteByGuid("49df626e-8e87-4366-9fbc-f82186824e21")
+		So(err, ShouldBeNil)
+		So(route.Guid, ShouldEqual, "49df626e-8e87-4366-9fbc-f82186824e21")
+		So(route.Host, ShouldEqual, "host")
+		So(route.SpaceGuid, ShouldEqual, "e374dd83-1cea-40d4-84dc-6ac4fb9b2145")
+	})
+}
+
 func TestCreateRoute(t *testing.T) {
 	Convey("Create HTTP Route", t, func() {
 		setup(MockRoute{"POST", "/v2/routes", createRoute, "", 201, "", nil}, t)
