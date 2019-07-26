@@ -74,6 +74,28 @@ func (c *Client) BindRoute(routeGUID, appGUID string) error {
 	return nil
 }
 
+func (c *Client) GetRouteByGuid(guid string) (Route, error) {
+	var route RoutesResource
+
+	r := c.NewRequest("GET", fmt.Sprintf("/v2/routes/%s", guid))
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return route.Entity, errors.Wrap(err, "Error requesting route")
+	}
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&route)
+	if err != nil {
+		return route.Entity, errors.Wrap(err, "Error unmarshalling route response body")
+	}
+
+	route.Entity.Guid = route.Meta.Guid
+	route.Entity.CreatedAt = route.Meta.CreatedAt
+	route.Entity.UpdatedAt = route.Meta.UpdatedAt
+	route.Entity.c = c
+	return route.Entity, nil
+}
+
 func (c *Client) ListRoutesByQuery(query url.Values) ([]Route, error) {
 	return c.fetchRoutes("/v2/routes?" + query.Encode())
 }
