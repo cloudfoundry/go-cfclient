@@ -3885,6 +3885,19 @@ const listRouteMappingsPayload = `{
   ]
 }`
 
+const getRouteByGuidPayload = `{
+  "metadata": {
+    "guid": "49df626e-8e87-4366-9fbc-f82186824e21",
+    "url": "/v2/route_mappings/49df626e-8e87-4366-9fbc-f82186824e21",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "space_guid": "e374dd83-1cea-40d4-84dc-6ac4fb9b2145",
+    "host": "host"
+  }
+}`
+
 const getRouteMappingByGuidPayload = `{
   "metadata": {
     "guid": "93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c",
