@@ -2667,6 +2667,21 @@ const postDomainPayload = `{
   }
 }`
 
+const getDomainPayload = `{
+  "metadata": {
+    "guid": "369373be-7864-4bb9-a8ef-8274da1f8c8b",
+    "url": "/v2/private_domains/369373be-7864-4bb9-a8ef-8274da1f8c8b",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "example.com",
+    "owning_organization_guid": "8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
+    "owning_organization_url": "/v2/organizations/8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
+    "shared_organizations_url": "/v2/private_domains/369373be-7864-4bb9-a8ef-8274da1f8c8b/shared_organizations"
+  }
+}`
+
 const postExternalSharedDomainPayload = `{
   "metadata": {
     "guid": "b98aeca1-22b9-49f9-8428-3ace9ea2ba11",
