@@ -174,3 +174,27 @@ func TestDeleteRoute(t *testing.T) {
 		})
 	})
 }
+
+func TestRouteDomain(t *testing.T) {
+	Convey("Find route domain", t, func() {
+		setup(MockRoute{"GET", "/v2/private_domains/foobar", getDomainPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		route := Route{
+			Guid:      "route-guid",
+			DomainURL: "/v2/private_domains/foobar",
+			c:         client,
+		}
+
+		domain, err := route.Domain()
+		So(err, ShouldBeNil)
+		So(domain.Guid, ShouldEqual, "369373be-7864-4bb9-a8ef-8274da1f8c8b")
+		So(domain.Name, ShouldEqual, "example.com")
+	})
+}
