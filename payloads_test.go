@@ -2646,6 +2646,22 @@ const listSharedDomainByGuidPayload = `{
 }
 `
 
+const listDomainByGuidPayload = `{
+  "metadata": {
+    "guid": "b2a35f0c-d5ad-4a59-bea7-461711d96b0d",
+    "url": "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "vcap.me",
+    "owning_organization_guid": "4cf3bc47-eccd-4662-9322-7833c3bdcded",
+    "owning_organization_url": "/v2/organizations/4cf3bc47-eccd-4662-9322-7833c3bdcded",
+    "shared_organizations_url": "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d/shared_organizations"
+  }
+}
+`
+
 const listDomainsEmptyResponse = `{
   "total_results": 0,
   "total_pages": 0,
