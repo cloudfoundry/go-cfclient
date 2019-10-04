@@ -66,7 +66,7 @@ func TestMakeRequestFailure(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 		req := client.NewRequest("GET", "/v2/organizations")
-		req.url = "%gh&%ij"
+		req.Url = "%gh&%ij"
 		resp, err := client.DoRequest(req)
 		So(resp, ShouldBeNil)
 		So(err, ShouldNotBeNil)

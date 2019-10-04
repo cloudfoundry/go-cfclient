@@ -94,7 +94,7 @@ func (c *Client) CreateServicePlanVisibilityByUniqueId(uniqueId string, organiza
 
 func (c *Client) CreateServicePlanVisibility(servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
 	req := c.NewRequest("POST", "/v2/service_plan_visibilities")
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"service_plan_guid": servicePlanGuid,
 		"organization_guid": organizationGuid,
 	}
@@ -136,7 +136,7 @@ func (c *Client) DeleteServicePlanVisibility(guid string, async bool) error {
 
 func (c *Client) UpdateServicePlanVisibility(guid string, servicePlanGuid string, organizationGuid string) (ServicePlanVisibility, error) {
 	req := c.NewRequest("PUT", "/v2/service_plan_visibilities/"+guid)
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"service_plan_guid": servicePlanGuid,
 		"organization_guid": organizationGuid,
 	}

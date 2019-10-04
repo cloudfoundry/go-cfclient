@@ -155,7 +155,7 @@ func (c *Client) CreateSharedDomain(name string, internal bool, router_group_gui
 		params["router_group_guid"] = router_group_guid
 	}
 
-	req.obj = params
+	req.Obj = params
 
 	resp, err := c.DoRequest(req)
 	if err != nil {
@@ -217,7 +217,7 @@ func (c *Client) GetSharedDomainByName(name string) (SharedDomain, error) {
 
 func (c *Client) CreateDomain(name, orgGuid string) (*Domain, error) {
 	req := c.NewRequest("POST", "/v2/private_domains")
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"name":                     name,
 		"owning_organization_guid": orgGuid,
 	}

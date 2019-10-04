@@ -532,7 +532,7 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 	if spaceGuids != nil {
 		inputs["space_guids"] = spaceGuids
 	}
-	req.obj = inputs
+	req.Obj = inputs
 	//fire off the request and check for problems
 	resp, err := c.DoRequest(req)
 	if err != nil {

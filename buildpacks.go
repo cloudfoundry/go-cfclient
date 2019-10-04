@@ -56,7 +56,7 @@ func (c *Client) CreateBuildpack(bpr *BuildpackRequest) (*Buildpack, error) {
 	}
 	requestUrl := "/v2/buildpacks"
 	req := c.NewRequest("POST", requestUrl)
-	req.obj = bpr
+	req.Obj = bpr
 	resp, err := c.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating buildpack:")
@@ -205,7 +205,7 @@ func (b *Buildpack) Upload(file io.Reader, fileName string) error {
 func (b *Buildpack) Update(bpr *BuildpackRequest) error {
 	requestUrl := fmt.Sprintf("/v2/buildpacks/%s", b.Guid)
 	req := b.c.NewRequest("PUT", requestUrl)
-	req.obj = bpr
+	req.Obj = bpr
 	resp, err := b.c.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error updating buildpack:")

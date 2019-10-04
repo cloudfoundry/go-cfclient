@@ -48,11 +48,11 @@ type Config struct {
 
 // Request is used to help build up a request
 type Request struct {
-	method string
-	url    string
-	params url.Values
-	body   io.Reader
-	obj    interface{}
+	Method string
+	Url    string
+	Params url.Values
+	Body   io.Reader
+	Obj    interface{}
 }
 
 //DefaultConfig configuration for client
@@ -232,9 +232,9 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 // NewRequest is used to create a new Request
 func (c *Client) NewRequest(method, path string) *Request {
 	r := &Request{
-		method: method,
-		url:    c.Config.ApiAddress + path,
-		params: make(map[string][]string),
+		Method: method,
+		Url:    c.Config.ApiAddress + path,
+		Params: make(map[string][]string),
 	}
 	return r
 }
@@ -245,7 +245,7 @@ func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *Reques
 	r := c.NewRequest(method, path)
 
 	// Set request body
-	r.body = body
+	r.Body = body
 
 	return r
 }
@@ -363,16 +363,16 @@ func (c *Client) refreshEndpoint() error {
 func (r *Request) toHTTP() (*http.Request, error) {
 
 	// Check if we should encode the body
-	if r.body == nil && r.obj != nil {
-		b, err := encodeBody(r.obj)
+	if r.Body == nil && r.Obj != nil {
+		b, err := encodeBody(r.Obj)
 		if err != nil {
 			return nil, err
 		}
-		r.body = b
+		r.Body = b
 	}
 
 	// Create the HTTP Request
-	return http.NewRequest(r.method, r.url, r.body)
+	return http.NewRequest(r.Method, r.Url, r.Body)
 }
 
 // decodeBody is used to JSON decode a body

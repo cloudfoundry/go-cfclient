@@ -45,7 +45,7 @@ type ListIsolationSegmentsResponse struct {
 
 func (c *Client) CreateIsolationSegment(name string) (*IsolationSegment, error) {
 	req := c.NewRequest("POST", "/v3/isolation_segments")
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"name": name,
 	}
 	resp, err := c.DoRequest(req)
@@ -189,7 +189,7 @@ func (i *IsolationSegment) AddOrg(orgGuid string) error {
 	type Entry struct {
 		GUID string `json:"guid"`
 	}
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"data": []Entry{{GUID: orgGuid}},
 	}
 	resp, err := i.c.DoRequest(req)
@@ -222,7 +222,7 @@ func (i *IsolationSegment) AddSpace(spaceGuid string) error {
 		return errors.New("No communication handle.")
 	}
 	req := i.c.NewRequest("PUT", fmt.Sprintf("/v2/spaces/%s", spaceGuid))
-	req.obj = map[string]interface{}{
+	req.Obj = map[string]interface{}{
 		"isolation_segment_guid": i.GUID,
 	}
 	resp, err := i.c.DoRequest(req)
