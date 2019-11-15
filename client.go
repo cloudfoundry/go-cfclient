@@ -29,6 +29,7 @@ type Endpoint struct {
 	LoggingEndpoint string `json:"logging_endpoint"`
 	AuthEndpoint    string `json:"authorization_endpoint"`
 	TokenEndpoint   string `json:"token_endpoint"`
+	AppSSHEndpoint  string `json:"app_ssh_endpoint"`
 }
 
 //Config is used to configure the creation of a client
