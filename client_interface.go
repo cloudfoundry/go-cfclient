@@ -267,4 +267,5 @@ type CloudFoundryClient interface {
 	AssignSpaceQuota(quotaGUID, spaceGUID string) error
 	CreateSpaceQuota(spaceQuote SpaceQuotaRequest) (*SpaceQuota, error)
 	UpdateSpaceQuota(spaceQuotaGUID string, spaceQuote SpaceQuotaRequest) (*SpaceQuota, error)
+	GetSSHCode() (string, error)
 }
