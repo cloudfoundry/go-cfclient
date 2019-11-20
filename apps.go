@@ -329,6 +329,11 @@ func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
 	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), -1)
 }
 
+func (c *Client) ListAppsBySpaceGuid(spaceGuid string) ([]App, error) {
+	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), -1)
+}
+
+
 func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
 	pages := 0
 	apps := []App{}
