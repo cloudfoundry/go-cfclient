@@ -631,7 +631,7 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 }
 
 func (c *Client) ListSpacesByOrgGuid(orgGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/spaces/%s/apps", orgGuid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", orgGuid))
 }
 
 func (c *Client) ListSpaces() ([]Space, error) {
