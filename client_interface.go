@@ -245,6 +245,9 @@ type CloudFoundryClient interface {
 	CreateApp(req AppCreateRequest) (App, error)
 	StartApp(guid string) error
 	StopApp(guid string) error
+	RestartApp(guid string) error
+	RestageApp(guid string) (App, error)
+	DeleteApp(guid string) error
 	GetServiceByGuid(guid string) (Service, error)
 	ListServicesByQuery(query url.Values) ([]Service, error)
 	ListServices() ([]Service, error)

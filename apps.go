@@ -671,6 +671,44 @@ func (c *Client) DeleteApp(guid string) error {
 	return nil
 }
 
+func (c *Client) RestartApp(guid string) error {
+	var err error
+	err = c.StopApp(guid)
+	if err != nil {
+		return err
+	}
+
+	err = c.StartApp(guid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) RestageApp(guid string) (App, error) {
+	startRequest := strings.NewReader(``)
+	var appResp App
+	resp, err := c.DoRequest(c.NewRequestWithBody("POST", fmt.Sprintf("/v2/apps/%s/restage", guid), startRequest))
+	if err != nil {
+		return App{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return App{}, errors.Wrapf(err, "Error restage app %s, response code: %d", guid, resp.StatusCode)
+	}
+
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return App{}, errors.Wrapf(err, "Error restage app %s, response code: %d", guid, resp.StatusCode)
+	}
+	err = json.Unmarshal(resBody, &appResp)
+	if err != nil {
+		return App{}, errors.Wrapf(err, "Error deserializing app %s response", guid)
+	}
+	return appResp, nil
+}
+
 func (c *Client) mergeAppResource(app AppResource) App {
 	app.Entity.Guid = app.Meta.Guid
 	app.Entity.CreatedAt = app.Meta.CreatedAt
