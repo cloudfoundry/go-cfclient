@@ -112,6 +112,22 @@ func TestGetDomainByName(t *testing.T) {
 		_, listErr := client.GetDomainByName("idontexist")
 		So(listErr, ShouldNotBeNil)
 	})
+	Convey("Get private domain by guid", t, func() {
+		setup(MockRoute{"GET", "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", listDomainByGuidPayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		domain, err := client.GetDomainByGuid("b2a35f0c-d5ad-4a59-bea7-461711d96b0d")
+		So(err, ShouldBeNil)
+
+		So(domain.Guid, ShouldEqual, "b2a35f0c-d5ad-4a59-bea7-461711d96b0d")
+		So(domain.Name, ShouldEqual, "vcap.me")
+	})
 }
 
 func TestGetSharedDomainByName(t *testing.T) {

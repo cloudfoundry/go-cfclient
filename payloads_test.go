@@ -23,7 +23,9 @@ const listEventsPage1Payload = `{
         "actee_name": "name-171",
         "timestamp": "2016-06-08T16:41:23Z",
         "metadata": {
-
+          "name-188": "value-188",
+          "name-189": 189,
+          "name-190": true
         },
         "space_guid": "3a1368e7-e3b7-46af-a98d-57b9c71445e7",
         "organization_guid": "86aa12ee-8c4f-4b26-b391-2be6c1730dbc"
@@ -2644,6 +2646,22 @@ const listSharedDomainByGuidPayload = `{
 }
 `
 
+const listDomainByGuidPayload = `{
+  "metadata": {
+    "guid": "b2a35f0c-d5ad-4a59-bea7-461711d96b0d",
+    "url": "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "vcap.me",
+    "owning_organization_guid": "4cf3bc47-eccd-4662-9322-7833c3bdcded",
+    "owning_organization_url": "/v2/organizations/4cf3bc47-eccd-4662-9322-7833c3bdcded",
+    "shared_organizations_url": "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d/shared_organizations"
+  }
+}
+`
+
 const listDomainsEmptyResponse = `{
   "total_results": 0,
   "total_pages": 0,
@@ -2664,6 +2682,21 @@ const postDomainPayload = `{
     "owning_organization_guid": "8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
     "owning_organization_url": "/v2/organizations/8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
     "shared_organizations_url": "/v2/private_domains/b98aeca1-22b9-49f9-8428-3ace9ea2ba11/shared_organizations"
+  }
+}`
+
+const getDomainPayload = `{
+  "metadata": {
+    "guid": "369373be-7864-4bb9-a8ef-8274da1f8c8b",
+    "url": "/v2/private_domains/369373be-7864-4bb9-a8ef-8274da1f8c8b",
+    "created_at": "2016-06-08T16:41:39Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "example.com",
+    "owning_organization_guid": "8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
+    "owning_organization_url": "/v2/organizations/8483e4f1-d3a3-43e2-ab8c-b05ea40ef8db",
+    "shared_organizations_url": "/v2/private_domains/369373be-7864-4bb9-a8ef-8274da1f8c8b/shared_organizations"
   }
 }`
 
@@ -3883,6 +3916,19 @@ const listRouteMappingsPayload = `{
       }
     }
   ]
+}`
+
+const getRouteByGuidPayload = `{
+  "metadata": {
+    "guid": "49df626e-8e87-4366-9fbc-f82186824e21",
+    "url": "/v2/route_mappings/49df626e-8e87-4366-9fbc-f82186824e21",
+    "created_at": "2016-06-08T16:41:42Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "space_guid": "e374dd83-1cea-40d4-84dc-6ac4fb9b2145",
+    "host": "host"
+  }
 }`
 
 const getRouteMappingByGuidPayload = `{
