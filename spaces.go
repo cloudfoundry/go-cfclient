@@ -788,21 +788,3 @@ func (c *Client) updateSpaceIsolationSegment(spaceGUID string, data interface{})
 	}
 	return nil
 }
-
-func (c *Client) UpdateSpaceMetadata(spaceGUID string, metadata Metadata) error {
-	requestURL := fmt.Sprintf("/v3/spaces/%s", spaceGUID)
-	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(metadata)
-	if err != nil {
-		return err
-	}
-	r := c.NewRequestWithBody("PATCH", requestURL, buf)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return errors.Wrapf(err, "Error updating metadata for space %s, response code: %d", spaceGUID, resp.StatusCode)
-	}
-	return nil
-}

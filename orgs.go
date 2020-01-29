@@ -830,21 +830,3 @@ func (c *Client) updateOrgDefaultIsolationSegment(orgGUID string, data interface
 	}
 	return nil
 }
-
-func (c *Client) UpdateOrgMetadata(orgGUID string, metadata Metadata) error {
-	requestURL := fmt.Sprintf("/v3/organizations/%s", orgGUID)
-	buf := bytes.NewBuffer(nil)
-	err := json.NewEncoder(buf).Encode(metadata)
-	if err != nil {
-		return err
-	}
-	r := c.NewRequestWithBody("PATCH", requestURL, buf)
-	resp, err := c.DoRequest(r)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return errors.Wrapf(err, "Error updating metadata for org %s, response code: %d", orgGUID, resp.StatusCode)
-	}
-	return nil
-}
