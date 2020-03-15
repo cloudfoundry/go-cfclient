@@ -155,7 +155,7 @@ func (c *Client) CreateServiceKey(csr CreateServiceKeyRequest) (ServiceKey, erro
 		return ServiceKey{}, err
 	}
 
-	return serviceKeyResource.Entity, nil
+	return c.mergeServiceKey(serviceKeyResource), nil
 }
 
 // DeleteServiceKey removes a service key instance
@@ -168,4 +168,12 @@ func (c *Client) DeleteServiceKey(guid string) error {
 		return errors.Wrapf(err, "Error deleting service instance key %s, response code %d", guid, resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) mergeServiceKey(key ServiceKeyResource) ServiceKey {
+	key.Entity.Guid = key.Meta.Guid
+	key.Entity.CreatedAt = key.Meta.CreatedAt
+	key.Entity.UpdatedAt = key.Meta.UpdatedAt
+	key.Entity.c = c
+	return key.Entity
 }
