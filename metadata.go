@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -58,6 +59,9 @@ func (m *Metadata) RemoveLabel(prefix, key string) {
 func (m *Metadata) Clear() *Metadata {
 	metadata := &Metadata{}
 	for key := range m.Annotations {
+		if strings.Contains(key, "/") {
+			metadata.RemoveAnnotation(strings.Split(key, "/")[1])
+		}
 		metadata.RemoveAnnotation(key)
 	}
 	for key := range m.Labels {
