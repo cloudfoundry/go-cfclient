@@ -146,8 +146,8 @@ func TestOrgMetadata(t *testing.T) {
 
 func TestRemoveOrgMetadata(t *testing.T) {
 	Convey("Removing org metadata", t, func() {
-		orgMetadataPayload := `{"guid": "3b6f763f-aae1-4177-9b93-f2de6f2a48f2","name": "space2","metadata":{"annotations":{"hello":"world"},"labels":{"foo":"bar"}}}`
-		updateMetadataPayload := `{"metadata":{"annotations":{"hello":null},"labels":{"foo":null}}}`
+		orgMetadataPayload := `{"guid": "3b6f763f-aae1-4177-9b93-f2de6f2a48f2","name": "space2","metadata":{"annotations":{"hello":"world","prefix/foo":"bar"},"labels":{"foo":"bar"}}}`
+		updateMetadataPayload := `{"metadata":{"annotations":{"foo":null,"hello":null,"prefix/foo":null},"labels":{"foo":null}}}`
 		mocks := []MockRoute{
 			{"GET", "/v3/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", orgMetadataPayload, "", 200, "", nil},
 			{"PATCH", "/v3/organizations/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "", "", 200, "", &updateMetadataPayload},
@@ -168,8 +168,8 @@ func TestRemoveOrgMetadata(t *testing.T) {
 
 func TestRemoveSpaceMetadata(t *testing.T) {
 	Convey("Removing org metadata", t, func() {
-		spaceMetadataPayload := `{"guid": "3b6f763f-aae1-4177-9b93-f2de6f2a48f2","name": "space2","metadata":{"annotations":{"hello":"world"},"labels":{"foo":"bar"}}}`
-		updateMetadataPayload := `{"metadata":{"annotations":{"hello":null},"labels":{"foo":null}}}`
+		spaceMetadataPayload := `{"guid": "3b6f763f-aae1-4177-9b93-f2de6f2a48f2","name": "space2","metadata":{"annotations":{"hello":"world","prefix/foo":"bar"},"labels":{"foo":"bar"}}}`
+		updateMetadataPayload := `{"metadata":{"annotations":{"foo":null,"hello":null,"prefix/foo":null},"labels":{"foo":null}}}`
 		mocks := []MockRoute{
 			{"GET", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", spaceMetadataPayload, "", 200, "", nil},
 			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2", "", "", 200, "", &updateMetadataPayload},
