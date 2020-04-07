@@ -98,6 +98,24 @@ func (c *Client) ListServiceInstances() ([]ServiceInstance, error) {
 	return c.ListServiceInstancesByQuery(nil)
 }
 
+func (c *Client) GetServiceInstanceParams(guid string) (map[string]interface{}, error) {
+	req := c.NewRequest("GET", "/v2/service_instances/"+guid+"/parameters")
+	res, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error requesting service instance parameters")
+	}
+
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(res.Body).Decode(&result)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error JSON parsing service instance parameters")
+	}
+
+	return result, nil
+}
+
 func (c *Client) GetServiceInstanceByGuid(guid string) (ServiceInstance, error) {
 	var sir ServiceInstanceResource
 	req := c.NewRequest("GET", "/v2/service_instances/"+guid)
