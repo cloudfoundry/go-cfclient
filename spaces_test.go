@@ -325,6 +325,8 @@ func TestSpaceSummary(t *testing.T) {
 		So(summary.Services[0].Guid, ShouldEqual, "3c5c758c-6b76-46f6-89d5-677909bfc975")
 		So(summary.Services[0].Name, ShouldEqual, "test-service")
 		So(summary.Services[0].BoundAppCount, ShouldEqual, 1)
+		So(summary.Services[0].ServiceBrokerName, ShouldEqual, "broker-name")
+		So(summary.Services[0].ServicePlan.Service.Label, ShouldEqual, "test-service")
 	})
 }
 
