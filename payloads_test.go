@@ -847,9 +847,18 @@ const spaceSummaryPayload = `{
             "created_at": "2017-02-05T11:56:14Z"
          },
          "dashboard_url": null,
+         "service_broker_name": "broker-name",
+         "maintenance_info": {
+            "version": "1.0.0",
+            "description": "OS image update.\nExpect downtime."
+         },
          "service_plan": {
             "guid": "25e717d2-59a1-4cd2-a792-04508f816776",
             "name": "test-plan",
+            "maintenance_info": {
+               "version": "2.0.0",
+               "description": "Stemcell update.\nExpect downtime."
+            },
             "service": {
                "guid": "84c238f4-3961-4b10-8406-9003374c1f2b",
                "label": "test-service",
