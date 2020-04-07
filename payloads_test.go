@@ -2066,6 +2066,11 @@ var serviceInstancePayload = `{
    }
 }`
 
+var serviceInstanceParamsPayload = `{
+  "foo": "bar",
+  "baz": 42
+}`
+
 var listServiceInstancePayload = `{
   "total_results": 2,
   "total_pages": 1,
