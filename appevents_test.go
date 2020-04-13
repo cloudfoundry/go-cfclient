@@ -20,9 +20,9 @@ func TestListAppEvents(t *testing.T) {
 		}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
-		appEvents, err := client.ListAppEvents("blub")
+		_, err = client.ListAppEvents("blub")
 		So(err.Error(), ShouldEqual, "Unsupported app event type blub")
-		appEvents, err = client.ListAppEvents(AppCreate)
+		appEvents, err := client.ListAppEvents(AppCreate)
 		So(err, ShouldBeNil)
 		So(len(appEvents), ShouldEqual, 3)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")
@@ -48,7 +48,7 @@ func TestListAppEventsByQuery(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		appEvents, err := client.ListAppEventsByQuery("blub", []AppEventQuery{})
+		_, err = client.ListAppEventsByQuery("blub", []AppEventQuery{})
 		So(err.Error(), ShouldEqual, "Unsupported app event type blub")
 
 		appEventQuery := AppEventQuery{
@@ -56,7 +56,7 @@ func TestListAppEventsByQuery(t *testing.T) {
 			Operator: ":",
 			Value:    "retlifon",
 		}
-		appEvents, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
+		_, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
 		So(err.Error(), ShouldEqual, "Unsupported query filter type nofilter")
 
 		appEventQuery = AppEventQuery{
@@ -64,7 +64,7 @@ func TestListAppEventsByQuery(t *testing.T) {
 			Operator: "not",
 			Value:    "retlifon",
 		}
-		appEvents, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
+		_, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
 		So(err.Error(), ShouldEqual, "Unsupported query operator type not")
 
 		appEventQuery = AppEventQuery{
@@ -72,7 +72,7 @@ func TestListAppEventsByQuery(t *testing.T) {
 			Operator: ":",
 			Value:    "3ca436ff-67a8-468a-8c7d-27ec68a6cfe5",
 		}
-		appEvents, err = client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
+		appEvents, err := client.ListAppEventsByQuery(AppCreate, []AppEventQuery{appEventQuery})
 		So(err, ShouldBeNil)
 		So(len(appEvents), ShouldEqual, 3)
 		So(appEvents[0].MetaData.Request.State, ShouldEqual, "STOPPED")

@@ -495,6 +495,9 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 // UploadAppBits uploads the application's contents
 func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
 	requestFile, err := ioutil.TempFile("", "requests")
+	if err != nil {
+		return errors.Wrap(err, "Could not create temp file for app bits")
+	}
 
 	defer func() {
 		requestFile.Close()
