@@ -3851,6 +3851,50 @@ const AppUpdatePayload = `
   }
 }`
 
+const appRestagePayload = `{
+  "metadata": {
+    "guid": "97f7e56b-addf-4d26-be82-998a06600011",
+    "url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011",
+    "created_at": "2016-06-08T16:41:40Z",
+    "updated_at": "2016-06-08T16:41:40Z"
+  },
+  "entity": {
+    "name": "name-2047",
+    "production": false,
+    "space_guid": "b1787767-ca42-4fcf-989e-2530fe2987a5",
+    "stack_guid": "00caa65b-55f4-4c72-8e61-011c20189462",
+    "buildpack": null,
+    "detected_buildpack": null,
+    "detected_buildpack_guid": null,
+    "environment_json": null,
+    "memory": 1024,
+    "instances": 1,
+    "disk_quota": 1024,
+    "state": "STARTED",
+    "version": "4de62557-7599-422e-93ab-49e6b6ede56b",
+    "command": null,
+    "console": false,
+    "debug": null,
+    "staging_task_id": null,
+    "package_state": "PENDING",
+    "health_check_http_endpoint": "",
+    "health_check_type": "port",
+    "health_check_timeout": null,
+    "staging_failed_reason": null,
+    "staging_failed_description": null,
+    "diego": false,
+    "docker_image": null,
+    "docker_credentials": {
+      "username": null,
+      "password": null
+    },
+    "package_updated_at": "2016-06-08T16:41:40Z",
+    "detected_start_command": "",
+    "enable_ssh": true,
+    "ports": null
+  }
+}`
+
 const postServiceBindingPayload = `{
   "metadata": {
     "guid": "4e690cd4-66ef-4052-a23d-0d748316f18c",
