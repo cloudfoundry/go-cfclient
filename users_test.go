@@ -175,7 +175,7 @@ func TestListUserManagedOrgs(t *testing.T) {
 	})
 }
 
-func ListUserAuditedOrgs(t *testing.T) {
+func TestListUserAuditedOrgs(t *testing.T) {
 	Convey("List User Audited Spaces", t, func() {
 		mocks := []MockRoute{
 			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_organizations", listUserOrgsPayload, "", 200, "", nil},
