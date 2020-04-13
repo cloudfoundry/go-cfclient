@@ -65,8 +65,8 @@ func TestGetServicePlanByGuid(t *testing.T) {
 func TestMakeServicePlanPublic(t *testing.T) {
 	Convey("Make Service Plan public", t, func() {
 		setupMultiple([]MockRoute{
-			MockRoute{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 200, "", nil},
-			MockRoute{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 201, "", nil},
+			{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 200, "", nil},
+			{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 201, "", nil},
 		}, t)
 		defer teardown()
 		c := &Config{
@@ -88,8 +88,8 @@ func TestMakeServicePlanPublic(t *testing.T) {
 func TestMakeServicePlanPrivate(t *testing.T) {
 	Convey("Make Service Plan private", t, func() {
 		setupMultiple([]MockRoute{
-			MockRoute{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 200, "", nil},
-			MockRoute{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 201, "", nil},
+			{"GET", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", getServicePlanByGuidPayload, "", 200, "", nil},
+			{"PUT", "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385", privateServicePlanPayload, "", 201, "", nil},
 		}, t)
 		defer teardown()
 		c := &Config{
