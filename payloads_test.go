@@ -4931,3 +4931,62 @@ const listProcessesPayload2 = `{
     }
   ]
 }`
+
+const appCurrentDropletPayload = `
+{
+   "guid": "dd44a00f-3a37-4835-8d87-c1af920a8a39",
+   "state": "STAGED",
+   "error": null,
+   "lifecycle": {
+      "type": "buildpack",
+      "data": {}
+   },
+   "checksum": {
+      "type": "sha256",
+      "value": "cb6b140d3f59fc5faac060d46d180451e074106457cb9d6398caacbba2e7ed7b"
+   },
+   "buildpacks": [
+      {
+         "name": "java_buildpack_offline",
+         "detect_output": "java",
+         "buildpack_name": "java",
+         "version": "v4.32.1-offline-https://github.com/cloudfoundry/java-buildpack.git#b6462f7"
+      }
+   ],
+   "stack": "cflinuxfs3",
+   "image": null,
+   "execution_metadata": "",
+   "process_types": {
+      "task": "JAVA_OPTS=\"-agentpath:$PWD/.java-buildpack/open_jdk_jre/bin/jvmkill-1.16.0_RELEASE=printHeapHistogram=1 -Djava.io.tmpdir=$TMPDIR -XX:ActiveProcessorCount=$(nproc) -Djava.ext.dirs= -Djava.security.properties=$PWD/.java-buildpack/java_security/java.security $JAVA_OPTS\" && CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_jre/bin/java-buildpack-memory-calculator-3.13.0_RELEASE -totMemory=$MEMORY_LIMIT -loadedClasses=26910 -poolType=metaspace -stackThreads=250 -vmOptions=\"$JAVA_OPTS\") && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS=\"$JAVA_OPTS $CALCULATED_MEMORY\" && MALLOC_ARENA_MAX=2 SERVER_PORT=$PORT eval exec $PWD/.java-buildpack/open_jdk_jre/bin/java $JAVA_OPTS -cp $PWD/.:$PWD/.java-buildpack/container_security_provider/container_security_provider-1.18.0_RELEASE.jar org.springframework.boot.loader.JarLauncher",
+      "web": "JAVA_OPTS=\"-agentpath:$PWD/.java-buildpack/open_jdk_jre/bin/jvmkill-1.16.0_RELEASE=printHeapHistogram=1 -Djava.io.tmpdir=$TMPDIR -XX:ActiveProcessorCount=$(nproc) -Djava.ext.dirs= -Djava.security.properties=$PWD/.java-buildpack/java_security/java.security $JAVA_OPTS\" && CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_jre/bin/java-buildpack-memory-calculator-3.13.0_RELEASE -totMemory=$MEMORY_LIMIT -loadedClasses=26910 -poolType=metaspace -stackThreads=250 -vmOptions=\"$JAVA_OPTS\") && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS=\"$JAVA_OPTS $CALCULATED_MEMORY\" && MALLOC_ARENA_MAX=2 SERVER_PORT=$PORT eval exec $PWD/.java-buildpack/open_jdk_jre/bin/java $JAVA_OPTS -cp $PWD/.:$PWD/.java-buildpack/container_security_provider/container_security_provider-1.18.0_RELEASE.jar org.springframework.boot.loader.JarLauncher"
+   },
+   "created_at": "2020-09-23T18:14:18Z",
+   "updated_at": "2020-09-23T18:14:26Z",
+   "relationships": {
+      "app": {
+         "data": {
+            "guid": "faf9bc88-969d-4fdb-b2ee-d005ccb056cb"
+         }
+      }
+   },
+   "links": {
+      "self": {
+         "href": "https://api.run.example.com/v3/droplets/faf9bc88-969d-4fdb-b2ee-d005ccb056cb"
+      },
+      "app": {
+         "href": "https://api.run.example.com/v3/apps/faf9bc88-969d-4fdb-b2ee-d005ccb056cb"
+      },
+      "assign_current_droplet": {
+         "href": "https://api.run.example.com/v3/apps/faf9bc88-969d-4fdb-b2ee-d005ccb056cb/relationships/current_droplet",
+         "method": "PATCH"
+      },
+      "package": {
+         "href": "https://api.run.example.com/v3/packages/faf9bc88-969d-4fdb-b2ee-d005ccb056cb"
+      }
+   },
+   "metadata": {
+      "labels": {},
+      "annotations": {}
+   }
+}
+`
