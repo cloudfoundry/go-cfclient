@@ -15,3 +15,16 @@ type Link struct {
 	Href   string `json:"href"`
 	Method string `json:"method,omitempty"`
 }
+
+type V3ToOneRelationship struct {
+	Data V3Relationship `json:"data,omitempty"`
+}
+
+type V3Relationship struct {
+	GUID string `json:"guid,omitempty"`
+}
+
+type V3Metadata struct {
+	Labels      map[string]string `json:"labels,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty"`
+}
