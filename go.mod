@@ -1,5 +1,7 @@
 module github.com/cloudfoundry-community/go-cfclient
 
+go 1.15
+
 require (
 	code.cloudfoundry.org/gofileutils v0.0.0-20170111115228-4d0c80011a0f
 	github.com/Masterminds/semver v1.4.2
