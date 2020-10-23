@@ -9,7 +9,7 @@ import (
 
 func TestCreateV3App(t *testing.T) {
 	Convey("Create V3 App", t, func() {
-		expectedBody := `{"environment_variables":{"FOO":"BAR"},"name":"my-app","space":{"data":{"guid":"space-guid"}}}`
+		expectedBody := `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`
 		setup(MockRoute{"POST", "/v3/apps", createV3AppPayload, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 
@@ -58,6 +58,35 @@ func TestGetV3App(t *testing.T) {
 		So(app.Links["space"].Href, ShouldEqual, "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576")
 		So(app.Metadata.Annotations, ShouldHaveLength, 1)
 		So(app.Metadata.Annotations["contacts"], ShouldEqual, "Bill tel(1111111) email(bill@fixme), Bob tel(222222) pager(3333333#555) email(bob@fixme)")
+	})
+}
+
+func TestGetV3AppEnv(t *testing.T) {
+	Convey("Get V3 App Environment", t, func() {
+		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env", getV3AppEnvPayload, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		env, err := client.GetV3AppEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
+		So(err, ShouldBeNil)
+
+		So(env.EnvVars, ShouldHaveLength, 1)
+		So(env.EnvVars["RAILS_ENV"], ShouldEqual, "production")
+
+		So(env.StagingEnv, ShouldHaveLength, 1)
+		So(env.StagingEnv["GEM_CACHE"], ShouldEqual, "http://gem-cache.example.org")
+
+		So(env.RunningEnv, ShouldHaveLength, 1)
+		So(env.RunningEnv["HTTP_PROXY"], ShouldEqual, "http://proxy.example.org")
+
+		So(env.SystemEnvVars, ShouldHaveLength, 1)
+		So(env.SystemEnvVars, ShouldContainKey, "VCAP_SERVICES")
+
+		So(env.AppEnvVars, ShouldHaveLength, 1)
+		So(env.AppEnvVars, ShouldContainKey, "VCAP_APPLICATION")
 	})
 }
 
@@ -129,7 +158,7 @@ func TestUpdateV3App(t *testing.T) {
 }
 
 func TestListV3AppsByQuery(t *testing.T) {
-	Convey("Create V3 App", t, func() {
+	Convey("List V3 Apps", t, func() {
 		setup(MockRoute{"GET", "/v3/apps", listV3AppsPayload, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
