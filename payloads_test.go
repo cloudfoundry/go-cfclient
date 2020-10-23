@@ -3187,6 +3187,50 @@ const getV3AppPayload = `{
   }
 }`
 
+const getV3AppEnvPayload = `{
+  "staging_env_json": {
+    "GEM_CACHE": "http://gem-cache.example.org"
+  },
+  "running_env_json": {
+    "HTTP_PROXY": "http://proxy.example.org"
+  },
+  "environment_variables": {
+    "RAILS_ENV": "production"
+  },
+  "system_env_json": {
+    "VCAP_SERVICES": {
+      "mysql": [
+        {
+          "name": "db-for-my-app",
+          "label": "mysql",
+          "tags": ["relational", "sql"],
+          "plan": "xlarge",
+          "credentials": {
+            "username": "user",
+            "password": "top-secret"
+           },
+          "syslog_drain_url": "https://syslog.example.org/drain",
+          "provider": null
+        }
+      ]
+    }
+  },
+  "application_env_json": {
+    "VCAP_APPLICATION": {
+      "limits": {
+        "fds": 16384
+      },
+      "application_name": "my_app",
+      "application_uris": [ "my_app.example.org" ],
+      "name": "my_app",
+      "space_name": "my_space",
+      "space_id": "2f35885d-0c9d-4423-83ad-fd05066f8576",
+      "uris": [ "my_app.example.org" ],
+      "users": null
+    }
+  }
+}`
+
 const createV3AppPayload = `{
   "guid": "app-guid",
   "name": "my-app",
@@ -3249,6 +3293,43 @@ const createV3AppPayload = `{
     "annotations": {}
   }
 }`
+
+const createV3BuildPayload = `{
+  "guid": "585bc3c1-3743-497d-88b0-403ad6b56d16",
+  "created_at": "2016-03-28T23:39:34Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "created_by": {
+    "guid": "3cb4e243-bed4-49d5-8739-f8b45abdec1c",
+    "name": "bill",
+    "email": "bill@example.com"
+  },
+  "state": "STAGING",
+  "error": null,
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": [ "ruby_buildpack" ],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "package": {
+    "guid": "8e4da443-f255-499c-8b47-b3729b5b7432"
+  },
+  "droplet": null,
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+    }
+  }
+}
+`
 
 const listIsolationSegmentsPayload = `{
    "pagination": {
@@ -3583,6 +3664,80 @@ const listV3AppsPayload = `{
       }
     }
   ]
+}`
+
+const listPackagesForV3AppPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?states=READY&page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?states=READY&page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "752edab0-2147-4f58-9c25-cd72ad8c3561",
+      "type": "bits",
+      "data": {
+        "error": null,
+        "checksum": {
+          "type": "sha256",
+          "value": null
+        }
+      },
+      "state": "READY",
+      "created_at": "2016-03-17T21:41:09Z",
+      "updated_at": "2016-06-08T16:41:26Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561"
+        },
+        "upload": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/upload",
+          "method": "POST"
+        },
+        "download": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/download",
+          "method": "GET"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const copyPackageV3Payload = `{
+  "guid": "fec72fc1-e453-4463-a86d-5df426f337a3",
+  "type": "docker",
+  "data": {
+    "image": "http://awesome-sauce.example.org"
+  },
+  "state": "COPYING",
+  "created_at": "2016-03-17T21:41:09Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/packages/fec72fc1-e453-4463-a86d-5df426f337a3"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/36208a68-562d-4f51-94ea-28bd8553a271"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
 }`
 
 const listServiceKeysPayloadPage1 = `{

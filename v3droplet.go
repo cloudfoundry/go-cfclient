@@ -49,8 +49,10 @@ type SetCurrentDropletV3Response struct {
 	Links map[string]Link `json:"links,omitempty"`
 }
 
-func (c *Client) SetCurrentDropletForV3App(guid string) (*SetCurrentDropletV3Response, error) {
-	req := c.NewRequest("PATCH", "/v3/apps/"+guid+"/relationships/current_droplet")
+func (c *Client) SetCurrentDropletForV3App(appGUID, dropletGUID string) (*SetCurrentDropletV3Response, error) {
+	req := c.NewRequest("PATCH", "/v3/apps/"+appGUID+"/relationships/current_droplet")
+	req.obj = V3ToOneRelationship{Data: V3Relationship{GUID: dropletGUID}}
+
 	resp, err := c.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error setting droplet for v3 app")
@@ -58,7 +60,7 @@ func (c *Client) SetCurrentDropletForV3App(guid string) (*SetCurrentDropletV3Res
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error setting droplet for v3 app with GUID [%s], response code: %d", guid, resp.StatusCode)
+		return nil, fmt.Errorf("Error setting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
 	var r SetCurrentDropletV3Response

@@ -9,14 +9,15 @@ import (
 
 func TestSetCurrentDropletForV3App(t *testing.T) {
 	Convey("Set Droplet for V3 App", t, func() {
-		setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", setCurrentDropletForV3AppPayload, "", http.StatusOK, "", nil}, t)
+		body := `{"data":{"guid":"3fc0916f-2cea-4f3a-ae53-048388baa6bd"}}`
+		setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", setCurrentDropletForV3AppPayload, "", http.StatusOK, "", &body}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		resp, err := client.SetCurrentDropletForV3App("9d8e007c-ce52-4ea7-8a57-f2825d2c6b39")
+		resp, err := client.SetCurrentDropletForV3App("9d8e007c-ce52-4ea7-8a57-f2825d2c6b39", "3fc0916f-2cea-4f3a-ae53-048388baa6bd")
 		So(err, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
 
