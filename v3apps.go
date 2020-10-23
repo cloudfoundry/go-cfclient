@@ -49,9 +49,11 @@ func (c *Client) CreateV3App(r CreateV3AppRequest) (*V3App, error) {
 	req := c.NewRequest("POST", "/v3/apps")
 	params := map[string]interface{}{
 		"name": r.Name,
-		"space": V3ToOneRelationship{
-			Data: V3Relationship{
-				GUID: r.SpaceGUID,
+		"relationships": map[string]interface{}{
+			"space": V3ToOneRelationship{
+				Data: V3Relationship{
+					GUID: r.SpaceGUID,
+				},
 			},
 		},
 	}
@@ -213,4 +215,28 @@ func (c *Client) ListV3AppsByQuery(query url.Values) ([]V3App, error) {
 	}
 
 	return apps, nil
+}
+
+type V3AppEnvironment struct {
+	EnvVars       map[string]string          `json:"environment_variables,omitempty"`
+	StagingEnv    map[string]string          `json:"staging_env_json,omitempty"`
+	RunningEnv    map[string]string          `json:"running_env_json,omitempty"`
+	SystemEnvVars map[string]json.RawMessage `json:"system_env_json,omitempty"`      // VCAP_SERVICES
+	AppEnvVars    map[string]json.RawMessage `json:"application_env_json,omitempty"` // VCAP_APPLICATION
+}
+
+func (c *Client) GetV3AppEnvironment(appGUID string) (V3AppEnvironment, error) {
+	var result V3AppEnvironment
+
+	resp, err := c.DoRequest(c.NewRequest("GET", "/v3/apps/"+appGUID+"/env"))
+	if err != nil {
+		return result, errors.Wrapf(err, "Error requesting app env for %s", appGUID)
+	}
+
+	defer resp.Body.Close()
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return result, errors.Wrap(err, "Error parsing JSON for app env")
+	}
+
+	return result, nil
 }
