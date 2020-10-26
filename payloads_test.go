@@ -3511,7 +3511,7 @@ const updateV3AppPayload = `{
   }
 }`
 
-const setCurrentDropletForV3AppPayload = `{
+const currentDropletV3AppPayload = `{
   "data": {
     "guid": "9d8e007c-ce52-4ea7-8a57-f2825d2c6b39"
   },
