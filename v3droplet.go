@@ -44,12 +44,12 @@ type V3DetectedBuildpack struct {
 	Version       string `json:"version,omitempty"`
 }
 
-type SetCurrentDropletV3Response struct {
+type CurrentDropletV3Response struct {
 	Data  V3Relationship  `json:"data,omitempty"`
 	Links map[string]Link `json:"links,omitempty"`
 }
 
-func (c *Client) SetCurrentDropletForV3App(appGUID, dropletGUID string) (*SetCurrentDropletV3Response, error) {
+func (c *Client) SetCurrentDropletForV3App(appGUID, dropletGUID string) (*CurrentDropletV3Response, error) {
 	req := c.NewRequest("PATCH", "/v3/apps/"+appGUID+"/relationships/current_droplet")
 	req.obj = V3ToOneRelationship{Data: V3Relationship{GUID: dropletGUID}}
 
@@ -63,7 +63,27 @@ func (c *Client) SetCurrentDropletForV3App(appGUID, dropletGUID string) (*SetCur
 		return nil, fmt.Errorf("Error setting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
-	var r SetCurrentDropletV3Response
+	var r CurrentDropletV3Response
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		return nil, errors.Wrap(err, "Error reading droplet response JSON")
+	}
+
+	return &r, nil
+}
+
+func (c *Client) GetCurrentDropletForV3App(appGUID string) (*CurrentDropletV3Response, error) {
+	req := c.NewRequest("GET", "/v3/apps/"+appGUID+"/relationships/current_droplet")
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error getting droplet for v3 app")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error getting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
+	}
+
+	var r CurrentDropletV3Response
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return nil, errors.Wrap(err, "Error reading droplet response JSON")
 	}
