@@ -29,19 +29,20 @@ func TestSetCurrentDropletForV3App(t *testing.T) {
 
 func TestGetCurrentDropletForV3App(t *testing.T) {
 	Convey("Get Droplet for V3 App", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", currentDropletV3AppPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/droplets/current", getV3CurrentAppDropletPayload, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		resp, err := client.GetCurrentDropletForV3App("9d8e007c-ce52-4ea7-8a57-f2825d2c6b39")
+		resp, err := client.GetCurrentDropletForV3App("7b34f1cf-7e73-428a-bb5a-8a17a8058396")
 		So(err, ShouldBeNil)
 		So(resp, ShouldNotBeNil)
 
-		So(resp.Data.GUID, ShouldEqual, "9d8e007c-ce52-4ea7-8a57-f2825d2c6b39")
-		So(resp.Links["self"].Href, ShouldEqual, "https://api.example.org/v3/apps/d4c91047-7b29-4fda-b7f9-04033e5c9c9f/relationships/current_droplet")
-		So(resp.Links["related"].Href, ShouldEqual, "https://api.example.org/v3/apps/d4c91047-7b29-4fda-b7f9-04033e5c9c9f/droplets/current")
+		So(resp.GUID, ShouldEqual, "585bc3c1-3743-497d-88b0-403ad6b56d16")
+		So(resp.Links["self"].Href, ShouldEqual, "https://api.example.org/v3/droplets/585bc3c1-3743-497d-88b0-403ad6b56d16")
+		So(resp.Links["assign_current_droplet"].Href, ShouldEqual, "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/relationships/current_droplet")
+		So(resp.Links["assign_current_droplet"].Method, ShouldEqual, "PATCH")
 	})
 }
