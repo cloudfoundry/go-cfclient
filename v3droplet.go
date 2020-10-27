@@ -71,8 +71,8 @@ func (c *Client) SetCurrentDropletForV3App(appGUID, dropletGUID string) (*Curren
 	return &r, nil
 }
 
-func (c *Client) GetCurrentDropletForV3App(appGUID string) (*CurrentDropletV3Response, error) {
-	req := c.NewRequest("GET", "/v3/apps/"+appGUID+"/relationships/current_droplet")
+func (c *Client) GetCurrentDropletForV3App(appGUID string) (*V3Droplet, error) {
+	req := c.NewRequest("GET", "/v3/apps/"+appGUID+"/droplets/current")
 	resp, err := c.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting droplet for v3 app")
@@ -83,7 +83,7 @@ func (c *Client) GetCurrentDropletForV3App(appGUID string) (*CurrentDropletV3Res
 		return nil, fmt.Errorf("Error getting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
-	var r CurrentDropletV3Response
+	var r V3Droplet
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return nil, errors.Wrap(err, "Error reading droplet response JSON")
 	}
