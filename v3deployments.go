@@ -115,3 +115,18 @@ func (c *Client) CreateV3Deployment(appGUID string, optionalParams *CreateV3Depl
 
 	return &r, nil
 }
+
+func (c *Client) CancelV3Deployment(deploymentGUID string) error {
+	req := c.NewRequest("POST", "/v3/deployments/"+deploymentGUID+"/actions/cancel")
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return errors.Wrap(err, "Error canceling deployment")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Error canceling deployment [%s], response code: %d", deploymentGUID, resp.StatusCode)
+	}
+
+	return nil
+}
