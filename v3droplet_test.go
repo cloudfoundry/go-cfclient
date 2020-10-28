@@ -46,3 +46,17 @@ func TestGetCurrentDropletForV3App(t *testing.T) {
 		So(resp.Links["assign_current_droplet"].Method, ShouldEqual, "PATCH")
 	})
 }
+
+func TestDeleteDroplet(t *testing.T) {
+	Convey("Delete Droplet", t, func() {
+		setup(MockRoute{"DELETE", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", "", "", http.StatusAccepted, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteDroplet("59c3d133-2b83-46f3-960e-7765a129aea4")
+		So(err, ShouldBeNil)
+	})
+}
