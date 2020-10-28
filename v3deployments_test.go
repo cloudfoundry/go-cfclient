@@ -116,3 +116,17 @@ func TestCreateDeployment(t *testing.T) {
 		So(resp, ShouldBeNil)
 	})
 }
+
+func TestCancelV3Deployment(t *testing.T) {
+	Convey("Cancel V3 deployment", t, func() {
+		setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", "", "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.CancelV3Deployment("59c3d133-2b83-46f3-960e-7765a129aea4")
+		So(err, ShouldBeNil)
+	})
+}
