@@ -90,3 +90,17 @@ func (c *Client) GetCurrentDropletForV3App(appGUID string) (*V3Droplet, error) {
 
 	return &r, nil
 }
+
+func (c *Client) DeleteDroplet(dropletGUID string) error {
+	req := c.NewRequest("DELETE", "/v3/droplets/"+dropletGUID)
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return errors.Wrapf(err, "Error deleting droplet %s", dropletGUID)
+	}
+
+	if resp.StatusCode != http.StatusAccepted {
+		return fmt.Errorf("Error deleting droplet %s with response code %d", dropletGUID, resp.StatusCode)
+	}
+
+	return nil
+}
