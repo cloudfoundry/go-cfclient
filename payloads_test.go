@@ -2448,6 +2448,19 @@ const listStacksPayloadPage2 string = `{
    ]
 }`
 
+const stackByGuidPayload = `{
+  "metadata": {
+    "guid": "a9be2e10-0164-401d-94e0-88455d614844",
+    "url": "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844",
+    "created_at": "2017-01-18T16:39:11Z",
+    "updated_at": "2017-01-18T16:39:11Z"
+  },
+  "entity": {
+    "name": "windows2012R2",
+    "description": "Experimental Windows runtime"
+  }
+}`
+
 const listTasksPayload string = `
 {
 "pagination": {
