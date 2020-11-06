@@ -10,8 +10,8 @@ import (
 func TestListBuildpacks(t *testing.T) {
 	Convey("List buildpack", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/buildpacks", listBuildpacksPayload, "", 200, "", nil},
-			{"GET", "/v2/buildpacksPage2", listBuildpacksPayload2, "", 200, "", nil},
+			{"GET", "/v2/buildpacks", []string{listBuildpacksPayload}, "", 200, "", nil},
+			{"GET", "/v2/buildpacksPage2", []string{listBuildpacksPayload2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -36,7 +36,7 @@ func TestListBuildpacks(t *testing.T) {
 
 func TestGetBuildpackByGuid(t *testing.T) {
 	Convey("A buildpack", t, func() {
-		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -55,7 +55,7 @@ func TestGetBuildpackByGuid(t *testing.T) {
 		So(buildpack.Stack, ShouldEqual, "cflinuxfs2")
 	})
 	Convey("A buildpack with no stack", t, func() {
-		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackPayloadBackwardsCompat, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackPayloadBackwardsCompat}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -78,7 +78,7 @@ func TestGetBuildpackByGuid(t *testing.T) {
 func TestUploadBuildpack(t *testing.T) {
 	Convey("Uploading a buildpack succeeds", t, func() {
 		expectedPayload := "this should really be zipped binary data"
-		setup(MockRoute{"PUT-FILE", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa/bits", buildpackUploadPayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT-FILE", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa/bits", []string{buildpackUploadPayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -94,7 +94,7 @@ func TestUploadBuildpack(t *testing.T) {
 	})
 	Convey("Uploading a buildpack throws an error in the event of failure", t, func() {
 		expectedPayload := "this should really be zipped binary data"
-		setup(MockRoute{"PUT-FILE", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa/bits", buildpackUploadPayload, "", 400, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT-FILE", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa/bits", []string{buildpackUploadPayload}, "", 400, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -113,7 +113,7 @@ func TestUploadBuildpack(t *testing.T) {
 func TestUpdateBuildpack(t *testing.T) {
 	Convey("Updating a buildpack succeeds", t, func() {
 		expectedPayload := `{"name":"renamed-buildpack","enabled":true,"locked":true,"position":100}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -137,7 +137,7 @@ func TestUpdateBuildpack(t *testing.T) {
 	})
 	Convey("Updating a buildpack doesn't accidentally unlock, rename, disable, or reorder the buildpack", t, func() {
 		expectedPayload := `{}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -157,7 +157,7 @@ func TestUpdateBuildpack(t *testing.T) {
 	})
 	Convey("Unlocking, disabling, reordering to 0, and removing name from buildpacks is still possible", t, func() {
 		expectedPayload := `{"name":"","enabled":false,"locked":false,"position":0}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -181,7 +181,7 @@ func TestUpdateBuildpack(t *testing.T) {
 	})
 	Convey("Updating a buildpack returns an error in the event of failure", t, func() {
 		expectedPayload := `{}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 400, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -202,7 +202,7 @@ func TestUpdateBuildpack(t *testing.T) {
 	})
 	Convey("It is possible to update a buildpack stack from null, to a value", t, func() {
 		expectedPayload := `{"stack":"cflinuxfs2"}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 400, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -222,7 +222,7 @@ func TestUpdateBuildpack(t *testing.T) {
 	})
 	Convey("Updating without a stack specified doesn't change anything", t, func() {
 		expectedPayload := `{"name":"new-name"}`
-		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", []string{buildpackUpdatePayload}, "", 400, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -245,7 +245,7 @@ func TestUpdateBuildpack(t *testing.T) {
 func TestCreateBuildpack(t *testing.T) {
 	Convey("Creating a buildpack succeeds", t, func() {
 		expectedPayload := `{"name":"test-buildpack","enabled":true,"locked":true,"position":10,"stack":"cflinuxfs2"}`
-		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"POST", "/v2/buildpacks", []string{buildpackCreatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -272,7 +272,7 @@ func TestCreateBuildpack(t *testing.T) {
 	})
 	Convey("Creating a buildpack doesn't accidentally unlock, rename, disable, or reorder the buildpack", t, func() {
 		expectedPayload := `{"name":"test-buildpack"}`
-		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"POST", "/v2/buildpacks", []string{buildpackCreatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -290,7 +290,7 @@ func TestCreateBuildpack(t *testing.T) {
 	})
 	Convey("Creating a buildpack as unlocked/disabled/order 0 works", t, func() {
 		expectedPayload := `{"name":"test-buildpack","enabled":false,"locked":false,"position":0}`
-		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 200, "", &expectedPayload}, t)
+		setup(MockRoute{"POST", "/v2/buildpacks", []string{buildpackCreatePayload}, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -311,7 +311,7 @@ func TestCreateBuildpack(t *testing.T) {
 	})
 	Convey("Creating a buildpack returns an error in the event of failure", t, func() {
 		expectedPayload := `{"name":"test-buildpack"}`
-		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 400, "", &expectedPayload}, t)
+		setup(MockRoute{"POST", "/v2/buildpacks", []string{buildpackCreatePayload}, "", 400, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -328,7 +328,7 @@ func TestCreateBuildpack(t *testing.T) {
 		So(bp, ShouldBeNil)
 	})
 	Convey("Creating a buildpack fails if the request has no name set", t, func() {
-		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/buildpacks", []string{buildpackCreatePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -346,7 +346,7 @@ func TestCreateBuildpack(t *testing.T) {
 
 func TestDeleteBuildpack(t *testing.T) {
 	Convey("Delete buildpack synchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 204, "async=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -360,7 +360,7 @@ func TestDeleteBuildpack(t *testing.T) {
 	})
 
 	Convey("Delete buildpack asynchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 202, "async=true", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

@@ -10,7 +10,7 @@ import (
 
 func TestListServicesInstances(t *testing.T) {
 	Convey("List Service Instances", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances", listServiceInstancePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_instances", []string{listServiceInstancePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -30,7 +30,7 @@ func TestListServicesInstances(t *testing.T) {
 
 func TestGetServiceInstanceParams(t *testing.T) {
 	Convey("Service instance parameters", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/parameters", serviceInstanceParamsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc/parameters", []string{serviceInstanceParamsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -52,7 +52,7 @@ func TestGetServiceInstanceParams(t *testing.T) {
 
 func TestServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", serviceInstancePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_instances/8423ca96-90ad-411f-b77a-0907844949fc", []string{serviceInstancePayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -98,7 +98,7 @@ func TestServiceInstanceByGuid(t *testing.T) {
 
 func TestCreateServiceInstance(t *testing.T) {
 	Convey("Create service instance", t, func() {
-		setup(MockRoute{"POST", "/v2/service_instances", serviceInstancePayload, "", 202, "accepts_incomplete=true", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_instances", []string{serviceInstancePayload}, "", 202, "accepts_incomplete=true", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -152,7 +152,7 @@ func TestUpdateServiceInstance(t *testing.T) {
 	Convey("Update service instance", t, func() {
 		updateBody := "myUpdate"
 
-		setup(MockRoute{"PUT", "/v2/service_instances/guid", "", "", http.StatusAccepted, "accepts_incomplete=false", &updateBody}, t)
+		setup(MockRoute{"PUT", "/v2/service_instances/guid", []string{""}, "", http.StatusAccepted, "accepts_incomplete=false", &updateBody}, t)
 		defer teardown()
 
 		c := &Config{
@@ -169,7 +169,7 @@ func TestUpdateServiceInstance(t *testing.T) {
 
 func TestDeleteServiceInstance(t *testing.T) {
 	Convey("Delete service instance", t, func() {
-		setup(MockRoute{"DELETE", "/v2/service_instances/guid", "", "", http.StatusAccepted, "recursive=true&accepts_incomplete=false&async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/service_instances/guid", []string{""}, "", http.StatusAccepted, "recursive=true&accepts_incomplete=false&async=false", nil}, t)
 		defer teardown()
 
 		c := &Config{

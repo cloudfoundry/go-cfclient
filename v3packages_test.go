@@ -10,7 +10,7 @@ import (
 
 func TestListPackagesForAppV3(t *testing.T) {
 	Convey("List Package for V3 Apps", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/app-guid/packages", listPackagesForV3AppPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/app-guid/packages", []string{listPackagesForV3AppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -31,7 +31,7 @@ func TestListPackagesForAppV3(t *testing.T) {
 func TestCopyPackageV3(t *testing.T) {
 	Convey("Copy V3 Package", t, func() {
 		expectedBody := `{"relationships":{"app":{"data":{"guid":"app-guid"}}}}`
-		setup(MockRoute{"POST", "/v3/packages", copyPackageV3Payload, "", http.StatusCreated, "source_guid=package-guid", &expectedBody}, t)
+		setup(MockRoute{"POST", "/v3/packages", []string{copyPackageV3Payload}, "", http.StatusCreated, "source_guid=package-guid", &expectedBody}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

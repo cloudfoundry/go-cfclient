@@ -9,9 +9,9 @@ import (
 func TestListSecGroups(t *testing.T) {
 	Convey("List SecGroups", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/security_groups", listSecGroupsPayload, "", 200, "inline-relations-depth=1", nil},
-			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2, "", 200, "", nil},
-			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources, "", 200, "", nil},
+			{"GET", "/v2/security_groups", []string{listSecGroupsPayload}, "", 200, "inline-relations-depth=1", nil},
+			{"GET", "/v2/security_groupsPage2", []string{listSecGroupsPayloadPage2}, "", 200, "", nil},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", []string{emptyResources}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -60,8 +60,8 @@ func TestListSecGroups(t *testing.T) {
 func TestSecGroupListSpaceResources(t *testing.T) {
 	Convey("List Space Resources", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/security_groups/123/spaces", listSpacesPayload, "", 200, "", nil},
-			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/security_groups/123/spaces", []string{listSpacesPayload}, "", 200, "", nil},
+			{"GET", "/v2/spacesPage2", []string{listSpacesPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -96,7 +96,7 @@ func TestSecGroupListSpaceResources(t *testing.T) {
 func TestBindStagingSecGroupToSpaces(t *testing.T) {
 	Convey("Associate a security group to a space for staging", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v2/security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1/staging_spaces/329b5923-7de0-486a-9928-b4d78ee24982", "", "", 201, "", nil},
+			{"PUT", "/v2/security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1/staging_spaces/329b5923-7de0-486a-9928-b4d78ee24982", []string{""}, "", 201, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -115,7 +115,7 @@ func TestBindStagingSecGroupToSpaces(t *testing.T) {
 func TestNegativeBindStagingSecGroupToSpaces(t *testing.T) {
 	Convey("Try to associate a security group to a space for staging on a pre-2.68.0 API", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v2/security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1/staging_spaces/329b5923-7de0-486a-9928-b4d78ee24982", "", "", 404, "", nil},
+			{"PUT", "/v2/security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1/staging_spaces/329b5923-7de0-486a-9928-b4d78ee24982", []string{""}, "", 404, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -134,7 +134,7 @@ func TestNegativeBindStagingSecGroupToSpaces(t *testing.T) {
 func TestListRunningSecGroups(t *testing.T) {
 	Convey("List Running SecGroups", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/config/running_security_groups", listRunningSecGroupsPayload, "", 200, "", nil},
+			{"GET", "/v2/config/running_security_groups", []string{listRunningSecGroupsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -158,7 +158,7 @@ func TestListRunningSecGroups(t *testing.T) {
 func TestListStagingSecGroups(t *testing.T) {
 	Convey("List Staging SecGroups", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/config/staging_security_groups", listStagingSecGroupsPayload, "", 200, "", nil},
+			{"GET", "/v2/config/staging_security_groups", []string{listStagingSecGroupsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -182,7 +182,7 @@ func TestListStagingSecGroups(t *testing.T) {
 func TestBindRunningSecGroups(t *testing.T) {
 	Convey("Unbind Running Sec Groups", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 200, "", nil},
+			{"PUT", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{""}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -201,7 +201,7 @@ func TestBindRunningSecGroups(t *testing.T) {
 func TestUnbindRunningSecGroups(t *testing.T) {
 	Convey("Unbind Running Sec Groups", t, func() {
 		mocks := []MockRoute{
-			{"DELETE", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 204, "", nil},
+			{"DELETE", "/v2/config/running_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{""}, "", 204, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -220,7 +220,7 @@ func TestUnbindRunningSecGroups(t *testing.T) {
 func TestBindStagingSecGroups(t *testing.T) {
 	Convey("Unbind Staging Sec Groups", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 200, "", nil},
+			{"PUT", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{""}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -239,7 +239,7 @@ func TestBindStagingSecGroups(t *testing.T) {
 func TestUnbindStagingSecGroups(t *testing.T) {
 	Convey("Unbind Staging Sec Groups", t, func() {
 		mocks := []MockRoute{
-			{"DELETE", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 204, "", nil},
+			{"DELETE", "/v2/config/staging_security_groups/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{""}, "", 204, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

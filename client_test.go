@@ -23,7 +23,7 @@ func TestDefaultConfig(t *testing.T) {
 
 func TestRemovalofTrailingSlashOnAPIAddress(t *testing.T) {
 	Convey("Test removal of trailing slash of the API Address", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL + "/",
@@ -36,7 +36,7 @@ func TestRemovalofTrailingSlashOnAPIAddress(t *testing.T) {
 
 func TestMakeRequest(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -55,7 +55,7 @@ func TestMakeRequest(t *testing.T) {
 
 func TestMakeRequestFailure(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -75,7 +75,7 @@ func TestMakeRequestFailure(t *testing.T) {
 
 func TestMakeRequestWithTimeout(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -92,7 +92,7 @@ func TestMakeRequestWithTimeout(t *testing.T) {
 
 func TestHTTPErrorHandling(t *testing.T) {
 	Convey("Test making request b", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", "502 Bad Gateway", "", 502, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{"502 Bad Gateway"}, "", 502, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress:        server.URL,
@@ -117,7 +117,7 @@ func TestHTTPErrorHandling(t *testing.T) {
 func TestTokenRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		fakeUAAServer = FakeUAAServer(1)
 		c := &Config{
 			ApiAddress: server.URL,
@@ -138,7 +138,7 @@ func TestTokenRefresh(t *testing.T) {
 func TestEndpointRefresh(t *testing.T) {
 	gomega.RegisterTestingT(t)
 	Convey("Test expiring endpoint", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		fakeUAAServer = FakeUAAServer(0)
 
 		c := &Config{

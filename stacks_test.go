@@ -9,8 +9,8 @@ import (
 func TestListStacks(t *testing.T) {
 	Convey("List Stacks", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/stacks", listStacksPayloadPage1, "", 200, "", nil},
-			{"GET", "/v2/stacks_page_2", listStacksPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/stacks", []string{listStacksPayloadPage1}, "", 200, "", nil},
+			{"GET", "/v2/stacks_page_2", []string{listStacksPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -33,7 +33,7 @@ func TestListStacks(t *testing.T) {
 
 func TestGetStackByGuid(t *testing.T) {
 	Convey("Get Stack By Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844", stackByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844", []string{stackByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

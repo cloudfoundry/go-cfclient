@@ -9,7 +9,7 @@ import (
 
 func TestUserProvidedServiceInstanceByGuid(t *testing.T) {
 	Convey("Service instance by Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", userProvidedServiceInstancePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", []string{userProvidedServiceInstancePayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -39,7 +39,7 @@ func TestUserProvidedServiceInstanceByGuid(t *testing.T) {
 
 func TestListUserProvidedServiceInstances(t *testing.T) {
 	Convey("List Service Instances", t, func() {
-		setup(MockRoute{"GET", "/v2/user_provided_service_instances", listUserProvidedServiceInstancePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/user_provided_service_instances", []string{listUserProvidedServiceInstancePayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -70,7 +70,7 @@ func TestListUserProvidedServiceInstances(t *testing.T) {
 
 func TestCreateUserProvidedServiceInstance(t *testing.T) {
 	Convey("Create User Provided Service Instance", t, func() {
-		setup(MockRoute{"POST", "/v2/user_provided_service_instances", userProvidedServiceInstancePayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/user_provided_service_instances", []string{userProvidedServiceInstancePayload}, "", 201, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -94,7 +94,7 @@ func TestCreateUserProvidedServiceInstance(t *testing.T) {
 
 func TestDeleteUserProvidedServiceInstance(t *testing.T) {
 	Convey("Delete User Provided Service Instance", t, func() {
-		setup(MockRoute{"DELETE", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", "", "", 204, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", []string{""}, "", 204, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -112,7 +112,7 @@ func TestDeleteUserProvidedServiceInstance(t *testing.T) {
 
 func TestUpdateUserProvidedServiceInstance(t *testing.T) {
 	Convey("Update User Provided Service Instance", t, func() {
-		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", userProvidedServiceInstancePayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87", []string{userProvidedServiceInstancePayload}, "", 201, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
