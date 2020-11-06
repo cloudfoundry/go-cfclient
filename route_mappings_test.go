@@ -1,14 +1,15 @@
 package cfclient
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMappingAppAndRoute(t *testing.T) {
 	Convey("Mapping app and route", t, func() {
-		setup(MockRoute{"POST", "/v2/route_mappings", postRouteMappingsPayload, "", http.StatusCreated, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/route_mappings", []string{postRouteMappingsPayload}, "", http.StatusCreated, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -30,7 +31,7 @@ func TestMappingAppAndRoute(t *testing.T) {
 
 func TestListRouteMappings(t *testing.T) {
 	Convey("List route mappings", t, func() {
-		setup(MockRoute{"GET", "/v2/route_mappings", listRouteMappingsPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/route_mappings", []string{listRouteMappingsPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -54,7 +55,7 @@ func TestListRouteMappings(t *testing.T) {
 
 func TestGetRouteMappingByGuid(t *testing.T) {
 	Convey("Get route mapping by guid", t, func() {
-		setup(MockRoute{"GET", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", getRouteMappingByGuidPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", []string{getRouteMappingByGuidPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -73,7 +74,7 @@ func TestGetRouteMappingByGuid(t *testing.T) {
 
 func TestDeleteRouteMapping(t *testing.T) {
 	Convey("Delete route mapping", t, func() {
-		setup(MockRoute{"DELETE", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", "", "", http.StatusNoContent, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/route_mappings/93eb2527-81b9-4e15-8ba0-2fd8dd8c0c1c", []string{""}, "", http.StatusNoContent, "", nil}, t)
 		defer teardown()
 
 		c := &Config{

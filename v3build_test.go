@@ -10,7 +10,7 @@ import (
 func TestCreateV3Build(t *testing.T) {
 	Convey("Get V3 App Environment", t, func() {
 		body := `{"metadata":{"labels":{"foo":"bar"}},"package":{"guid":"package-guid"}}`
-		setup(MockRoute{"POST", "/v3/builds", createV3BuildPayload, "", http.StatusCreated, "", &body}, t)
+		setup(MockRoute{"POST", "/v3/builds", []string{createV3BuildPayload}, "", http.StatusCreated, "", &body}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

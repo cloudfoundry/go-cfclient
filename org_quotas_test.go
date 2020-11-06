@@ -9,8 +9,8 @@ import (
 func TestListOrgQuotas(t *testing.T) {
 	Convey("List Org Quotas", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage1, "", 200, "", nil},
-			{"GET", "/v2/quota_definitions_page_2", listOrgQuotasPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/quota_definitions", []string{listOrgQuotasPayloadPage1}, "", 200, "", nil},
+			{"GET", "/v2/quota_definitions_page_2", []string{listOrgQuotasPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -43,7 +43,7 @@ func TestListOrgQuotas(t *testing.T) {
 
 func TestGetOrgQuotaByName(t *testing.T) {
 	Convey("Get Org Quota By Name", t, func() {
-		setup(MockRoute{"GET", "/v2/quota_definitions", listOrgQuotasPayloadPage2, "", 200, "q=name:default2", nil}, t)
+		setup(MockRoute{"GET", "/v2/quota_definitions", []string{listOrgQuotasPayloadPage2}, "", 200, "q=name:default2", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -73,7 +73,7 @@ func TestGetOrgQuotaByName(t *testing.T) {
 
 func TestCreateOrgQuota(t *testing.T) {
 	Convey("Create Org Quota", t, func() {
-		setup(MockRoute{"POST", "/v2/quota_definitions", orgQuotaPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/quota_definitions", []string{orgQuotaPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -96,7 +96,7 @@ func TestCreateOrgQuota(t *testing.T) {
 
 func TestUpdateOrgQuota(t *testing.T) {
 	Convey("Create Update Quota", t, func() {
-		setup(MockRoute{"PUT", "/v2/quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", orgQuotaPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", []string{orgQuotaPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -119,7 +119,7 @@ func TestUpdateOrgQuota(t *testing.T) {
 
 func TestDeleteOrgQuota(t *testing.T) {
 	Convey("Delete org quota synchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 204, "async=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -133,7 +133,7 @@ func TestDeleteOrgQuota(t *testing.T) {
 	})
 
 	Convey("Delete org quota asynchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/quota_definitions/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 202, "async=true", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

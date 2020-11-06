@@ -10,7 +10,7 @@ import (
 func TestCreateV3App(t *testing.T) {
 	Convey("Create V3 App", t, func() {
 		expectedBody := `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`
-		setup(MockRoute{"POST", "/v3/apps", createV3AppPayload, "", http.StatusCreated, "", &expectedBody}, t)
+		setup(MockRoute{"POST", "/v3/apps", []string{createV3AppPayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -38,7 +38,7 @@ func TestCreateV3App(t *testing.T) {
 
 func TestGetV3App(t *testing.T) {
 	Convey("Get V3 App", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", getV3AppPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{getV3AppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -63,7 +63,7 @@ func TestGetV3App(t *testing.T) {
 
 func TestGetV3AppEnv(t *testing.T) {
 	Convey("Get V3 App Environment", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env", getV3AppEnvPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env", []string{getV3AppEnvPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -92,7 +92,7 @@ func TestGetV3AppEnv(t *testing.T) {
 
 func TestStartV3App(t *testing.T) {
 	Convey("Start V3 App", t, func() {
-		setup(MockRoute{"POST", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start", startV3AppPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"POST", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start", []string{startV3AppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -117,7 +117,7 @@ func TestStartV3App(t *testing.T) {
 
 func TestDeleteV3App(t *testing.T) {
 	Convey("Delete V3 App", t, func() {
-		setup(MockRoute{"DELETE", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", "", "", http.StatusAccepted, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -131,7 +131,7 @@ func TestDeleteV3App(t *testing.T) {
 
 func TestUpdateV3App(t *testing.T) {
 	Convey("Update V3 App", t, func() {
-		setup(MockRoute{"PATCH", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", updateV3AppPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"PATCH", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{updateV3AppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -159,7 +159,7 @@ func TestUpdateV3App(t *testing.T) {
 
 func TestListV3AppsByQuery(t *testing.T) {
 	Convey("List V3 Apps", t, func() {
-		setup(MockRoute{"GET", "/v3/apps", listV3AppsPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps", []string{listV3AppsPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

@@ -8,7 +8,7 @@ import (
 
 func TestListServices(t *testing.T) {
 	Convey("List Services", t, func() {
-		setup(MockRoute{"GET", "/v2/services", listServicePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/services", []string{listServicePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -44,7 +44,7 @@ func TestListServices(t *testing.T) {
 
 func TestGetServiceByGuid(t *testing.T) {
 	Convey("Get Service By Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5", getServiceByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5", []string{getServiceByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

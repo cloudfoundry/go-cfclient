@@ -14,13 +14,13 @@ func TestListServiceBindings(t *testing.T) {
 			{
 				Method:   "GET",
 				Endpoint: "/v2/service_bindings",
-				Output:   listServiceBindingsPayloadPage1,
+				Output:   []string{listServiceBindingsPayloadPage1},
 				Status:   200,
 			},
 			{
 				Method:   "GET",
 				Endpoint: "/v2/service_bindings2",
-				Output:   listServiceBindingsPayloadPage2,
+				Output:   []string{listServiceBindingsPayloadPage2},
 				Status:   200,
 			},
 		}
@@ -68,7 +68,7 @@ func TestListServiceBindings(t *testing.T) {
 }
 func TestServiceBindingByGuid(t *testing.T) {
 	Convey("Service Binding By Guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_bindings/foo-bar-baz", serviceBindingByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_bindings/foo-bar-baz", []string{serviceBindingByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -87,7 +87,7 @@ func TestServiceBindingByGuid(t *testing.T) {
 
 func TestDeleteServiceBinding(t *testing.T) {
 	Convey("Delete service binding", t, func() {
-		setup(MockRoute{"DELETE", "/v2/service_bindings/guid", "", "", http.StatusNoContent, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/service_bindings/guid", []string{""}, "", http.StatusNoContent, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -105,7 +105,7 @@ func TestDeleteServiceBinding(t *testing.T) {
 func TestCreateServiceBinding(t *testing.T) {
 	Convey("Create service binding", t, func() {
 		body := `{"app_guid":"app-guid","service_instance_guid":"service-instance-guid"}`
-		setup(MockRoute{"POST", "/v2/service_bindings", postServiceBindingPayload, "", http.StatusCreated, "", &body}, t)
+		setup(MockRoute{"POST", "/v2/service_bindings", []string{postServiceBindingPayload}, "", http.StatusCreated, "", &body}, t)
 		defer teardown()
 
 		c := &Config{
@@ -125,7 +125,7 @@ func TestCreateServiceBinding(t *testing.T) {
 
 func TestCreateRouteServiceBinding(t *testing.T) {
 	Convey("Create route service binding", t, func() {
-		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", "", "", http.StatusCreated, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/user_provided_service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", []string{""}, "", http.StatusCreated, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -142,7 +142,7 @@ func TestCreateRouteServiceBinding(t *testing.T) {
 
 func TestDeleteRouteServiceBinding(t *testing.T) {
 	Convey("Delete route service binding", t, func() {
-		setup(MockRoute{"DELETE", "/v2/service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", "", "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/service_instances/5badd282-6e07-4fc6-a8c4-78be99040774/routes/237d9236-7997-4b1a-be8d-2aaf2d85421a", []string{""}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
