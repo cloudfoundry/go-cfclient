@@ -212,9 +212,26 @@ func (c *Client) ListV3AppsByQuery(query url.Values) ([]V3App, error) {
 		if !ok || requestURL == "" {
 			break
 		}
+		requestURL, err = extractPathFromURL(requestURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error parsing the next page request url for v3 apps")
+		}
 	}
 
 	return apps, nil
+}
+
+func extractPathFromURL(requestURL string) (string, error) {
+	url, err := url.Parse(requestURL)
+	if err != nil {
+		return "", err
+	}
+	result := url.Path
+	q := url.Query().Encode()
+	if q != "" {
+		result = result + "?" + q
+	}
+	return result, nil
 }
 
 type V3AppEnvironment struct {
