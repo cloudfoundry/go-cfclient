@@ -10,20 +10,25 @@ import (
 
 func TestListPackagesForAppV3(t *testing.T) {
 	Convey("List Package for V3 Apps", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/app-guid/packages", []string{listPackagesForV3AppPayload}, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages", []string{listPackagesForV3AppPayloadPage1, listPackagesForV3AppPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		packages, err := client.ListPackagesForAppV3("app-guid", nil)
+		packages, err := client.ListPackagesForAppV3("f2efe391-2b5b-4836-8518-ad93fa9ebf69", nil)
 		So(err, ShouldBeNil)
-		So(packages, ShouldHaveLength, 1)
+		So(packages, ShouldHaveLength, 2)
 
 		So(packages[0].Type, ShouldEqual, "bits")
 		So(packages[0].State, ShouldEqual, "READY")
 		So(packages[0].Links["app"].Href, ShouldEqual, "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69")
+		So(packages[0].Links["download"].Href, ShouldEqual, "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/download")
+		So(packages[1].Type, ShouldEqual, "bits")
+		So(packages[1].State, ShouldEqual, "READY")
+		So(packages[1].Links["app"].Href, ShouldEqual, "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69")
+		So(packages[1].Links["download"].Href, ShouldEqual, "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/download")
 
 	})
 }

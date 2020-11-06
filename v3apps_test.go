@@ -159,7 +159,7 @@ func TestUpdateV3App(t *testing.T) {
 
 func TestListV3AppsByQuery(t *testing.T) {
 	Convey("List V3 Apps", t, func() {
-		setup(MockRoute{"GET", "/v3/apps", []string{listV3AppsPayload}, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps", []string{listV3AppsPayload, listV3AppsPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
