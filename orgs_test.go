@@ -9,11 +9,7 @@ import (
 
 func TestListOrgs(t *testing.T) {
 	Convey("List Orgs", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil},
-			{"GET", "/v2/orgsPage2", []string{listOrgsPayloadPage2}, "", 200, "results-per-page=2", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload, listOrgsPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -33,11 +29,7 @@ func TestListOrgs(t *testing.T) {
 
 func TestListOrgsByQuery(t *testing.T) {
 	Convey("List Orgs", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "results-per-page=2", nil},
-			{"GET", "/v2/orgsPage2", []string{listOrgsPayloadPage2}, "", 200, "results-per-page=2", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload, listOrgsPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
