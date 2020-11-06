@@ -105,11 +105,14 @@ func (c *Client) ListPackagesForAppV3(appGUID string, query url.Values) ([]V3Pac
 		}
 
 		packages = append(packages, data.Resources...)
-
 		var ok bool
 		requestURL, ok = data.Pagination.Next.(string)
 		if !ok || requestURL == "" {
 			break
+		}
+		requestURL, err = extractPathFromURL(requestURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error parsing the next page request url for v3 packages")
 		}
 	}
 	return packages, nil

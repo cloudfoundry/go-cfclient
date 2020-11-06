@@ -3601,14 +3601,14 @@ const getV3CurrentAppDropletPayload = `{
 const listV3AppsPayload = `{
   "pagination": {
     "total_results": 2,
-    "total_pages": 1,
+    "total_pages": 2,
     "first": {
       "href": "https://api.example.org/v3/apps?page=1&per_page=2"
     },
     "last": {
-      "href": "https://api.example.org/v3/apps?page=1&per_page=2"
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
     },
-    "next": null,
+    "next":  "https://api.example.org/v3/apps?page=2&per_page=2",
     "previous": null
   },
   "resources": [
@@ -3673,7 +3673,24 @@ const listV3AppsPayload = `{
         "labels": {},
         "annotations": {}
       }
+    }
+  ]
+}`
+
+const listV3AppsPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps?page=1&per_page=2"
     },
+    "last": {
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
     {
       "guid": "02b4ec9b-94c7-4468-9c23-4e906191a0f8",
       "name": "my_app2",
@@ -3739,17 +3756,17 @@ const listV3AppsPayload = `{
   ]
 }`
 
-const listPackagesForV3AppPayload = `{
+const listPackagesForV3AppPayloadPage1 = `{
   "pagination": {
-    "total_results": 1,
-    "total_pages": 1,
+    "total_results": 2,
+    "total_pages": 2,
     "first": {
-      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?states=READY&page=1&per_page=50"
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=1&per_page=1"
     },
     "last": {
-      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?states=READY&page=1&per_page=50"
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
     },
-    "next": null,
+    "next": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1",
     "previous": null
   },
   "resources": [
@@ -3776,6 +3793,57 @@ const listPackagesForV3AppPayload = `{
         },
         "download": {
           "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/download",
+          "method": "GET"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listPackagesForV3AppPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "2345ab-2147-4f58-9c25-cd72ad8c3561",
+      "type": "bits",
+      "data": {
+        "error": null,
+        "checksum": {
+          "type": "sha256",
+          "value": null
+        }
+      },
+      "state": "READY",
+      "created_at": "2016-03-17T21:41:09Z",
+      "updated_at": "2016-06-08T16:41:26Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561"
+        },
+        "upload": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/upload",
+          "method": "POST"
+        },
+        "download": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/download",
           "method": "GET"
         },
         "app": {
