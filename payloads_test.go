@@ -121,10 +121,10 @@ const totalEventsPayload = `{
 }`
 
 const listOrgsPayload = `{
-"total_results": 6,
+"total_results": 4,
 "total_pages": 2,
 "prev_url": null,
-"next_url": "/v2/orgsPage2?results-per-page=2",
+"next_url": "/v2/organizations?results-per-page=2&page=2",
 "resources": [
   {
      "metadata": {
@@ -178,7 +178,7 @@ const listOrgsPayload = `{
 }`
 
 const listOrgsPayloadPage2 = `{
-"total_results": 6,
+"total_results": 4,
 "total_pages": 2,
 "prev_url": null,
 "next_url": null,
@@ -4177,10 +4177,10 @@ const buildpackCreatePayload = `
 
 const listAppUsageEventsPayload = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
-  "next_url": "/v2/app_usage_eventsPage2?results-per-page=2&page=2",
+  "next_url": "/v2/app_usage_events?results-per-page=2&page=2",
   "resources": [
     {
       "metadata": {
@@ -4245,7 +4245,7 @@ const listAppUsageEventsPayload = `
 
 const listAppUsageEventsPayloadPage2 = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
   "next_url": null,
@@ -4313,10 +4313,10 @@ const listAppUsageEventsPayloadPage2 = `
 
 const listServiceUsageEventsPayload = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
-  "next_url": "/v2/service_usage_eventsPage2?results-per-page=2&page=2",
+  "next_url": "/v2/service_usage_events?results-per-page=2&page=2",
   "resources": [
     {
       "metadata": {
@@ -4363,7 +4363,7 @@ const listServiceUsageEventsPayload = `
 
 const listServiceUsageEventsPayloadPage2 = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
   "next_url": null,
@@ -4661,7 +4661,7 @@ const listProcessesPayload1 = `{
       "href": "https://api.run.example.com/v3/processes?page=2&per_page=20"
     },
     "next": {
-      "href": "https://api.run.example.com/v3/processesPage2?page=2&per_page=20"
+      "href": "https://api.run.example.com/v3/processes?page=2&per_page=20"
     },
     "previous": null
   },
