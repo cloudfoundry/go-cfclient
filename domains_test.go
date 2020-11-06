@@ -8,7 +8,7 @@ import (
 
 func TestListDomains(t *testing.T) {
 	Convey("List domains", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains", listDomainsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains", []string{listDomainsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -31,7 +31,7 @@ func TestListDomains(t *testing.T) {
 
 func TestListSharedDomains(t *testing.T) {
 	Convey("List shared domains", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains", listSharedDomainsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains", []string{listSharedDomainsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -51,7 +51,7 @@ func TestListSharedDomains(t *testing.T) {
 	})
 
 	Convey("List shared domain by guid", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains/91977695-8ad9-40db-858f-4df782603ec3", listSharedDomainByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains/91977695-8ad9-40db-858f-4df782603ec3", []string{listSharedDomainByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -71,7 +71,7 @@ func TestListSharedDomains(t *testing.T) {
 
 func TestGetDomainByName(t *testing.T) {
 	Convey("Get domain by name", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains", listDomainsPayload, "", 200, "q=name:vcap.me", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains", []string{listDomainsPayload}, "", 200, "q=name:vcap.me", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -87,7 +87,7 @@ func TestGetDomainByName(t *testing.T) {
 		So(domain.Name, ShouldEqual, "vcap.me")
 	})
 	Convey("Get domain by name with an endpoint that returns a 404", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains", listDomainsEmptyResponse, "", 404, "q=name:vcap.me", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains", []string{listDomainsEmptyResponse}, "", 404, "q=name:vcap.me", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -100,7 +100,7 @@ func TestGetDomainByName(t *testing.T) {
 		So(listErr, ShouldNotBeNil)
 	})
 	Convey("Get domain by name for a non-existing domain", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains", listDomainsEmptyResponse, "", 200, "q=name:idontexist", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains", []string{listDomainsEmptyResponse}, "", 200, "q=name:idontexist", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -113,7 +113,7 @@ func TestGetDomainByName(t *testing.T) {
 		So(listErr, ShouldNotBeNil)
 	})
 	Convey("Get private domain by guid", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", listDomainByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{listDomainByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -132,7 +132,7 @@ func TestGetDomainByName(t *testing.T) {
 
 func TestGetSharedDomainByName(t *testing.T) {
 	Convey("Get shared domain by name", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains", listSharedDomainsPayload, "", 200, "q=name:domain-49.example.com", nil}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains", []string{listSharedDomainsPayload}, "", 200, "q=name:domain-49.example.com", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -148,7 +148,7 @@ func TestGetSharedDomainByName(t *testing.T) {
 		So(domain.Name, ShouldEqual, "domain-49.example.com")
 	})
 	Convey("Get shared domain by name with an endpoint that returns a 404", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains", listDomainsEmptyResponse, "", 404, "q=name:domain-49.example.com", nil}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains", []string{listDomainsEmptyResponse}, "", 404, "q=name:domain-49.example.com", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -161,7 +161,7 @@ func TestGetSharedDomainByName(t *testing.T) {
 		So(listErr, ShouldNotBeNil)
 	})
 	Convey("Get shared domain by name for a non-existing domain", t, func() {
-		setup(MockRoute{"GET", "/v2/shared_domains", listDomainsEmptyResponse, "", 200, "q=name:idontexist", nil}, t)
+		setup(MockRoute{"GET", "/v2/shared_domains", []string{listDomainsEmptyResponse}, "", 200, "q=name:idontexist", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -177,7 +177,7 @@ func TestGetSharedDomainByName(t *testing.T) {
 
 func TestCreateDomain(t *testing.T) {
 	Convey("Create domain", t, func() {
-		setup(MockRoute{"POST", "/v2/private_domains", postDomainPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/private_domains", []string{postDomainPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -195,7 +195,7 @@ func TestCreateDomain(t *testing.T) {
 
 func TestCreateSharedDomain(t *testing.T) {
 	Convey("Create external shared domain", t, func() {
-		setup(MockRoute{"POST", "/v2/shared_domains", postExternalSharedDomainPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/shared_domains", []string{postExternalSharedDomainPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -211,7 +211,7 @@ func TestCreateSharedDomain(t *testing.T) {
 	})
 
 	Convey("Create external shared domain", t, func() {
-		setup(MockRoute{"POST", "/v2/shared_domains", postInternalSharedDomainPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/shared_domains", []string{postInternalSharedDomainPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -229,7 +229,7 @@ func TestCreateSharedDomain(t *testing.T) {
 
 func TestDeleteDomain(t *testing.T) {
 	Convey("Delete domain", t, func() {
-		setup(MockRoute{"DELETE", "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/private_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -245,7 +245,7 @@ func TestDeleteDomain(t *testing.T) {
 
 func TestDeleteSharedDomain(t *testing.T) {
 	Convey("Delete shared domain synchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 204, "async=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -259,7 +259,7 @@ func TestDeleteSharedDomain(t *testing.T) {
 	})
 
 	Convey("Delete shared domain synchronously", t, func() {
-		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/shared_domains/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", []string{""}, "", 202, "async=true", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

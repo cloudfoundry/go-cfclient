@@ -9,8 +9,8 @@ import (
 func TestListEvents(t *testing.T) {
 	Convey("List Events", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/events", listEventsPage1Payload, "", 200, "", nil},
-			{"GET", "/v2/events-2", listEventsPage2Payload, "", 200, "page=2", nil},
+			{"GET", "/v2/events", []string{listEventsPage1Payload}, "", 200, "", nil},
+			{"GET", "/v2/events-2", []string{listEventsPage2Payload}, "", 200, "page=2", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -38,7 +38,7 @@ func TestListEvents(t *testing.T) {
 func TestTotalEvents(t *testing.T) {
 	Convey("Total Events", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/events", totalEventsPayload, "", 200, "", nil},
+			{"GET", "/v2/events", []string{totalEventsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

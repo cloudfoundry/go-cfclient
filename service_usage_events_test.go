@@ -10,8 +10,8 @@ import (
 func TestListServiceUsageEvents(t *testing.T) {
 	Convey("List Service Usage Events", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/service_usage_events", listServiceUsageEventsPayload, "", 200, "", nil},
-			{"GET", "/v2/service_usage_eventsPage2", listServiceUsageEventsPayloadPage2, "", 200, "results-per-page=2&page=2", nil},
+			{"GET", "/v2/service_usage_events", []string{listServiceUsageEventsPayload}, "", 200, "", nil},
+			{"GET", "/v2/service_usage_eventsPage2", []string{listServiceUsageEventsPayloadPage2}, "", 200, "results-per-page=2&page=2", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -34,8 +34,8 @@ func TestListServiceUsageEvents(t *testing.T) {
 func TestListServiceUsageEventsByQuery(t *testing.T) {
 	Convey("List Service Usage Events", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/service_usage_events", listServiceUsageEventsPayload, "", 200, "results-per-page=2", nil},
-			{"GET", "/v2/service_usage_eventsPage2", listServiceUsageEventsPayloadPage2, "", 200, "results-per-page=2&page=2", nil},
+			{"GET", "/v2/service_usage_events", []string{listServiceUsageEventsPayload}, "", 200, "results-per-page=2", nil},
+			{"GET", "/v2/service_usage_eventsPage2", []string{listServiceUsageEventsPayloadPage2}, "", 200, "results-per-page=2&page=2", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

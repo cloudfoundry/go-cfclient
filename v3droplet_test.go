@@ -10,7 +10,7 @@ import (
 func TestSetCurrentDropletForV3App(t *testing.T) {
 	Convey("Set Droplet for V3 App", t, func() {
 		body := `{"data":{"guid":"3fc0916f-2cea-4f3a-ae53-048388baa6bd"}}`
-		setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", currentDropletV3AppPayload, "", http.StatusOK, "", &body}, t)
+		setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", []string{currentDropletV3AppPayload}, "", http.StatusOK, "", &body}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -29,7 +29,7 @@ func TestSetCurrentDropletForV3App(t *testing.T) {
 
 func TestGetCurrentDropletForV3App(t *testing.T) {
 	Convey("Get Droplet for V3 App", t, func() {
-		setup(MockRoute{"GET", "/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/droplets/current", getV3CurrentAppDropletPayload, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/droplets/current", []string{getV3CurrentAppDropletPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -49,7 +49,7 @@ func TestGetCurrentDropletForV3App(t *testing.T) {
 
 func TestDeleteDroplet(t *testing.T) {
 	Convey("Delete Droplet", t, func() {
-		setup(MockRoute{"DELETE", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", "", "", http.StatusAccepted, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

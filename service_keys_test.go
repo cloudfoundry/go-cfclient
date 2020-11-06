@@ -12,13 +12,13 @@ func TestListServiceKeys(t *testing.T) {
 			{
 				Method:   "GET",
 				Endpoint: "/v2/service_keys",
-				Output:   listServiceKeysPayloadPage1,
+				Output:   []string{listServiceKeysPayloadPage1},
 				Status:   200,
 			},
 			{
 				Method:   "GET",
 				Endpoint: "/v2/service_keys2",
-				Output:   listServiceKeysPayloadPage2,
+				Output:   []string{listServiceKeysPayloadPage2},
 				Status:   200,
 			},
 		}
@@ -64,7 +64,7 @@ func TestListServiceKeys(t *testing.T) {
 
 func TestGetServiceKeyByName(t *testing.T) {
 	Convey("Get service key by name", t, func() {
-		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeyPayload, "", 200, "q=name:test01_key", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_keys", []string{getServiceKeyPayload}, "", 200, "q=name:test01_key", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -86,7 +86,7 @@ func TestGetServiceKeyByName(t *testing.T) {
 
 func TestGetServiceKeyByGuid(t *testing.T) {
 	Convey("Get service key by guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeyPayload, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_keys", []string{getServiceKeyPayload}, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -108,7 +108,7 @@ func TestGetServiceKeyByGuid(t *testing.T) {
 
 func TestGetServiceKeysByGuid(t *testing.T) {
 	Convey("Get service key by guid", t, func() {
-		setup(MockRoute{"GET", "/v2/service_keys", getServiceKeysPayload, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_keys", []string{getServiceKeysPayload}, "", 200, "q=service_instance_guid:ecf26687-e176-4784-b181-b3c942fecb62", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -135,7 +135,7 @@ func TestGetServiceKeysByGuid(t *testing.T) {
 
 func TestCreateServiceKey(t *testing.T) {
 	Convey("Create a service key succeeds", t, func() {
-		setup(MockRoute{"POST", "/v2/service_keys", postServiceKeysPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_keys", []string{postServiceKeysPayload}, "", 201, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -158,7 +158,7 @@ func TestCreateServiceKey(t *testing.T) {
 	})
 
 	Convey("Create a service key with parameters succeeds", t, func() {
-		setup(MockRoute{"POST", "/v2/service_keys", postServiceKeysPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_keys", []string{postServiceKeysPayload}, "", 201, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -183,7 +183,7 @@ func TestCreateServiceKey(t *testing.T) {
 	})
 
 	Convey("Delete a service key succeeds", t, func() {
-		setup(MockRoute{"DELETE", "/v2/service_keys/ecf26687-e176-4784-b181-b3c942fecb62", "", "", 200, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/service_keys/ecf26687-e176-4784-b181-b3c942fecb62", []string{""}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -198,7 +198,7 @@ func TestCreateServiceKey(t *testing.T) {
 	})
 
 	Convey("Create a duplicate service key", t, func() {
-		setup(MockRoute{"POST", "/v2/service_keys", postServiceKeysDuplicatePayload, "", 400, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_keys", []string{postServiceKeysDuplicatePayload}, "", 400, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -220,7 +220,7 @@ func TestCreateServiceKey(t *testing.T) {
 	})
 
 	Convey("Gets a bad JSON response", t, func() {
-		setup(MockRoute{"POST", "/v2/service_keys", postServiceKeysBadPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_keys", []string{postServiceKeysBadPayload}, "", 201, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -242,7 +242,7 @@ func TestCreateServiceKey(t *testing.T) {
 	})
 
 	Convey("Gets an unexpected HTTP status code", t, func() {
-		setup(MockRoute{"POST", "/v2/service_keys", "", "", 202, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_keys", []string{""}, "", 202, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
