@@ -3608,7 +3608,9 @@ const listV3AppsPayload = `{
     "last": {
       "href": "https://api.example.org/v3/apps?page=2&per_page=2"
     },
-    "next":  "https://api.example.org/v3/apps?page=2&per_page=2",
+    "next": {
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+    },
     "previous": null
   },
   "resources": [
@@ -3766,7 +3768,9 @@ const listPackagesForV3AppPayloadPage1 = `{
     "last": {
       "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
     },
-    "next": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1",
+    "next": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
+    },
     "previous": null
   },
   "resources": [

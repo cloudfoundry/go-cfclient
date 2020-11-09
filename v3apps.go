@@ -207,9 +207,8 @@ func (c *Client) ListV3AppsByQuery(query url.Values) ([]V3App, error) {
 
 		apps = append(apps, data.Resources...)
 
-		var ok bool
-		requestURL, ok = data.Pagination.Next.(string)
-		if !ok || requestURL == "" {
+		requestURL = data.Pagination.Next.Href
+		if requestURL == "" {
 			break
 		}
 		requestURL, err = extractPathFromURL(requestURL)
