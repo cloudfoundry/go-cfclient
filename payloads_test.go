@@ -2463,21 +2463,21 @@ const stackByGuidPayload = `{
 
 const listTasksByAppPayloadPage1 string = `
 {
-"pagination": {
-"total_results": 4,
-"total_pages": 2,
-"first": {
-"href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
-},
-"last": {
-"href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
-},
-"next": {
-  "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
-},
-"previous": null
-},
-"resources": [
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "next": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "previous": null
+  },
+  "resources": [
   {
     "guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
     "sequence_id": 1,
@@ -2544,25 +2544,27 @@ const listTasksByAppPayloadPage1 string = `
       }
     }
   }
-]
+  ]
 }
 `
 
 const listTasksByAppPayloadPage2 string = `
 {
-"pagination": {
-"total_results": 4,
-"total_pages": 2,
-"first": {
-  "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
-},
-"last": {
-  "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
-},
-"next": null,
-"previous": null
-},
-"resources": [
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "next": null,
+    "previous":{
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    }
+  },
+  "resources": [
   {
     "guid": "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa",
     "sequence_id": 3,
@@ -2629,26 +2631,26 @@ const listTasksByAppPayloadPage2 string = `
       }
     }
   }
-]
+  ]
 }
 `
 const listTasksPayloadPage1 string = `
 {
-"pagination": {
-"total_results": 4,
-"total_pages": 2,
-"first": {
-"href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
-},
-"last": {
-"href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
-},
-"next": {
-  "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
-},
-"previous": null
-},
-"resources": [
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+    "next": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+      "previous": null
+  },
+  "resources": [
   {
     "guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
     "sequence_id": 1,
@@ -2715,25 +2717,27 @@ const listTasksPayloadPage1 string = `
       }
     }
   }
-]
+  ]
 }
 `
 
 const listTasksPayloadPage2 string = `
 {
-"pagination": {
-"total_results": 4,
-"total_pages": 2,
-"first": {
-  "href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
-},
-"last": {
-  "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
-},
-"next": null,
-"previous": null
-},
-"resources": [
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
+    }
+  },
+  "resources": [
   {
     "guid": "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa",
     "sequence_id": 3,
@@ -2800,7 +2804,7 @@ const listTasksPayloadPage2 string = `
       }
     }
   }
-]
+  ]
 }
 `
 
