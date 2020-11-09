@@ -85,7 +85,6 @@ func (c *Client) taskListHelper(requestURL string, query url.Values) ([]Task, er
 
 	for {
 		r := c.NewRequest("GET", requestURL)
-		fmt.Println(requestURL)
 		resp, err := c.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting v3 tasks")
