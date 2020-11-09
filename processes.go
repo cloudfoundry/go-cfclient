@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"reflect"
 )
 
 // ProcessListResponse is the json body returned from the API
@@ -65,33 +64,16 @@ func (c *Client) ListAllProcessesByQuery(query url.Values) ([]Process, error) {
 		}
 
 		allProcesses = append(allProcesses, resp.Processes...)
-		if resp.Pagination.Next == nil {
+		if resp.Pagination.Next.Href == "" {
 			return allProcesses, nil
 		}
 
-		var nextURL string
-
-		if resp.Pagination.Next == nil {
-			return allProcesses, nil
-		}
-
-		switch resp.Pagination.Next.(type) {
-		case string:
-			nextURL = resp.Pagination.Next.(string)
-		case map[string]interface{}:
-			m := resp.Pagination.Next.(map[string]interface{})
-			u, ok := m["href"]
-			if ok {
-				nextURL = u.(string)
-			}
-		default:
-			return nil, fmt.Errorf("Unexpected type [%s] for next url", reflect.TypeOf(resp.Pagination.Next).String())
-		}
-
+		nextURL := resp.Pagination.Next.Href
 		if nextURL == "" {
 			return allProcesses, nil
 		}
 
+		// TODO: Use extractPathFromURL to standardize url parsing for paging
 		u, err := url.Parse(nextURL)
 		if err != nil {
 			return nil, err

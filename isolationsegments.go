@@ -129,9 +129,8 @@ func (c *Client) ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegm
 			})
 		}
 
-		var ok bool
-		requestUrl, ok = isr.Pagination.Next.(string)
-		if !ok || requestUrl == "" {
+		requestUrl = isr.Pagination.Next.Href
+		if requestUrl == "" {
 			break
 		}
 	}
