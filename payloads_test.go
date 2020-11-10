@@ -2636,90 +2636,88 @@ const listTasksByAppPayloadPage2 string = `
 `
 const listTasksPayloadPage1 string = `
 {
-  "pagination": {
-    "total_results": 4,
-    "total_pages": 2,
-    "first": {
-      href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
-    },
-    "last": {
-      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
-    },
-    "next": {
-      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
-    },
-      "previous": null
-  },
-  "resources": [
-  {
-    "guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
-    "sequence_id": 1,
-    "name": "hello",
-    "state": "SUCCEEDED",
-    "memory_in_mb": 512,
-    "disk_in_mb": 1024,
-    "result": {
-      "failure_reason": null
-    },
-    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
-    "metadata": {
-      "labels": { },
-      "annotations": { }
-    },
-    "created_at": "2016-05-04T17:00:41Z",
-    "updated_at": "2016-05-04T17:00:42Z",
-    "links": {
-      "self": {
-        "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa"
-      },
-      "app": {
-        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
-      },
-      "cancel": {
-        "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
-        "method": "POST"
-      },
-      "droplet": {
-        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
-      }
-    }
-  },
-  {
-    "guid": "63b4cd89-fd8b-4bf1-a311-7174fcc907d6",
-    "sequence_id": 2,
-    "name": "migrate",
-    "state": "FAILED",
-    "memory_in_mb": 1024,
-    "disk_in_mb": 1024,
-    "result": {
-      "failure_reason": "Exited with status 1"
-    },
-    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
-    "metadata": {
-      "labels": { },
-      "annotations": { }
-    },
-    "created_at": "2016-05-04T17:00:43Z",
-    "updated_at": "2016-05-04T17:00:44Z",
-    "links": {
-      "self": {
-        "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6"
-      },
-      "app": {
-        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
-      },
-      "cancel": {
-        "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
-        "method": "POST"
-      },
-      "droplet": {
-        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
-      }
-    }
-  }
-  ]
-}
-`
+	"pagination": {
+		"total_results": 4,
+		"total_pages": 2,
+		"first": {
+			"href ": "https: //api.run.example.com/v3/tasks?page=1&per_page=2"
+		},
+		"last": {
+			"href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+		},
+		"next": {
+			"href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+		},
+		"previous": null
+	},
+	"resources": [{
+			"guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
+			"sequence_id": 1,
+			"name": "hello",
+			"state": "SUCCEEDED",
+			"memory_in_mb": 512,
+			"disk_in_mb": 1024,
+			"result": {
+				"failure_reason": null
+			},
+			"droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+			"metadata": {
+				"labels": {},
+				"annotations": {}
+			},
+			"created_at": "2016-05-04T17:00:41Z",
+			"updated_at": "2016-05-04T17:00:42Z",
+			"links": {
+				"self": {
+					"href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa"
+				},
+				"app": {
+					"href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+				},
+				"cancel": {
+					"href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
+					"method": "POST"
+				},
+				"droplet": {
+					"href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+				}
+			}
+		},
+		{
+			"guid": "63b4cd89-fd8b-4bf1-a311-7174fcc907d6",
+			"sequence_id": 2,
+			"name": "migrate",
+			"state": "FAILED",
+			"memory_in_mb": 1024,
+			"disk_in_mb": 1024,
+			"result": {
+				"failure_reason": "Exited with status 1"
+			},
+			"droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+			"metadata": {
+				"labels": {},
+				"annotations": {}
+			},
+			"created_at": "2016-05-04T17:00:43Z",
+			"updated_at": "2016-05-04T17:00:44Z",
+			"links": {
+				"self": {
+					"href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6"
+				},
+				"app": {
+					"href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+				},
+				"cancel": {
+					"href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
+					"method": "POST"
+				},
+				"droplet": {
+					"href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+				}
+			}
+		}
+	]
+}`
 
 const listTasksPayloadPage2 string = `
 {
