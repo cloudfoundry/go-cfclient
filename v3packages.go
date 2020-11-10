@@ -92,7 +92,6 @@ func (c *Client) ListPackagesForAppV3(appGUID string, query url.Values) ([]V3Pac
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error requesting packages for app %s", appGUID)
 		}
-
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
