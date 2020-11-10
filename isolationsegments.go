@@ -100,7 +100,7 @@ func (c *Client) GetIsolationSegmentByGUID(guid string) (*IsolationSegment, erro
 
 func (c *Client) ListIsolationSegmentsByQuery(query url.Values) ([]IsolationSegment, error) {
 	var iss []IsolationSegment
-	requestURL := "/v3/isolation_segments" + query.Encode()
+	requestURL := "/v3/isolation_segments"
 	if e := query.Encode(); len(e) > 0 {
 		requestURL += "?" + e
 	}
