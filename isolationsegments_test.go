@@ -8,7 +8,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestCreateIsolationSegement(t *testing.T) {
+func TestCreateIsolationSegment(t *testing.T) {
 	Convey("Create Isolation Segment", t, func() {
 		mocks := []MockRoute{
 			{"POST", "/v3/isolation_segments", []string{createIsolationSegmentPayload}, "", http.StatusCreated, "", nil},
@@ -34,7 +34,7 @@ func TestCreateIsolationSegement(t *testing.T) {
 	})
 }
 
-func TestGetIsolationSegementByGUID(t *testing.T) {
+func TestGetIsolationSegmentByGUID(t *testing.T) {
 	Convey("Request existing Isolation Segment", t, func() {
 		mocks := []MockRoute{
 			{"GET", "/v3/isolation_segments/323f211e-fea3-4161-9bd1-615392327913", []string{createIsolationSegmentPayload}, "", http.StatusOK, "", nil},
@@ -80,10 +80,7 @@ func TestGetIsolationSegementByGUID(t *testing.T) {
 
 func TestListIsolationSegments(t *testing.T) {
 	Convey("Request list of all Isolation Segments", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/isolation_segments", []string{listIsolationSegmentsPayload}, "", http.StatusOK, "", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v3/isolation_segments", []string{listIsolationSegmentsPayloadPage1, listIsolationSegmentsPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -95,7 +92,7 @@ func TestListIsolationSegments(t *testing.T) {
 		isolationsegment, err := client.ListIsolationSegments()
 		So(err, ShouldBeNil)
 		So(isolationsegment, ShouldNotBeNil)
-		So(len(isolationsegment), ShouldEqual, 2)
+		So(len(isolationsegment), ShouldEqual, 4)
 
 		So(isolationsegment[0].Name, ShouldEqual, "shared")
 		So(isolationsegment[0].GUID, ShouldEqual, "033b4c58-12bb-499a-b05d-4b6fc9e2993b")
@@ -106,6 +103,16 @@ func TestListIsolationSegments(t *testing.T) {
 		So(isolationsegment[1].GUID, ShouldEqual, "23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0")
 		So(isolationsegment[1].CreatedAt.String(), ShouldEqual, time.Date(2017, 4, 7, 11, 20, 16, 0, time.FixedZone("UTC", 0)).String())
 		So(isolationsegment[1].UpdatedAt.String(), ShouldEqual, time.Date(2017, 4, 7, 11, 20, 16, 0, time.FixedZone("UTC", 0)).String())
+
+		So(isolationsegment[2].Name, ShouldEqual, "shared1")
+		So(isolationsegment[2].GUID, ShouldEqual, "abcdefg12-12bb-499a-b05d-4b6fc9e2993b")
+		So(isolationsegment[2].CreatedAt.String(), ShouldEqual, time.Date(2017, 5, 2, 11, 22, 4, 0, time.FixedZone("UTC", 0)).String())
+		So(isolationsegment[2].UpdatedAt.String(), ShouldEqual, time.Date(2017, 5, 2, 11, 22, 4, 0, time.FixedZone("UTC", 0)).String())
+
+		So(isolationsegment[3].Name, ShouldEqual, "my_segment1")
+		So(isolationsegment[3].GUID, ShouldEqual, "abcdef123-9d3c-44d8-b2dc-1767bcdad1e0")
+		So(isolationsegment[3].CreatedAt.String(), ShouldEqual, time.Date(2017, 5, 7, 11, 20, 16, 0, time.FixedZone("UTC", 0)).String())
+		So(isolationsegment[3].UpdatedAt.String(), ShouldEqual, time.Date(2017, 5, 7, 11, 20, 16, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
 
