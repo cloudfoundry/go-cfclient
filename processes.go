@@ -2,7 +2,6 @@ package cfclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 )
 
@@ -48,9 +47,12 @@ func (c *Client) ListAllProcesses() ([]Process, error) {
 func (c *Client) ListAllProcessesByQuery(query url.Values) ([]Process, error) {
 	var allProcesses []Process
 
-	urlPath := "/v3/processes"
+	requestURL := "/v3/processes"
+	if e := query.Encode(); len(e) > 0 {
+		requestURL += "?" + e
+	}
 	for {
-		resp, err := c.getProcessPage(urlPath, query)
+		resp, err := c.getProcessPage(requestURL)
 		if err != nil {
 			return nil, err
 		}
@@ -65,30 +67,24 @@ func (c *Client) ListAllProcessesByQuery(query url.Values) ([]Process, error) {
 
 		allProcesses = append(allProcesses, resp.Processes...)
 		if resp.Pagination.Next.Href == "" {
+			break
+		}
+
+		requestURL := resp.Pagination.Next.Href
+		if requestURL == "" {
 			return allProcesses, nil
 		}
-
-		nextURL := resp.Pagination.Next.Href
-		if nextURL == "" {
-			return allProcesses, nil
-		}
-
-		// TODO: Use extractPathFromURL to standardize url parsing for paging
-		u, err := url.Parse(nextURL)
-		if err != nil {
-			return nil, err
-		}
-
-		urlPath = u.Path
-		query, err = url.ParseQuery(u.RawQuery)
+		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	return allProcesses, nil
 }
 
-func (c *Client) getProcessPage(urlPath string, query url.Values) (*ProcessListResponse, error) {
-	req := c.NewRequest("GET", fmt.Sprintf("%s?%s", urlPath, query.Encode()))
+func (c *Client) getProcessPage(requestURL string) (*ProcessListResponse, error) {
+	req := c.NewRequest("GET", requestURL)
 
 	resp, err := c.DoRequest(req)
 	if err != nil {
