@@ -13,7 +13,7 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20150712133111-4e1c5567d7c2 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
-	golang.org/x/net v0.0.0-20190311183353-d8887717615a
-	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
