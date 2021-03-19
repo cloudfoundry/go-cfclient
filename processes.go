@@ -70,7 +70,7 @@ func (c *Client) ListAllProcessesByQuery(query url.Values) ([]Process, error) {
 			break
 		}
 
-		requestURL := resp.Pagination.Next.Href
+		requestURL = resp.Pagination.Next.Href
 		if requestURL == "" {
 			return allProcesses, nil
 		}
