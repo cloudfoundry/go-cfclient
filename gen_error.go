@@ -27,8 +27,8 @@ type Definition struct {
 }
 
 func main() {
-	const url = "https://raw.githubusercontent.com/cloudfoundry/cloud_controller_ng/master/vendor/errors/v2.yml"
-
+	log.SetFlags(log.Lshortfile)
+	const url = "https://raw.githubusercontent.com/cloudfoundry/cloud_controller_ng/master/errors/v2.yml"
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)

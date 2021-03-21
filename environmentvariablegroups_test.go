@@ -8,7 +8,7 @@ import (
 
 func TestEnvionmentVariableGroups(t *testing.T) {
 	Convey("List Running Environment Variable Group", t, func() {
-		setup(MockRoute{"GET", "/v2/config/environment_variable_groups/running", getEVGPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/config/environment_variable_groups/running", []string{getEVGPayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -25,7 +25,7 @@ func TestEnvionmentVariableGroups(t *testing.T) {
 	})
 
 	Convey("List Staging Environment Variable Group", t, func() {
-		setup(MockRoute{"GET", "/v2/config/environment_variable_groups/staging", getEVGPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/config/environment_variable_groups/staging", []string{getEVGPayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -42,7 +42,7 @@ func TestEnvionmentVariableGroups(t *testing.T) {
 	})
 
 	Convey("Set Running Environment Variable Group", t, func() {
-		setup(MockRoute{"PUT", "/v2/config/environment_variable_groups/running", getEVGPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/config/environment_variable_groups/running", []string{getEVGPayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{
@@ -62,7 +62,7 @@ func TestEnvionmentVariableGroups(t *testing.T) {
 	})
 
 	Convey("Set Staging Environment Variable Group", t, func() {
-		setup(MockRoute{"PUT", "/v2/config/environment_variable_groups/staging", getEVGPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/config/environment_variable_groups/staging", []string{getEVGPayload}, "", 200, "", nil}, t)
 		defer teardown()
 
 		c := &Config{

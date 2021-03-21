@@ -9,8 +9,8 @@ import (
 func TestListRoutes(t *testing.T) {
 	Convey("List Routes", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/routes", listRoutesPayloadPage1, "", 200, "", nil},
-			{"GET", "/v2/routes_page_2", listRoutesPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/routes", []string{listRoutesPayloadPage1}, "", 200, "", nil},
+			{"GET", "/v2/routes_page_2", []string{listRoutesPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -37,7 +37,7 @@ func TestListRoutes(t *testing.T) {
 
 func TestGetRouteByGuid(t *testing.T) {
 	Convey("Get Route", t, func() {
-		setup(MockRoute{"GET", "/v2/routes/49df626e-8e87-4366-9fbc-f82186824e21", getRouteByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/routes/49df626e-8e87-4366-9fbc-f82186824e21", []string{getRouteByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -56,7 +56,7 @@ func TestGetRouteByGuid(t *testing.T) {
 
 func TestCreateRoute(t *testing.T) {
 	Convey("Create HTTP Route", t, func() {
-		setup(MockRoute{"POST", "/v2/routes", createRoute, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/routes", []string{createRoute}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -86,7 +86,7 @@ func TestCreateRoute(t *testing.T) {
 
 func TestCreateTcpRoute(t *testing.T) {
 	Convey("Create TCP Route", t, func() {
-		setup(MockRoute{"POST", "/v2/routes", createTcpRoute, "", 201, "generate_port=true", nil}, t)
+		setup(MockRoute{"POST", "/v2/routes", []string{createTcpRoute}, "", 201, "generate_port=true", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -113,7 +113,7 @@ func TestCreateTcpRoute(t *testing.T) {
 func TestBindRoute(t *testing.T) {
 	Convey("Bind route", t, func() {
 		Convey("When a successful status code is returned", func() {
-			setup(MockRoute{"PUT", "/v2/routes/7803de15-a20f-4dea-bf17-37de56629582/apps/ce5d0e27-3048-4024-80cb-fafbae9c3161", bindRoute, "", 201, "", nil}, t)
+			setup(MockRoute{"PUT", "/v2/routes/7803de15-a20f-4dea-bf17-37de56629582/apps/ce5d0e27-3048-4024-80cb-fafbae9c3161", []string{bindRoute}, "", 201, "", nil}, t)
 			defer teardown()
 			c := &Config{
 				ApiAddress: server.URL,
@@ -127,7 +127,7 @@ func TestBindRoute(t *testing.T) {
 
 		})
 		Convey("When an error status code is returned", func() {
-			setup(MockRoute{"PUT", "/v2/routes/7803de15-a20f-4dea-bf17-37de56629582/apps/ce5d0e27-3048-4024-80cb-fafbae9c3161", "", "", 400, "", nil}, t)
+			setup(MockRoute{"PUT", "/v2/routes/7803de15-a20f-4dea-bf17-37de56629582/apps/ce5d0e27-3048-4024-80cb-fafbae9c3161", []string{""}, "", 400, "", nil}, t)
 			defer teardown()
 			c := &Config{
 				ApiAddress: server.URL,
@@ -146,7 +146,7 @@ func TestBindRoute(t *testing.T) {
 func TestDeleteRoute(t *testing.T) {
 	Convey("Delete route", t, func() {
 		Convey("When a successful status code is returned", func() {
-			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "", nil}, t)
+			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", []string{""}, "", 204, "", nil}, t)
 			defer teardown()
 			c := &Config{
 				ApiAddress: server.URL,
@@ -160,7 +160,7 @@ func TestDeleteRoute(t *testing.T) {
 		})
 
 		Convey("When an error status code is returned", func() {
-			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 404, "", nil}, t)
+			setup(MockRoute{"DELETE", "/v2/routes/a537761f-9d93-4b30-af17-3d73dbca181b", []string{""}, "", 404, "", nil}, t)
 			defer teardown()
 			c := &Config{
 				ApiAddress: server.URL,
@@ -177,7 +177,7 @@ func TestDeleteRoute(t *testing.T) {
 
 func TestRouteDomain(t *testing.T) {
 	Convey("Find route domain", t, func() {
-		setup(MockRoute{"GET", "/v2/private_domains/foobar", getDomainPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/private_domains/foobar", []string{getDomainPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
