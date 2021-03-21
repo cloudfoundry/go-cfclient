@@ -8,7 +8,7 @@ import (
 
 func TestListServiceBrokers(t *testing.T) {
 	Convey("List Service Brokers", t, func() {
-		setup(MockRoute{"GET", "/v2/service_brokers", listServiceBrokersPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_brokers", []string{listServiceBrokersPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

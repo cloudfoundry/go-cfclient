@@ -24,7 +24,7 @@ var (
 type MockRoute struct {
 	Method      string
 	Endpoint    string
-	Output      string
+	Output      []string
 	UserAgent   string
 	Status      int
 	QueryString string
@@ -45,43 +45,50 @@ func setupWithRedirect(mock MockRouteWithRedirect, t *testing.T) {
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
-	value, _ := url.QueryUnescape(QueryString)
+	t.Helper()
+	if QueryStringExp == "" {
+		return
+	}
 
+	value, _ := url.QueryUnescape(QueryString)
 	if QueryStringExp != value {
-		t.Fatalf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
+		t.Errorf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
 	}
 }
 
 func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
+	t.Helper()
 	if len(UserAgentExp) < 1 {
 		UserAgentExp = "Go-CF-client/1.1"
 	}
 	if UserAgent != UserAgentExp {
-		t.Fatalf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
+		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
 	}
 }
 
 func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
+	t.Helper()
 	if postFormBody != nil {
 		if body, err := ioutil.ReadAll(req.Body); err != nil {
-			t.Fatal("No request body but expected one")
+			t.Error("No request body but expected one")
 		} else {
 			defer req.Body.Close()
 			if strings.TrimSpace(string(body)) != strings.TrimSpace(*postFormBody) {
-				t.Fatalf("Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
+				t.Errorf("Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
 			}
 		}
 	}
 }
 
 func testBodyContains(req *http.Request, expected *string, t *testing.T) {
+	t.Helper()
 	if expected != nil {
 		if body, err := ioutil.ReadAll(req.Body); err != nil {
-			t.Fatal("No request body but expected one")
+			t.Error("No request body but expected one")
 		} else {
 			defer req.Body.Close()
 			if !strings.Contains(string(body), *expected) {
-				t.Fatalf("Expected request body (%s) was not found in actual request body (%s)", *expected, body)
+				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", *expected, body)
 			}
 		}
 	}
@@ -115,46 +122,49 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 		postFormBody := mock.PostForm
 		redirectLocation := mock.RedirectLocation
 		if method == "GET" {
+			count := 0
 			r.Get(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output
+				singleOutput := output[count]
+				count++
+				return status, singleOutput
 			})
 		} else if method == "POST" {
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
-				return status, output
+				return status, output[0]
 			})
 		} else if method == "DELETE" {
 			r.Delete(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
-				return status, output
+				return status, output[0]
 			})
 		} else if method == "PUT" {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
-				return status, output
+				return status, output[0]
 			})
 		} else if method == "PATCH" {
 			r.Patch(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
-				return status, output
+				return status, output[0]
 			})
 		} else if method == "PUT-FILE" {
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testBodyContains(req, postFormBody, t)
-				return status, output
+				return status, output[0]
 			})
 		}
 	}

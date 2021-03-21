@@ -26,6 +26,7 @@ Some example code:
 package main
 
 import (
+        "fmt"
 	"github.com/cloudfoundry-community/go-cfclient"
 )
 

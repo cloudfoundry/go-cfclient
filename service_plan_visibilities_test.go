@@ -8,7 +8,7 @@ import (
 
 func TestListServicePlanVisibilities(t *testing.T) {
 	Convey("List service plan visibilities", t, func() {
-		setup(MockRoute{"GET", "/v2/service_plan_visibilities", listServicePlanVisibilitiesPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/service_plan_visibilities", []string{listServicePlanVisibilitiesPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -31,7 +31,7 @@ func TestListServicePlanVisibilities(t *testing.T) {
 
 func TestCreateServicePlanVisibility(t *testing.T) {
 	Convey("Create service plan visibility", t, func() {
-		setup(MockRoute{"POST", "/v2/service_plan_visibilities", postServicePlanVisibilityPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/service_plan_visibilities", []string{postServicePlanVisibilityPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

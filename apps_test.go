@@ -14,8 +14,8 @@ import (
 func TestListApps(t *testing.T) {
 	Convey("List Apps", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/apps", listAppsPayload, "Test-golang", 200, "inline-relations-depth=2", nil},
-			{"GET", "/v2/appsPage2", listAppsPayloadPage2, "Test-golang", 200, "", nil},
+			{"GET", "/v2/apps", []string{listAppsPayload}, "Test-golang", 200, "inline-relations-depth=2", nil},
+			{"GET", "/v2/appsPage2", []string{listAppsPayloadPage2}, "Test-golang", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -35,8 +35,8 @@ func TestListApps(t *testing.T) {
 func TestListAppsByRoute(t *testing.T) {
 	Convey("List Apps by Route", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/routes/a3fb8d86-4620-4725-b643-0b5122a432e0/apps", listAppsPayload, "Test-golang", 200, "", nil},
-			{"GET", "/v2/appsPage2", listAppsPayloadPage2, "Test-golang", 200, "", nil},
+			{"GET", "/v2/routes/a3fb8d86-4620-4725-b643-0b5122a432e0/apps", []string{listAppsPayload}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/appsPage2", []string{listAppsPayloadPage2}, "Test-golang", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -93,9 +93,9 @@ func assertAppList(apps []App, err error) {
 func TestGetAppByGuidNoInlineCall(t *testing.T) {
 	Convey("App By GUID", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload, "Test-golang", 200, "", nil},
-			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "Test-golang", 200, "", nil},
-			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", orgPayload, "Test-golang", 200, "", nil},
+			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayload}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", []string{spacePayload}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", []string{orgPayload}, "Test-golang", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -117,9 +117,9 @@ func TestGetAppByGuidNoInlineCall(t *testing.T) {
 
 	Convey("App By GUID with environment variables with different types", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment, "Test-golang", 200, "", nil},
-			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "Test-golang", 200, "", nil},
-			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", orgPayload, "Test-golang", 200, "", nil},
+			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayloadWithEnvironment}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", []string{spacePayload}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", []string{orgPayload}, "Test-golang", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -140,7 +140,7 @@ func TestGetAppByGuidNoInlineCall(t *testing.T) {
 
 func TestAppByGuid(t *testing.T) {
 	Convey("App By GUID", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayload, "", 200, "inline-relations-depth=2", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayload}, "", 200, "inline-relations-depth=2", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -157,7 +157,7 @@ func TestAppByGuid(t *testing.T) {
 	})
 
 	Convey("App By GUID with environment variables with different types", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", appPayloadWithEnvironment, "", 200, "inline-relations-depth=2", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayloadWithEnvironment}, "", 200, "inline-relations-depth=2", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -176,7 +176,7 @@ func TestAppByGuid(t *testing.T) {
 
 func TestGetAppInstances(t *testing.T) {
 	Convey("App completely running", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstancePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", []string{appInstancePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -204,7 +204,7 @@ func TestGetAppInstances(t *testing.T) {
 	})
 
 	Convey("App partially running", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", appInstanceUnhealthyPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances", []string{appInstanceUnhealthyPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -234,7 +234,7 @@ func TestGetAppInstances(t *testing.T) {
 
 func TestGetAppStats(t *testing.T) {
 	Convey("App stats completely running", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/stats", appStatsPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/stats", []string{appStatsPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -282,7 +282,7 @@ func TestGetAppStats(t *testing.T) {
 
 func TestGetAppRoutes(t *testing.T) {
 	Convey("List app routes", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/routes", appRoutesPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/routes", []string{appRoutesPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -314,6 +314,7 @@ func TestUploadAppBits(t *testing.T) {
 			Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/bits",
 			Status:   201,
 			PostForm: &expectedPayload,
+			Output:   []string{""},
 		}
 		setup(mr, t)
 		defer teardown()
@@ -346,6 +347,7 @@ func TestGetAppBits(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/download",
 				Status:   302,
+				Output:   []string{""},
 			},
 			RedirectLocation: s.URL,
 		}
@@ -386,6 +388,7 @@ func TestGetDropletBits(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/droplet/download",
 				Status:   302,
+				Output:   []string{""},
 			},
 			RedirectLocation: s.URL,
 		}
@@ -412,7 +415,7 @@ func TestGetDropletBits(t *testing.T) {
 
 func TestKillAppInstance(t *testing.T) {
 	Convey("Kills an app instance", t, func() {
-		setup(MockRoute{"DELETE", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances/0", "", "", 204, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/instances/0", []string{""}, "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -427,7 +430,7 @@ func TestKillAppInstance(t *testing.T) {
 
 func TestAppEnv(t *testing.T) {
 	Convey("Find app space", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/a7c47787-a982-467c-95d7-9ab17cbcc918/env", appEnvPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/a7c47787-a982-467c-95d7-9ab17cbcc918/env", []string{appEnvPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -448,7 +451,7 @@ func TestAppEnv(t *testing.T) {
 
 func TestAppSummary(t *testing.T) {
 	Convey("Get app summary", t, func() {
-		setup(MockRoute{"GET", "/v2/apps/b5f0d1bd-a3a9-40a4-af1a-312ad26e5379/summary", appSummaryPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/apps/b5f0d1bd-a3a9-40a4-af1a-312ad26e5379/summary", []string{appSummaryPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -493,7 +496,7 @@ func TestAppSummary(t *testing.T) {
 
 func TestAppSpace(t *testing.T) {
 	Convey("Find app space", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/foobar", spacePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/foobar", []string{spacePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -518,7 +521,7 @@ func TestAppSpace(t *testing.T) {
 
 func TestDeleteApps(t *testing.T) {
 	Convey("Delete app", t, func() {
-		setup(MockRoute{"DELETE", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", []string{""}, "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -534,7 +537,7 @@ func TestDeleteApps(t *testing.T) {
 
 func TestCreateApp(t *testing.T) {
 	Convey("Delete app", t, func() {
-		setup(MockRoute{"POST", "/v2/apps", appPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/apps", []string{appPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -558,7 +561,7 @@ func TestCreateApp(t *testing.T) {
 func TestStartApp(t *testing.T) {
 	Convey("Start app", t, func() {
 		expectedBody := `{ "state": "STARTED" }`
-		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", appPayload, "", http.StatusCreated, "", &expectedBody}, t)
+		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", []string{appPayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -574,7 +577,7 @@ func TestStartApp(t *testing.T) {
 func TestStopApp(t *testing.T) {
 	Convey("Stop app", t, func() {
 		expectedBody := `{ "state": "STOPPED" }`
-		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", appPayload, "", http.StatusCreated, "", &expectedBody}, t)
+		setup(MockRoute{"PUT", "/v2/apps/a537761f-9d93-4b30-af17-3d73dbca181b", []string{appPayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

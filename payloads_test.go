@@ -121,10 +121,10 @@ const totalEventsPayload = `{
 }`
 
 const listOrgsPayload = `{
-"total_results": 6,
+"total_results": 4,
 "total_pages": 2,
 "prev_url": null,
-"next_url": "/v2/orgsPage2?results-per-page=2",
+"next_url": "/v2/organizations?results-per-page=2&page=2",
 "resources": [
   {
      "metadata": {
@@ -178,7 +178,7 @@ const listOrgsPayload = `{
 }`
 
 const listOrgsPayloadPage2 = `{
-"total_results": 6,
+"total_results": 4,
 "total_pages": 2,
 "prev_url": null,
 "next_url": null,
@@ -847,9 +847,18 @@ const spaceSummaryPayload = `{
             "created_at": "2017-02-05T11:56:14Z"
          },
          "dashboard_url": null,
+         "service_broker_name": "broker-name",
+         "maintenance_info": {
+            "version": "1.0.0",
+            "description": "OS image update.\nExpect downtime."
+         },
          "service_plan": {
             "guid": "25e717d2-59a1-4cd2-a792-04508f816776",
             "name": "test-plan",
+            "maintenance_info": {
+               "version": "2.0.0",
+               "description": "Stemcell update.\nExpect downtime."
+            },
             "service": {
                "guid": "84c238f4-3961-4b10-8406-9003374c1f2b",
                "label": "test-service",
@@ -2057,6 +2066,11 @@ var serviceInstancePayload = `{
    }
 }`
 
+var serviceInstanceParamsPayload = `{
+  "foo": "bar",
+  "baz": 42
+}`
+
 var listServiceInstancePayload = `{
   "total_results": 2,
   "total_pages": 1,
@@ -2434,72 +2448,362 @@ const listStacksPayloadPage2 string = `{
    ]
 }`
 
-const listTasksPayload string = `
+const stackByGuidPayload = `{
+  "metadata": {
+    "guid": "a9be2e10-0164-401d-94e0-88455d614844",
+    "url": "/v2/stacks/a9be2e10-0164-401d-94e0-88455d614844",
+    "created_at": "2017-01-18T16:39:11Z",
+    "updated_at": "2017-01-18T16:39:11Z"
+  },
+  "entity": {
+    "name": "windows2012R2",
+    "description": "Experimental Windows runtime"
+  }
+}`
+
+const listTasksByAppPayloadPage1 string = `
 {
-"pagination": {
-"total_results": 2,
-"total_pages": 1,
-"first": {
-"href": "https://api.run.example.com/v3/tasks?page=1&per_page=50"
-},
-"last": {
-"href": "https://api.run.example.com/v3/tasks?page=1&per_page=50"
-},
-"next": null,
-"previous": null
-},
-"resources": [
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "next": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "previous": null
+  },
+  "resources": [
+  {
+    "guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
+    "sequence_id": 1,
+    "name": "hello",
+    "state": "SUCCEEDED",
+    "memory_in_mb": 512,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": null
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:41Z",
+    "updated_at": "2016-05-04T17:00:42Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  },
+  {
+    "guid": "63b4cd89-fd8b-4bf1-a311-7174fcc907d6",
+    "sequence_id": 2,
+    "name": "migrate",
+    "state": "FAILED",
+    "memory_in_mb": 1024,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": "Exited with status 1"
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:43Z",
+    "updated_at": "2016-05-04T17:00:44Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  }
+  ]
+}
+`
+
+const listTasksByAppPayloadPage2 string = `
 {
-"guid": "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7",
-"sequence_id": 1,
-"name": "xxxxxxxx",
-"state": "FAILED",
-"memory_in_mb": 1024,
-"disk_in_mb": 1024,
-"result": {
-"failure_reason": "Exited with status 127"
-},
-"created_at": "2016-12-22T13:24:20Z",
-"updated_at": "2016-12-22T13:24:25Z",
-"droplet_guid": "xxxxxxxx-6cae-49b0-xxxxx-9265950fc16b",
-"links": {
-"self": {
-"href": "https://api.run.example.com/v3/tasks/xxxxxxxx-e99c-4d60-xxxxx-e066eb45f8a7"
-},
-"app": {
-"href": "https://api.run.example.com/v3/apps/xxxxxxxxx-1b30-4e4d-xxxxx-44dec11e3d5b"
-},
-"droplet": {
-"href": "https://api.run.example.com/v3/droplets/xxxxxxxxx-6cae-490b-xxxxx-9265950fc16b"
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=2&per_page=2"
+    },
+    "next": null,
+    "previous":{
+      "href": "https://api.run.example.com/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks?page=1&per_page=2"
+    }
+  },
+  "resources": [
+  {
+    "guid": "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa",
+    "sequence_id": 3,
+    "name": "hi",
+    "state": "SUCCEEDED",
+    "memory_in_mb": 512,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": null
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:44Z",
+    "updated_at": "2016-05-04T17:00:45Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/abcdefc-99a3-4e6a-af91-a44b4ab7b6fa"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/abcdefc-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  },
+  {
+    "guid": "hijklm9-fd8b-4bf1-a311-7174fcc907d6",
+    "sequence_id": 4,
+    "name": "hello2",
+    "state": "SUCCEEDED",
+    "memory_in_mb": 1024,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": "Exited with status 1"
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:46Z",
+    "updated_at": "2016-05-04T17:00:47Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/hijklm9-fd8b-4bf1-a311-7174fcc907d6"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/hijklm9-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  }
+  ]
 }
-}
-},
+`
+
+const listTasksPayloadPage1 string = `
 {
-"guid": "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa",
-"sequence_id": 2,
-"name": "yyyyyyyyy",
-"state": "FAILED",
-"memory_in_mb": 1024,
-"disk_in_mb": 1024,
-"result": {
-"failure_reason": "Exited with status 127"
-},
-"created_at": "2016-12-22T13:24:36Z",
-"updated_at": "2016-12-22T13:24:42Z",
-"droplet_guid": "xxxxxxx-6cae-49b0-xxxx-9265950fc16b",
-"links": {
-"self": {
-"href": "https://api.run.example.com/v3/tasks/xxxxxxxxx-5a25-4110-xxxxx-b309dc5cb0aa"
-},
-"app": {
-"href": "https://api.run.example.com/v3/apps/xxxxxxxxx-1b30-4e4d-xxxxx-44dec11e3d5b"
-},
-"droplet": {
-"href": "https://api.run.example.com/v3/droplets/xxxxxxxx-6cae-490b-xxxxx-9265950fc16b"
-}
-}
-}
-]
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href ": "https: //api.run.example.com/v3/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+    "next": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+    "previous": null
+  },
+  "resources": [{
+      "guid": "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa",
+      "sequence_id": 1,
+      "name": "hello",
+      "state": "SUCCEEDED",
+      "memory_in_mb": 512,
+      "disk_in_mb": 1024,
+      "result": {
+        "failure_reason": null
+      },
+      "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "created_at": "2016-05-04T17:00:41Z",
+      "updated_at": "2016-05-04T17:00:42Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        },
+        "cancel": {
+          "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
+          "method": "POST"
+        },
+        "droplet": {
+          "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+        }
+      }
+    },
+    {
+      "guid": "63b4cd89-fd8b-4bf1-a311-7174fcc907d6",
+      "sequence_id": 2,
+      "name": "migrate",
+      "state": "FAILED",
+      "memory_in_mb": 1024,
+      "disk_in_mb": 1024,
+      "result": {
+        "failure_reason": "Exited with status 1"
+      },
+      "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "created_at": "2016-05-04T17:00:43Z",
+      "updated_at": "2016-05-04T17:00:44Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        },
+        "cancel": {
+          "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
+          "method": "POST"
+        },
+        "droplet": {
+          "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+        }
+      }
+    }
+  ]
+}`
+
+const listTasksPayloadPage2 string = `
+{
+  "pagination": {
+    "total_results": 4,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.run.example.com/v3/tasks?page=2&per_page=2"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.run.example.com/v3/tasks?page=1&per_page=2"
+    }
+  },
+  "resources": [
+  {
+    "guid": "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa",
+    "sequence_id": 3,
+    "name": "hi",
+    "state": "SUCCEEDED",
+    "memory_in_mb": 512,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": null
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:44Z",
+    "updated_at": "2016-05-04T17:00:45Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/abcdefc-99a3-4e6a-af91-a44b4ab7b6fa"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/abcdefc-99a3-4e6a-af91-a44b4ab7b6fa/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  },
+  {
+    "guid": "hijklm9-fd8b-4bf1-a311-7174fcc907d6",
+    "sequence_id": 4,
+    "name": "hello2",
+    "state": "SUCCEEDED",
+    "memory_in_mb": 1024,
+    "disk_in_mb": 1024,
+    "result": {
+      "failure_reason": "Exited with status 1"
+    },
+    "droplet_guid": "740ebd2b-162b-469a-bd72-3edb96fabd9a",
+    "metadata": {
+      "labels": { },
+      "annotations": { }
+    },
+    "created_at": "2016-05-04T17:00:46Z",
+    "updated_at": "2016-05-04T17:00:47Z",
+    "links": {
+      "self": {
+        "href": "https://api.example.org/v3/tasks/hijklm9-fd8b-4bf1-a311-7174fcc907d6"
+      },
+      "app": {
+        "href": "https://api.example.org/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+      },
+      "cancel": {
+        "href": "https://api.example.org/v3/tasks/hijklm9-fd8b-4bf1-a311-7174fcc907d6/actions/cancel",
+        "method": "POST"
+      },
+      "droplet": {
+        "href": "https://api.example.org/v3/droplets/740ebd2b-162b-469a-bd72-3edb96fabd9a"
+      }
+    }
+  }
+  ]
 }
 `
 
@@ -3108,17 +3412,279 @@ const createIsolationSegmentPayload = `{
    }
 }`
 
+const getV3AppPayload = `{
+  "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446",
+  "name": "my_app",
+  "state": "STOPPED",
+  "created_at": "2016-03-17T21:41:30Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": ["java_buildpack"],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "2f35885d-0c9d-4423-83ad-fd05066f8576"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576"
+    },
+    "processes": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/processes"
+    },
+    "route_mappings": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/route_mappings"
+    },
+    "packages": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/packages"
+    },
+    "environment_variables": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables"
+    },
+    "current_droplet": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets/current"
+    },
+    "droplets": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets"
+    },
+    "tasks": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/tasks"
+    },
+    "start": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
+      "method": "POST"
+    },
+    "stop": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {
+      "contacts": "Bill tel(1111111) email(bill@fixme), Bob tel(222222) pager(3333333#555) email(bob@fixme)"
+    }
+  }
+}`
+
+const getV3AppEnvPayload = `{
+  "staging_env_json": {
+    "GEM_CACHE": "http://gem-cache.example.org"
+  },
+  "running_env_json": {
+    "HTTP_PROXY": "http://proxy.example.org"
+  },
+  "environment_variables": {
+    "RAILS_ENV": "production"
+  },
+  "system_env_json": {
+    "VCAP_SERVICES": {
+      "mysql": [
+        {
+          "name": "db-for-my-app",
+          "label": "mysql",
+          "tags": ["relational", "sql"],
+          "plan": "xlarge",
+          "credentials": {
+            "username": "user",
+            "password": "top-secret"
+           },
+          "syslog_drain_url": "https://syslog.example.org/drain",
+          "provider": null
+        }
+      ]
+    }
+  },
+  "application_env_json": {
+    "VCAP_APPLICATION": {
+      "limits": {
+        "fds": 16384
+      },
+      "application_name": "my_app",
+      "application_uris": [ "my_app.example.org" ],
+      "name": "my_app",
+      "space_name": "my_space",
+      "space_id": "2f35885d-0c9d-4423-83ad-fd05066f8576",
+      "uris": [ "my_app.example.org" ],
+      "users": null
+    }
+  }
+}`
+
+const createV3AppPayload = `{
+  "guid": "app-guid",
+  "name": "my-app",
+  "state": "STOPPED",
+  "created_at": "2016-03-17T21:41:30Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": ["java_buildpack"],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "space-guid"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/app-guid"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/space-guid"
+    },
+    "processes": {
+      "href": "https://api.example.org/v3/apps/app-guid/processes"
+    },
+    "route_mappings": {
+      "href": "https://api.example.org/v3/apps/app-guid/route_mappings"
+    },
+    "packages": {
+      "href": "https://api.example.org/v3/apps/app-guid/packages"
+    },
+    "environment_variables": {
+      "href": "https://api.example.org/v3/apps/app-guid/environment_variables"
+    },
+    "current_droplet": {
+      "href": "https://api.example.org/v3/apps/app-guid/droplets/current"
+    },
+    "droplets": {
+      "href": "https://api.example.org/v3/apps/app-guid/droplets"
+    },
+    "tasks": {
+      "href": "https://api.example.org/v3/apps/app-guid/tasks"
+    },
+    "start": {
+      "href": "https://api.example.org/v3/apps/app-guid/actions/start",
+      "method": "POST"
+    },
+    "stop": {
+      "href": "https://api.example.org/v3/apps/app-guid/actions/stop",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
+}`
+
+const createV3BuildPayload = `{
+  "guid": "585bc3c1-3743-497d-88b0-403ad6b56d16",
+  "created_at": "2016-03-28T23:39:34Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "created_by": {
+    "guid": "3cb4e243-bed4-49d5-8739-f8b45abdec1c",
+    "name": "bill",
+    "email": "bill@example.com"
+  },
+  "state": "STAGING",
+  "error": null,
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": [ "ruby_buildpack" ],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "package": {
+    "guid": "8e4da443-f255-499c-8b47-b3729b5b7432"
+  },
+  "droplet": null,
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+    }
+  }
+}
+`
+
 const listIsolationSegmentsPayload = `{
+  "pagination": {
+     "total_results": 2,
+     "total_pages": 1,
+     "first": {
+        "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+     },
+     "last": {
+        "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+     },
+     "next": null,
+     "previous": null
+  },
+  "resources": [
+     {
+        "guid": "033b4c58-12bb-499a-b05d-4b6fc9e2993b",
+        "name": "shared",
+        "created_at": "2017-04-02T11:22:04Z",
+        "updated_at": "2017-04-02T11:22:04Z",
+        "links": {
+           "self": {
+              "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b"
+           },
+           "organizations": {
+              "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/organizations"
+           },
+           "spaces": {
+              "href": "https://api.example.org/v3/isolation_segments/033b4c58-12bb-499a-b05d-4b6fc9e2993b/relationships/spaces"
+           }
+        }
+     },
+     {
+        "guid": "23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0",
+        "name": "my_segment",
+        "created_at": "2017-04-07T11:20:16Z",
+        "updated_at": "2017-04-07T11:20:16Z",
+        "links": {
+           "self": {
+              "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0"
+           },
+           "organizations": {
+              "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0/organizations"
+           },
+           "spaces": {
+              "href": "https://api.example.org/v3/isolation_segments/23d0baf4-9d3c-44d8-b2dc-1767bcdad1e0/relationships/spaces"
+           }
+        }
+     }
+  ]
+}`
+
+const listIsolationSegmentsPayloadPage1 = `{
    "pagination": {
-      "total_results": 2,
-      "total_pages": 1,
+      "total_results": 4,
+      "total_pages": 2,
       "first": {
-         "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+         "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=2"
       },
       "last": {
-         "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=50"
+         "href": "https://api.example.org/v3/isolation_segments?page=2&per_page=2"
       },
-      "next": null,
+      "next": {
+        "href": "https://api.example.org/v3/isolation_segments?page=2&per_page=2"
+      },
       "previous": null
    },
    "resources": [
@@ -3157,6 +3723,549 @@ const listIsolationSegmentsPayload = `{
          }
       }
    ]
+}`
+
+const listIsolationSegmentsPayloadPage2 = `{
+  "pagination": {
+     "total_results": 4,
+     "total_pages": 2,
+     "first": {
+        "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=2"
+      },
+      "last": {
+        "href": "https://api.example.org/v3/isolation_segments?page=2&per_page=2"
+      },
+     "next": null,
+     "previous": {
+        "href": "https://api.example.org/v3/isolation_segments?page=1&per_page=2"
+      }
+  },
+  "resources": [
+     {
+        "guid": "abcdefg12-12bb-499a-b05d-4b6fc9e2993b",
+        "name": "shared1",
+        "created_at": "2017-05-02T11:22:04Z",
+        "updated_at": "2017-05-02T11:22:04Z",
+        "links": {
+           "self": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdefg12-12bb-499a-b05d-4b6fc9e2993b"
+           },
+           "organizations": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdefg12-12bb-499a-b05d-4b6fc9e2993b/organizations"
+           },
+           "spaces": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdefg12-12bb-499a-b05d-4b6fc9e2993b/relationships/spaces"
+           }
+        }
+     },
+     {
+        "guid": "abcdef123-9d3c-44d8-b2dc-1767bcdad1e0",
+        "name": "my_segment1",
+        "created_at": "2017-05-07T11:20:16Z",
+        "updated_at": "2017-05-07T11:20:16Z",
+        "links": {
+           "self": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdef123-9d3c-44d8-b2dc-1767bcdad1e0"
+           },
+           "organizations": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdef123-9d3c-44d8-b2dc-1767bcdad1e0/organizations"
+           },
+           "spaces": {
+              "href": "https://api.example.org/v3/isolation_segments/abcdef123-9d3c-44d8-b2dc-1767bcdad1e0/relationships/spaces"
+           }
+        }
+     }
+  ]
+}`
+
+const startV3AppPayload = `{
+  "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446",
+  "name": "my_app",
+  "state": "STARTED",
+  "created_at": "2016-03-17T21:41:30Z",
+  "updated_at": "2016-03-18T11:32:30Z",
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": ["java_buildpack"],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "2f35885d-0c9d-4423-83ad-fd05066f8576"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576"
+    },
+    "processes": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/processes"
+    },
+    "route_mappings": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/route_mappings"
+    },
+    "packages": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/packages"
+    },
+    "environment_variables": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables"
+    },
+    "current_droplet": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets/current"
+    },
+    "droplets": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets"
+    },
+    "tasks": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/tasks"
+    },
+    "start": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
+      "method": "POST"
+    },
+    "stop": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
+}`
+
+const updateV3AppPayload = `{
+  "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446",
+  "name": "my_app",
+  "state": "STARTED",
+  "created_at": "2016-03-17T21:41:30Z",
+  "updated_at": "2016-03-18T11:32:30Z",
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": ["java_buildpack"],
+      "stack": "cflinuxfs2"
+    }
+  },
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "2f35885d-0c9d-4423-83ad-fd05066f8576"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576"
+    },
+    "processes": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/processes"
+    },
+    "route_mappings": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/route_mappings"
+    },
+    "packages": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/packages"
+    },
+    "environment_variables": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables"
+    },
+    "current_droplet": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets/current"
+    },
+    "droplets": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets"
+    },
+    "tasks": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/tasks"
+    },
+    "start": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
+      "method": "POST"
+    },
+    "stop": {
+      "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "environment": "production",
+      "internet-facing": "false"
+    },
+    "annotations": {}
+  }
+}`
+
+const currentDropletV3AppPayload = `{
+  "data": {
+    "guid": "9d8e007c-ce52-4ea7-8a57-f2825d2c6b39"
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/d4c91047-7b29-4fda-b7f9-04033e5c9c9f/relationships/current_droplet"
+    },
+    "related": {
+      "href": "https://api.example.org/v3/apps/d4c91047-7b29-4fda-b7f9-04033e5c9c9f/droplets/current"
+    }
+  }
+}`
+
+const getV3CurrentAppDropletPayload = `{
+  "guid": "585bc3c1-3743-497d-88b0-403ad6b56d16",
+  "state": "STAGED",
+  "error": null,
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {}
+  },
+  "execution_metadata": "",
+  "process_types": {
+    "rake": "bundle exec rake",
+    "web": "bundle exec rackup config.ru -p $PORT"
+  },
+  "checksum": {
+    "type": "sha256",
+    "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "buildpacks": [
+    {
+      "name": "ruby_buildpack",
+      "detect_output": "ruby 1.6.14",
+      "version": "1.1.1.",
+      "buildpack_name": "ruby"
+    }
+  ],
+  "stack": "cflinuxfs3",
+  "image": null,
+  "created_at": "2016-03-28T23:39:34Z",
+  "updated_at": "2016-03-28T23:39:47Z",
+  "relationships": {
+    "app": {
+      "data": {
+        "guid": "7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/droplets/585bc3c1-3743-497d-88b0-403ad6b56d16"
+    },
+    "package": {
+      "href": "https://api.example.org/v3/packages/8222f76a-9e09-4360-b3aa-1ed329945e92"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+    },
+    "assign_current_droplet": {
+      "href": "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/relationships/current_droplet",
+      "method": "PATCH"
+      },
+    "download": {
+      "href": "https://api.example.org/v3/droplets/585bc3c1-3743-497d-88b0-403ad6b56d16/download"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
+}`
+
+const listV3AppsPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446",
+      "name": "my_app",
+      "state": "STARTED",
+      "created_at": "2016-03-17T21:41:30Z",
+      "updated_at": "2016-03-18T11:32:30Z",
+      "lifecycle": {
+        "type": "buildpack",
+        "data": {
+          "buildpacks": ["java_buildpack"],
+          "stack": "cflinuxfs2"
+        }
+      },
+      "relationships": {
+        "space": {
+          "data": {
+            "guid": "2f35885d-0c9d-4423-83ad-fd05066f8576"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576"
+        },
+        "processes": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/processes"
+        },
+        "route_mappings": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/route_mappings"
+        },
+        "packages": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/packages"
+        },
+        "environment_variables": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables"
+        },
+        "current_droplet": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets/current"
+        },
+        "droplets": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/droplets"
+        },
+        "tasks": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/tasks"
+        },
+        "start": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
+          "method": "POST"
+        },
+        "stop": {
+          "href": "https://api.example.org/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+          "method": "POST"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listV3AppsPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "02b4ec9b-94c7-4468-9c23-4e906191a0f8",
+      "name": "my_app2",
+      "state": "STOPPED",
+      "created_at": "1970-01-01T00:00:02Z",
+      "updated_at": "2016-06-08T16:41:26Z",
+      "lifecycle": {
+        "type": "buildpack",
+        "data": {
+          "buildpacks": ["ruby_buildpack", "staticfile_buildpack"],
+          "stack": "cflinuxfs2"
+        }
+      },
+      "relationships": {
+        "space": {
+          "data": {
+            "guid": "2f35885d-0c9d-4423-83ad-fd05066f8576"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/2f35885d-0c9d-4423-83ad-fd05066f8576"
+        },
+        "processes": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/processes"
+        },
+        "route_mappings": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/route_mappings"
+        },
+        "packages": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/packages"
+        },
+        "environment_variables": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/environment_variables"
+        },
+        "current_droplet": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/droplets/current"
+        },
+        "droplets": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/droplets"
+        },
+        "tasks": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/tasks"
+        },
+        "start": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/actions/start",
+          "method": "POST"
+        },
+        "stop": {
+          "href": "https://api.example.org/v3/apps/02b4ec9b-94c7-4468-9c23-4e906191a0f8/actions/stop",
+          "method": "POST"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listPackagesForV3AppPayloadPage1 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "752edab0-2147-4f58-9c25-cd72ad8c3561",
+      "type": "bits",
+      "data": {
+        "error": null,
+        "checksum": {
+          "type": "sha256",
+          "value": null
+        }
+      },
+      "state": "READY",
+      "created_at": "2016-03-17T21:41:09Z",
+      "updated_at": "2016-06-08T16:41:26Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561"
+        },
+        "upload": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/upload",
+          "method": "POST"
+        },
+        "download": {
+          "href": "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/download",
+          "method": "GET"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listPackagesForV3AppPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "2345ab-2147-4f58-9c25-cd72ad8c3561",
+      "type": "bits",
+      "data": {
+        "error": null,
+        "checksum": {
+          "type": "sha256",
+          "value": null
+        }
+      },
+      "state": "READY",
+      "created_at": "2016-03-17T21:41:09Z",
+      "updated_at": "2016-06-08T16:41:26Z",
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561"
+        },
+        "upload": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/upload",
+          "method": "POST"
+        },
+        "download": {
+          "href": "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/download",
+          "method": "GET"
+        },
+        "app": {
+          "href": "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const copyPackageV3Payload = `{
+  "guid": "fec72fc1-e453-4463-a86d-5df426f337a3",
+  "type": "docker",
+  "data": {
+    "image": "http://awesome-sauce.example.org"
+  },
+  "state": "COPYING",
+  "created_at": "2016-03-17T21:41:09Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/packages/fec72fc1-e453-4463-a86d-5df426f337a3"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/36208a68-562d-4f51-94ea-28bd8553a271"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
 }`
 
 const listServiceKeysPayloadPage1 = `{
@@ -3523,10 +4632,10 @@ const buildpackCreatePayload = `
 
 const listAppUsageEventsPayload = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
-  "next_url": "/v2/app_usage_eventsPage2?results-per-page=2&page=2",
+  "next_url": "/v2/app_usage_events?results-per-page=2&page=2",
   "resources": [
     {
       "metadata": {
@@ -3591,7 +4700,7 @@ const listAppUsageEventsPayload = `
 
 const listAppUsageEventsPayloadPage2 = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
   "next_url": null,
@@ -3659,10 +4768,10 @@ const listAppUsageEventsPayloadPage2 = `
 
 const listServiceUsageEventsPayload = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
-  "next_url": "/v2/service_usage_eventsPage2?results-per-page=2&page=2",
+  "next_url": "/v2/service_usage_events?results-per-page=2&page=2",
   "resources": [
     {
       "metadata": {
@@ -3709,7 +4818,7 @@ const listServiceUsageEventsPayload = `
 
 const listServiceUsageEventsPayloadPage2 = `
 {
-  "total_results": 2,
+  "total_results": 4,
   "total_pages": 2,
   "prev_url": null,
   "next_url": null,
@@ -3837,6 +4946,50 @@ const AppUpdatePayload = `
   }
 }`
 
+const appRestagePayload = `{
+  "metadata": {
+    "guid": "97f7e56b-addf-4d26-be82-998a06600011",
+    "url": "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011",
+    "created_at": "2016-06-08T16:41:40Z",
+    "updated_at": "2016-06-08T16:41:40Z"
+  },
+  "entity": {
+    "name": "name-2047",
+    "production": false,
+    "space_guid": "b1787767-ca42-4fcf-989e-2530fe2987a5",
+    "stack_guid": "00caa65b-55f4-4c72-8e61-011c20189462",
+    "buildpack": null,
+    "detected_buildpack": null,
+    "detected_buildpack_guid": null,
+    "environment_json": null,
+    "memory": 1024,
+    "instances": 1,
+    "disk_quota": 1024,
+    "state": "STARTED",
+    "version": "4de62557-7599-422e-93ab-49e6b6ede56b",
+    "command": null,
+    "console": false,
+    "debug": null,
+    "staging_task_id": null,
+    "package_state": "PENDING",
+    "health_check_http_endpoint": "",
+    "health_check_type": "port",
+    "health_check_timeout": null,
+    "staging_failed_reason": null,
+    "staging_failed_description": null,
+    "diego": false,
+    "docker_image": null,
+    "docker_credentials": {
+      "username": null,
+      "password": null
+    },
+    "package_updated_at": "2016-06-08T16:41:40Z",
+    "detected_start_command": "",
+    "enable_ssh": true,
+    "ports": null
+  }
+}`
+
 const postServiceBindingPayload = `{
   "metadata": {
     "guid": "4e690cd4-66ef-4052-a23d-0d748316f18c",
@@ -3900,7 +5053,7 @@ const listRouteMappingsPayload = `{
         "route_url": "/v2/routes/eb1c4fcd-7d6d-41d2-bd2f-5811f53b6677"
       }
     },
-	{
+  {
       "metadata": {
         "guid": "63603ed7-bd4a-4475-a371-5b34381e0cf8",
         "url": "/v2/route_mappings/63603ed7-bd4a-4475-a371-5b34381e0cf8",
@@ -3963,7 +5116,7 @@ const listProcessesPayload1 = `{
       "href": "https://api.run.example.com/v3/processes?page=2&per_page=20"
     },
     "next": {
-      "href": "https://api.run.example.com/v3/processesPage2?page=2&per_page=20"
+      "href": "https://api.run.example.com/v3/processes?page=2&per_page=20"
     },
     "previous": null
   },
@@ -4872,4 +6025,54 @@ const listProcessesPayload2 = `{
       }
     }
   ]
+}`
+
+const getV3DeploymentPayload = `{
+  "guid": "59c3d133-2b83-46f3-960e-7765a129aea4",
+  "state": "DEPLOYING",
+  "status": {
+    "value": "ACTIVE",
+    "reason": "DEPLOYING",
+    "details": {
+      "last_successful_healthcheck": "2018-04-25T22:42:10Z"
+    }
+  },
+  "strategy": "rolling",
+  "droplet": {
+    "guid": "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"
+  },
+  "previous_droplet": {
+    "guid": "cc6bc315-bd06-49ce-92c2-bc3ad45268c2"
+  },
+  "new_processes": [
+    {
+      "guid": "fd5d3e60-f88c-4c37-b1ae-667cfc65a856",
+      "type": "web"
+    }
+  ],
+  "revision": {
+    "guid": "56126cba-656a-4eba-a81e-7e9951b2df57",
+    "version": 1
+  },
+  "created_at": "2018-04-25T22:42:10Z",
+  "updated_at": "2018-04-25T22:42:10Z",
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "relationships": {
+    "app": {
+      "data": {
+        "guid": "305cea31-5a44-45ca-b51b-e89c7a8ef8b2"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/305cea31-5a44-45ca-b51b-e89c7a8ef8b2"
+    }
+  }
 }`
