@@ -4268,6 +4268,25 @@ const copyPackageV3Payload = `{
   }
 }`
 
+const getServiceKeyByGuidPayload = `{
+  "metadata": {
+    "guid": "6ad2cc9b-1996-49a3-9538-dfc0da3b1f32",
+    "url": "/v2/service_keys/6ad2cc9b-1996-49a3-9538-dfc0da3b1f32",
+    "created_at": "2016-06-08T16:41:23Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-140",
+    "service_instance_guid": "ca567b3d-e142-4139-94e3-1e0c010ba728",
+    "credentials": {
+      "creds-key-7": "creds-val-7"
+    },
+    "service_instance_url": "/v2/service_instances/ca567b3d-e142-4139-94e3-1e0c010ba728",
+    "service_key_parameters_url": "/v2/service_keys/6ad2cc9b-1996-49a3-9538-dfc0da3b1f32/parameters"
+  }
+}
+`
+
 const listServiceKeysPayloadPage1 = `{
    "total_results": 4,
    "total_pages": 2,
