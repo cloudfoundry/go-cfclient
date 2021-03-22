@@ -628,6 +628,10 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 	return c.fetchSpaces("/v2/spaces?" + query.Encode())
 }
 
+func (c *Client) ListSpacesByOrgGuid(orgGuid string) ([]Space, error) {
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", orgGuid))
+}
+
 func (c *Client) ListSpaces() ([]Space, error) {
 	return c.ListSpacesByQuery(nil)
 }
