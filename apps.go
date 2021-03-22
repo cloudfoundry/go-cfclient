@@ -329,6 +329,11 @@ func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
 	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), -1)
 }
 
+func (c *Client) ListAppsBySpaceGuid(spaceGuid string) ([]App, error) {
+	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), -1)
+}
+
+
 func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
 	pages := 0
 	apps := []App{}
@@ -666,6 +671,21 @@ func (c *Client) DeleteApp(guid string) error {
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
 	}
+	return nil
+}
+
+func (c *Client) RestartApp(guid string) error {
+	var err error
+	err = c.StopApp(guid)
+	if err != nil {
+		return err
+	}
+
+	err = c.StartApp(guid)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
