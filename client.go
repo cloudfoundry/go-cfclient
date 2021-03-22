@@ -47,6 +47,11 @@ type Config struct {
 	TokenSource         oauth2.TokenSource
 	tokenSourceDeadline *time.Time
 	UserAgent           string `json:"user_agent"`
+	Origin              string `json:"-"`
+}
+
+type LoginHint struct {
+	Origin string `json:"origin"`
 }
 
 // Request is used to help build up a request
@@ -163,6 +168,16 @@ func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config
 			AuthURL:  endpoint.AuthEndpoint + "/oauth/auth",
 			TokenURL: endpoint.TokenEndpoint + "/oauth/token",
 		},
+	}
+	if config.Origin != "" {
+		loginHint := LoginHint{config.Origin}
+		origin, err := json.Marshal(loginHint)
+		if err != nil {
+			return config, errors.Wrap(err, "Error creating login_hint")
+		}
+		val := url.Values{}
+		val.Set("login_hint", string(origin))
+		authConfig.Endpoint.TokenURL = fmt.Sprintf("%s?%s", authConfig.Endpoint.TokenURL, val.Encode())
 	}
 
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
