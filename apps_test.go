@@ -337,7 +337,7 @@ func TestGetAppBits(t *testing.T) {
 		next := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("Content-Type", "application/gzip")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("apptarbinarydata"))
+			_, _ = w.Write([]byte("apptarbinarydata"))
 		})
 		s := httptest.NewServer(next)
 		defer s.Close()
@@ -378,7 +378,7 @@ func TestGetDropletBits(t *testing.T) {
 		next := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("Content-Type", "application/gzip")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("apptarbinarydata"))
+			_, _ = w.Write([]byte("apptarbinarydata"))
 		})
 		s := httptest.NewServer(next)
 		defer s.Close()
