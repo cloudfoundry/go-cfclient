@@ -115,6 +115,29 @@ func TestGetAppByGuidNoInlineCall(t *testing.T) {
 		So(app.Name, ShouldEqual, "test-env")
 	})
 
+	Convey("App By GUID and space returns error", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayload}, "Test-golang", 200, "", nil},
+			{"GET", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", []string{"error"}, "Test-golang", 500, "", nil},
+			{"GET", "/v2/organizations/da0dba14-6064-4f7a-b15a-ff9e677e49b2", []string{"error"}, "Test-golang", 500, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+			UserAgent:  "Test-golang",
+		}
+
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		_, err = client.GetAppByGuidNoInlineCall("9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldNotBeNil)
+
+		So(err.Error(), ShouldStartWith, "Unable to get the Space for the app test-env")
+	})
+
 	Convey("App By GUID with environment variables with different types", t, func() {
 		mocks := []MockRoute{
 			{"GET", "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2", []string{appPayloadWithEnvironment}, "Test-golang", 200, "", nil},
