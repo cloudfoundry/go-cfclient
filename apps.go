@@ -528,7 +528,10 @@ func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
 		return errors.Wrapf(err, "Error uploading app %s bits, failed to close multipart writer", appGUID)
 	}
 
-	requestFile.Seek(0, 0)
+	_, err = requestFile.Seek(0, 0)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to seek beginning of file", appGUID)
+	}
 	fileStats, err := requestFile.Stat()
 	if err != nil {
 		return errors.Wrapf(err, "Error uploading app %s bits, failed to get temp file stats", appGUID)
