@@ -301,16 +301,15 @@ func (c *Client) GetAppByGuidNoInlineCall(guid string) (App, error) {
 		//Getting Spaces Resource
 		space, err := app.Space()
 		if err != nil {
-			errors.Wrap(err, "Unable to get the Space for the apps "+app.Name)
+			return App{}, errors.Wrap(err, "Unable to get the Space for the app "+app.Name)
 		} else {
 			app.SpaceData.Entity = space
-
 		}
 
 		//Getting orgResource
 		org, err := app.SpaceData.Entity.Org()
 		if err != nil {
-			errors.Wrap(err, "Unable to get the Org for the apps "+app.Name)
+			return App{}, errors.Wrap(err, "Unable to get the Org for the app "+app.Name)
 		} else {
 			app.SpaceData.Entity.OrgData.Entity = org
 		}
@@ -332,7 +331,6 @@ func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
 func (c *Client) ListAppsBySpaceGuid(spaceGuid string) ([]App, error) {
 	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), -1)
 }
-
 
 func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
 	pages := 0
