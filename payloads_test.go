@@ -3412,6 +3412,229 @@ const createIsolationSegmentPayload = `{
    }
 }`
 
+const listV3SpacesPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces?page=2&per_page=1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/spaces?page=2&per_page=1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "space-guid",
+      "created_at": "2017-02-01T01:33:58Z",
+      "updated_at": "2017-02-01T01:33:58Z",
+      "name": "my-space-1",
+      "relationships": {
+        "organization": {
+          "data": {
+            "guid": "org-guid"
+          }
+        },
+        "quota": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/spaces/space-guid"
+        },
+        "features": {
+          "href": "https://api.example.org/v3/spaces/space-guid/features"
+        },
+        "organization": {
+          "href": "https://api.example.org/v3/organizations/org-guid"
+        },
+        "apply_manifest": {
+          "href": "https://api.example.org/v3/spaces/space-guid/actions/apply_manifest",
+          "method": "POST"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listV3SpacesPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/spaces?page=2&per_page=1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "space-guid-2",
+      "created_at": "2017-02-01T01:33:58Z",
+      "updated_at": "2017-02-01T01:33:58Z",
+      "name": "my-space-2",
+      "relationships": {
+        "organization": {
+          "data": {
+            "guid": "org-guid"
+          }
+        },
+        "quota": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/spaces/space-guid-2"
+        },
+        "features": {
+          "href": "https://api.example.org/v3/spaces/space-guid-2/features"
+        },
+        "organization": {
+          "href": "https://api.example.org/v3/organizations/org-guid"
+        },
+        "apply_manifest": {
+          "href": "https://api.example.org/v3/spaces/space-guid-2/actions/apply_manifest",
+          "method": "POST"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const updateV3SpacePayload = `
+{
+  "guid": "space-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-space",
+  "relationships": {
+    "organization": {
+      "data": {
+        "guid": "org-guid"
+      }
+    },
+    "quota": {
+      "data": null
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/spaces/space-guid"
+    },
+    "features": {
+      "href": "https://api.example.org/v3/spaces/space-guid/features"
+    },
+    "organization": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "apply_manifest": {
+      "href": "https://api.example.org/v3/spaces/space-guid/actions/apply_manifest",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "SPACE_KEY": "space_value"
+    },
+    "annotations": {}
+  }
+}`
+
+const getV3SpacePayload = `{
+  "guid": "space-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-space",
+  "relationships": {
+    "organization": {
+      "data": {
+        "guid": "org-guid"
+      }
+    },
+    "quota": {
+      "data": null
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/spaces/space-guid"
+    },
+    "features": {
+      "href": "https://api.example.org/v3/spaces/space-guid/features"
+    },
+    "organization": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "apply_manifest": {
+      "href": "https://api.example.org/v3/spaces/space-guid/actions/apply_manifest",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "SPACE_KEY": "space_value"
+    },
+    "annotations": {}
+  }
+}`
+
+const createV3SpacePayload = `{
+  "guid": "space-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-space",
+  "relationships": {
+    "organization": {
+      "data": {
+        "guid": "org-guid"
+      }
+    },
+    "quota": {
+      "data": null
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/spaces/space-guid"
+    },
+    "features": {
+      "href": "https://api.example.org/v3/spaces/space-guid/features"
+    },
+    "organization": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "apply_manifest": {
+      "href": "https://api.example.org/v3/spaces/space-guid/actions/apply_manifest",
+      "method": "POST"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "SPACE_KEY": "space_value"
+    },
+    "annotations": {}
+  }
+}`
+
 const getV3AppPayload = `{
   "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446",
   "name": "my_app",
