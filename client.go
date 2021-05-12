@@ -435,7 +435,7 @@ func (c *Client) GetSSHCode() (string, error) {
 	values := url.Values{}
 	values.Set("response_type", "code")
 	values.Set("grant_type", "authorization_code")
-	values.Set("client_id", c.Endpoint.AppSSHOauthClient)	// client_id，used by cf server
+	values.Set("client_id", c.Endpoint.AppSSHOauthClient) // client_id，used by cf server
 
 	authorizeUrl.Path = "/oauth/authorize"
 	authorizeUrl.RawQuery = values.Encode()
