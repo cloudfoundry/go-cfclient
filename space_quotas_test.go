@@ -9,8 +9,8 @@ import (
 func TestListSpaceQuotas(t *testing.T) {
 	Convey("List Space Quotas", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage1, "", 200, "", nil},
-			{"GET", "/v2/space_quota_definitions_page_2", listSpaceQuotasPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/space_quota_definitions", []string{listSpaceQuotasPayloadPage1}, "", 200, "", nil},
+			{"GET", "/v2/space_quota_definitions_page_2", []string{listSpaceQuotasPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -41,7 +41,7 @@ func TestListSpaceQuotas(t *testing.T) {
 
 func TestGetSpaceQuotaByName(t *testing.T) {
 	Convey("Get Space Quota By Name", t, func() {
-		setup(MockRoute{"GET", "/v2/space_quota_definitions", listSpaceQuotasPayloadPage2, "", 200, "q=name:test-2", nil}, t)
+		setup(MockRoute{"GET", "/v2/space_quota_definitions", []string{listSpaceQuotasPayloadPage2}, "", 200, "q=name:test-2", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -69,7 +69,7 @@ func TestGetSpaceQuotaByName(t *testing.T) {
 
 func TestCreateSpaceQuota(t *testing.T) {
 	Convey("Create Space Quota", t, func() {
-		setup(MockRoute{"POST", "/v2/space_quota_definitions", spaceQuotaPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/space_quota_definitions", []string{spaceQuotaPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -94,7 +94,7 @@ func TestCreateSpaceQuota(t *testing.T) {
 
 func TestUpdateSpaceQuota(t *testing.T) {
 	Convey("Create Update Quota", t, func() {
-		setup(MockRoute{"PUT", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", []string{spaceQuotaPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -119,7 +119,7 @@ func TestUpdateSpaceQuota(t *testing.T) {
 
 func TestAssignSpaceQuota(t *testing.T) {
 	Convey("Assign Space Quota", t, func() {
-		setup(MockRoute{"PUT", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", "", "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{""}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

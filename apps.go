@@ -301,16 +301,15 @@ func (c *Client) GetAppByGuidNoInlineCall(guid string) (App, error) {
 		//Getting Spaces Resource
 		space, err := app.Space()
 		if err != nil {
-			errors.Wrap(err, "Unable to get the Space for the apps "+app.Name)
+			return App{}, errors.Wrap(err, "Unable to get the Space for the app "+app.Name)
 		} else {
 			app.SpaceData.Entity = space
-
 		}
 
 		//Getting orgResource
 		org, err := app.SpaceData.Entity.Org()
 		if err != nil {
-			errors.Wrap(err, "Unable to get the Org for the apps "+app.Name)
+			return App{}, errors.Wrap(err, "Unable to get the Org for the app "+app.Name)
 		} else {
 			app.SpaceData.Entity.OrgData.Entity = org
 		}
@@ -327,6 +326,10 @@ func (c *Client) ListApps() ([]App, error) {
 
 func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
 	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), -1)
+}
+
+func (c *Client) ListAppsBySpaceGuid(spaceGuid string) ([]App, error) {
+	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), -1)
 }
 
 func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
@@ -495,6 +498,9 @@ func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (app App, err err
 // UploadAppBits uploads the application's contents
 func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
 	requestFile, err := ioutil.TempFile("", "requests")
+	if err != nil {
+		return errors.Wrap(err, "Could not create temp file for app bits")
+	}
 
 	defer func() {
 		requestFile.Close()
@@ -522,7 +528,10 @@ func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
 		return errors.Wrapf(err, "Error uploading app %s bits, failed to close multipart writer", appGUID)
 	}
 
-	requestFile.Seek(0, 0)
+	_, err = requestFile.Seek(0, 0)
+	if err != nil {
+		return errors.Wrapf(err, "Error uploading app %s bits, failed to seek beginning of file", appGUID)
+	}
 	fileStats, err := requestFile.Stat()
 	if err != nil {
 		return errors.Wrapf(err, "Error uploading app %s bits, failed to get temp file stats", appGUID)
@@ -663,6 +672,21 @@ func (c *Client) DeleteApp(guid string) error {
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
 	}
+	return nil
+}
+
+func (c *Client) RestartApp(guid string) error {
+	var err error
+	err = c.StopApp(guid)
+	if err != nil {
+		return err
+	}
+
+	err = c.StartApp(guid)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

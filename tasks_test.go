@@ -1,7 +1,6 @@
 package cfclient
 
 import (
-	"net/url"
 	"testing"
 	"time"
 
@@ -10,10 +9,7 @@ import (
 
 func TestListTasks(t *testing.T) {
 	Convey("List Tasks", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/tasks", listTasksPayload, "", 200, "", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v3/tasks", []string{listTasksPayloadPage1, listTasksPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -25,29 +21,40 @@ func TestListTasks(t *testing.T) {
 		task, err := client.ListTasks()
 		So(err, ShouldBeNil)
 
-		So(len(task), ShouldEqual, 2)
+		So(len(task), ShouldEqual, 4)
 
-		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
-		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].GUID, ShouldEqual, "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[0].State, ShouldEqual, "SUCCEEDED")
 		So(task[0].SequenceID, ShouldEqual, 1)
-		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].MemoryInMb, ShouldEqual, 512)
 		So(task[0].DiskInMb, ShouldEqual, 1024)
-		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 41, 0, time.FixedZone("UTC", 0)).String())
 
-		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].GUID, ShouldEqual, "63b4cd89-fd8b-4bf1-a311-7174fcc907d6")
 		So(task[1].State, ShouldEqual, "FAILED")
 		So(task[1].SequenceID, ShouldEqual, 2)
 		So(task[1].MemoryInMb, ShouldEqual, 1024)
 		So(task[1].DiskInMb, ShouldEqual, 1024)
-		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 43, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[2].GUID, ShouldEqual, "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[2].State, ShouldEqual, "SUCCEEDED")
+		So(task[2].SequenceID, ShouldEqual, 3)
+		So(task[2].MemoryInMb, ShouldEqual, 512)
+		So(task[2].DiskInMb, ShouldEqual, 1024)
+		So(task[2].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 44, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[3].GUID, ShouldEqual, "hijklm9-fd8b-4bf1-a311-7174fcc907d6")
+		So(task[3].State, ShouldEqual, "SUCCEEDED")
+		So(task[3].SequenceID, ShouldEqual, 4)
+		So(task[3].MemoryInMb, ShouldEqual, 1024)
+		So(task[3].DiskInMb, ShouldEqual, 1024)
+		So(task[3].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 46, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
 func TestListTasksByQuery(t *testing.T) {
 	Convey("List Tasks", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/tasks", listTasksPayload, "", 200, "names=my-fancy-name&page=1", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v3/tasks", []string{listTasksPayloadPage1, listTasksPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -56,34 +63,38 @@ func TestListTasksByQuery(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		query := url.Values{}
-		query.Add("names", "my-fancy-name")
-		query.Add("page", "1")
-		task, err := client.ListTasksByQuery(query)
+		task, err := client.ListTasksByQuery(nil)
 		So(err, ShouldBeNil)
 
-		So(len(task), ShouldEqual, 2)
+		So(len(task), ShouldEqual, 4)
 
-		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
-		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].GUID, ShouldEqual, "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[0].State, ShouldEqual, "SUCCEEDED")
 		So(task[0].SequenceID, ShouldEqual, 1)
-		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].MemoryInMb, ShouldEqual, 512)
 		So(task[0].DiskInMb, ShouldEqual, 1024)
-		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 41, 0, time.FixedZone("UTC", 0)).String())
 
-		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].GUID, ShouldEqual, "63b4cd89-fd8b-4bf1-a311-7174fcc907d6")
 		So(task[1].State, ShouldEqual, "FAILED")
 		So(task[1].SequenceID, ShouldEqual, 2)
 		So(task[1].MemoryInMb, ShouldEqual, 1024)
 		So(task[1].DiskInMb, ShouldEqual, 1024)
-		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 43, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[3].GUID, ShouldEqual, "hijklm9-fd8b-4bf1-a311-7174fcc907d6")
+		So(task[3].State, ShouldEqual, "SUCCEEDED")
+		So(task[3].SequenceID, ShouldEqual, 4)
+		So(task[3].MemoryInMb, ShouldEqual, 1024)
+		So(task[3].DiskInMb, ShouldEqual, 1024)
+		So(task[3].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 46, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
 
 func TestCreateTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", createTaskPayload, "", 201, "", nil},
+			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", []string{createTaskPayload}, "", 201, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -115,7 +126,7 @@ func TestCreateTask(t *testing.T) {
 func TestCreateTaskFails(t *testing.T) {
 	Convey("Create Task fails", t, func() {
 		mocks := []MockRoute{
-			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", errorV3Payload, "", 400, "", nil},
+			{"POST", "/v3/apps/740ebd2b-162b-469a-bd72-3edb96fabd9a/tasks", []string{errorV3Payload}, "", 400, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -143,7 +154,7 @@ func TestCreateTaskFails(t *testing.T) {
 func TestTerminateTask(t *testing.T) {
 	Convey("Terminate Task", t, func() {
 		mocks := []MockRoute{
-			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", "", "", 202, "", nil},
+			{"PUT", "/v3/tasks/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/cancel", []string{""}, "", 202, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -162,7 +173,7 @@ func TestTerminateTask(t *testing.T) {
 func TestGetTask(t *testing.T) {
 	Convey("Create Task", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", createTaskPayload, "", 200, "", nil},
+			{"GET", "/v3/tasks/740ebd2b-162b-469a-bd72-3edb96fabd9a", []string{createTaskPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -186,10 +197,7 @@ func TestGetTask(t *testing.T) {
 
 func TestTasksByApp(t *testing.T) {
 	Convey("List Tasks by App", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200, "", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", []string{listTasksByAppPayloadPage1, listTasksByAppPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -201,30 +209,41 @@ func TestTasksByApp(t *testing.T) {
 		task, err := client.TasksByApp("ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
 		So(err, ShouldBeNil)
 
-		So(len(task), ShouldEqual, 2)
+		So(len(task), ShouldEqual, 4)
 
-		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
-		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].GUID, ShouldEqual, "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[0].State, ShouldEqual, "SUCCEEDED")
 		So(task[0].SequenceID, ShouldEqual, 1)
-		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].MemoryInMb, ShouldEqual, 512)
 		So(task[0].DiskInMb, ShouldEqual, 1024)
-		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 41, 0, time.FixedZone("UTC", 0)).String())
 
-		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].GUID, ShouldEqual, "63b4cd89-fd8b-4bf1-a311-7174fcc907d6")
 		So(task[1].State, ShouldEqual, "FAILED")
 		So(task[1].SequenceID, ShouldEqual, 2)
 		So(task[1].MemoryInMb, ShouldEqual, 1024)
 		So(task[1].DiskInMb, ShouldEqual, 1024)
-		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 43, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[2].GUID, ShouldEqual, "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[2].State, ShouldEqual, "SUCCEEDED")
+		So(task[2].SequenceID, ShouldEqual, 3)
+		So(task[2].MemoryInMb, ShouldEqual, 512)
+		So(task[2].DiskInMb, ShouldEqual, 1024)
+		So(task[2].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 44, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[3].GUID, ShouldEqual, "hijklm9-fd8b-4bf1-a311-7174fcc907d6")
+		So(task[3].State, ShouldEqual, "SUCCEEDED")
+		So(task[3].SequenceID, ShouldEqual, 4)
+		So(task[3].MemoryInMb, ShouldEqual, 1024)
+		So(task[3].DiskInMb, ShouldEqual, 1024)
+		So(task[3].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 46, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
 
 func TestTasksByAppByQuery(t *testing.T) {
 	Convey("List Tasks by App", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", listTasksPayload, "", 200, "names=my-fancy-name&page=1", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v3/apps/ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5/tasks", []string{listTasksByAppPayloadPage1, listTasksByAppPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -233,26 +252,37 @@ func TestTasksByAppByQuery(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		query := url.Values{}
-		query.Add("names", "my-fancy-name")
-		query.Add("page", "1")
-		task, err := client.TasksByAppByQuery("ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5", query)
+		task, err := client.TasksByAppByQuery("ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5", nil)
 		So(err, ShouldBeNil)
 
-		So(len(task), ShouldEqual, 2)
+		So(len(task), ShouldEqual, 4)
 
-		So(task[0].GUID, ShouldEqual, "xxxxxxxx-e99c-4d60-xxx-e066eb45f8a7")
-		So(task[0].State, ShouldEqual, "FAILED")
+		So(task[0].GUID, ShouldEqual, "d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[0].State, ShouldEqual, "SUCCEEDED")
 		So(task[0].SequenceID, ShouldEqual, 1)
-		So(task[0].MemoryInMb, ShouldEqual, 1024)
+		So(task[0].MemoryInMb, ShouldEqual, 512)
 		So(task[0].DiskInMb, ShouldEqual, 1024)
-		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 20, 0, time.FixedZone("UTC", 0)).String())
+		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 41, 0, time.FixedZone("UTC", 0)).String())
 
-		So(task[1].GUID, ShouldEqual, "xxxxxxxx-5a25-4110-xxx-b309dc5cb0aa")
+		So(task[1].GUID, ShouldEqual, "63b4cd89-fd8b-4bf1-a311-7174fcc907d6")
 		So(task[1].State, ShouldEqual, "FAILED")
 		So(task[1].SequenceID, ShouldEqual, 2)
 		So(task[1].MemoryInMb, ShouldEqual, 1024)
 		So(task[1].DiskInMb, ShouldEqual, 1024)
-		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 12, 22, 13, 24, 36, 0, time.FixedZone("UTC", 0)).String())
+		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 43, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[2].GUID, ShouldEqual, "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa")
+		So(task[2].State, ShouldEqual, "SUCCEEDED")
+		So(task[2].SequenceID, ShouldEqual, 3)
+		So(task[2].MemoryInMb, ShouldEqual, 512)
+		So(task[2].DiskInMb, ShouldEqual, 1024)
+		So(task[2].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 44, 0, time.FixedZone("UTC", 0)).String())
+
+		So(task[3].GUID, ShouldEqual, "hijklm9-fd8b-4bf1-a311-7174fcc907d6")
+		So(task[3].State, ShouldEqual, "SUCCEEDED")
+		So(task[3].SequenceID, ShouldEqual, 4)
+		So(task[3].MemoryInMb, ShouldEqual, 1024)
+		So(task[3].DiskInMb, ShouldEqual, 1024)
+		So(task[3].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 46, 0, time.FixedZone("UTC", 0)).String())
 	})
 }

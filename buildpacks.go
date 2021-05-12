@@ -176,7 +176,10 @@ func (b *Buildpack) Upload(file io.Reader, fileName string) error {
 			return
 		}
 
-		requestFile.Seek(0, 0)
+		_, err = requestFile.Seek(0, 0)
+		if err != nil {
+			capturedErr = fmt.Errorf("Error seeking beginning of file: %s", err)
+		}
 		fileStats, err := requestFile.Stat()
 		if err != nil {
 			capturedErr = fmt.Errorf("Error getting file info: %s", err)

@@ -26,18 +26,20 @@ Some example code:
 package main
 
 import (
+	"fmt"
+
 	"github.com/cloudfoundry-community/go-cfclient"
 )
 
 func main() {
-  c := &cfclient.Config{
-    ApiAddress:   "https://api.10.244.0.34.xip.io",
-    Username:     "admin",
-    Password:     "admin",
-  }
-  client, _ := cfclient.NewClient(c)
-  apps, _ := client.ListApps()
-  fmt.Println(apps)
+	c := &cfclient.Config{
+		ApiAddress: "https://api.10.244.0.34.xip.io",
+		Username:   "admin",
+		Password:   "secret",
+	}
+	client, _ := cfclient.NewClient(c)
+	apps, _ := client.ListApps()
+	fmt.Println(apps)
 }
 ```
 

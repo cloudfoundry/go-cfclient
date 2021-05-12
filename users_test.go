@@ -8,7 +8,7 @@ import (
 
 func TestGetUserByGUID(t *testing.T) {
 	Convey("Get user by GUID", t, func() {
-		setup(MockRoute{"GET", "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80", userByGUIDPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/users/72ccf759-43aa-4954-903f-7d892c268e80", []string{userByGUIDPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -28,8 +28,8 @@ func TestGetUserByGUID(t *testing.T) {
 func TestListUsers(t *testing.T) {
 	Convey("List Users", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users", listUsersPayload, "", 200, "", nil},
-			{"GET", "/v2/usersPage2", listUsersPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/users", []string{listUsersPayload}, "", 200, "", nil},
+			{"GET", "/v2/usersPage2", []string{listUsersPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -58,7 +58,7 @@ func TestListUsers(t *testing.T) {
 func TestListUserSpaces(t *testing.T) {
 	Convey("List User Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/spaces", listUserSpacesPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/spaces", []string{listUserSpacesPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -82,7 +82,7 @@ func TestListUserSpaces(t *testing.T) {
 func TestListUserManagedSpaces(t *testing.T) {
 	Convey("List User Audited Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_spaces", listUserSpacesPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_spaces", []string{listUserSpacesPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -106,7 +106,7 @@ func TestListUserManagedSpaces(t *testing.T) {
 func TestListUserAuditedSpaces(t *testing.T) {
 	Convey("List User Managed Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_spaces", listUserSpacesPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_spaces", []string{listUserSpacesPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -130,7 +130,7 @@ func TestListUserAuditedSpaces(t *testing.T) {
 func TestListUserOrgs(t *testing.T) {
 	Convey("List User Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/organizations", listUserOrgsPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/organizations", []string{listUserOrgsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -154,7 +154,7 @@ func TestListUserOrgs(t *testing.T) {
 func TestListUserManagedOrgs(t *testing.T) {
 	Convey("List User Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_organizations", listUserOrgsPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/managed_organizations", []string{listUserOrgsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -175,10 +175,10 @@ func TestListUserManagedOrgs(t *testing.T) {
 	})
 }
 
-func ListUserAuditedOrgs(t *testing.T) {
+func TestListUserAuditedOrgs(t *testing.T) {
 	Convey("List User Audited Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_organizations", listUserOrgsPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/audited_organizations", []string{listUserOrgsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -202,7 +202,7 @@ func ListUserAuditedOrgs(t *testing.T) {
 func TestUserBillingManagedOrgs(t *testing.T) {
 	Convey("List User Managed Spaces", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/billing_managed_organizations", listUserOrgsPayload, "", 200, "", nil},
+			{"GET", "/v2/users/cadd6389-fcf6-4928-84f0-6153556bf693/billing_managed_organizations", []string{listUserOrgsPayload}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -240,7 +240,7 @@ func TestGetUserByUsername(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	Convey("Create user", t, func() {
-		setup(MockRoute{"POST", "/v2/users", createUserPayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/users", []string{createUserPayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -257,7 +257,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	Convey("Delete user", t, func() {
-		setup(MockRoute{"DELETE", "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177", "", "", 204, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177", []string{""}, "", 204, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
