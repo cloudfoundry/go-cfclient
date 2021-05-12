@@ -9,11 +9,7 @@ import (
 
 func TestListAppUsageEvents(t *testing.T) {
 	Convey("List App Usage Events", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v2/app_usage_events", listAppUsageEventsPayload, "", 200, "", nil},
-			{"GET", "/v2/app_usage_eventsPage2", listAppUsageEventsPayloadPage2, "", 200, "results-per-page=2&page=2", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v2/app_usage_events", []string{listAppUsageEventsPayload, listAppUsageEventsPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -33,11 +29,7 @@ func TestListAppUsageEvents(t *testing.T) {
 
 func TestListAppUsageEventsByQuery(t *testing.T) {
 	Convey("List App Usage Events", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v2/app_usage_events", listAppUsageEventsPayload, "", 200, "results-per-page=2", nil},
-			{"GET", "/v2/app_usage_eventsPage2", listAppUsageEventsPayloadPage2, "", 200, "results-per-page=2&page=2", nil},
-		}
-		setupMultiple(mocks, t)
+		setup(MockRoute{"GET", "/v2/app_usage_events", []string{listAppUsageEventsPayload, listAppUsageEventsPayloadPage2}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,

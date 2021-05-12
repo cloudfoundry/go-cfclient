@@ -10,8 +10,8 @@ import (
 func TestListSpaces(t *testing.T) {
 	Convey("List Space", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/spaces", listSpacesPayload, "", 200, "", nil},
-			{"GET", "/v2/spacesPage2", listSpacesPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/spaces", []string{listSpacesPayload}, "", 200, "", nil},
+			{"GET", "/v2/spacesPage2", []string{listSpacesPayloadPage2}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -51,9 +51,9 @@ func TestListSpaces(t *testing.T) {
 func TestListSpaceSecGroups(t *testing.T) {
 	Convey("List Space SecGroups", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups", listSecGroupsPayload, "", 200, "inline-relations-depth=1", nil},
-			{"GET", "/v2/security_groupsPage2", listSecGroupsPayloadPage2, "", 200, "", nil},
-			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", emptyResources, "", 200, "", nil},
+			{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/security_groups", []string{listSecGroupsPayload}, "", 200, "inline-relations-depth=1", nil},
+			{"GET", "/v2/security_groupsPage2", []string{listSecGroupsPayloadPage2}, "", 200, "", nil},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/spaces", []string{emptyResources}, "", 200, "", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -100,7 +100,7 @@ func TestListSpaceSecGroups(t *testing.T) {
 }
 func TestListSpaceManagers(t *testing.T) {
 	Convey("ListSpaceManagers()", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/foo/managers", listSpacePeoplePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/foo/managers", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -118,7 +118,7 @@ func TestListSpaceManagers(t *testing.T) {
 }
 func TestListSpaceAuditors(t *testing.T) {
 	Convey("ListSpaceAuditors()", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/foo/auditors", listSpacePeoplePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/foo/auditors", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -136,7 +136,7 @@ func TestListSpaceAuditors(t *testing.T) {
 }
 func TestListSpaceDevelopers(t *testing.T) {
 	Convey("ListSpaceDevelopers()", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/foo/developers", listSpacePeoplePayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/foo/developers", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -155,7 +155,7 @@ func TestListSpaceDevelopers(t *testing.T) {
 
 func TestCreateSpace(t *testing.T) {
 	Convey("Create Space", t, func() {
-		setup(MockRoute{"POST", "/v2/spaces", spacePayload, "", 201, "", nil}, t)
+		setup(MockRoute{"POST", "/v2/spaces", []string{spacePayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -177,7 +177,7 @@ func TestCreateSpace(t *testing.T) {
 
 func TestUpdateSpace(t *testing.T) {
 	Convey("Update Space", t, func() {
-		setup(MockRoute{"PUT", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", spacePayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/a72fa1e8-c694-47b3-85f2-55f61fd00d73", []string{spacePayload}, "", 201, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -203,7 +203,7 @@ func TestUpdateSpace(t *testing.T) {
 
 func TestDeleteSpace(t *testing.T) {
 	Convey("Delete space", t, func() {
-		setup(MockRoute{"DELETE", "/v2/spaces/a537761f-9d93-4b30-af17-3d73dbca181b", "", "", 204, "recursive=false&async=false", nil}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/a537761f-9d93-4b30-af17-3d73dbca181b", []string{""}, "", 204, "recursive=false&async=false", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -218,7 +218,7 @@ func TestDeleteSpace(t *testing.T) {
 }
 func TestSpaceOrg(t *testing.T) {
 	Convey("Find space org", t, func() {
-		setup(MockRoute{"GET", "/v2/org/foobar", orgPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/org/foobar", []string{orgPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -243,7 +243,7 @@ func TestSpaceOrg(t *testing.T) {
 
 func TestSpaceQuota(t *testing.T) {
 	Convey("Get space quota", t, func() {
-		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", spaceQuotaPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/space_quota_definitions/9ffd7c5c-d83c-4786-b399-b7bd54883977", []string{spaceQuotaPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -276,7 +276,7 @@ func TestSpaceQuota(t *testing.T) {
 
 func TestSpaceSummary(t *testing.T) {
 	Convey("Get space summary", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", spaceSummaryPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/summary", []string{spaceSummaryPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -325,12 +325,14 @@ func TestSpaceSummary(t *testing.T) {
 		So(summary.Services[0].Guid, ShouldEqual, "3c5c758c-6b76-46f6-89d5-677909bfc975")
 		So(summary.Services[0].Name, ShouldEqual, "test-service")
 		So(summary.Services[0].BoundAppCount, ShouldEqual, 1)
+		So(summary.Services[0].ServiceBrokerName, ShouldEqual, "broker-name")
+		So(summary.Services[0].ServicePlan.Service.Label, ShouldEqual, "test-service")
 	})
 }
 
 func TestSpaceRoles(t *testing.T) {
 	Convey("Get space roles", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", spaceRolesPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/user_roles", []string{spaceRolesPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -367,7 +369,7 @@ func TestSpaceRoles(t *testing.T) {
 func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 	Convey("Associate auditor by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -390,7 +392,7 @@ func TestAssociateSpaceAuditorByUsername(t *testing.T) {
 func TestAssociateSpaceAuditorByUsernameAndOrigin(t *testing.T) {
 	Convey("Associate auditor by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -413,7 +415,7 @@ func TestAssociateSpaceAuditorByUsernameAndOrigin(t *testing.T) {
 func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Associate developer by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -436,7 +438,7 @@ func TestAssociateSpaceDeveloperByUsername(t *testing.T) {
 func TestAssociateSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
 	Convey("Associate developer by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -459,7 +461,7 @@ func TestAssociateSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
 func TestAssociateSpaceManagerByUsername(t *testing.T) {
 	Convey("Associate manager by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -482,7 +484,7 @@ func TestAssociateSpaceManagerByUsername(t *testing.T) {
 func TestAssociateSpaceManagerByUsernameAndOrigin(t *testing.T) {
 	Convey("Associate manager by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", associateSpaceUserPayload, "", 201, "", &requestBody}, t)
+		setup(MockRoute{"PUT", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", []string{associateSpaceUserPayload}, "", 201, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -505,7 +507,7 @@ func TestAssociateSpaceManagerByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 	Convey("Remove developer by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -526,7 +528,7 @@ func TestRemoveSpaceDeveloperByUsername(t *testing.T) {
 func TestRemoveSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
 	Convey("Remove developer by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/developers/remove", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -547,7 +549,7 @@ func TestRemoveSpaceDeveloperByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 	Convey("Remove auditor by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -569,7 +571,7 @@ func TestRemoveSpaceAuditorByUsername(t *testing.T) {
 func TestRemoveSpaceAuditorByUsernameAndOrigin(t *testing.T) {
 	Convey("Remove auditor by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/auditors/remove", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -591,7 +593,7 @@ func TestRemoveSpaceAuditorByUsernameAndOrigin(t *testing.T) {
 func TestRemoveSpaceManagerByUsername(t *testing.T) {
 	Convey("Remove manager by username", t, func() {
 		requestBody := `{"username":"user-name"}`
-		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"DELETE", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -613,7 +615,7 @@ func TestRemoveSpaceManagerByUsername(t *testing.T) {
 func TestRemoveSpaceManagerByUsernameAndOrigin(t *testing.T) {
 	Convey("Remove manager by username and origin", t, func() {
 		requestBody := `{"origin":"ldap","username":"user-name"}`
-		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", "", "", 200, "", &requestBody}, t)
+		setup(MockRoute{"POST", "/v2/spaces/bc7b4caf-f4b8-4d85-b126-0729b9351e56/managers/remove", []string{""}, "", 200, "", &requestBody}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -634,7 +636,7 @@ func TestRemoveSpaceManagerByUsernameAndOrigin(t *testing.T) {
 
 func TestGetSpaceByGuid(t *testing.T) {
 	Convey("List Space", t, func() {
-		setup(MockRoute{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", spaceByGuidPayload, "", 200, "", nil}, t)
+		setup(MockRoute{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1", []string{spaceByGuidPayload}, "", 200, "", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -657,7 +659,7 @@ func TestGetSpaceServiceOfferings(t *testing.T) {
 		setup(MockRoute{
 			Method:      "GET",
 			Endpoint:    fmt.Sprintf("/v2/spaces/%s/services", guid),
-			Output:      spaceServiceOfferingsPayload,
+			Output:      []string{spaceServiceOfferingsPayload},
 			UserAgent:   "",
 			Status:      200,
 			QueryString: "",
@@ -687,7 +689,7 @@ func TestIsolationSegmentForSpace(t *testing.T) {
 	Convey("set Default IsolationSegment", t, func() {
 		defaultIsolationSegmentPayload := `{"data":{"guid":"3b6f763f-aae1-4177-9b93-f2de6f2a48f2"}}`
 		mocks := []MockRoute{
-			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", "", "", 200, "", &defaultIsolationSegmentPayload},
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", []string{""}, "", 200, "", &defaultIsolationSegmentPayload},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -708,7 +710,7 @@ func TestResetIsolationSegmentForSpace(t *testing.T) {
 	Convey("Reset IsolationSegment", t, func() {
 		resetIsolationSegmentPayload := `{"data":null}`
 		mocks := []MockRoute{
-			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", "", "", 200, "", &resetIsolationSegmentPayload},
+			{"PATCH", "/v3/spaces/3b6f763f-aae1-4177-9b93-f2de6f2a48f2/relationships/isolation_segment", []string{""}, "", 200, "", &resetIsolationSegmentPayload},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()

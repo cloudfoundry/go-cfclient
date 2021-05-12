@@ -8,7 +8,7 @@ import (
 
 func TestUpdateApp(t *testing.T) {
 	Convey("Update app", t, func() {
-		setup(MockRoute{"PUT", "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011", AppUpdatePayload, "", 201, "", nil}, t)
+		setup(MockRoute{"PUT", "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011", []string{AppUpdatePayload}, "", 201, "", nil}, t)
 		c := &Config{
 			ApiAddress: server.URL,
 			Token:      "foobar",
@@ -22,5 +22,22 @@ func TestUpdateApp(t *testing.T) {
 		So(ret.Entity.Instances, ShouldEqual, 1)
 		So(ret.Entity.DiskQuota, ShouldEqual, 1024)
 		So(ret.Entity.Name, ShouldEqual, "NewName")
+	})
+}
+
+func TestRestageApp(t *testing.T) {
+	Convey("Restage app", t, func() {
+		setup(MockRoute{"POST", "/v2/apps/97f7e56b-addf-4d26-be82-998a06600011/restage", []string{appRestagePayload}, "", 201, "", nil}, t)
+		client, err := NewClient(&Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		})
+		So(err, ShouldBeNil)
+
+		resp, err := client.RestageApp("97f7e56b-addf-4d26-be82-998a06600011")
+		So(err, ShouldBeNil)
+		So(resp.Metadata.Guid, ShouldEqual, "97f7e56b-addf-4d26-be82-998a06600011")
+		So(resp.Entity.Name, ShouldEqual, "name-2047")
+		So(resp.Entity.EnableSSH, ShouldBeTrue)
 	})
 }

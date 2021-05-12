@@ -573,9 +573,7 @@ func (s *Space) ListSecGroups() (secGroups []SecGroup, err error) {
 				if err != nil {
 					return nil, err
 				}
-				for _, space := range spaces {
-					secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, space)
-				}
+				secGroup.Entity.SpacesData = append(secGroup.Entity.SpacesData, spaces...)
 			}
 			secGroups = append(secGroups, secGroup.Entity)
 		}
@@ -628,6 +626,10 @@ func (s *Space) Update(req SpaceRequest) (Space, error) {
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
 	return c.fetchSpaces("/v2/spaces?" + query.Encode())
+}
+
+func (c *Client) ListSpacesByOrgGuid(orgGuid string) ([]Space, error) {
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", orgGuid))
 }
 
 func (c *Client) ListSpaces() ([]Space, error) {
