@@ -25,11 +25,11 @@ func TestGetInfo(t *testing.T) {
 
 	Convey("Doesn't support metadata api", t, func() {
 		setupMultiple([]MockRoute{
-			MockRoute{
+			{
 				Method:   "GET",
 				Endpoint: "/",
 				Status:   200,
-				Output: `{
+				Output: []string{`{
 				   "links": {
 				      "cloud_controller_v3": {
 				         "href": "https://api.dev.cfdev.sh/v3",
@@ -38,7 +38,7 @@ func TestGetInfo(t *testing.T) {
 				         }
 				      }
 				   }
-				}`,
+				}`},
 			},
 		}, t)
 		defer teardown()
@@ -57,11 +57,11 @@ func TestGetInfo(t *testing.T) {
 
 	Convey("Support metadata api", t, func() {
 		setupMultiple([]MockRoute{
-			MockRoute{
+			{
 				Method:   "GET",
 				Endpoint: "/",
 				Status:   200,
-				Output: `{
+				Output: []string{`{
 				   "links": {
 				      "cloud_controller_v3": {
 				         "href": "https://api.dev.cfdev.sh/v3",
@@ -70,7 +70,7 @@ func TestGetInfo(t *testing.T) {
 				         }
 				      }
 				   }
-				}`,
+				}`},
 			},
 		}, t)
 		defer teardown()
