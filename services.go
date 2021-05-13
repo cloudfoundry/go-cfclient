@@ -29,6 +29,7 @@ type Service struct {
 	Active               bool     `json:"active"`
 	Bindable             bool     `json:"bindable"`
 	ServiceBrokerGuid    string   `json:"service_broker_guid"`
+	ServiceBrokerName    string   `json:"service_broker_name"`
 	PlanUpdateable       bool     `json:"plan_updateable"`
 	Tags                 []string `json:"tags"`
 	UniqueID             string   `json:"unique_id"`
