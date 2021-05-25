@@ -103,7 +103,8 @@ type App struct {
 	EnableSSH                bool                   `json:"enable_ssh"`
 	DetectedStartCommand     string                 `json:"detected_start_command"`
 	DockerImage              string                 `json:"docker_image"`
-	DockerCredentials        map[string]interface{} `json:"docker_credentials_json"`
+	DockerCredentialsJSON    map[string]interface{} `json:"docker_credentials_json"`
+	DockerCredentials        DockerCredentials      `json:"docker_credentials"`
 	Environment              map[string]interface{} `json:"environment_json"`
 	StagingFailedReason      string                 `json:"staging_failed_reason"`
 	StagingFailedDescription string                 `json:"staging_failed_description"`
