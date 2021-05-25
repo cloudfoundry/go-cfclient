@@ -78,7 +78,7 @@ func assertAppList(apps []App, err error) {
 	So(apps[0].EnableSSH, ShouldEqual, true)
 	So(apps[0].DetectedStartCommand, ShouldEqual, "app-launching-service-broker")
 	So(apps[0].DockerImage, ShouldEqual, "")
-	So(apps[0].DockerCredentials["redacted_message"], ShouldEqual, "[PRIVATE DATA HIDDEN]")
+	So(apps[0].DockerCredentialsJSON["redacted_message"], ShouldEqual, "[PRIVATE DATA HIDDEN]")
 	So(apps[0].Environment["FOOBAR"], ShouldEqual, "QUX")
 	So(apps[0].StagingFailedReason, ShouldEqual, "")
 	So(apps[0].StagingFailedDescription, ShouldEqual, "")
