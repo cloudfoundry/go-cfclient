@@ -395,6 +395,31 @@ func TestGetAppBits(t *testing.T) {
 	})
 }
 
+func TestUploadDropletBits(t *testing.T) {
+	Convey("Upload droplet bits", t, func() {
+		expectedPayload := "this should really be tar'd and gzipped binary data"
+		mr := MockRoute{
+			Method:   "PUT-FILE",
+			Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/droplet/upload",
+			Status:   201,
+			PostForm: &expectedPayload,
+			Output:   []string{""},
+		}
+		setup(mr, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		bits := bytes.NewBufferString(expectedPayload)
+		err = client.UploadDropletBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestGetDropletBits(t *testing.T) {
 	Convey("Get droplet bits", t, func() {
 
