@@ -415,7 +415,7 @@ func TestUploadDropletBits(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		bits := bytes.NewBufferString(expectedPayload)
-		_, _, err = client.UploadDropletBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
+		_, err = client.UploadDropletBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
 		So(err, ShouldBeNil)
 	})
 }
