@@ -613,10 +613,11 @@ func (c *Client) GetDropletBits(guid string) (io.ReadCloser, error) {
 }
 
 // GetDropletBits downloads the application's droplet bits as a tar file
-func (c *Client) UploadDropletBits(dropletReader io.Reader, appGUID string) error {
+// Returns the droplet GUID, job URL for monitoring, and an error
+func (c *Client) UploadDropletBits(dropletReader io.Reader, appGUID string) (string, string, error) {
 	dropletFile, err := ioutil.TempFile("", "droplet")
 	if err != nil {
-		return errors.Wrap(err, "Could not create temp file for droplet bits")
+		return "", "", errors.Wrap(err, "Could not create temp file for droplet bits")
 	}
 
 	defer func() {
@@ -627,48 +628,59 @@ func (c *Client) UploadDropletBits(dropletReader io.Reader, appGUID string) erro
 	writer := multipart.NewWriter(dropletFile)
 	part, err := writer.CreateFormFile("droplet", "droplet.tgz")
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
 	}
 
 	_, err = io.Copy(part, dropletReader)
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet, failed to copy all bytes", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet, failed to copy all bytes", appGUID)
 	}
 
 	err = writer.Close()
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet, failed to close multipart writer", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet, failed to close multipart writer", appGUID)
 	}
 
 	_, err = dropletFile.Seek(0, 0)
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet, failed to seek beginning of file", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet, failed to seek beginning of file", appGUID)
 	}
 	fileStats, err := dropletFile.Stat()
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet, failed to get temp file stats", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet, failed to get temp file stats", appGUID)
 	}
 
 	requestURL := fmt.Sprintf("/v2/apps/%s/droplet/upload", appGUID)
 	r := c.NewRequestWithBody("PUT", requestURL, dropletFile)
 	req, err := r.toHTTP()
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
 	}
 
 	req.ContentLength = fileStats.Size()
-	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
-	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	resp, err := c.Do(req)
 	if err != nil {
-		return errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet", appGUID)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
-		return errors.Wrapf(err, "Error uploading app %s droplet, response code: %d", appGUID, resp.StatusCode)
+		return "", "", errors.Wrapf(err, "Error uploading app %s droplet, response code: %d", appGUID, resp.StatusCode)
 	}
 
-	return nil
+	var respObj struct {
+		Metadata struct {
+			GUID string `json:"guid"`
+			URL  string `json:"url"`
+		} `json:"metadata"`
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(&respObj); err != nil {
+		return "", "", errors.Wrapf(err, "Error parsing response")
+	}
+
+	return respObj.Metadata.GUID, respObj.Metadata.URL, nil
 }
 
 // CreateApp creates a new empty application that still needs it's
