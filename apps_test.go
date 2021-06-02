@@ -403,7 +403,7 @@ func TestUploadDropletBits(t *testing.T) {
 			Endpoint: "/v2/apps/9902530c-c634-4864-a189-71d763cb12e2/droplet/upload",
 			Status:   201,
 			PostForm: &expectedPayload,
-			Output:   []string{""},
+			Output:   []string{`{"metadata":{"guid": "123", "url":"abc"}}`},
 		}
 		setup(mr, t)
 		defer teardown()
@@ -415,7 +415,7 @@ func TestUploadDropletBits(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		bits := bytes.NewBufferString(expectedPayload)
-		err = client.UploadDropletBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
+		_, _, err = client.UploadDropletBits(bits, "9902530c-c634-4864-a189-71d763cb12e2")
 		So(err, ShouldBeNil)
 	})
 }
