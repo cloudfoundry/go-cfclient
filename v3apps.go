@@ -40,9 +40,9 @@ type CreateV3AppRequest struct {
 }
 
 type UpdateV3AppRequest struct {
-	Name      string
-	Lifecycle *V3Lifecycle
-	Metadata  *V3Metadata
+	Name      string       `json:"name"`
+	Lifecycle *V3Lifecycle `json:"lifecycle"`
+	Metadata  *V3Metadata  `json:"metadata"`
 }
 
 func (c *Client) CreateV3App(r CreateV3AppRequest) (*V3App, error) {
