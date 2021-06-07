@@ -52,6 +52,7 @@ func (c *Client) CreateIsolationSegment(name string) (*IsolationSegment, error) 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating isolation segment")
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating isolation segment %s, response code: %d", name, resp.StatusCode)
 	}
@@ -157,6 +158,7 @@ func (c *Client) DeleteIsolationSegmentByGUID(guid string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error during sending DELETE request for isolation segments")
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("Error deleting isolation segment %s, response code: %d", guid, resp.StatusCode)
 	}
@@ -202,6 +204,7 @@ func (i *IsolationSegment) AddOrg(orgGuid string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error during adding org to isolation segment")
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Error adding org %s to isolation segment %s, response code: %d", orgGuid, i.Name, resp.StatusCode)
 	}
@@ -217,6 +220,7 @@ func (i *IsolationSegment) RemoveOrg(orgGuid string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Error during removing org %s in isolation segment %s", orgGuid, i.Name)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("Error deleting org %s in isolation segment %s, response code: %d", orgGuid, i.Name, resp.StatusCode)
 	}
@@ -235,6 +239,7 @@ func (i *IsolationSegment) AddSpace(spaceGuid string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Error during adding space %s to isolation segment %s", spaceGuid, i.Name)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("Error adding space to isolation segment %s, response code: %d", i.Name, resp.StatusCode)
 	}

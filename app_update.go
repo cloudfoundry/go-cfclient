@@ -93,6 +93,7 @@ func (c *Client) UpdateApp(guid string, aur AppUpdateResource) (UpdateResponse, 
 	if err != nil {
 		return UpdateResponse{}, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return UpdateResponse{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}

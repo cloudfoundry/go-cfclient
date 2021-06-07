@@ -159,8 +159,8 @@ func (c *Client) getAppEventsResponse(query string) (AppEventResponse, error) {
 	if err != nil {
 		return AppEventResponse{}, errors.Wrap(err, "Error requesting appevents")
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return AppEventResponse{}, errors.Wrap(err, "Error reading appevents response body")
 	}

@@ -253,8 +253,8 @@ func (a *App) Summary() (AppSummary, error) {
 	if err != nil {
 		return AppSummary{}, errors.Wrap(err, "Error requesting app summary")
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return AppSummary{}, errors.Wrap(err, "Error reading app summary body")
 	}
@@ -553,6 +553,7 @@ func (c *Client) UploadAppBits(file io.Reader, appGUID string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Error uploading app %s bits", appGUID)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return errors.Wrapf(err, "Error uploading app %s bits, response code: %d", appGUID, resp.StatusCode)
 	}
@@ -568,6 +569,7 @@ func (c *Client) GetAppBits(guid string) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error downloading app %s bits, API request failed", guid)
 	}
+	defer resp.Body.Close()
 	if isResponseRedirect(resp) {
 		// directly download the bits from blobstore using a non cloud controller transport
 		// some blobstores will return a 400 if an Authorization header is sent
@@ -594,6 +596,7 @@ func (c *Client) GetDropletBits(guid string) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error downloading droplet %s bits, API request failed", guid)
 	}
+	defer resp.Body.Close()
 	if isResponseRedirect(resp) {
 		// directly download the bits from blobstore using a non cloud controller transport
 		// some blobstores will return a 400 if an Authorization header is sent
@@ -697,11 +700,11 @@ func (c *Client) CreateApp(req AppCreateRequest) (App, error) {
 	if err != nil {
 		return App{}, errors.Wrapf(err, "Error creating app %s", req.Name)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return App{}, errors.Wrapf(err, "Error creating app %s, response code: %d", req.Name, resp.StatusCode)
 	}
 	resBody, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
 	if err != nil {
 		return App{}, errors.Wrapf(err, "Error reading app %s http response body", req.Name)
 	}
@@ -718,6 +721,7 @@ func (c *Client) StartApp(guid string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error starting app %s, response code: %d", guid, resp.StatusCode)
 	}
@@ -741,6 +745,7 @@ func (c *Client) DeleteApp(guid string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error deleting app %s, response code: %d", guid, resp.StatusCode)
 	}

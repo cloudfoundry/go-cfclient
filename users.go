@@ -56,8 +56,9 @@ func (c *Client) GetUserByGUID(guid string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return User{}, err
 	}
@@ -134,11 +135,12 @@ func (c *Client) CreateUser(req UserRequest) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return User{}, errors.Wrapf(err, "Error creating user, response code: %d", resp.StatusCode)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
+
 	if err != nil {
 		return User{}, err
 	}
@@ -158,6 +160,7 @@ func (c *Client) DeleteUser(userGuid string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error deleting user %s, response code: %d", userGuid, resp.StatusCode)
 	}
@@ -180,8 +183,9 @@ func (c *Client) getUserResponse(requestUrl string) (UserResponse, error) {
 	if err != nil {
 		return UserResponse{}, errors.Wrap(err, "Error requesting users")
 	}
-	resBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	resBody, err := ioutil.ReadAll(resp.Body)
+
 	if err != nil {
 		return UserResponse{}, errors.Wrap(err, "Error reading user request")
 	}

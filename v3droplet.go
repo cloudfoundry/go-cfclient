@@ -97,7 +97,7 @@ func (c *Client) DeleteDroplet(dropletGUID string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Error deleting droplet %s", dropletGUID)
 	}
-
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting droplet %s with response code %d", dropletGUID, resp.StatusCode)
 	}
