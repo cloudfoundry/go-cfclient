@@ -164,11 +164,11 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 		return ServiceInstance{}, err
 	}
 
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusAccepted && res.StatusCode != http.StatusCreated {
 		return ServiceInstance{}, errors.Wrapf(err, "Error creating service, response code: %d", res.StatusCode)
 	}
 
-	defer res.Body.Close()
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return ServiceInstance{}, errors.Wrap(err, "Error reading service instance response")

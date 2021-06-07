@@ -163,12 +163,11 @@ func (c *Client) CreateServiceKey(csr CreateServiceKeyRequest) (ServiceKey, erro
 	if err != nil {
 		return ServiceKey{}, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return ServiceKey{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
-	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
 	if err != nil {
 		return ServiceKey{}, err
 	}

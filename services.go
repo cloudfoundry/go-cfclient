@@ -72,8 +72,8 @@ func (c *Client) GetServiceByGuid(guid string) (Service, error) {
 	if err != nil {
 		return Service{}, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return Service{}, err
 	}
@@ -98,6 +98,7 @@ func (c *Client) ListServicesByQuery(query url.Values) ([]Service, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting services")
 		}
+		defer resp.Body.Close()
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error reading services request:")
