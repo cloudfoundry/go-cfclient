@@ -3412,6 +3412,194 @@ const createIsolationSegmentPayload = `{
    }
 }`
 
+const listV3OrganizationsPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/organizations?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/organizations?page=2&per_page=1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/organizations?page=2&per_page=1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "org-guid",
+      "created_at": "2017-02-01T01:33:58Z",
+      "updated_at": "2017-02-01T01:33:58Z",
+      "name": "my-org-1",
+      "relationships": {
+        "quota": {
+          "data": {
+            "guid": "quota-guid"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/organizations/org-guid"
+        },
+        "domains": {
+          "href": "https://api.example.org/v3/organizations/org-guid/domains"
+        },
+        "default_domain": {
+          "href": "https://api.example.org/v3/organizations/org-guid/domains/default"
+        },
+        "quota": {
+          "href": "https://api.example.org/v3/organization_quotas/quota-guid"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listV3OrganizationsPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/organizations?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/organizations?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/organizations?page=2&per_page=1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "org-guid-2",
+      "created_at": "2017-02-01T01:33:58Z",
+      "updated_at": "2017-02-01T01:33:58Z",
+      "name": "my-org-2",
+      "relationships": {
+        "quota": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/organizations/org-guid-2"
+        },
+        "domains": {
+          "href": "https://api.example.org/v3/organizations/org-guid-2/domains"
+        },
+        "default_domain": {
+          "href": "https://api.example.org/v3/organizations/org-guid-2/domains/default"
+        }
+      },
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      }
+    }
+  ]
+}`
+
+const updateV3OrganizationPayload = `
+{
+  "guid": "org-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-org",
+  "suspended": false,
+  "relationships": {
+    "quota": {
+      "data": null
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "domains": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains"
+    },
+    "default_domain": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains/default"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "ORG_KEY": "org_value"
+    },
+    "annotations": {}
+  }
+}`
+
+const getV3OrganizationPayload = `{
+  "guid": "org-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-org",
+  "relationships": {
+    "quota": {
+      "data": {
+        "guid": "quota-guid"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "domains": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains"
+    },
+    "default_domain": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains/default"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "ORG_KEY": "org_value"
+    },
+    "annotations": {}
+  }
+}`
+
+const createV3OrganizationPayload = `{
+  "guid": "org-guid",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "my-org",
+  "relationships": {
+    "quota": {
+      "data": {
+        "guid": "quota-guid"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/organizations/org-guid"
+    },
+    "domains": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains"
+    },
+    "default_domain": {
+      "href": "https://api.example.org/v3/organizations/org-guid/domains/default"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "ORG_KEY": "org_value"
+    },
+    "annotations": {}
+  }
+}`
+
 const listV3SpacesPayload = `{
   "pagination": {
     "total_results": 2,
