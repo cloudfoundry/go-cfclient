@@ -72,12 +72,13 @@ type AppCreateRequest struct {
 	// Endpoint to check if an app is healthy
 	HealthCheckHttpEndpoint string `json:"health_check_http_endpoint,omitempty"`
 	// How to check if an app is healthy. Defaults to HEALTH_PORT if not specified
-	HealthCheckType   HealthCheckType        `json:"health_check_type,omitempty"`
-	Diego             bool                   `json:"diego,omitempty"`
-	EnableSSH         bool                   `json:"enable_ssh,omitempty"`
-	DockerImage       string                 `json:"docker_image,omitempty"`
-	DockerCredentials DockerCredentials      `json:"docker_credentials,omitempty"`
-	Environment       map[string]interface{} `json:"environment_json,omitempty"`
+	HealthCheckType    HealthCheckType        `json:"health_check_type,omitempty"`
+	HealthCheckTimeout int                    `json:"health_check_timeout,omitempty"`
+	Diego              bool                   `json:"diego,omitempty"`
+	EnableSSH          bool                   `json:"enable_ssh,omitempty"`
+	DockerImage        string                 `json:"docker_image,omitempty"`
+	DockerCredentials  DockerCredentials      `json:"docker_credentials,omitempty"`
+	Environment        map[string]interface{} `json:"environment_json,omitempty"`
 }
 
 type App struct {
