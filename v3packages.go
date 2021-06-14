@@ -105,7 +105,7 @@ func (c *Client) ListPackagesForAppV3(appGUID string, query url.Values) ([]V3Pac
 
 		packages = append(packages, data.Resources...)
 		requestURL = data.Pagination.Next.Href
-		if requestURL == "" {
+		if requestURL == "" || query.Get("page") != "" {
 			break
 		}
 		requestURL, err = extractPathFromURL(requestURL)

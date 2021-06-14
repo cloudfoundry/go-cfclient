@@ -165,7 +165,7 @@ func (c *Client) ListV3OrganizationsByQuery(query url.Values) ([]V3Organization,
 		organizations = append(organizations, data.Resources...)
 
 		requestURL = data.Pagination.Next.Href
-		if requestURL == "" {
+		if requestURL == "" || query.Get("page") != "" {
 			break
 		}
 		requestURL, err = extractPathFromURL(requestURL)
