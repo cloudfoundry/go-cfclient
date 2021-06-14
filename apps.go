@@ -270,11 +270,11 @@ func (a *App) Summary() (AppSummary, error) {
 // less and equal than 0, it queries all app info
 // When there are no more than totalPages apps on server side, all apps info will be returned
 func (c *Client) ListAppsByQueryWithLimits(query url.Values, totalPages int) ([]App, error) {
-	return c.listApps("/v2/apps?"+query.Encode(), totalPages)
+	return c.listApps("/v2/apps", query, totalPages)
 }
 
 func (c *Client) ListAppsByQuery(query url.Values) ([]App, error) {
-	return c.listApps("/v2/apps?"+query.Encode(), -1)
+	return c.listApps("/v2/apps", query, -1)
 }
 
 // GetAppByGuidNoInlineCall will fetch app info including space and orgs information
@@ -327,14 +327,15 @@ func (c *Client) ListApps() ([]App, error) {
 }
 
 func (c *Client) ListAppsByRoute(routeGuid string) ([]App, error) {
-	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), -1)
+	return c.listApps(fmt.Sprintf("/v2/routes/%s/apps", routeGuid), url.Values{}, -1)
 }
 
 func (c *Client) ListAppsBySpaceGuid(spaceGuid string) ([]App, error) {
-	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), -1)
+	return c.listApps(fmt.Sprintf("/v2/spaces/%s/apps", spaceGuid), url.Values{}, -1)
 }
 
-func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
+func (c *Client) listApps(path string, query url.Values, totalPages int) ([]App, error) {
+	requestUrl := path + "?" + query.Encode()
 	pages := 0
 	apps := []App{}
 	for {
@@ -360,7 +361,7 @@ func (c *Client) listApps(requestUrl string, totalPages int) ([]App, error) {
 		}
 
 		requestUrl = appResp.NextUrl
-		if requestUrl == "" {
+		if requestUrl == "" || query.Get("page") != "" {
 			break
 		}
 
