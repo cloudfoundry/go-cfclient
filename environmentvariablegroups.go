@@ -55,7 +55,10 @@ func (c *Client) setEnvironmentVariableGroup(evg EnvironmentVariableGroup, runni
 
 	req := c.NewRequestWithBody("PUT", fmt.Sprintf("/v2/config/environment_variable_groups/%s", evgType), bytes.NewBuffer(marshalled))
 	resp, err := c.DoRequest(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 
-	return err
+	return nil
 }
