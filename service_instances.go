@@ -27,6 +27,13 @@ type ServiceInstanceRequest struct {
 	Tags            []string               `json:"tags,omitempty"`
 }
 
+type ServiceInstanceUpdateRequest struct {
+	Name            string                 `json:"name,omitempty"`
+	ServicePlanGuid string                 `json:"service_plan_guid,omitempty"`
+	Parameters      map[string]interface{} `json:"parameters,omitempty"`
+	Tags            []string               `json:"tags,omitempty"`
+}
+
 type ServiceInstanceResource struct {
 	Meta   Meta            `json:"metadata"`
 	Entity ServiceInstance `json:"entity"`
@@ -180,6 +187,15 @@ func (c *Client) CreateServiceInstance(req ServiceInstanceRequest) (ServiceInsta
 	}
 
 	return c.mergeServiceInstance(sir), nil
+}
+
+func (c *Client) UpdateSI(serviceInstanceGuid string, req ServiceInstanceUpdateRequest, async bool) error {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return err
+	}
+	return c.UpdateServiceInstance(serviceInstanceGuid, buf, async)
 }
 
 func (c *Client) UpdateServiceInstance(serviceInstanceGuid string, updatedConfiguration io.Reader, async bool) error {

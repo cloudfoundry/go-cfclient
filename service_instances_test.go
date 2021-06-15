@@ -148,6 +148,35 @@ func TestCreateServiceInstance(t *testing.T) {
 	})
 }
 
+func TestUpdateSIt(t *testing.T) {
+	Convey("Update SI", t, func() {
+		expectedPayload := "{\"name\":\"test-cs\",\"parameters\":{\"git\":{\"label\":\"master\",\"uri\":\"https://github.com/cloudfoundry-community/go-cfclient.git\"}},\"tags\":[\"tag1\",\"tag2\",\"tag3\"]}"
+		req := ServiceInstanceUpdateRequest{
+			Name: "test-cs",
+			Tags: []string{"tag1", "tag2", "tag3"},
+			Parameters: map[string]interface{}{
+				"git": map[string]interface{}{
+					"uri":   "https://github.com/cloudfoundry-community/go-cfclient.git",
+					"label": "master",
+				},
+			},
+		}
+
+		setup(MockRoute{"PUT", "/v2/service_instances/guid", []string{""}, "", http.StatusAccepted, "accepts_incomplete=false", &expectedPayload}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.UpdateSI("guid", req, false)
+		So(err, ShouldBeNil)
+	})
+}
+
 func TestUpdateServiceInstance(t *testing.T) {
 	Convey("Update service instance", t, func() {
 		updateBody := "myUpdate"
