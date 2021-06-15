@@ -50,6 +50,7 @@ The API supports paging results via query string parameters. All of the v3 ListV
 - ListSpacesByQuery
 - ListOrgsByQuery
 - ListAppsByQuery
+- ListServiceInstancesByQuery
 - ListUsersByQuery
 
 You can iterate over the results page-by-page using a function similar to this one:

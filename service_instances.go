@@ -88,7 +88,7 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]ServiceInstanc
 		}
 
 		requestUrl = sir.NextUrl
-		if requestUrl == "" {
+		if requestUrl == "" || query.Get("page") != "" {
 			break
 		}
 	}
