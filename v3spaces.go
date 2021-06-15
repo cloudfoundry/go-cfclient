@@ -164,7 +164,7 @@ func (c *Client) ListV3SpacesByQuery(query url.Values) ([]V3Space, error) {
 		spaces = append(spaces, data.Resources...)
 
 		requestURL = data.Pagination.Next.Href
-		if requestURL == "" {
+		if requestURL == "" || query.Get("page") != "" {
 			break
 		}
 		requestURL, err = extractPathFromURL(requestURL)

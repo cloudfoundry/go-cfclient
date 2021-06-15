@@ -76,7 +76,7 @@ func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 			orgs = append(orgs, c.mergeOrgResource(org))
 		}
 		requestURL = orgResp.NextUrl
-		if requestURL == "" {
+		if requestURL == "" || query.Get("page") != "" {
 			break
 		}
 	}
@@ -121,7 +121,7 @@ func (c *Client) GetOrgByGuid(guid string) (Org, error) {
 }
 
 func (c *Client) OrgSpaces(guid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", guid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", guid), url.Values{})
 }
 
 func (o *Org) Summary() (OrgSummary, error) {

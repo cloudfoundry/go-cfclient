@@ -634,18 +634,19 @@ func (s *Space) Update(req SpaceRequest) (Space, error) {
 }
 
 func (c *Client) ListSpacesByQuery(query url.Values) ([]Space, error) {
-	return c.fetchSpaces("/v2/spaces?" + query.Encode())
+	return c.fetchSpaces("/v2/spaces", query)
 }
 
 func (c *Client) ListSpacesByOrgGuid(orgGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", orgGuid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/organizations/%s/spaces", orgGuid), url.Values{})
 }
 
 func (c *Client) ListSpaces() ([]Space, error) {
 	return c.ListSpacesByQuery(nil)
 }
 
-func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
+func (c *Client) fetchSpaces(path string, query url.Values) ([]Space, error) {
+	requestUrl := path + "?" + query.Encode()
 	var spaces []Space
 	for {
 		spaceResp, err := c.getSpaceResponse(requestUrl)
@@ -656,7 +657,7 @@ func (c *Client) fetchSpaces(requestUrl string) ([]Space, error) {
 			spaces = append(spaces, c.mergeSpaceResource(space))
 		}
 		requestUrl = spaceResp.NextUrl
-		if requestUrl == "" {
+		if requestUrl == "" || query.Get("page") != "" {
 			break
 		}
 	}

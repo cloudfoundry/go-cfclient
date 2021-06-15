@@ -85,7 +85,7 @@ func (c *Client) ListUsersByQuery(query url.Values) (Users, error) {
 			users = append(users, user.Entity)
 		}
 		requestUrl = userResp.NextUrl
-		if requestUrl == "" {
+		if requestUrl == "" || query.Get("page") != "" {
 			break
 		}
 	}
@@ -97,15 +97,15 @@ func (c *Client) ListUsers() (Users, error) {
 }
 
 func (c *Client) ListUserSpaces(userGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/spaces", userGuid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/spaces", userGuid), url.Values{})
 }
 
 func (c *Client) ListUserAuditedSpaces(userGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/audited_spaces", userGuid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/audited_spaces", userGuid), url.Values{})
 }
 
 func (c *Client) ListUserManagedSpaces(userGuid string) ([]Space, error) {
-	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", userGuid))
+	return c.fetchSpaces(fmt.Sprintf("/v2/users/%s/managed_spaces", userGuid), url.Values{})
 }
 
 func (c *Client) ListUserOrgs(userGuid string) ([]Org, error) {
