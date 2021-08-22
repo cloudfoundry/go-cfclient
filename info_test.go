@@ -86,4 +86,68 @@ func TestGetInfo(t *testing.T) {
 
 		So(supports, ShouldEqual, true)
 	})
+
+	Convey("CAPI reports a version that is not semver", t, func() {
+		setupMultiple([]MockRoute{
+			{
+				Method:   "GET",
+				Endpoint: "/",
+				Status:   200,
+				Output: []string{`{
+				   "links": {
+				      "cloud_controller_v3": {
+				         "href": "https://api.dev.cfdev.sh/v3",
+				         "meta": {
+				            "version": "non-semver"
+				         }
+				      }
+				   }
+				}`},
+			},
+		}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		_, err = client.SupportsMetadataAPI()
+		So(err, ShouldBeError)
+	})
+
+	Convey("the api version is lexicographically smaller than the required version, but is larger in semver", t, func() {
+		setupMultiple([]MockRoute{
+			{
+				Method:   "GET",
+				Endpoint: "/",
+				Status:   200,
+				Output: []string{`{
+				   "links": {
+				      "cloud_controller_v3": {
+				         "href": "https://api.dev.cfdev.sh/v3",
+				         "meta": {
+				            "version": "3.101.0"
+				         }
+				      }
+				   }
+				}`},
+			},
+		}, t)
+		defer teardown()
+
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		supports, err := client.SupportsMetadataAPI()
+		So(err, ShouldBeNil)
+
+		So(supports, ShouldEqual, true)
+	})
 }
