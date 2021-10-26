@@ -1761,6 +1761,7 @@ const listServicePlansPayload = `{
         "public": true,
         "active": true,
         "bindable": true,
+        "plan_updateable": true,
         "service_url": "/v2/services/1ccab853-87c9-45a6-bf99-603032d17fe5",
         "service_instances_url": "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385/service_instances"
       }
@@ -1785,6 +1786,7 @@ const getServicePlanByGuidPayload = `{
     "public": true,
     "active": true,
     "bindable": true,
+    "plan_updateable": true,
     "service_url": "/v2/services/1ccab853-87c9-45a6-bf99-603032d17fe5",
     "service_instances_url": "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385/service_instances"
   }
@@ -1808,6 +1810,7 @@ const privateServicePlanPayload = `{
     "public": false,
     "active": true,
     "bindable": true,
+    "plan_updateable": true,
     "service_url": "/v2/services/1ccab853-87c9-45a6-bf99-603032d17fe5",
     "service_instances_url": "/v2/service_plans/6fecf53b-7553-4cb3-b97e-930f9c4e3385/service_instances"
   }

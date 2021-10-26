@@ -35,6 +35,7 @@ type ServicePlan struct {
 	Public              bool        `json:"public"`
 	Active              bool        `json:"active"`
 	Bindable            bool        `json:"bindable"`
+	PlanUpdateable      bool        `json:"plan_updateable"`
 	ServiceUrl          string      `json:"service_url"`
 	ServiceInstancesUrl string      `json:"service_instances_url"`
 	c                   *Client
