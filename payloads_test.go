@@ -234,6 +234,39 @@ const listOrgsPayloadPage2 = `{
 ]
 }`
 
+const getOrgByNamePayload = `{
+"total_results": 1,
+"total_pages": 1,
+"prev_url": null,
+"next_url": null,
+"resources": [
+  {
+     "metadata": {
+        "guid": "4156a4a0-6092-40ab-98bf-114051d1561d",
+        "url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d",
+        "created_at": "2014-09-24T13:54:53+00:00",
+        "updated_at": null
+     },
+     "entity": {
+        "name": "demo77",
+        "billing_enabled": false,
+        "quota_definition_guid": "183599e0-d535-4559-8675-7b6ddb5cc42d",
+        "status": "active",
+        "quota_definition_url": "/v2/quota_definitions/183599e0-d535-4559-8675-7b6ddb5cc42d",
+        "spaces_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/spaces",
+        "domains_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/domains",
+        "private_domains_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/private_domains",
+        "users_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/users",
+        "managers_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/managers",
+        "billing_managers_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/billing_managers",
+        "auditors_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/auditors",
+        "app_events_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/app_events",
+        "space_quota_definitions_url": "/v2/organizations/4156a4a0-6092-40ab-98bf-114051d1561d/space_quota_definitions"
+     }
+  }
+]
+}`
+
 const listOrgPeoplePayload = `
 {
   "total_results": 2,
