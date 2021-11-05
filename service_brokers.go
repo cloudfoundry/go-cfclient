@@ -174,15 +174,16 @@ func (c *Client) GetServiceBrokerByGuid(guid string) (ServiceBroker, error) {
 }
 
 func (c *Client) GetServiceBrokerByName(name string) (ServiceBroker, error) {
-	var sb ServiceBroker
 	q := url.Values{}
 	q.Set("q", "name:"+name)
 	sbs, err := c.ListServiceBrokersByQuery(q)
 	if err != nil {
-		return sb, err
+		return ServiceBroker{}, err
 	}
 	if len(sbs) == 0 {
-		return sb, fmt.Errorf("Unable to find service broker %s", name)
+		cfErr := NewServiceBrokerNotFoundError()
+		cfErr.Description = fmt.Sprintf(cfErr.Description, name)
+		return ServiceBroker{}, cfErr
 	}
 	return sbs[0], nil
 }
