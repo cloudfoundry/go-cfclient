@@ -52,6 +52,25 @@ func TestListOrgsByQuery(t *testing.T) {
 	})
 }
 
+func TestGetOrgByName(t *testing.T) {
+	Convey("Get org by name", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", []string{getOrgByNamePayload}, "", 200, "q=name:demo77", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org, err := client.GetOrgByName("demo77")
+		So(err, ShouldBeNil)
+
+		So(org.Guid, ShouldEqual, "4156a4a0-6092-40ab-98bf-114051d1561d")
+		So(org.Name, ShouldEqual, "demo77")
+	})
+}
+
 func TestGetOrgByGuid(t *testing.T) {
 	Convey("Get org by GUID", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/1c0e6074-777f-450e-9abc-c42f39d9b75b", []string{orgByGuidPayload}, "", 200, "", nil}, t)
