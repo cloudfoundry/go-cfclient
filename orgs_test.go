@@ -75,7 +75,7 @@ func TestGetOrgByName(t *testing.T) {
 
 func TestGetOrgByNameNotFound(t *testing.T) {
 	Convey("Get org by name not found", t, func() {
-		setup(MockRoute{"GET", "/v2/organizations", []string{orgNotFoundPayload}, "", 404, "q=name:does-not-exist", nil}, t)
+		setup(MockRoute{"GET", "/v2/organizations", []string{emptyResources}, "", 200, "q=name:does-not-exist", nil}, t)
 		defer teardown()
 		c := &Config{
 			ApiAddress: server.URL,
@@ -95,7 +95,7 @@ func TestGetOrgByNameNotFound(t *testing.T) {
 		}
 		So(cfErr.ErrorCode, ShouldEqual, "CF-OrganizationNotFound")
 		So(cfErr.Code, ShouldEqual, 30003)
-		So(cfErr.Description, ShouldEqual, "The organization could not be found: 8ad5278f-8f81-47ea-82aa-114c39441bcf")
+		So(cfErr.Description, ShouldEqual, "The organization could not be found: does-not-exist")
 
 		So(org.Guid, ShouldEqual, "")
 		So(org.Name, ShouldEqual, "")
