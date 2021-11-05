@@ -1,7 +1,9 @@
 package cfclient
 
 import (
+	"github.com/pkg/errors"
 	"net/url"
+	"reflect"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -68,6 +70,35 @@ func TestGetOrgByName(t *testing.T) {
 
 		So(org.Guid, ShouldEqual, "4156a4a0-6092-40ab-98bf-114051d1561d")
 		So(org.Name, ShouldEqual, "demo77")
+	})
+}
+
+func TestGetOrgByNameNotFound(t *testing.T) {
+	Convey("Get org by name not found", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations", []string{orgNotFoundPayload}, "", 404, "q=name:does-not-exist", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		org, err := client.GetOrgByName("does-not-exist")
+		So(err, ShouldNotBeNil)
+		So(IsOrganizationNotFoundError(err), ShouldBeTrue)
+
+		cause := errors.Cause(err)
+		cfErr, ok := cause.(CloudFoundryError)
+		if !ok {
+			t.Fatalf("Expected an error of type CloudFoundryError, but got %s", reflect.TypeOf(err))
+		}
+		So(cfErr.ErrorCode, ShouldEqual, "CF-OrganizationNotFound")
+		So(cfErr.Code, ShouldEqual, 30003)
+		So(cfErr.Description, ShouldEqual, "The organization could not be found: 8ad5278f-8f81-47ea-82aa-114c39441bcf")
+
+		So(org.Guid, ShouldEqual, "")
+		So(org.Name, ShouldEqual, "")
 	})
 }
 
