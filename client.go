@@ -9,7 +9,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 
 	"time"
 
@@ -63,9 +66,70 @@ type Request struct {
 	obj    interface{}
 }
 
-//DefaultConfig configuration for client
-//Keep LoginAdress for backward compatibility
-//Need to be remove in close future
+type cfHomeConfig struct {
+	AccessToken           string
+	RefreshToken          string
+	Target                string
+	AuthorizationEndpoint string
+	OrganizationFields    struct {
+		Name string
+	}
+	SpaceFields struct {
+		Name string
+	}
+	SSLDisabled bool
+
+	mutex sync.RWMutex
+	hc    *http.Client
+}
+
+func NewConfigFromCF() (*Config, error) {
+	return NewConfigFromCFHome("")
+}
+
+func NewConfigFromCFHome(cfHomeDir string) (*Config, error) {
+	var err error
+
+	if cfHomeDir == "" {
+		cfHomeDir = os.Getenv("CF_HOME")
+		if cfHomeDir == "" {
+			cfHomeDir, err = os.UserHomeDir()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	cfHomeConfig, err := loadCFHomeConfig(cfHomeDir)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := DefaultConfig()
+	cfg.Token = cfHomeConfig.AccessToken
+	cfg.ApiAddress = cfHomeConfig.Target
+	cfg.SkipSslValidation = cfHomeConfig.SSLDisabled
+
+	return cfg, nil
+}
+
+func loadCFHomeConfig(cfHomeDir string) (*cfHomeConfig, error) {
+	cfConfigDir := filepath.Join(cfHomeDir, ".cf")
+	cfJSON, err := ioutil.ReadFile(filepath.Join(cfConfigDir, "config.json"))
+	if err != nil {
+		return nil, err
+	}
+
+	var cfg cfHomeConfig
+	err = json.Unmarshal(cfJSON, &cfg)
+	if err == nil {
+		cfg.AccessToken = cfg.AccessToken[len("bearer "):]
+	}
+
+	return &cfg, nil
+}
+
+// DefaultConfig creates a default config object used by CF client
 func DefaultConfig() *Config {
 	return &Config{
 		ApiAddress:        "http://api.bosh-lite.com",
