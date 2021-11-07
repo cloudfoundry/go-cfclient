@@ -116,6 +116,9 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 		method := mock.Method
 		endpoint := mock.Endpoint
 		output := mock.Output
+		if len(output) == 0 {
+			t.Fatal("Mock output cannot be an array of length 0, did you mean to use []string{\"\"}?")
+		}
 		userAgent := mock.UserAgent
 		status := mock.Status
 		queryString := mock.QueryString

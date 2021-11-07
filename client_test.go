@@ -1,13 +1,89 @@
 package cfclient
 
 import (
+	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
 	"testing"
 	"time"
 
 	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+const cfCLIConfig = `
+{
+  "ConfigVersion": 3,
+  "Target": "https://api.sys.example.com",
+  "APIVersion": "2.164.0",
+  "AuthorizationEndpoint": "https://login.sys.example.com",
+  "DopplerEndPoint": "wss://doppler.sys.example.com:443",
+  "UaaEndpoint": "https://uaa.sys.example.com",
+  "RoutingAPIEndpoint": "https://api.sys.example.com/routing",
+  "AccessToken": "bearer secret-bearer-token",
+  "SSHOAuthClient": "ssh-proxy",
+  "UAAOAuthClient": "cf",
+  "UAAOAuthClientSecret": "",
+  "UAAGrantType": "",
+  "RefreshToken": "secret-refresh-token",
+  "OrganizationFields": {
+    "GUID": "42754be1-f558-4d28-9c06-c706f6641245",
+    "Name": "system",
+    "QuotaDefinition": {
+      "guid": "",
+      "name": "",
+      "memory_limit": 0,
+      "instance_memory_limit": 0,
+      "total_routes": 0,
+      "total_services": 0,
+      "non_basic_services_allowed": false,
+      "app_instance_limit": 0,
+      "total_reserved_route_ports": 0
+    }
+  },
+  "SpaceFields": {
+    "GUID": "e42ccfe9-04bf-4cbc-ae16-f26741778a71",
+    "Name": "system",
+    "AllowSSH": true
+  },
+  "SSLDisabled": true,
+  "AsyncTimeout": 0,
+  "Trace": "",
+  "ColorEnabled": "",
+  "Locale": "",
+  "PluginRepos": [
+    {
+      "Name": "CF-Community",
+      "URL": "https://plugins.cloudfoundry.org"
+    }
+  ],
+  "MinCLIVersion": "6.23.0",
+  "MinRecommendedCLIVersion": "6.23.0"
+}
+`
+
+func TestNewConfigFromCFHome(t *testing.T) {
+	Convey("New config from CF_HOME", t, func() {
+		cfHomeDir, err := ioutil.TempDir("", "cf_home")
+		So(err, ShouldBeNil)
+
+		configDir := path.Join(cfHomeDir, ".cf")
+		err = os.MkdirAll(configDir, 0744)
+		So(err, ShouldBeNil)
+
+		configPath := path.Join(configDir,  "config.json")
+		err = os.WriteFile(configPath, []byte(cfCLIConfig), 0744)
+		So(err, ShouldBeNil)
+
+		cfg, err := NewConfigFromCFHome(cfHomeDir)
+		So(err, ShouldBeNil)
+
+		So(cfg.Token, ShouldEqual, "secret-bearer-token")
+		So(cfg.ApiAddress, ShouldEqual, "https://api.sys.example.com")
+		So(cfg.SkipSslValidation, ShouldBeTrue)
+	})
+}
 
 func TestDefaultConfig(t *testing.T) {
 	Convey("Default config", t, func() {

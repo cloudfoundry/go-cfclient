@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 package main
@@ -85,8 +86,14 @@ func destutter(s string) string {
 	return strings.TrimSuffix(s, "Error")
 }
 
+// cleanMessage removes any characters which will cause go generate to fail
+func cleanMessage(s string) string {
+	return strings.Replace(s, "\n", "", -1)
+}
+
 var packageTemplate = template.Must(template.New("").Funcs(template.FuncMap{
-	"destutter": destutter,
+	"destutter":    destutter,
+	"cleanMessage": cleanMessage,
 }).Parse(`
 package cfclient
 
@@ -97,8 +104,19 @@ package cfclient
 import "github.com/pkg/errors"
 
 {{- range .Definitions }}
-{{$method := printf "Is%sError" (.Name | destutter) }}
-// {{ $method }} returns a boolean indicating whether
+{{$isMethod := printf "Is%sError" (.Name | destutter) }}
+{{$newMethod := printf "New%sError" (.Name | destutter) }}
+// {{ $newMethod }} returns a new CloudFoundryError
+// that {{ $isMethod }} will return true for
+func {{ $newMethod }}() CloudFoundryError {
+	return CloudFoundryError{
+		Code: {{ .CFCode }},
+		ErrorCode: "CF-{{ .Name }}",
+		Description: "{{ .Message | cleanMessage }}",
+	}
+}
+
+// {{ $isMethod }} returns a boolean indicating whether
 // the error is known to report the Cloud Foundry error:
 // - Cloud Foundry code: {{ .CFCode }}
 // - HTTP code: {{ .HTTPCode }}
