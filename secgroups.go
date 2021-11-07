@@ -204,7 +204,9 @@ func (c *Client) GetSecGroupByName(name string) (secGroup SecGroup, err error) {
 		return secGroup, errors.Wrap(err, "Error unmarshaling sec group")
 	}
 	if len(secGroupResp.Resources) == 0 {
-		return secGroup, fmt.Errorf("No security group with name %v found", name)
+		cfErr := NewSecurityGroupNotFoundError()
+		cfErr.Description = fmt.Sprintf(cfErr.Description, name)
+		return secGroup, cfErr
 	}
 	secGroup = secGroupResp.Resources[0].Entity
 	secGroup.Guid = secGroupResp.Resources[0].Meta.Guid
