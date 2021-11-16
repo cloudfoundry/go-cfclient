@@ -8,33 +8,25 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Exported event constants
 const (
-	//AppCrash app.crash event const
-	AppCrash = "app.crash"
-	//AppStart audit.app.start event const
-	AppStart = "audit.app.start"
-	//AppStop audit.app.stop event const
-	AppStop = "audit.app.stop"
-	//AppUpdate audit.app.update event const
-	AppUpdate = "audit.app.update"
-	//AppCreate audit.app.create event const
-	AppCreate = "audit.app.create"
-	//AppDelete audit.app.delete-request event const
-	AppDelete = "audit.app.delete-request"
-	//AppSSHAuth audit.app.ssh-authorized event const
-	AppSSHAuth = "audit.app.ssh-authorized"
-	//AppSSHUnauth audit.app.ssh-unauthorized event const
-	AppSSHUnauth = "audit.app.ssh-unauthorized"
-	//AppRestage audit.app.restage event const
-	AppRestage = "audit.app.restage"
-	//AppMapRoute audit.app.map-route event const
-	AppMapRoute = "audit.app.map-route"
-	//AppUnmapRoute audit.app.unmap-route event const
+	AppCrash      = "app.crash"
+	AppStart      = "audit.app.start"
+	AppStop       = "audit.app.stop"
+	AppUpdate     = "audit.app.update"
+	AppCreate     = "audit.app.create"
+	AppDelete     = "audit.app.delete-request"
+	AppSSHAuth    = "audit.app.ssh-authorized"
+	AppSSHUnauth  = "audit.app.ssh-unauthorized"
+	AppRestage    = "audit.app.restage"
+	AppMapRoute   = "audit.app.map-route"
 	AppUnmapRoute = "audit.app.unmap-route"
-	//FilterTimestamp const for query filter timestamp
+)
+
+// Exported filter constants
+const (
 	FilterTimestamp = "timestamp"
-	//FilterActee const for query filter actee
-	FilterActee = "actee"
+	FilterActee     = "actee"
 )
 
 //ValidOperators const for all valid operators in a query
