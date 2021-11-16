@@ -22,7 +22,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-//Client used to communicate with Cloud Foundry
+// Client used to communicate with Cloud Foundry
 type Client struct {
 	Config   Config
 	Endpoint Endpoint
@@ -37,7 +37,7 @@ type Endpoint struct {
 	AppSSHOauthClient string `json:"app_ssh_oauth_client"`
 }
 
-//Config is used to configure the creation of a client
+// Config is used to configure the creation of a client
 type Config struct {
 	ApiAddress          string `json:"api_url"`
 	Username            string `json:"user"`

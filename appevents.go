@@ -29,7 +29,7 @@ const (
 	FilterActee     = "actee"
 )
 
-//ValidOperators const for all valid operators in a query
+// ValidOperators global variable for all valid operators in a query
 var ValidOperators = []string{":", ">=", "<=", "<", ">", "IN"}
 
 // AppEventResponse the entire response
@@ -47,7 +47,7 @@ type AppEventResource struct {
 	Entity AppEventEntity `json:"entity"`
 }
 
-//AppEventQuery a struct for defining queries like 'q=filter>value' or 'q=filter IN a,b,c'
+// AppEventQuery a struct for defining queries like 'q=filter>value' or 'q=filter IN a,b,c'
 type AppEventQuery struct {
 	Filter   string
 	Operator string
@@ -56,24 +56,24 @@ type AppEventQuery struct {
 
 // The AppEventEntity the actual app event body
 type AppEventEntity struct {
-	//EventTypes are app.crash, audit.app.start, audit.app.stop, audit.app.update, audit.app.create, audit.app.delete-request
+	// EventTypes are app.crash, audit.app.start, audit.app.stop, audit.app.update, audit.app.create, audit.app.delete-request
 	EventType string `json:"type"`
-	//The GUID of the actor.
+	// The GUID of the actor.
 	Actor string `json:"actor"`
-	//The actor type, user or app
+	// The actor type, user or app
 	ActorType string `json:"actor_type"`
-	//The name of the actor.
+	// The name of the actor.
 	ActorName string `json:"actor_name"`
-	//The GUID of the actee.
+	// The GUID of the actee.
 	Actee string `json:"actee"`
-	//The actee type, space, app or v3-app
+	// The actee type, space, app or v3-app
 	ActeeType string `json:"actee_type"`
-	//The name of the actee.
+	// The name of the actee.
 	ActeeName string `json:"actee_name"`
-	//Timestamp format "2016-02-26T13:29:44Z". The event creation time.
+	// Timestamp format "2016-02-26T13:29:44Z". The event creation time.
 	Timestamp time.Time `json:"timestamp"`
 	MetaData  struct {
-		//app.crash event fields
+		// app.crash event fields
 		ExitDescription string `json:"exit_description,omitempty"`
 		ExitReason      string `json:"reason,omitempty"`
 		ExitStatus      string `json:"exit_status,omitempty"`
@@ -85,14 +85,14 @@ type AppEventEntity struct {
 			Memory            float64 `json:"memory,omitempty"`
 			EnvironmentVars   string  `json:"environment_json,omitempty"`
 			DockerCredentials string  `json:"docker_credentials_json,omitempty"`
-			//audit.app.create event fields
+			// audit.app.create event fields
 			Console            bool    `json:"console,omitempty"`
 			Buildpack          string  `json:"buildpack,omitempty"`
 			Space              string  `json:"space_guid,omitempty"`
 			HealthcheckType    string  `json:"health_check_type,omitempty"`
 			HealthcheckTimeout float64 `json:"health_check_timeout,omitempty"`
 			Production         bool    `json:"production,omitempty"`
-			//app.crash event fields
+			// app.crash event fields
 			Index float64 `json:"index,omitempty"`
 		} `json:"request"`
 	} `json:"metadata"`
@@ -114,7 +114,7 @@ func (c *Client) ListAppEventsByQuery(eventType string, queries []AppEventQuery)
 	}
 
 	var query = "/v2/events?q=type:" + eventType
-	//adding the additional queries
+	// adding the additional queries
 	if len(queries) > 0 {
 		for _, eventQuery := range queries {
 			if eventQuery.Filter != FilterTimestamp && eventQuery.Filter != FilterActee {

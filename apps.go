@@ -300,7 +300,7 @@ func (c *Client) GetAppByGuidNoInlineCall(guid string) (App, error) {
 
 	// If no Space Information no need to check org.
 	if app.SpaceGuid != "" {
-		//Getting Spaces Resource
+		// Getting Spaces Resource
 		space, err := app.Space()
 		if err != nil {
 			return App{}, errors.Wrap(err, "Unable to get the Space for the app "+app.Name)
@@ -308,7 +308,7 @@ func (c *Client) GetAppByGuidNoInlineCall(guid string) (App, error) {
 			app.SpaceData.Entity = space
 		}
 
-		//Getting orgResource
+		// Getting orgResource
 		org, err := app.SpaceData.Entity.Org()
 		if err != nil {
 			return App{}, errors.Wrap(err, "Unable to get the Org for the app "+app.Name)
@@ -478,7 +478,7 @@ func (c *Client) AppByGuid(guid string) (App, error) {
 	return c.GetAppByGuid(guid)
 }
 
-//AppByName takes an appName, and GUIDs for a space and org, and performs
+// AppByName takes an appName, and GUIDs for a space and org, and performs
 // the API lookup with those query parameters set to return you the desired
 // App object.
 func (c *Client) AppByName(appName, spaceGuid, orgGuid string) (App, error) {
