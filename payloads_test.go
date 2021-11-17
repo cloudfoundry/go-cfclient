@@ -267,12 +267,6 @@ const getOrgByNamePayload = `{
 ]
 }`
 
-const orgNotFoundPayload = `{
-    "description": "The organization could not be found: 8ad5278f-8f81-47ea-82aa-114c39441bcf",
-    "error_code": "CF-OrganizationNotFound",
-    "code": 30003
-}`
-
 const listOrgPeoplePayload = `
 {
   "total_results": 2,

@@ -124,7 +124,8 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 		queryString := mock.QueryString
 		postFormBody := mock.PostForm
 		redirectLocation := mock.RedirectLocation
-		if method == "GET" {
+		switch method {
+		case "GET":
 			count := 0
 			r.Get(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
@@ -136,34 +137,34 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 				count++
 				return status, singleOutput
 			})
-		} else if method == "POST" {
+		case "POST":
 			r.Post(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
 				return status, output[0]
 			})
-		} else if method == "DELETE" {
+		case "DELETE":
 			r.Delete(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				return status, output[0]
 			})
-		} else if method == "PUT" {
+		case "PUT":
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
 				return status, output[0]
 			})
-		} else if method == "PATCH" {
+		case "PATCH":
 			r.Patch(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
 				return status, output[0]
 			})
-		} else if method == "PUT-FILE" {
+		case "PUT-FILE":
 			r.Put(endpoint, func(req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testBodyContains(req, postFormBody, t)
