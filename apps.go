@@ -448,7 +448,7 @@ func (c *Client) KillAppInstance(guid string, index string) error {
 		return errors.Wrapf(err, "Error stopping app %s at index %s", guid, index)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 204 {
+	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error stopping app %s at index %s", guid, index)
 	}
 	return nil
