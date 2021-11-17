@@ -72,7 +72,7 @@ func TestNewConfigFromCFHome(t *testing.T) {
 		err = os.MkdirAll(configDir, 0744)
 		So(err, ShouldBeNil)
 
-		configPath := path.Join(configDir,  "config.json")
+		configPath := path.Join(configDir, "config.json")
 		err = os.WriteFile(configPath, []byte(cfCLIConfig), 0744)
 		So(err, ShouldBeNil)
 
