@@ -194,7 +194,10 @@ func (s *sinceTime) UnmarshalJSON(b []byte) (err error) {
 }
 
 func (s sinceTime) ToTime() time.Time {
-	t, _ := time.Parse(time.UnixDate, s.Format(time.UnixDate))
+	t, err := time.Parse(time.UnixDate, s.Format(time.UnixDate))
+	if err != nil {
+		panic(err)
+	}
 	return t
 }
 
@@ -222,7 +225,10 @@ func (s *statTime) UnmarshalJSON(b []byte) (err error) {
 }
 
 func (s statTime) ToTime() time.Time {
-	t, _ := time.Parse(time.UnixDate, s.Format(time.UnixDate))
+	t, err := time.Parse(time.UnixDate, s.Format(time.UnixDate))
+	if err != nil {
+		panic(err)
+	}
 	return t
 }
 
