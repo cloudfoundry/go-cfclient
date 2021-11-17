@@ -226,8 +226,7 @@ func extractPathFromURL(requestURL string) (string, error) {
 		return "", err
 	}
 	result := url.Path
-	q := url.Query().Encode()
-	if q != "" {
+	if q := url.Query().Encode(); q != "" {
 		result = result + "?" + q
 	}
 	return result, nil
