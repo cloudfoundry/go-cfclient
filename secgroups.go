@@ -247,7 +247,7 @@ func (secGroup *SecGroup) ListStagingSpaceResources() ([]SpaceResource, error) {
 			// if this is a 404, let's make sure that it's not because we're on a legacy system
 			if cause := errors.Cause(err); cause != nil {
 				if httpErr, ok := cause.(CloudFoundryHTTPError); ok {
-					if httpErr.StatusCode == 404 {
+					if httpErr.StatusCode == http.StatusNotFound {
 						info, infoErr := secGroup.c.GetInfo()
 						if infoErr != nil {
 							return nil, infoErr
@@ -316,7 +316,7 @@ func (c *Client) DeleteSecGroup(guid string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 204 { // 204 No Content
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -333,7 +333,7 @@ func (c *Client) GetSecGroup(guid string) (*SecGroup, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	// get the json out of the response body
@@ -352,7 +352,7 @@ func (c *Client) BindSecGroup(secGUID, spaceGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 201 { // 201 Created
+	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -370,7 +370,7 @@ func (c *Client) BindStagingSecGroupToSpace(secGUID, spaceGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 201 { // 201 Created
+	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -387,7 +387,7 @@ func (c *Client) BindRunningSecGroup(secGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 { // 200
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -404,7 +404,7 @@ func (c *Client) UnbindRunningSecGroup(secGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusNoContent { // 204
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -421,7 +421,7 @@ func (c *Client) BindStagingSecGroup(secGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 { // 200
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -438,7 +438,7 @@ func (c *Client) UnbindStagingSecGroup(secGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusNoContent { // 204
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -456,7 +456,7 @@ func (c *Client) UnbindSecGroup(secGUID, spaceGUID string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 204 { // 204 No Content
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
@@ -548,7 +548,7 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 201 { // Both create and update should give 201 CREATED
+	if resp.StatusCode != http.StatusCreated { // Both create and update should give 201 CREATED
 		var response SecGroupCreateResponse
 
 		bodyRaw, _ := ioutil.ReadAll(resp.Body)
