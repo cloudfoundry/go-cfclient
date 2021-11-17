@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"time"
 
@@ -78,9 +77,6 @@ type cfHomeConfig struct {
 		Name string
 	}
 	SSLDisabled bool
-
-	mutex sync.RWMutex
-	hc    *http.Client
 }
 
 func NewConfigFromCF() (*Config, error) {
