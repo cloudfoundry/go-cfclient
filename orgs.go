@@ -839,6 +839,7 @@ func (c *Client) updateOrgDefaultIsolationSegment(orgGUID string, data interface
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return errors.Wrapf(err, "Error setting default isolation segment for org %s, response code: %d", orgGUID, resp.StatusCode)
 	}

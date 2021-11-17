@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"time"
 
@@ -22,7 +21,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-//Client used to communicate with Cloud Foundry
+// Client used to communicate with Cloud Foundry
 type Client struct {
 	Config   Config
 	Endpoint Endpoint
@@ -37,7 +36,7 @@ type Endpoint struct {
 	AppSSHOauthClient string `json:"app_ssh_oauth_client"`
 }
 
-//Config is used to configure the creation of a client
+// Config is used to configure the creation of a client
 type Config struct {
 	ApiAddress          string `json:"api_url"`
 	Username            string `json:"user"`
@@ -78,9 +77,6 @@ type cfHomeConfig struct {
 		Name string
 	}
 	SSLDisabled bool
-
-	mutex sync.RWMutex
-	hc    *http.Client
 }
 
 func NewConfigFromCF() (*Config, error) {
@@ -534,6 +530,7 @@ func (c *Client) GetSSHCode() (string, error) {
 	if err == nil {
 		return "", errors.New("authorization server did not redirect with one time code")
 	}
+	defer resp.Body.Close()
 	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
 		return "", errors.New(fmt.Sprintf("error requesting one time code from server: %s", err.Error()))
 	}
