@@ -502,16 +502,16 @@ func convertStructToMap(st interface{}) map[string]interface{} {
 			key = jsonName
 		}
 
-		if typ == "string" {
+		switch typ {
+		case "string":
 			if !(value.String() == "" && strings.Contains(structTag, "omitempty")) {
 				reqRules[key] = value.String()
 			}
-		} else if typ == "int" {
+		case "int":
 			reqRules[key] = value.Int()
-		} else {
+		default:
 			reqRules[key] = value.Interface()
 		}
-
 	}
 
 	return reqRules
