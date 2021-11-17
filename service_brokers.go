@@ -58,7 +58,7 @@ func (c *Client) DeleteServiceBroker(guid string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.Wrapf(err, "Error deleteing service broker %s, response code: %d", guid, resp.StatusCode)
+		return errors.Wrapf(err, "Error deleting service broker %s, response code: %d", guid, resp.StatusCode)
 	}
 	return nil
 
