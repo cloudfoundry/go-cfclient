@@ -548,6 +548,7 @@ func (c *Client) secGroupCreateHelper(url, method, name string, rules []SecGroup
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated { // Both create and update should give 201 CREATED
 		var response SecGroupCreateResponse
 

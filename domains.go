@@ -175,6 +175,7 @@ func (c *Client) DeleteSharedDomain(guid string, async bool) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if (async && (resp.StatusCode != http.StatusAccepted)) || (!async && (resp.StatusCode != http.StatusNoContent)) {
 		return errors.Wrapf(err, "Error deleting organization %s, response code: %d", guid, resp.StatusCode)
 	}

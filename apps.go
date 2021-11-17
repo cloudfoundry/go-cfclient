@@ -736,6 +736,7 @@ func (c *Client) StopApp(guid string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		return errors.Wrapf(err, "Error stopping app %s, response code: %d", guid, resp.StatusCode)
 	}
