@@ -371,7 +371,7 @@ func (c *Client) listApps(path string, query url.Values, totalPages int) ([]App,
 			break
 		}
 
-		pages += 1
+		pages++
 		if totalPages > 0 && pages >= totalPages {
 			break
 		}
