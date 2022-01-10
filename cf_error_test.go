@@ -2,6 +2,7 @@ package cfclient
 
 import (
 	stderrors "errors"
+	"fmt"
 	"testing"
 
 	pkgerrors "github.com/pkg/errors"
@@ -18,9 +19,12 @@ func TestIsSpaceNotFoundError(t *testing.T) {
 		{"unwrapped CloudFoundry error", CloudFoundryError{
 			Code: 40004,
 		}, true},
-		{"wrapped CloudFoundry error", pkgerrors.Wrap(CloudFoundryError{
+		{"pkg wrapped CloudFoundry error", pkgerrors.Wrap(CloudFoundryError{
 			Code: 40004,
 		}, ""), true},
+		{"std wrapped CloudFoundry error", fmt.Errorf("%w", CloudFoundryError{
+			Code: 40004,
+		}), true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
