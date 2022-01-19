@@ -3744,6 +3744,78 @@ const listV3SpacesPayloadPage2 = `{
   ]
 }`
 
+const listV3SpaceUsersPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "10a93b89-3f89-4f05-7238-8a2b123c79l9",
+      "created_at": "2019-03-08T01:06:18Z",
+      "updated_at": "2019-03-08T01:06:18Z",
+      "username": "some-name-1",
+      "presentation_name": "some-name-1",
+      "origin": "uaa",
+      "metadata": {
+        "labels": {},
+        "annotations":{}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/users/10a93b89-3f89-4f05-7238-8a2b123c79l9"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SpaceUsersPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "9da93b89-3f89-4f05-7238-8a2b123c79l9",
+      "created_at": "2019-03-08T01:06:19Z",
+      "updated_at": "2019-03-08T01:06:19Z",
+      "username": "some-name-2",
+      "presentation_name": "some-name-2",
+      "origin": "ldap",
+      "metadata": {
+        "labels": {},
+        "annotations":{}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/users/9da93b89-3f89-4f05-7238-8a2b123c79l9"
+        }
+      }
+    }
+  ]
+}`
+
 const updateV3SpacePayload = `
 {
   "guid": "space-guid",
