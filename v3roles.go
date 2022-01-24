@@ -18,7 +18,7 @@ type V3Role struct {
 	Links         map[string]Link                `json:"links,omitempty"`
 }
 
-type listV3SpaceRolesBySpaceGuidResponse struct {
+type listV3SpaceRolesResponse struct {
 	Pagination Pagination `json:"pagination,omitempty"`
 	Resources  []V3Role   `json:"resources,omitempty"`
 }
@@ -43,7 +43,7 @@ func (c *Client) ListV3RolesByQuery(query url.Values) ([]V3Role, error) {
 			return nil, fmt.Errorf("Error listing v3 space roles, response code: %d", resp.StatusCode)
 		}
 
-		var data listV3SpaceRolesBySpaceGuidResponse
+		var data listV3SpaceRolesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 			return nil, errors.Wrap(err, "Error parsing JSON from list v3 space roles")
 		}

@@ -1496,6 +1496,157 @@ const listStagingSecGroupsPayload = `{
   ]
 }`
 
+const listV3SecurityGroupsPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "name": "my-group1",
+      "globally_enabled": {
+        "running": true,
+        "staging": false
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/10",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/12",
+          "type": 8,
+          "code": 0,
+          "description": "test-desc-1"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-1" },
+            { "guid": "space-guid-2" }
+          ]
+        },
+        "running_spaces": {
+          "data": []
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-1"
+        }
+      }
+    },
+    {
+      "guid": "guid-2",
+      "name": "my-group2",
+      "globally_enabled": {
+        "running": false,
+        "staging": true
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/14",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/16",
+          "type": 5,
+          "code": 0,
+          "description": "test-desc-2"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-3" },
+            { "guid": "space-guid-4" }
+          ]
+        },
+        "running_spaces": {
+          "data": [
+            { "guid": "space-guid-5" },
+            { "guid": "space-guid-6" }
+          ]
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-2"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SecurityGroupsByGuidPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "name": "my-group1",
+      "globally_enabled": {
+        "running": true,
+        "staging": false
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/10",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/12",
+          "type": 8,
+          "code": 0,
+          "description": "test-desc-1"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-1" },
+            { "guid": "space-guid-2" }
+          ]
+        },
+        "running_spaces": {
+          "data": []
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-1"
+        }
+      }
+    }
+  ]
+}`
+
 const listAppsPayload = `{
    "total_results": 28,
    "total_pages": 1,
