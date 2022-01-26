@@ -11,7 +11,7 @@ import (
 func TestListV3SpaceRolesByQuery(t *testing.T) {
 	Convey("List V3 Space Roles By Space GUID", t, func() {
 		mocks := []MockRoute{
-			{"GET", "/v3/roles", []string{listV3SpaceRolesBySpaceGuidPayload}, "", http.StatusOK, "space_guids=spaceGUID1", nil},
+			{"GET", "/v3/roles", []string{listV3SpaceRolesBySpaceGUIDPayload}, "", http.StatusOK, "space_guids=spaceGUID1", nil},
 			{"GET", "/v3/rolespage2", []string{listV3SpaceRolesBySpaceGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&space_guids=spaceGUID1", nil},
 		}
 		setupMultiple(mocks, t)

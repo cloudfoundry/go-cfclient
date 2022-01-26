@@ -938,7 +938,7 @@ const spaceRolesPayload = `{
   ]
 }`
 
-const listV3SpaceRolesBySpaceGuidPayload = `{
+const listV3SpaceRolesBySpaceGUIDPayload = `{
   "pagination": {
     "total_results": 3,
     "total_pages": 2,
@@ -1647,7 +1647,7 @@ const listV3SecurityGroupsByGuidPayload = `{
   ]
 }`
 
-const createV3SecurityGroupPayload = `{
+const createOrUpdateV3SecurityGroupPayload = `{
   "guid": "guid-1",
   "name": "my-sec-group",
   "globally_enabled": {
