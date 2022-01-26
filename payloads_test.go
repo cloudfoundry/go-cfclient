@@ -1647,6 +1647,45 @@ const listV3SecurityGroupsByGuidPayload = `{
   ]
 }`
 
+const createV3SecurityGroupPayload = `{
+  "guid": "guid-1",
+  "name": "my-sec-group",
+  "globally_enabled": {
+    "running": true,
+    "staging": false
+  },
+  "rules": [
+    {
+      "protocol": "tcp",
+      "destination": "10.10.10.0/24",
+      "ports": "443,80,8080"
+    },
+    {
+      "protocol": "icmp",
+      "destination": "10.10.11.0/24",
+      "type": 8,
+      "code": 0,
+      "description": "Allow ping requests to private services"
+    }
+  ],
+  "relationships": {
+    "staging_spaces": {
+      "data": []
+    },
+    "running_spaces": {
+      "data": [
+        { "guid": "space-guid-1" },
+        { "guid": "space-guid-2" }
+      ]
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/security_groups/guid-1"
+    }
+  }
+}`
+
 const listAppsPayload = `{
    "total_results": 28,
    "total_pages": 1,
