@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -21,16 +22,16 @@ type V3SecurityGroup struct {
 }
 
 type V3GloballyEnabled struct {
-	Running bool `json:"running"`
-	Staging bool `json:"staging"`
+	Running bool `json:"running,omitempty"`
+	Staging bool `json:"staging,omitempty"`
 }
 
 type V3Rule struct {
 	Protocol    string `json:"protocol,omitempty"`
 	Destination string `json:"destination,omitempty"`
 	Ports       string `json:"ports,omitempty"`
-	Type        int    `json:"type,omitempty"`
-	Code        int    `json:"code,omitempty"`
+	Type        *int   `json:"type,omitempty"`
+	Code        *int   `json:"code,omitempty"`
 	Description string `json:"description,omitempty"`
 	Log         bool   `json:"log,omitempty"`
 }
@@ -77,4 +78,39 @@ func (c *Client) ListV3SecGroupsByQuery(query url.Values) ([]V3SecurityGroup, er
 	}
 
 	return security_groups, nil
+}
+
+type CreateV3SecGroupRequest struct {
+	Name            string                           `json:"name"`
+	GloballyEnabled *V3GloballyEnabled               `json:"globally_enabled,omitempty"`
+	Rules           []*V3Rule                        `json:"rules,omitempty"`
+	Relationships   map[string]V3ToManyRelationships `json:"relationships,omitempty"`
+}
+
+func (c *Client) CreateV3SecGroup(r CreateV3SecGroupRequest) (*V3SecurityGroup, error) {
+	req := c.NewRequest("POST", "/v3/security_groups")
+
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	if err := enc.Encode(r); err != nil {
+		return nil, err
+	}
+	req.body = buf
+
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while creating v3 security group")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("Error creating v3 security group %s, response code: %d", r.Name, resp.StatusCode)
+	}
+
+	var securitygroup V3SecurityGroup
+	if err := json.NewDecoder(resp.Body).Decode(&securitygroup); err != nil {
+		return nil, errors.Wrap(err, "Error reading v3 security group JSON")
+	}
+
+	return &securitygroup, nil
 }
