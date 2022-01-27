@@ -1,5 +1,6 @@
 package cfclient
 
+// V3User implements the user object
 type V3User struct {
 	GUID             string          `json:"guid,omitempty"`
 	CreatedAt        string          `json:"created_at,omitempty"`

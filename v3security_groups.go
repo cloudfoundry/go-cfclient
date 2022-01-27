@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// V3SecurityGroup implements the security group object. Security groups are collections of egress traffic rules that can be applied to the staging or running state of applications.
 type V3SecurityGroup struct {
 	Name            string                           `json:"name,omitempty"`
 	GUID            string                           `json:"guid,omitempty"`
@@ -21,11 +22,13 @@ type V3SecurityGroup struct {
 	Links           map[string]Link                  `json:"links,omitempty"`
 }
 
+// V3GloballyEnabled object controls if the group is applied globally to the lifecycle of all applications
 type V3GloballyEnabled struct {
 	Running bool `json:"running,omitempty"`
 	Staging bool `json:"staging,omitempty"`
 }
 
+// V3Rule is an object that provide a rule that will be applied by a security group
 type V3Rule struct {
 	Protocol    string `json:"protocol,omitempty"`
 	Destination string `json:"destination,omitempty"`
@@ -41,6 +44,7 @@ type listV3SecurityGroupResponse struct {
 	Resources  []V3SecurityGroup `json:"resources,omitempty"`
 }
 
+// ListV3SecurityGroupsByQuery retrieves security groups based on query
 func (c *Client) ListV3SecurityGroupsByQuery(query url.Values) ([]V3SecurityGroup, error) {
 	var securityGroups []V3SecurityGroup
 	requestURL, err := url.Parse("/v3/security_groups")
@@ -80,6 +84,7 @@ func (c *Client) ListV3SecurityGroupsByQuery(query url.Values) ([]V3SecurityGrou
 	return securityGroups, nil
 }
 
+// CreateV3SecurityGroupRequest implements an object that is passed to CreateV3SecurityGroup method
 type CreateV3SecurityGroupRequest struct {
 	Name            string                           `json:"name"`
 	GloballyEnabled *V3GloballyEnabled               `json:"globally_enabled,omitempty"`
@@ -87,6 +92,7 @@ type CreateV3SecurityGroupRequest struct {
 	Relationships   map[string]V3ToManyRelationships `json:"relationships,omitempty"`
 }
 
+// CreateV3SecurityGroup creates security group from CreateV3SecurityGroupRequest
 func (c *Client) CreateV3SecurityGroup(r CreateV3SecurityGroupRequest) (*V3SecurityGroup, error) {
 	req := c.NewRequest("POST", "/v3/security_groups")
 
@@ -115,6 +121,7 @@ func (c *Client) CreateV3SecurityGroup(r CreateV3SecurityGroupRequest) (*V3Secur
 	return &securitygroup, nil
 }
 
+// DeleteV3SecurityGroup deletes security group by GUID
 func (c *Client) DeleteV3SecurityGroup(GUID string) error {
 	req := c.NewRequest("DELETE", "/v3/security_groups/"+GUID)
 
@@ -130,12 +137,14 @@ func (c *Client) DeleteV3SecurityGroup(GUID string) error {
 	return nil
 }
 
+// UpdateV3SecurityGroupRequest implements an object that is passed to UpdateV3SecurityGroup method
 type UpdateV3SecurityGroupRequest struct {
 	Name            string             `json:"name,omitempty"`
 	GloballyEnabled *V3GloballyEnabled `json:"globally_enabled,omitempty"`
 	Rules           []*V3Rule          `json:"rules,omitempty"`
 }
 
+// UpdateV3SecurityGroup updates security group by GUID and from UpdateV3SecurityGroupRequest
 func (c *Client) UpdateV3SecurityGroup(GUID string, r UpdateV3SecurityGroupRequest) (*V3SecurityGroup, error) {
 	req := c.NewRequest("PATCH", "/v3/security_groups/"+GUID)
 	buf := bytes.NewBuffer(nil)

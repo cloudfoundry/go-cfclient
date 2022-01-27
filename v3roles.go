@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// V3Role implements role object. Roles control access to resources in organizations and spaces. Roles are assigned to users.
 type V3Role struct {
 	GUID          string                         `json:"guid,omitempty"`
 	CreatedAt     string                         `json:"created_at,omitempty"`
@@ -23,6 +24,7 @@ type listV3SpaceRolesResponse struct {
 	Resources  []V3Role   `json:"resources,omitempty"`
 }
 
+// ListV3RolesByQuery retrieves roles based on query
 func (c *Client) ListV3RolesByQuery(query url.Values) ([]V3Role, error) {
 	var roles []V3Role
 	requestURL, err := url.Parse("/v3/roles")
