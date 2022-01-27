@@ -191,6 +191,7 @@ type listV3SpaceUsersResponse struct {
 	Resources  []V3User   `json:"resources,omitempty"`
 }
 
+// ListV3SpaceUsers lists users by space GUID
 func (c *Client) ListV3SpaceUsers(spaceGUID string) ([]V3User, error) {
 	var users []V3User
 	requestURL := "/v3/spaces/" + spaceGUID + "/users"
