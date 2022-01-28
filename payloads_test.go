@@ -1647,7 +1647,7 @@ const listV3SecurityGroupsByGuidPayload = `{
   ]
 }`
 
-const createOrUpdateV3SecurityGroupPayload = `{
+const genericV3SecurityGroupPayload = `{
   "guid": "guid-1",
   "name": "my-sec-group",
   "globally_enabled": {

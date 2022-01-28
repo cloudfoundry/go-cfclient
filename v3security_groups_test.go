@@ -144,7 +144,7 @@ func TestCreateV3SecurityGroup(t *testing.T) {
 		err := json.Compact(buffer, []byte(requestBody))
 		buffer.Bytes()
 		expectedRequestBody := string(buffer.Bytes())
-		setup(MockRoute{"POST", "/v3/security_groups", []string{createOrUpdateV3SecurityGroupPayload}, "", http.StatusCreated, "", &expectedRequestBody}, t)
+		setup(MockRoute{"POST", "/v3/security_groups", []string{genericV3SecurityGroupPayload}, "", http.StatusCreated, "", &expectedRequestBody}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -333,7 +333,7 @@ func TestUpdateV3SecurityGroup(t *testing.T) {
 		err := json.Compact(buffer, []byte(requestBody))
 		buffer.Bytes()
 		expectedRequestBody := string(buffer.Bytes())
-		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{createOrUpdateV3SecurityGroupPayload}, "", http.StatusOK, "", &expectedRequestBody}, t)
+		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{genericV3SecurityGroupPayload}, "", http.StatusOK, "", &expectedRequestBody}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}
@@ -382,5 +382,36 @@ func TestUpdateV3SecurityGroup(t *testing.T) {
 		So(securityGroups.Relationships["running_spaces"].Data[0].GUID, ShouldEqual, "space-guid-1")
 		So(securityGroups.Relationships["running_spaces"].Data[1].GUID, ShouldEqual, "space-guid-2")
 		So(securityGroups.Links["self"].Href, ShouldEqual, "https://api.example.org/v3/security_groups/guid-1")
+	})
+}
+
+func TestGetV3SecurityGroup(t *testing.T) {
+	Convey("Get V3 Security Group", t, func() {
+		setup(MockRoute{"GET", "/v3/security_groups/guid-1", []string{genericV3SecurityGroupPayload}, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		securityGroup, err := client.GetV3SecurityGroupByGUID("guid-1")
+		So(err, ShouldBeNil)
+		So(securityGroup, ShouldNotBeNil)
+		So(securityGroup.GUID, ShouldEqual, "guid-1")
+		So(securityGroup.Name, ShouldEqual, "my-sec-group")
+		So(securityGroup.GloballyEnabled.Running, ShouldEqual, true)
+		So(securityGroup.GloballyEnabled.Staging, ShouldEqual, false)
+		So(securityGroup.Rules[0].Protocol, ShouldEqual, "tcp")
+		So(securityGroup.Rules[0].Destination, ShouldEqual, "10.10.10.0/24")
+		So(securityGroup.Rules[0].Ports, ShouldEqual, "443,80,8080")
+		So(securityGroup.Rules[1].Protocol, ShouldEqual, "icmp")
+		So(securityGroup.Rules[1].Destination, ShouldEqual, "10.10.11.0/24")
+		So(*securityGroup.Rules[1].Type, ShouldEqual, 8)
+		So(*securityGroup.Rules[1].Code, ShouldEqual, 0)
+		So(securityGroup.Rules[1].Description, ShouldEqual, "Allow ping requests to private services")
+		So(len(securityGroup.Relationships["staging_spaces"].Data), ShouldEqual, 0)
+		So(securityGroup.Relationships["running_spaces"].Data[0].GUID, ShouldEqual, "space-guid-1")
+		So(securityGroup.Relationships["running_spaces"].Data[1].GUID, ShouldEqual, "space-guid-2")
+		So(securityGroup.Links["self"].Href, ShouldEqual, "https://api.example.org/v3/security_groups/guid-1")
 	})
 }
