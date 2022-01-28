@@ -7109,3 +7109,52 @@ const listValidResources = `[
     "size": 1
   }
 ]`
+
+const listV3StacksPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/stacks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/stacks?page=1&per_page=2"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "created_at": "2018-11-09T22:43:28Z",
+      "updated_at": "2018-11-09T22:43:28Z",
+      "name": "my-stack-1",
+      "description": "This is my first stack!",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/stacks/guid-1"
+        }
+      }
+    },
+    {
+      "guid": "guid-2",
+      "created_at": "2018-11-09T22:43:29Z",
+      "updated_at": "2018-11-09T22:43:29Z",
+      "name": "my-stack-2",
+      "description": "This is my second stack!",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/stacks/guid-2"
+        }
+      }
+    }
+  ]
+}`
