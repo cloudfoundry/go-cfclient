@@ -171,3 +171,25 @@ func (c *Client) UpdateV3SecurityGroup(GUID string, r UpdateV3SecurityGroupReque
 
 	return &securityGroup, nil
 }
+
+// GetV3SecurityGroupByGUID retrieves security group base on provided GUID
+func (c *Client) GetV3SecurityGroupByGUID(GUID string) (*V3SecurityGroup, error) {
+	req := c.NewRequest("GET", "/v3/security_groups/"+GUID)
+
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while getting v3 security group")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error getting v3 security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
+	}
+
+	var securityGroup V3SecurityGroup
+	if err := json.NewDecoder(resp.Body).Decode(&securityGroup); err != nil {
+		return nil, errors.Wrap(err, "Error reading v3 security group JSON")
+	}
+
+	return &securityGroup, nil
+}
