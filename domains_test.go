@@ -65,6 +65,8 @@ func TestListSharedDomains(t *testing.T) {
 
 		So(domain.Guid, ShouldEqual, "91977695-8ad9-40db-858f-4df782603ec3")
 		So(domain.Name, ShouldEqual, "apps.some.random.cf.installation.example.com")
+		So(domain.CreatedAt, ShouldEqual, "2016-06-08T16:41:37Z")
+		So(domain.UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 	})
 
 }
@@ -127,6 +129,8 @@ func TestGetDomainByName(t *testing.T) {
 
 		So(domain.Guid, ShouldEqual, "b2a35f0c-d5ad-4a59-bea7-461711d96b0d")
 		So(domain.Name, ShouldEqual, "vcap.me")
+		So(domain.CreatedAt, ShouldEqual, "2016-06-08T16:41:39Z")
+		So(domain.UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 	})
 }
 
