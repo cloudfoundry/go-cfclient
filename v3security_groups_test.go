@@ -142,8 +142,8 @@ func TestCreateV3SecurityGroup(t *testing.T) {
 		  }`
 		buffer := new(bytes.Buffer)
 		err := json.Compact(buffer, []byte(requestBody))
-		buffer.Bytes()
-		expectedRequestBody := string(buffer.Bytes())
+		So(err, ShouldBeNil)
+		expectedRequestBody := buffer.String()
 		setup(MockRoute{"POST", "/v3/security_groups", []string{genericV3SecurityGroupPayload}, "", http.StatusCreated, "", &expectedRequestBody}, t)
 		defer teardown()
 
@@ -331,8 +331,8 @@ func TestUpdateV3SecurityGroup(t *testing.T) {
 		  }`
 		buffer := new(bytes.Buffer)
 		err := json.Compact(buffer, []byte(requestBody))
-		buffer.Bytes()
-		expectedRequestBody := string(buffer.Bytes())
+		So(err, ShouldBeNil)
+		expectedRequestBody := buffer.String()
 		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{genericV3SecurityGroupPayload}, "", http.StatusOK, "", &expectedRequestBody}, t)
 		defer teardown()
 
