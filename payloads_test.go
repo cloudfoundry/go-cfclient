@@ -4588,6 +4588,45 @@ const listV3AppsPayloadPage2 = `{
   ]
 }`
 
+const listV3ServiceInstances = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "85ccdcad-d725-4109-bca4-fd6ba062b5c8",
+      "created_at": "2017-11-17T13:54:21Z",
+      "updated_at": "2017-11-17T13:54:21Z",
+      "name": "my_service_instance",
+      "relationships": {
+        "space": {
+          "data": {
+            "guid": "ae0031f9-dd49-461c-a945-df40e77c39cb"
+          }
+        }
+      },
+      "metadata": {
+        "labels": { },
+        "annotations": { }
+      },
+      "links": {
+        "space": {
+          "href": "https://api.example.org/v3/spaces/ae0031f9-dd49-461c-a945-df40e77c39cb"
+        }
+      }
+    }
+  ]
+}`
+
 const listPackagesForV3AppPayloadPage1 = `{
   "pagination": {
     "total_results": 2,
