@@ -9,7 +9,7 @@ import (
 
 func TestListV3ServiceInstancesByQuery(t *testing.T) {
 	Convey("List V3 Service Instances", t, func() {
-		setup(MockRoute{"GET", "/v3/service_instances", []string{listV3ServiceInstances}, "", http.StatusOK, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/service_instances", []string{listV3ServiceInstancesPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

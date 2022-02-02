@@ -4588,7 +4588,7 @@ const listV3AppsPayloadPage2 = `{
   ]
 }`
 
-const listV3ServiceInstances = `{
+const listV3ServiceInstancesPayload = `{
   "pagination": {
     "total_results": 1,
     "total_pages": 1,
