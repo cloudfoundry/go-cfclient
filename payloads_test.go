@@ -4627,6 +4627,61 @@ const listV3ServiceInstancesPayload = `{
   ]
 }`
 
+const listV3RoutesPayload = `{
+	"pagination": {
+	  "total_results": 1,
+	  "total_pages": 1,
+	  "first": {
+		"href": "https://api.example.org/v3/routes?page=1&per_page=1"
+	  },
+	  "last": {
+		"href": "https://api.example.org/v3/routes?page=1&per_page=1"
+	  },
+	  "next": null,
+	  "previous": null
+	},
+	"resources": [
+	  {
+		"guid": "cbad697f-cac1-48f4-9017-ac08f39dfb31",
+		"host": "a-hostname",
+		"path": "/some_path",
+		"url": "a-hostname.a-domain.com/some_path",
+		"created_at": "2019-05-10T17:17:48Z",
+		"updated_at": "2019-05-10T17:17:48Z",
+		"metadata": {
+		  "labels": {},
+		  "annotations": {}
+		},
+		"relationships": {
+		  "space": {
+			"data": {
+			  "guid": "885a8cb3-c07b-4856-b448-eeb10bf36236"
+			}
+		  },
+		  "domain": {
+			"data": {
+			  "guid": "0b5f3633-194c-42d2-9408-972366617e0e"
+			}
+		  }
+		},
+		"links": {
+		  "self": {
+			"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31"
+		  },
+		  "space": {
+			"href": "https://api.example.org/v3/spaces/885a8cb3-c07b-4856-b448-eeb10bf36236"
+		  },
+		  "domain": {
+			"href": "https://api.example.org/v3/domains/0b5f3633-194c-42d2-9408-972366617e0e"
+		  },
+		  "destinations": {
+			"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31/destinations"
+		  }
+		}
+	  }
+	]
+}`
+
 const listPackagesForV3AppPayloadPage1 = `{
   "pagination": {
     "total_results": 2,
