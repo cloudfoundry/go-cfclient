@@ -20,6 +20,10 @@ type V3ToOneRelationship struct {
 	Data V3Relationship `json:"data,omitempty"`
 }
 
+type V3ToManyRelationship struct {
+	Data []V3Relationship `json:"data,omitempty"`
+}
+
 type V3Relationship struct {
 	GUID string `json:"guid,omitempty"`
 }
