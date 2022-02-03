@@ -1771,6 +1771,21 @@ const serviceBindingByGuidPayload = `{
 }
 `
 
+const setV3AppEnvironmentVariablesPayload = `{
+  "var": {
+    "RAILS_ENV": "production",
+    "DEBUG": "false"
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/[guid]/environment_variables"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/[guid]"
+    }
+  }
+}`
+
 const listServicePlansPayload = `{
   "total_results": 1,
   "total_pages": 1,
