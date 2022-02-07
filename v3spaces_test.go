@@ -116,3 +116,28 @@ func TestListV3SpacesByQuery(t *testing.T) {
 		So(spaces[1].Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
 	})
 }
+
+func TestListV3SpaceUsersByQuery(t *testing.T) {
+	Convey("List V3 Space Users", t, func() {
+		setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listV3SpaceUsersPayload, listV3SpaceUsersPayloadPage2}, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListV3SpaceUsers("space-guid")
+		So(err, ShouldBeNil)
+		So(users, ShouldHaveLength, 2)
+
+		So(users[0].Username, ShouldEqual, "some-name-1")
+		So(users[1].Username, ShouldEqual, "some-name-2")
+
+		So(users[0].PresentationName, ShouldEqual, "some-name-1")
+		So(users[0].Origin, ShouldEqual, "uaa")
+		So(users[0].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/users/10a93b89-3f89-4f05-7238-8a2b123c79l9")
+		So(users[1].PresentationName, ShouldEqual, "some-name-2")
+		So(users[1].Origin, ShouldEqual, "ldap")
+		So(users[1].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/users/9da93b89-3f89-4f05-7238-8a2b123c79l9")
+	})
+}
