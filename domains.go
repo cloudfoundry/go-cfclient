@@ -300,11 +300,15 @@ func (c *Client) getDomainsResponse(requestURL string) (DomainsResponse, error) 
 func (c *Client) mergeDomainResource(domainResource DomainResource) *Domain {
 	domainResource.Entity.Guid = domainResource.Meta.Guid
 	domainResource.Entity.c = c
+	domainResource.Entity.CreatedAt = domainResource.Meta.CreatedAt
+	domainResource.Entity.UpdatedAt = domainResource.Meta.UpdatedAt
 	return &domainResource.Entity
 }
 
 func (c *Client) mergeSharedDomainResource(domainResource SharedDomainResource) *SharedDomain {
 	domainResource.Entity.Guid = domainResource.Meta.Guid
 	domainResource.Entity.c = c
+	domainResource.Entity.CreatedAt = domainResource.Meta.CreatedAt
+	domainResource.Entity.UpdatedAt = domainResource.Meta.UpdatedAt
 	return &domainResource.Entity
 }
