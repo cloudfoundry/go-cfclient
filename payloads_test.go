@@ -938,6 +938,270 @@ const spaceRolesPayload = `{
   ]
 }`
 
+const listV3SpaceRolesBySpaceGUIDPayload = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&space_guids=spaceGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/roles?page=2&per_page=2&space_guids=spaceGUID1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&space_guids=spaceGUID1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "roleGUID1",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_developer",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+       },
+       "links": {
+          "self": {
+            "href": "https://api.example.org/v3/roles/roleGUID1"
+          },
+          "user": {
+            "href": "https://api.example.org/v3/users/userGUID1"
+          },
+          "space": {
+            "href": "https://api.example.org/v3/spaces/spaceGUID1"
+          }
+       }
+    },
+    {
+      "guid": "roleGUID2",
+      "created_at": "2047-11-10T17:19:12Z",
+      "updated_at": "2047-11-10T17:19:12Z",
+      "type": "space_auditor",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID2"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID1"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SpaceRolesBySpaceGuidPayloadPage2 = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&space_guids=spaceGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&space_guids=spaceGUID1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&space_guids=spaceGUID1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "roleGUID3",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_manager",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID3"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID1"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SpaceRolesByUserGuidPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&user_guids=userGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/roles?page=2&per_page=2&user_guids=userGUID1"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "roleGUID1",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_developer",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+       },
+       "links": {
+          "self": {
+            "href": "https://api.example.org/v3/roles/roleGUID1"
+          },
+          "user": {
+            "href": "https://api.example.org/v3/users/userGUID1"
+          },
+          "space": {
+            "href": "https://api.example.org/v3/spaces/spaceGUID1"
+          }
+       }
+    },
+    {
+      "guid": "roleGUID4",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_manager",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID2"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID4"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID1"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID2"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3spaceRolesBySpaceAndUserGuidPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=1&space_guids=spaceGUID2&user_guids=userGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=1&space_guids=spaceGUID2&user_guids=userGUID1"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "roleGUID4",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_manager",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID2"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID4"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID1"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID2"
+        }
+      }
+    }
+  ]
+}`
+
 const spaceQuotaPayload = `{
    "metadata": {
       "guid": "9ffd7c5c-d83c-4786-b399-b7bd54883977",
@@ -1230,6 +1494,196 @@ const listStagingSecGroupsPayload = `{
       }
     }
   ]
+}`
+
+const listV3SecurityGroupsPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "name": "my-group1",
+      "globally_enabled": {
+        "running": true,
+        "staging": false
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/10",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/12",
+          "type": 8,
+          "code": 0,
+          "description": "test-desc-1"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-1" },
+            { "guid": "space-guid-2" }
+          ]
+        },
+        "running_spaces": {
+          "data": []
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-1"
+        }
+      }
+    },
+    {
+      "guid": "guid-2",
+      "name": "my-group2",
+      "globally_enabled": {
+        "running": false,
+        "staging": true
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/14",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/16",
+          "type": 5,
+          "code": 0,
+          "description": "test-desc-2"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-3" },
+            { "guid": "space-guid-4" }
+          ]
+        },
+        "running_spaces": {
+          "data": [
+            { "guid": "space-guid-5" },
+            { "guid": "space-guid-6" }
+          ]
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-2"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SecurityGroupsByGuidPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/security_groups?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "name": "my-group1",
+      "globally_enabled": {
+        "running": true,
+        "staging": false
+      },
+      "rules": [
+        {
+          "protocol": "tcp",
+          "destination": "1.2.3.4/10",
+          "ports": "443,80,8080"
+        },
+        {
+          "protocol": "icmp",
+          "destination": "1.2.3.4/12",
+          "type": 8,
+          "code": 0,
+          "description": "test-desc-1"
+        }
+      ],
+      "relationships": {
+        "staging_spaces": {
+          "data": [
+            { "guid": "space-guid-1" },
+            { "guid": "space-guid-2" }
+          ]
+        },
+        "running_spaces": {
+          "data": []
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/security_groups/guid-1"
+        }
+      }
+    }
+  ]
+}`
+
+const genericV3SecurityGroupPayload = `{
+  "guid": "guid-1",
+  "name": "my-sec-group",
+  "globally_enabled": {
+    "running": true,
+    "staging": false
+  },
+  "rules": [
+    {
+      "protocol": "tcp",
+      "destination": "10.10.10.0/24",
+      "ports": "443,80,8080"
+    },
+    {
+      "protocol": "icmp",
+      "destination": "10.10.11.0/24",
+      "type": 8,
+      "code": 0,
+      "description": "Allow ping requests to private services"
+    }
+  ],
+  "relationships": {
+    "staging_spaces": {
+      "data": []
+    },
+    "running_spaces": {
+      "data": [
+        { "guid": "space-guid-1" },
+        { "guid": "space-guid-2" }
+      ]
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/security_groups/guid-1"
+    }
+  }
 }`
 
 const listAppsPayload = `{
@@ -3739,6 +4193,78 @@ const listV3SpacesPayloadPage2 = `{
       "metadata": {
         "labels": {},
         "annotations": {}
+      }
+    }
+  ]
+}`
+
+const listV3SpaceUsersPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "10a93b89-3f89-4f05-7238-8a2b123c79l9",
+      "created_at": "2019-03-08T01:06:18Z",
+      "updated_at": "2019-03-08T01:06:18Z",
+      "username": "some-name-1",
+      "presentation_name": "some-name-1",
+      "origin": "uaa",
+      "metadata": {
+        "labels": {},
+        "annotations":{}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/users/10a93b89-3f89-4f05-7238-8a2b123c79l9"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3SpaceUsersPayloadPage2 = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=2&per_page=1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/spaces/space-guid/users?page=1&per_page=1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "9da93b89-3f89-4f05-7238-8a2b123c79l9",
+      "created_at": "2019-03-08T01:06:19Z",
+      "updated_at": "2019-03-08T01:06:19Z",
+      "username": "some-name-2",
+      "presentation_name": "some-name-2",
+      "origin": "ldap",
+      "metadata": {
+        "labels": {},
+        "annotations":{}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/users/9da93b89-3f89-4f05-7238-8a2b123c79l9"
+        }
       }
     }
   ]
@@ -6583,3 +7109,52 @@ const listValidResources = `[
     "size": 1
   }
 ]`
+
+const listV3StacksPayload = `{
+  "pagination": {
+    "total_results": 2,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/stacks?page=1&per_page=2"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/stacks?page=1&per_page=2"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "guid-1",
+      "created_at": "2018-11-09T22:43:28Z",
+      "updated_at": "2018-11-09T22:43:28Z",
+      "name": "my-stack-1",
+      "description": "This is my first stack!",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/stacks/guid-1"
+        }
+      }
+    },
+    {
+      "guid": "guid-2",
+      "created_at": "2018-11-09T22:43:29Z",
+      "updated_at": "2018-11-09T22:43:29Z",
+      "name": "my-stack-2",
+      "description": "This is my second stack!",
+      "metadata": {
+        "labels": {},
+        "annotations": {}
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/stacks/guid-2"
+        }
+      }
+    }
+  ]
+}`
