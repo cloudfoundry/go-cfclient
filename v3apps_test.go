@@ -90,6 +90,29 @@ func TestGetV3AppEnv(t *testing.T) {
 	})
 }
 
+func TestSetV3AppEnvVariables(t *testing.T) {
+	Convey("Get V3 App Environment", t, func() {
+		setup(MockRoute{"PATCH", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables", []string{setV3AppEnvironmentVariablesPayload}, "", http.StatusOK, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		falseVar := "false"
+		env, err := client.SetV3AppEnvVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
+			V3EnvVar{Var: map[string]*string{
+				"DEBUG": &falseVar,
+				"USER":  nil,
+			}},
+		)
+		So(err, ShouldBeNil)
+		So(env.Var, ShouldHaveLength, 2)
+		So(*env.Var["RAILS_ENV"], ShouldEqual, "production")
+		So(*env.Var["DEBUG"], ShouldEqual, "false")
+	})
+}
+
 func TestStartV3App(t *testing.T) {
 	Convey("Start V3 App", t, func() {
 		setup(MockRoute{"POST", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start", []string{startV3AppPayload}, "", http.StatusOK, "", nil}, t)

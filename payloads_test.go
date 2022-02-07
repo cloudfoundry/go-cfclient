@@ -2225,6 +2225,21 @@ const serviceBindingByGuidPayload = `{
 }
 `
 
+const setV3AppEnvironmentVariablesPayload = `{
+  "var": {
+    "RAILS_ENV": "production",
+    "DEBUG": "false"
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/[guid]/environment_variables"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/[guid]"
+    }
+  }
+}`
+
 const listServicePlansPayload = `{
   "total_results": 1,
   "total_pages": 1,
@@ -3902,6 +3917,60 @@ const createIsolationSegmentPayload = `{
    }
 }`
 
+const listV3DomainsPayload = `
+  {
+    "pagination": {
+      "total_results": 1,
+      "total_pages": 1,
+      "first": {
+        "href": "https://api.example.org/v3/domains?page=1&per_page=2"
+      },
+      "last": {
+        "href": "https://api.example.org/v3/domains?page=2&per_page=2"
+      },
+      "next": null,
+      "previous": null
+    },
+    "resources": [
+      {
+		"guid": "3a5d3d89-3f89-4f05-8188-8a2b298c79d5",
+		"created_at": "2019-03-08T01:06:19Z",
+		"updated_at": "2019-03-08T01:06:19Z",
+		"name": "test-domain.com",
+		"internal": false,
+		"metadata": {
+		  "labels": { },
+		  "annotations": { }
+		},
+		"relationships": {
+		  "organization": {
+			"data": { "guid": "3a3f3d89-3f89-4f05-8188-751b298c79d5" }
+		  },
+		  "shared_organizations": {
+			"data": [
+			  {"guid": "404f3d89-3f89-6z72-8188-751b298d88d5"},
+			  {"guid": "416d3d89-3f89-8h67-2189-123b298d3592"}
+			]
+		  }
+		},
+		"links": {
+		  "self": {
+			"href": "https://api.example.org/v3/domains/3a5d3d89-3f89-4f05-8188-8a2b298c79d5"
+		  },
+		  "organization": {
+			"href": "https://api.example.org/v3/organizations/3a3f3d89-3f89-4f05-8188-751b298c79d5"
+		  },
+		  "route_reservations": {
+			"href": "https://api.example.org/v3/domains/3a5d3d89-3f89-4f05-8188-8a2b298c79d5/route_reservations"
+		  },
+		  "shared_organizations": {
+			"href": "https://api.example.org/v3/domains/3a5d3d89-3f89-4f05-8188-8a2b298c79d5/relationships/shared_organizations"
+		  }
+		}
+	  }
+    ]
+}`
+
 const listV3OrganizationsPayload = `{
   "pagination": {
     "total_results": 2,
@@ -4345,6 +4414,45 @@ const getV3SpacePayload = `{
     },
     "annotations": {}
   }
+}`
+
+const createV3RoutePayload = `{
+	"guid": "cbad697f-cac1-48f4-9017-ac08f39dfb31",
+	"host": "a-hostname",
+	"path": "/some_path",
+	"url": "a-hostname.a-domain.com/some_path",
+	"created_at": "2019-05-10T17:17:48Z",
+	"updated_at": "2019-05-10T17:17:48Z",
+	"metadata": {
+	  "labels": { "key": "value" },
+	  "annotations": { "note": "detailed information" }
+	},
+	"relationships": {
+	  "space": {
+		"data": {
+		  "guid": "885a8cb3-c07b-4856-b448-eeb10bf36236"
+		}
+	  },
+	  "domain": {
+		"data": {
+		  "guid": "0b5f3633-194c-42d2-9408-972366617e0e"
+		}
+	  }
+	},
+	"links": {
+	  "self": {
+		"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31"
+	  },
+	  "space": {
+		"href": "https://api.example.org/v3/spaces/885a8cb3-c07b-4856-b448-eeb10bf36236"
+	  },
+	  "domain": {
+		"href": "https://api.example.org/v3/domains/0b5f3633-194c-42d2-9408-972366617e0e"
+	  },
+	  "destinations": {
+		"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31/destinations"
+	  }
+	}
 }`
 
 const createV3SpacePayload = `{
@@ -5112,6 +5220,100 @@ const listV3AppsPayloadPage2 = `{
       }
     }
   ]
+}`
+
+const listV3ServiceInstancesPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "85ccdcad-d725-4109-bca4-fd6ba062b5c8",
+      "created_at": "2017-11-17T13:54:21Z",
+      "updated_at": "2017-11-17T13:54:21Z",
+      "name": "my_service_instance",
+      "relationships": {
+        "space": {
+          "data": {
+            "guid": "ae0031f9-dd49-461c-a945-df40e77c39cb"
+          }
+        }
+      },
+      "metadata": {
+        "labels": { },
+        "annotations": { }
+      },
+      "links": {
+        "space": {
+          "href": "https://api.example.org/v3/spaces/ae0031f9-dd49-461c-a945-df40e77c39cb"
+        }
+      }
+    }
+  ]
+}`
+
+const listV3RoutesPayload = `{
+	"pagination": {
+	  "total_results": 1,
+	  "total_pages": 1,
+	  "first": {
+		"href": "https://api.example.org/v3/routes?page=1&per_page=1"
+	  },
+	  "last": {
+		"href": "https://api.example.org/v3/routes?page=1&per_page=1"
+	  },
+	  "next": null,
+	  "previous": null
+	},
+	"resources": [
+	  {
+		"guid": "cbad697f-cac1-48f4-9017-ac08f39dfb31",
+		"host": "a-hostname",
+		"path": "/some_path",
+		"url": "a-hostname.a-domain.com/some_path",
+		"created_at": "2019-05-10T17:17:48Z",
+		"updated_at": "2019-05-10T17:17:48Z",
+		"metadata": {
+		  "labels": {},
+		  "annotations": {}
+		},
+		"relationships": {
+		  "space": {
+			"data": {
+			  "guid": "885a8cb3-c07b-4856-b448-eeb10bf36236"
+			}
+		  },
+		  "domain": {
+			"data": {
+			  "guid": "0b5f3633-194c-42d2-9408-972366617e0e"
+			}
+		  }
+		},
+		"links": {
+		  "self": {
+			"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31"
+		  },
+		  "space": {
+			"href": "https://api.example.org/v3/spaces/885a8cb3-c07b-4856-b448-eeb10bf36236"
+		  },
+		  "domain": {
+			"href": "https://api.example.org/v3/domains/0b5f3633-194c-42d2-9408-972366617e0e"
+		  },
+		  "destinations": {
+			"href": "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31/destinations"
+		  }
+		}
+	  }
+	]
 }`
 
 const listPackagesForV3AppPayloadPage1 = `{
