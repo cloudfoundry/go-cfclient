@@ -48,6 +48,7 @@ func TestListSpaces(t *testing.T) {
 		So(spaces[3].OrganizationGuid, ShouldEqual, "da0dba14-6064-4f7a-b15a-ff9e677e49b2")
 	})
 }
+
 func TestListSpaceSecGroups(t *testing.T) {
 	Convey("List Space SecGroups", t, func() {
 		mocks := []MockRoute{
@@ -98,6 +99,7 @@ func TestListSpaceSecGroups(t *testing.T) {
 		So(secGroups[1].SpacesData[2].Entity.Name, ShouldEqual, "space-test3")
 	})
 }
+
 func TestListSpaceManagers(t *testing.T) {
 	Convey("ListSpaceManagers()", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foo/managers", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
@@ -116,6 +118,7 @@ func TestListSpaceManagers(t *testing.T) {
 		So(users[1].Username, ShouldEqual, "user2")
 	})
 }
+
 func TestListSpaceAuditors(t *testing.T) {
 	Convey("ListSpaceAuditors()", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foo/auditors", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
@@ -134,6 +137,7 @@ func TestListSpaceAuditors(t *testing.T) {
 		So(users[1].Username, ShouldEqual, "user2")
 	})
 }
+
 func TestListSpaceDevelopers(t *testing.T) {
 	Convey("ListSpaceDevelopers()", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foo/developers", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
@@ -150,6 +154,60 @@ func TestListSpaceDevelopers(t *testing.T) {
 		So(len(users), ShouldEqual, 2)
 		So(users[0].Username, ShouldEqual, "user1")
 		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+
+func TestListSpaceServiceInstances(t *testing.T) {
+	Convey("ListSpaceServiceInstances()", t, func() {
+		setup(MockRoute{"GET", "/v2/spaces/494d8b64-8181-4183-a6d3-6279db8fec6e/service_instances", []string{listSpaceServiceInstancesPayload}, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		serviceInstances, err := client.ListSpaceServiceInstances("494d8b64-8181-4183-a6d3-6279db8fec6e")
+		So(err, ShouldBeNil)
+
+		So(len(serviceInstances), ShouldEqual, 2)
+		So(serviceInstances[0].Guid, ShouldEqual, "9547e9ed-e460-4abe-bda3-7070b9835917")
+		So(serviceInstances[0].Name, ShouldEqual, "name-2104")
+		So(serviceInstances[0].Credentials, ShouldHaveLength, 1)
+		So(serviceInstances[0].ServicePlanGuid, ShouldEqual, "fcf57f7f-3c51-49b2-b252-dc24e0f7dcab")
+		So(serviceInstances[0].SpaceGuid, ShouldEqual, "f858c6b3-f6b1-4ae8-81dd-8e8747657fbe")
+		So(serviceInstances[0].DashboardUrl, ShouldBeEmpty)
+		So(serviceInstances[0].Type, ShouldEqual, "managed_service_instance")
+		So(serviceInstances[0].Tags, ShouldBeEmpty)
+		So(serviceInstances[0].ServiceGuid, ShouldBeEmpty)
+		So(serviceInstances[0].ServiceInstanceParametersUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/parameters")
+		So(serviceInstances[0].SharedFromUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/shared_from")
+		So(serviceInstances[0].SharedToUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/shared_to")
+		So(serviceInstances[0].SpaceUrl, ShouldEqual, "/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe")
+		So(serviceInstances[0].ServicePlanUrl, ShouldEqual, "/v2/service_plans/fcf57f7f-3c51-49b2-b252-dc24e0f7dcab")
+		So(serviceInstances[0].ServiceBindingsUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/service_bindings")
+		So(serviceInstances[0].ServiceKeysUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/service_keys")
+		So(serviceInstances[0].RoutesUrl, ShouldEqual, "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/routes")
+		So(serviceInstances[0].ServiceUrl, ShouldEqual, "")
+		So(serviceInstances[1].Guid, ShouldEqual, "07d2f44a-9031-11ec-b909-0242ac120002")
+		So(serviceInstances[1].Name, ShouldEqual, "name-2105")
+		So(serviceInstances[1].Credentials, ShouldHaveLength, 1)
+		So(serviceInstances[1].ServicePlanGuid, ShouldEqual, "22b3ae01-280d-41aa-9e97-68d47680003d")
+		So(serviceInstances[1].SpaceGuid, ShouldEqual, "f858c6b3-f6b1-4ae8-81dd-8e8747657fbe")
+		So(serviceInstances[1].DashboardUrl, ShouldBeEmpty)
+		So(serviceInstances[1].Type, ShouldEqual, "managed_service_instance")
+		So(serviceInstances[1].Tags, ShouldBeEmpty)
+		So(serviceInstances[1].ServiceGuid, ShouldBeEmpty)
+		So(serviceInstances[1].ServiceInstanceParametersUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/parameters")
+		So(serviceInstances[1].SharedFromUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/shared_from")
+		So(serviceInstances[1].SharedToUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/shared_to")
+		So(serviceInstances[1].SpaceUrl, ShouldEqual, "/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe")
+		So(serviceInstances[1].ServicePlanUrl, ShouldEqual, "/v2/service_plans/22b3ae01-280d-41aa-9e97-68d47680003d")
+		So(serviceInstances[1].ServiceBindingsUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/service_bindings")
+		So(serviceInstances[1].ServiceKeysUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/service_keys")
+		So(serviceInstances[1].RoutesUrl, ShouldEqual, "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/routes")
+		So(serviceInstances[1].ServiceUrl, ShouldEqual, "")
 	})
 }
 
