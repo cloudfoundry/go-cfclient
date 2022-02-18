@@ -702,6 +702,79 @@ const listSpacePeoplePayload = `{
   ]
 }`
 
+const listSpaceServiceInstancesPayload = `{
+  "total_results": 2,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "9547e9ed-e460-4abe-bda3-7070b9835917",
+        "url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917",
+        "created_at": "2016-06-08T16:41:41Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name-2104",
+        "credentials": {
+          "creds-key-60": "creds-val-60"
+        },
+        "service_plan_guid": "fcf57f7f-3c51-49b2-b252-dc24e0f7dcab",
+        "space_guid": "f858c6b3-f6b1-4ae8-81dd-8e8747657fbe",
+        "gateway_data": null,
+        "dashboard_url": null,
+        "type": "managed_service_instance",
+        "last_operation": null,
+        "tags": [
+
+        ],
+        "maintenance_info": {},
+        "space_url": "/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe",
+        "service_plan_url": "/v2/service_plans/fcf57f7f-3c51-49b2-b252-dc24e0f7dcab",
+        "service_bindings_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/service_bindings",
+        "service_keys_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/service_keys",
+        "routes_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/routes",
+        "shared_from_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/shared_from",
+        "shared_to_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/shared_to",
+        "service_instance_parameters_url": "/v2/service_instances/9547e9ed-e460-4abe-bda3-7070b9835917/parameters"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "07d2f44a-9031-11ec-b909-0242ac120002",
+        "url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002",
+        "created_at": "2016-07-08T16:41:41Z",
+        "updated_at": "2016-07-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "name-2105",
+        "credentials": {
+          "creds-key-61": "creds-val-61"
+        },
+        "service_plan_guid": "22b3ae01-280d-41aa-9e97-68d47680003d",
+        "space_guid": "f858c6b3-f6b1-4ae8-81dd-8e8747657fbe",
+        "gateway_data": null,
+        "dashboard_url": null,
+        "type": "managed_service_instance",
+        "last_operation": null,
+        "tags": [
+
+        ],
+        "maintenance_info": {},
+        "space_url": "/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe",
+        "service_plan_url": "/v2/service_plans/22b3ae01-280d-41aa-9e97-68d47680003d",
+        "service_bindings_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/service_bindings",
+        "service_keys_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/service_keys",
+        "routes_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/routes",
+        "shared_from_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/shared_from",
+        "shared_to_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/shared_to",
+        "service_instance_parameters_url": "/v2/service_instances/07d2f44a-9031-11ec-b909-0242ac120002/parameters"
+      }
+    }
+  ]
+}`
+
 const spaceByGuidPayload = `{
   "metadata": {
     "guid": "8efd7c5c-d83c-4786-b399-b7bd548839e1",
