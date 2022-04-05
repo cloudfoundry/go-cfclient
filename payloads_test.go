@@ -7433,3 +7433,92 @@ const listV3StacksPayload = `{
     }
   ]
 }`
+
+const listV3ServiceCredentialBindingsPayload = `{
+  "pagination": {
+    "total_results": 1,
+    "total_pages": 1,
+    "first": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/service_instances?page=1&per_page=50"
+    },
+    "next": null,
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "d9634934-8e1f-4c2d-bb33-fa5df019cf9d",
+      "created_at": "2022-02-17T17:17:44Z",
+      "updated_at": "2022-02-17T17:17:44Z",
+      "name": "my_service_key",
+      "type": "key",
+      "relationships": {
+        "service_instance": {
+          "data": {
+              "guid": "85ccdcad-d725-4109-bca4-fd6ba062b5c8"
+          }
+        }
+      },
+      "metadata": {
+        "labels": { },
+        "annotations": { }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d"
+        },
+        "details": {
+          "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d/details"
+        },
+        "service_instance": {
+          "href": "https://api.example.org/v3/service_instances/85ccdcad-d725-4109-bca4-fd6ba062b5c8"
+        },
+        "parameters": {
+          "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d/parameters"
+        }
+      }
+    }
+  ]
+}`
+
+const GetV3ServiceCredentialBindingsByGUIDPayload = `{
+  "guid": "d9634934-8e1f-4c2d-bb33-fa5df019cf9d",
+  "created_at": "2022-02-17T17:17:44Z",
+  "updated_at": "2022-02-17T17:17:44Z",
+  "name": "my_service_key",
+  "type": "key",
+  "last_operation": {
+    "type": "create",
+    "state": "succeeded",
+    "description": "",
+    "created_at": "2022-02-17T17:17:44Z",
+    "updated_at": "2022-02-17T17:17:44Z"
+  },
+  "relationships": {
+    "service_instance": {
+      "data": {
+        "guid": "85ccdcad-d725-4109-bca4-fd6ba062b5c8"
+      }
+    }
+  },
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d"
+    },
+    "details": {
+      "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d/details"
+    },
+    "service_instance": {
+      "href": "https://api.example.org/v3/service_instances/85ccdcad-d725-4109-bca4-fd6ba062b5c8"
+    },
+    "parameters": {
+      "href": "https://api.example.org/v3/service_credential_bindings/d9634934-8e1f-4c2d-bb33-fa5df019cf9d/parameters"
+    }
+  }
+}`
