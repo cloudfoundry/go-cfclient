@@ -119,7 +119,9 @@ func loadCFHomeConfig(cfHomeDir string) (*cfHomeConfig, error) {
 	var cfg cfHomeConfig
 	err = json.Unmarshal(cfJSON, &cfg)
 	if err == nil {
-		cfg.AccessToken = cfg.AccessToken[len("bearer "):]
+		if len(cfg.AccessToken) > len("bearer ") {
+			cfg.AccessToken = cfg.AccessToken[len("bearer "):]
+		}
 	}
 
 	return &cfg, nil
