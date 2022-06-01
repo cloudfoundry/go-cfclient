@@ -194,7 +194,7 @@ func TestCreateV3OrgRoles(t *testing.T) {
 
 func TestDeleteV3Role(t *testing.T) {
 	Convey("Delete V3 Role", t, func() {
-		setup(MockRoute{"DELETE", "/v3/role/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
+		setup(MockRoute{"DELETE", "/v3/roles/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

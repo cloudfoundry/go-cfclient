@@ -201,7 +201,7 @@ func (c *Client) ListV3OrganizationRolesByGUIDAndType(orgGUID string, roleType s
 }
 
 func (c *Client) DeleteV3Role(roleGUID string) error {
-	req := c.NewRequest("DELETE", "/v3/role/"+roleGUID)
+	req := c.NewRequest("DELETE", "/v3/roles/"+roleGUID)
 	resp, err := c.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting v3 role")
