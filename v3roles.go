@@ -56,6 +56,7 @@ func (c *Client) CreateV3SpaceRole(spaceGUID, userGUID, roleType string) (*V3Rol
 	userRel := V3ToOneRelationship{Data: V3Relationship{GUID: userGUID}}
 	req := c.NewRequest("POST", "/v3/roles")
 	req.obj = createV3SpaceRoleRequest{
+		RoleType:      roleType,
 		Relationships: spaceUserRelationships{Space: spaceRel, User: userRel},
 	}
 	resp, err := c.DoRequest(req)
@@ -81,6 +82,7 @@ func (c *Client) CreateV3OrganizationRole(orgGUID, userGUID, roleType string) (*
 	userRel := V3ToOneRelationship{Data: V3Relationship{GUID: userGUID}}
 	req := c.NewRequest("POST", "/v3/roles")
 	req.obj = createV3OrganizationRoleRequest{
+		RoleType:      roleType,
 		Relationships: orgUserRelationships{Org: orgRel, User: userRel},
 	}
 	resp, err := c.DoRequest(req)
