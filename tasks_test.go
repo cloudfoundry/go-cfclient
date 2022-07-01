@@ -216,6 +216,7 @@ func TestTasksByApp(t *testing.T) {
 		So(task[0].SequenceID, ShouldEqual, 1)
 		So(task[0].MemoryInMb, ShouldEqual, 512)
 		So(task[0].DiskInMb, ShouldEqual, 1024)
+		So(task[0].Relationships.App.Data.GUID, ShouldEqual, "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
 		So(task[0].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 41, 0, time.FixedZone("UTC", 0)).String())
 
 		So(task[1].GUID, ShouldEqual, "63b4cd89-fd8b-4bf1-a311-7174fcc907d6")
@@ -223,6 +224,7 @@ func TestTasksByApp(t *testing.T) {
 		So(task[1].SequenceID, ShouldEqual, 2)
 		So(task[1].MemoryInMb, ShouldEqual, 1024)
 		So(task[1].DiskInMb, ShouldEqual, 1024)
+		So(task[1].Relationships.App.Data.GUID, ShouldEqual, "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
 		So(task[1].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 43, 0, time.FixedZone("UTC", 0)).String())
 
 		So(task[2].GUID, ShouldEqual, "abcdefc-99a3-4e6a-af91-a44b4ab7b6fa")
@@ -230,6 +232,7 @@ func TestTasksByApp(t *testing.T) {
 		So(task[2].SequenceID, ShouldEqual, 3)
 		So(task[2].MemoryInMb, ShouldEqual, 512)
 		So(task[2].DiskInMb, ShouldEqual, 1024)
+		So(task[2].Relationships.App.Data.GUID, ShouldEqual, "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
 		So(task[2].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 44, 0, time.FixedZone("UTC", 0)).String())
 
 		So(task[3].GUID, ShouldEqual, "hijklm9-fd8b-4bf1-a311-7174fcc907d6")
@@ -237,6 +240,7 @@ func TestTasksByApp(t *testing.T) {
 		So(task[3].SequenceID, ShouldEqual, 4)
 		So(task[3].MemoryInMb, ShouldEqual, 1024)
 		So(task[3].DiskInMb, ShouldEqual, 1024)
+		So(task[3].Relationships.App.Data.GUID, ShouldEqual, "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5")
 		So(task[3].CreatedAt.String(), ShouldEqual, time.Date(2016, 05, 04, 17, 00, 46, 0, time.FixedZone("UTC", 0)).String())
 	})
 }
