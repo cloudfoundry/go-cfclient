@@ -3459,6 +3459,13 @@ const listTasksByAppPayloadPage1 string = `
     },
     "created_at": "2016-05-04T17:00:41Z",
     "updated_at": "2016-05-04T17:00:42Z",
+    "relationships": {
+      "app": {
+        "data": {
+          "guid": "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        }
+      }
+    },
     "links": {
       "self": {
         "href": "https://api.example.org/v3/tasks/d5cc22ec-99a3-4e6a-af91-a44b4ab7b6fa"
@@ -3492,6 +3499,13 @@ const listTasksByAppPayloadPage1 string = `
     },
     "created_at": "2016-05-04T17:00:43Z",
     "updated_at": "2016-05-04T17:00:44Z",
+    "relationships": {
+      "app": {
+        "data": {
+          "guid": "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        }
+      }
+    },
     "links": {
       "self": {
         "href": "https://api.example.org/v3/tasks/63b4cd89-fd8b-4bf1-a311-7174fcc907d6"
@@ -3546,6 +3560,13 @@ const listTasksByAppPayloadPage2 string = `
     },
     "created_at": "2016-05-04T17:00:44Z",
     "updated_at": "2016-05-04T17:00:45Z",
+    "relationships": {
+      "app": {
+        "data": {
+          "guid": "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        }
+      }
+    },
     "links": {
       "self": {
         "href": "https://api.example.org/v3/tasks/abcdefc-99a3-4e6a-af91-a44b4ab7b6fa"
@@ -3579,6 +3600,13 @@ const listTasksByAppPayloadPage2 string = `
     },
     "created_at": "2016-05-04T17:00:46Z",
     "updated_at": "2016-05-04T17:00:47Z",
+    "relationships": {
+      "app": {
+        "data": {
+          "guid": "ccc25a0f-c8f4-4b39-9f1b-de9f328d0ee5"
+        }
+      }
+    },
     "links": {
       "self": {
         "href": "https://api.example.org/v3/tasks/hijklm9-fd8b-4bf1-a311-7174fcc907d6"
