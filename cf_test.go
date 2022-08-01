@@ -9,8 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	_ "github.com/onsi/gomega"
-
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
 )

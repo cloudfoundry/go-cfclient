@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/onsi/gomega"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -191,7 +190,6 @@ func TestHTTPErrorHandling(t *testing.T) {
 }
 
 func TestTokenRefresh(t *testing.T) {
-	gomega.RegisterTestingT(t)
 	Convey("Test making request", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		fakeUAAServer = FakeUAAServer(1)
@@ -205,14 +203,20 @@ func TestTokenRefresh(t *testing.T) {
 
 		token, err := client.GetToken()
 		So(err, ShouldBeNil)
+		So(token, ShouldEqual, "bearer foobar2")
 
-		gomega.Consistently(token).Should(gomega.Equal("bearer foobar2"))
-		gomega.Eventually(func() string { token, _ := client.GetToken(); return token }, "2s").Should(gomega.Equal("bearer foobar3"))
+		for i := 0; i < 5; i++ {
+			token, _ = client.GetToken()
+			if token == "bearer foobar3" {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+		So(token, ShouldEqual, "bearer foobar3")
 	})
 }
 
 func TestEndpointRefresh(t *testing.T) {
-	gomega.RegisterTestingT(t)
 	Convey("Test expiring endpoint", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations", []string{listOrgsPayload}, "", 200, "", nil}, t)
 		fakeUAAServer = FakeUAAServer(0)
