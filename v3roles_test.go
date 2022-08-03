@@ -100,6 +100,29 @@ func TestListV3SpaceRolesByQuery(t *testing.T) {
 
 }
 
+func TestListV3SpaceRolesByGUID(t *testing.T) {
+	Convey("List V3 Space Roles By Space GUID and type", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v3/roles", []string{listV3SpaceRoleUsersBySpaceGUIDPayload}, "", http.StatusOK, "include=user&space_guids=spaceGUID1", nil},
+			{"GET", "/v3/rolespage2", []string{listV3SpaceRoleUsersBySpaceGUIDPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&space_guids=spaceGUID1", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListV3SpaceRolesByGUID("spaceGUID1")
+		So(err, ShouldBeNil)
+		So(users, ShouldHaveLength, 3)
+
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+		So(users[2].Username, ShouldEqual, "user3")
+	})
+}
+
 func TestListV3SpaceRolesByGUIDAndType(t *testing.T) {
 	Convey("List V3 Space Roles By Space GUID and type", t, func() {
 		mocks := []MockRoute{
@@ -114,6 +137,29 @@ func TestListV3SpaceRolesByGUIDAndType(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		users, err := client.ListV3SpaceRolesByGUIDAndType("spaceGUID1", "space_supporter")
+		So(err, ShouldBeNil)
+		So(users, ShouldHaveLength, 3)
+
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+		So(users[2].Username, ShouldEqual, "user3")
+	})
+}
+
+func TestListV3OrgRolesByGUID(t *testing.T) {
+	Convey("List V3 Org Roles By Org GUID and type", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v3/roles", []string{listV3OrganizationRolesByOrganizationGUIDPayload}, "", http.StatusOK, "include=user&organization_guids=orgGUID1", nil},
+			{"GET", "/v3/rolespage2", []string{listV3OrganizationRolesByOrganizationGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&organization_guids=orgGUID1", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListV3OrganizationRolesByGUID("orgGUID1")
 		So(err, ShouldBeNil)
 		So(users, ShouldHaveLength, 3)
 
