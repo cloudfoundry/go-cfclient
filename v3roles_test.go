@@ -113,8 +113,9 @@ func TestListV3SpaceRolesByGUID(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		users, err := client.ListV3SpaceRolesByGUID("spaceGUID1")
+		roles, users, err := client.ListV3SpaceRolesByGUID("spaceGUID1")
 		So(err, ShouldBeNil)
+		So(roles, ShouldHaveLength, 3)
 		So(users, ShouldHaveLength, 3)
 
 		So(users[0].Username, ShouldEqual, "user1")
@@ -159,8 +160,9 @@ func TestListV3OrgRolesByGUID(t *testing.T) {
 		client, err := NewClient(c)
 		So(err, ShouldBeNil)
 
-		users, err := client.ListV3OrganizationRolesByGUID("orgGUID1")
+		roles, users, err := client.ListV3OrganizationRolesByGUID("orgGUID1")
 		So(err, ShouldBeNil)
+		So(roles, ShouldHaveLength, 3)
 		So(users, ShouldHaveLength, 3)
 
 		So(users[0].Username, ShouldEqual, "user1")
