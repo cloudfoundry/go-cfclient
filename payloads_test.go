@@ -8388,3 +8388,94 @@ const GetV3ServiceCredentialBindingsByGUIDPayload = `{
     }
   }
 }`
+
+const listV3UsersPayload = `{
+   "pagination": {
+      "total_results": 3,
+      "total_pages": 2,
+      "first": {
+         "href": "https://api.example.org/v3/users?page=1&per_page=2"
+      },
+      "last": {
+         "href": "https://api.example.org/v3/users?page=2&per_page=2"
+      },
+      "next": {
+         "href": "https://api.example.org/v3/userspage2?page=2&per_page=2"
+      },
+      "previous": null
+   },
+   "resources": [
+      {
+         "guid": "16f43d50-43a2-4981-bae8-633e8248a637",
+         "created_at": "2022-08-02T21:37:52Z",
+         "updated_at": "2022-08-02T21:37:52Z",
+         "username": "smoke_tests",
+         "presentation_name": "smoke_tests",
+         "origin": "uaa",
+         "metadata": {
+            "labels": {},
+            "annotations": {}
+         },
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/users/16f43d50-43a2-4981-bae8-633e8248a637"
+            }
+         }
+      },
+      {
+         "guid": "test1",
+         "created_at": "2022-08-02T21:40:34Z",
+         "updated_at": "2022-08-02T21:40:34Z",
+         "username": "test1",
+         "presentation_name": "test1",
+         "origin": "uaa",
+         "metadata": {
+            "labels": {},
+            "annotations": {}
+         },
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/users/test1"
+            }
+         }
+      }
+   ]
+}`
+
+const listV3UsersPayloadPage2 = `{
+   "pagination": {
+      "total_results": 3,
+      "total_pages": 2,
+      "first": {
+         "href": "https://api.example.org/v3/users?page=1&per_page=2"
+      },
+      "last": {
+         "href": "https://api.example.org/v3/users?page=2&per_page=2"
+      },
+      "next": {
+         "href": ""
+      },
+      "previous": {
+         "href": "https://api.example.org/v3/users?page=1&per_page=2"
+      }
+   },
+   "resources": [
+      {
+         "guid": "test2",
+         "created_at": "2022-08-02T21:41:59Z",
+         "updated_at": "2022-08-02T21:41:59Z",
+         "username": "test2",
+         "presentation_name": "test2",
+         "origin": "uaa",
+         "metadata": {
+            "labels": {},
+            "annotations": {}
+         },
+         "links": {
+            "self": {
+               "href": "https://api.example.org/v3/users/test2"
+            }
+         }
+      }
+   ]
+}`
