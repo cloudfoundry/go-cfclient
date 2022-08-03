@@ -143,7 +143,7 @@ func (c *Client) ListV3RolesByQuery(query url.Values) ([]V3Role, error) {
 	return roles, nil
 }
 
-func (c *Client) listV3RolesByQuery(query url.Values) ([]V3User, error) {
+func (c *Client) ListV3RoleUsersByQuery(query url.Values) ([]V3User, error) {
 	var users []V3User
 	requestURL, err := url.Parse("/v3/roles")
 	if err != nil {
@@ -182,13 +182,21 @@ func (c *Client) listV3RolesByQuery(query url.Values) ([]V3User, error) {
 	return users, nil
 }
 
+// ListV3SpaceRolesByGUID retrieves roles based on query
+func (c *Client) ListV3SpaceRolesByGUID(spaceGUID string) ([]V3User, error) {
+	query := url.Values{}
+	query["space_guids"] = []string{spaceGUID}
+	query["include"] = []string{"user"}
+	return c.ListV3RoleUsersByQuery(query)
+}
+
 // ListV3SpaceRolesByGUIDAndType retrieves roles based on query
 func (c *Client) ListV3SpaceRolesByGUIDAndType(spaceGUID string, roleType string) ([]V3User, error) {
 	query := url.Values{}
 	query["space_guids"] = []string{spaceGUID}
 	query["types"] = []string{roleType}
 	query["include"] = []string{"user"}
-	return c.listV3RolesByQuery(query)
+	return c.ListV3RoleUsersByQuery(query)
 }
 
 // ListV3SpaceRolesByGUIDAndType retrieves roles based on query
@@ -197,7 +205,15 @@ func (c *Client) ListV3OrganizationRolesByGUIDAndType(orgGUID string, roleType s
 	query["organization_guids"] = []string{orgGUID}
 	query["types"] = []string{roleType}
 	query["include"] = []string{"user"}
-	return c.listV3RolesByQuery(query)
+	return c.ListV3RoleUsersByQuery(query)
+}
+
+// ListV3OrganizationRolesByGUID retrieves roles based on query
+func (c *Client) ListV3OrganizationRolesByGUID(orgGUID string) ([]V3User, error) {
+	query := url.Values{}
+	query["organization_guids"] = []string{orgGUID}
+	query["include"] = []string{"user"}
+	return c.ListV3RoleUsersByQuery(query)
 }
 
 func (c *Client) DeleteV3Role(roleGUID string) error {

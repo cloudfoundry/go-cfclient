@@ -1145,6 +1145,199 @@ const listV3SpaceRolesBySpaceGuidPayloadPage2 = `{
   ]
 }`
 
+const listV3SpaceRoleUsersBySpaceGUIDPayload = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&space_guids=spaceGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/roles?page=2&per_page=2&include=user&space_guids=spaceGUID1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&include=user&space_guids=spaceGUID1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "roleGUID1",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_supporter",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+       },
+       "links": {
+          "self": {
+            "href": "https://api.example.org/v3/roles/roleGUID1"
+          },
+          "user": {
+            "href": "https://api.example.org/v3/users/userGUID1"
+          },
+          "space": {
+            "href": "https://api.example.org/v3/spaces/spaceGUID1"
+          }
+       }
+    },
+    {
+      "guid": "roleGUID2",
+      "created_at": "2047-11-10T17:19:12Z",
+      "updated_at": "2047-11-10T17:19:12Z",
+      "type": "space_supporter",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID2"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID1"
+        }
+      }
+    }
+  ],
+  "included": {
+    "users": [
+      {
+        "guid": "userGUID1",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user1",
+        "presentation_name": "user1",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID1"
+            }
+        }
+      },
+      {
+        "guid": "userGUID2",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user2",
+        "presentation_name": "user2",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID2"
+            }
+        }
+      }
+    ]
+  }     
+}`
+
+const listV3SpaceRoleUsersBySpaceGUIDPayloadPage2 = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&space_guids=spaceGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&include=user&space_guids=spaceGUID1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&space_guids=spaceGUID1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "roleGUID3",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "space_supporter",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        },
+        "organization": {
+          "data": null
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID3"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "space": {
+          "href": "https://api.example.org/v3/spaces/spaceGUID1"
+        }
+      }
+    }
+  ],
+  "included": {
+    "users": [
+      {
+        "guid": "userGUID3",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user3",
+        "presentation_name": "user3",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID3"
+            }
+        }
+      }
+    ]
+  } 
+}`
+
 const listV3SpaceRolesBySpaceGUIDAndTypePayload = `{
   "pagination": {
     "total_results": 3,
@@ -1311,6 +1504,199 @@ const listV3SpaceRolesBySpaceGuidAndTypePayloadPage2 = `{
         },
         "space": {
           "href": "https://api.example.org/v3/spaces/spaceGUID1"
+        }
+      }
+    }
+  ],
+  "included": {
+    "users": [
+      {
+        "guid": "userGUID3",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user3",
+        "presentation_name": "user3",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID3"
+            }
+        }
+      }
+    ]
+  } 
+}`
+
+const listV3OrganizationRolesByOrganizationGUIDPayload = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&organization_guids=orgGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/roles?page=2&per_page=2&include=user&organization_guids=orgGUID1"
+    },
+    "next": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&include=user&organization_guids=orgGUID1"
+    },
+    "previous": null
+  },
+  "resources": [
+    {
+      "guid": "roleGUID1",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "organization_auditor",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID1"
+          }
+        },
+        "space": {
+          "data": null
+        },
+        "organization": {
+          "data": {
+            "guid": "orgGUID1"
+          }
+        }
+       },
+       "links": {
+          "self": {
+            "href": "https://api.example.org/v3/roles/roleGUID1"
+          },
+          "user": {
+            "href": "https://api.example.org/v3/users/userGUID1"
+          },
+          "org": {
+            "href": "https://api.example.org/v3/organization/orgGUID1"
+          }
+       }
+    },
+    {
+      "guid": "roleGUID2",
+      "created_at": "2047-11-10T17:19:12Z",
+      "updated_at": "2047-11-10T17:19:12Z",
+      "type": "organization_auditor",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": null
+        },
+        "organization": {
+          "data": {
+            "guid": "orgGUID1"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID2"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "organization": {
+          "href": "https://api.example.org/v3/organization/orgGUID1"
+        }
+      }
+    }
+  ],
+  "included": {
+    "users": [
+      {
+        "guid": "userGUID1",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user1",
+        "presentation_name": "user1",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID1"
+            }
+        }
+      },
+      {
+        "guid": "userGUID2",
+        "created_at": "2022-05-25T23:57:45Z",
+        "updated_at": "2022-05-25T23:57:45Z",
+        "username": "user2",
+        "presentation_name": "user2",
+        "origin": "uaa",
+        "metadata": {
+            "labels": {},
+            "annotations": {}
+        },
+        "links": {
+            "self": {
+              "href": "https://api.example.org/v3/users/userGUID2"
+            }
+        }
+      }
+    ]
+  }     
+}`
+
+const listV3OrganizationRolesByOrganizationGuidPayloadPage2 = `{
+  "pagination": {
+    "total_results": 3,
+    "total_pages": 2,
+    "first": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&organiziation_guids=orgGUID1"
+    },
+    "last": {
+      "href": "https://api.example.org/v3/rolespage2?page=2&per_page=2&include=user&organiziation_guids=orgGUID1"
+    },
+    "next": null,
+    "previous": {
+      "href": "https://api.example.org/v3/roles?page=1&per_page=2&include=user&organiziation_guids=orgGUID1"
+    }
+  },
+  "resources": [
+    {
+      "guid": "roleGUID3",
+      "created_at": "2019-10-10T17:19:12Z",
+      "updated_at": "2019-10-10T17:19:12Z",
+      "type": "organization_auditor",
+      "relationships": {
+        "user": {
+          "data": {
+            "guid": "userGUID2"
+          }
+        },
+        "space": {
+          "data": null
+        },
+        "organization": {
+          "data": {
+            "guid": "spaceGUID1"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://api.example.org/v3/roles/roleGUID3"
+        },
+        "user": {
+          "href": "https://api.example.org/v3/users/userGUID2"
+        },
+        "organization": {
+          "href": "https://api.example.org/v3/organization/orgGUID1"
         }
       }
     }
