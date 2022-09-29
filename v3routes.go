@@ -29,9 +29,9 @@ type listV3RouteResponse struct {
 }
 
 type Destination struct {
-	Guid string `json:"guid"`
+	GUID string `json:"guid"`
 	App  struct {
-		Guid    string `json:"guid"`
+		GUID    string `json:"guid"`
 		Process struct {
 			Type string `json:"type"`
 		} `json:"process"`
