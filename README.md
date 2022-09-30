@@ -6,20 +6,16 @@
 
 ## Overview
 
-`cfclient` is a package to assist you in writing apps that need to interact with [Cloud Foundry](http://cloudfoundry.org).
-It provides functions and structures to retrieve and update
-
+`go-cfclient` is a package to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
+Cloud Controller [v3 API](https://v3-apidocs.cloudfoundry.org). The v2 API is no longer supported, however if you still
+need to use the older API you may use the v2 branch.
 
 ## Usage
-
+It's recommended you use the latest tagged version of the library and upgrade to newer version at your convenience.
+This library now follows semantic versioning of releases.
 ```
-go get github.com/cloudfoundry-community/go-cfclient
+go get github.com/cloudfoundry-community/go-cfclient@v1.0.0
 ```
-
-NOTE: Currently this project is not versioning its releases and so breaking changes might be introduced.
-Whilst hopefully notifications of breaking changes are made via commit messages, ideally your project will use a local
-vendoring system to lock in a version of `go-cfclient` that is known to work for you.
-This will allow you to control the timing and maintenance of upgrades to newer versions of this library.
 
 Some example code:
 
@@ -44,58 +40,27 @@ func main() {
 }
 ```
 
-### Paging Results
-
-The API supports paging results via query string parameters. All of the v3 ListV3*ByQuery functions support paging. Only a subset of v2 function calls support paging the results:
-
-- ListSpacesByQuery
-- ListOrgsByQuery
-- ListAppsByQuery
-- ListServiceInstancesByQuery
-- ListUsersByQuery
-
-You can iterate over the results page-by-page using a function similar to this one:
-
-```go
-func processSpacesOnePageAtATime(client *cfclient.Client) error {
-	page := 1
-	pageSize := 50
-
-	q := url.Values{}
-	q.Add("results-per-page", strconv.Itoa(pageSize))
-
-	for {
-		// get the current page of spaces
-		q.Set("page", strconv.Itoa(page))
-		spaces, err := client.ListSpacesByQuery(q)
-		if err != nil {
-			fmt.Printf("Error getting spaces by query: %s", err)
-			return err
-		}
-
-		// do something with each space
-		fmt.Printf("Page %d:\n", page)
-		for _, s := range spaces {
-			fmt.Println("  " + s.Name)
-		}
-
-		// if we hit an empty page or partial page, that means we're done
-		if len(spaces) < pageSize {
-			break
-		}
-
-		// next page
-		page++
-	}
-	return nil
-}
-```
-
 ## Development
+
+All development takes place on feature branches and is merged to the `main` branch. Therefore the main
+branch is considered a potentially unstable branch until a new release (see below) is cut.
 
 ```shell
 make all
 ```
+
+Please attempt to use standard go naming conventions for all structs, for example prefer GUID over Guid. Packages
+should roughly follow the v3 API resources although short names are preferred, for example:
+
+|- app
+|- space
+|- org
+|- route
+
+### Releases
+
+This library uses [semantic versioning](https://go.dev/doc/modules/version-numbers) to release new features,
+bug fixes or other breaking changes [via git tags](https://go.dev/doc/modules/publishing).
 
 ### Errors
 
