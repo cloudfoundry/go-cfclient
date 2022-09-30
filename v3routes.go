@@ -18,6 +18,7 @@ type V3Route struct {
 	CreatedAt     time.Time                      `json:"created_at"`
 	UpdatedAt     time.Time                      `json:"updated_at"`
 	Metadata      Metadata                       `json:"metadata"`
+	Destinations  []Destination                  `json:"destinations"`
 	Relationships map[string]V3ToOneRelationship `json:"relationships"`
 	Links         map[string]Link                `json:"links"`
 }
@@ -25,6 +26,19 @@ type V3Route struct {
 type listV3RouteResponse struct {
 	Pagination Pagination `json:"pagination,omitempty"`
 	Resources  []V3Route  `json:"resources,omitempty"`
+}
+
+type Destination struct {
+	GUID string `json:"guid"`
+	App  struct {
+		GUID    string `json:"guid"`
+		Process struct {
+			Type string `json:"type"`
+		} `json:"process"`
+	} `json:"app"`
+	Weight   interface{} `json:"weight"`
+	Port     int         `json:"port"`
+	Protocol string      `json:"protocol"`
 }
 
 func (c *Client) ListV3Routes() ([]V3Route, error) {
