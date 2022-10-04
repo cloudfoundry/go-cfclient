@@ -13,8 +13,8 @@ func TestGetDeployment(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getDeploymentPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.GetDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
@@ -34,8 +34,8 @@ func TestCreateDeployment(t *testing.T) {
 
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", nil)
@@ -53,8 +53,8 @@ func TestCreateDeployment(t *testing.T) {
 
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
@@ -76,8 +76,8 @@ func TestCreateDeployment(t *testing.T) {
 
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
@@ -100,8 +100,8 @@ func TestCreateDeployment(t *testing.T) {
 
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
@@ -123,8 +123,8 @@ func TestCancelDeployment(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", []string{""}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.CancelDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")

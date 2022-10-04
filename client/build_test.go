@@ -14,8 +14,8 @@ func TestCreateBuild(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/builds", []string{createBuildPayload}, "", http.StatusCreated, "", &body}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		build, err := client.CreateBuild("package-guid", nil,

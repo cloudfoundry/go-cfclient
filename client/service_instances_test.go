@@ -12,8 +12,8 @@ func TestListServiceInstancesByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/service_instances", []string{listServiceInstancesPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		services, err := client.ListServiceInstances()

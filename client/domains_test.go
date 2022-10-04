@@ -12,8 +12,8 @@ func TestListDomains(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/domains", []string{listDomainsPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		resp, err := client.ListDomains(nil)

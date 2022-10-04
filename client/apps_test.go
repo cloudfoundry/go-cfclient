@@ -14,8 +14,8 @@ func TestCreateApp(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/apps", []string{createAppPayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		app, err := client.CreateApp(resource.CreateAppRequest{
@@ -42,8 +42,8 @@ func TestGetApp(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{getAppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		app, err := client.GetAppByGUID("1cb006ee-fb05-47e1-b541-c34179ddc446")
@@ -67,8 +67,8 @@ func TestGetAppEnv(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env", []string{getAppEnvPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		env, err := client.GetAppEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
@@ -96,8 +96,8 @@ func TestSetAppEnvVariables(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables", []string{setAppEnvironmentVariablesPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		falseVar := "false"
@@ -119,8 +119,8 @@ func TestStartApp(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start", []string{startAppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		app, err := client.StartApp("1cb006ee-fb05-47e1-b541-c34179ddc446")
@@ -144,8 +144,8 @@ func TestDeleteApp(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.DeleteApp("1cb006ee-fb05-47e1-b541-c34179ddc446")
@@ -158,8 +158,8 @@ func TestUpdateApp(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{updateAppPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		app, err := client.UpdateApp("1cb006ee-fb05-47e1-b541-c34179ddc446", resource.UpdateAppRequest{})
@@ -186,8 +186,8 @@ func TestListAppsByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/apps", []string{listAppsPayload, listAppsPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		apps, err := client.ListAppsByQuery(nil)
