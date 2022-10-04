@@ -9,8 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"time"
@@ -36,22 +34,6 @@ type Endpoint struct {
 	AppSSHOauthClient string `json:"app_ssh_oauth_client"`
 }
 
-// Config is used to configure the creation of a client
-type Config struct {
-	ApiAddress          string `json:"api_url"`
-	Username            string `json:"user"`
-	Password            string `json:"password"`
-	ClientID            string `json:"client_id"`
-	ClientSecret        string `json:"client_secret"`
-	SkipSslValidation   bool   `json:"skip_ssl_validation"`
-	HttpClient          *http.Client
-	Token               string `json:"auth_token"`
-	TokenSource         oauth2.TokenSource
-	tokenSourceDeadline *time.Time
-	UserAgent           string `json:"user_agent"`
-	Origin              string `json:"-"`
-}
-
 type LoginHint struct {
 	Origin string `json:"origin"`
 }
@@ -65,80 +47,7 @@ type Request struct {
 	obj    interface{}
 }
 
-type cfHomeConfig struct {
-	AccessToken           string
-	RefreshToken          string
-	Target                string
-	AuthorizationEndpoint string
-	OrganizationFields    struct {
-		Name string
-	}
-	SpaceFields struct {
-		Name string
-	}
-	SSLDisabled bool
-}
-
-func NewConfigFromCF() (*Config, error) {
-	return NewConfigFromCFHome("")
-}
-
-func NewConfigFromCFHome(cfHomeDir string) (*Config, error) {
-	var err error
-
-	if cfHomeDir == "" {
-		cfHomeDir = os.Getenv("CF_HOME")
-		if cfHomeDir == "" {
-			cfHomeDir, err = os.UserHomeDir()
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	cfHomeConfig, err := loadCFHomeConfig(cfHomeDir)
-	if err != nil {
-		return nil, err
-	}
-
-	cfg := DefaultConfig()
-	cfg.Token = cfHomeConfig.AccessToken
-	cfg.ApiAddress = cfHomeConfig.Target
-	cfg.SkipSslValidation = cfHomeConfig.SSLDisabled
-
-	return cfg, nil
-}
-
-func loadCFHomeConfig(cfHomeDir string) (*cfHomeConfig, error) {
-	cfConfigDir := filepath.Join(cfHomeDir, ".cf")
-	cfJSON, err := ioutil.ReadFile(filepath.Join(cfConfigDir, "config.json"))
-	if err != nil {
-		return nil, err
-	}
-
-	var cfg cfHomeConfig
-	err = json.Unmarshal(cfJSON, &cfg)
-	if err == nil {
-		if len(cfg.AccessToken) > len("bearer ") {
-			cfg.AccessToken = cfg.AccessToken[len("bearer "):]
-		}
-	}
-
-	return &cfg, nil
-}
-
-// DefaultConfig creates a default config object used by CF client
-func DefaultConfig() *Config {
-	return &Config{
-		ApiAddress:        "http://api.bosh-lite.com",
-		Username:          "admin",
-		Password:          "admin",
-		Token:             "",
-		SkipSslValidation: false,
-		HttpClient:        http.DefaultClient,
-		UserAgent:         "Go-CF-client/1.1",
-	}
-}
+var ErrPreventRedirect = errors.New("prevent-redirect")
 
 func DefaultEndpoint() *Endpoint {
 	return &Endpoint{
@@ -149,77 +58,16 @@ func DefaultEndpoint() *Endpoint {
 	}
 }
 
-// NewClient returns a new client
-func NewClient(config *Config) (client *Client, err error) {
-	// bootstrap the config
-	defConfig := DefaultConfig()
-
-	if len(config.ApiAddress) == 0 {
-		config.ApiAddress = defConfig.ApiAddress
-	}
-
-	if len(config.Username) == 0 {
-		config.Username = defConfig.Username
-	}
-
-	if len(config.Password) == 0 {
-		config.Password = defConfig.Password
-	}
-
-	if len(config.Token) == 0 {
-		config.Token = defConfig.Token
-	}
-
-	if len(config.UserAgent) == 0 {
-		config.UserAgent = defConfig.UserAgent
-	}
-
-	if config.HttpClient == nil {
-		config.HttpClient = defConfig.HttpClient
-	}
-
-	if config.HttpClient.Transport == nil {
-		config.HttpClient.Transport = shallowDefaultTransport()
-	}
-
-	var tp *http.Transport
-
-	switch t := config.HttpClient.Transport.(type) {
-	case *http.Transport:
-		tp = t
-	case *oauth2.Transport:
-		if bt, ok := t.Base.(*http.Transport); ok {
-			tp = bt
-		}
-	}
-
-	if tp != nil {
-		if tp.TLSClientConfig == nil {
-			tp.TLSClientConfig = &tls.Config{}
-		}
-		tp.TLSClientConfig.InsecureSkipVerify = config.SkipSslValidation
-	}
-
-	config.ApiAddress = strings.TrimRight(config.ApiAddress, "/")
-
-	client = &Client{
+// New returns a new CF client
+func New(config *Config) (*Client, error) {
+	client := &Client{
 		Config: *config,
 	}
-
-	if err := client.refreshEndpoint(); err != nil {
+	err := client.refreshEndpoint()
+	if err != nil {
 		return nil, err
 	}
-
 	return client, nil
-}
-
-func shallowDefaultTransport() *http.Transport {
-	defaultTransport := http.DefaultTransport.(*http.Transport)
-	return &http.Transport{
-		Proxy:                 defaultTransport.Proxy,
-		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
-		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
-	}
 }
 
 func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config, error) {
@@ -248,8 +96,8 @@ func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config
 	}
 
 	config.tokenSourceDeadline = &token.Expiry
-	config.TokenSource = authConfig.TokenSource(ctx, token)
-	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
+	config.tokenSource = authConfig.TokenSource(ctx, token)
+	config.httpClient = oauth2.NewClient(ctx, config.tokenSource)
 
 	return config, err
 }
@@ -261,8 +109,8 @@ func getClientAuth(ctx context.Context, config Config, endpoint *Endpoint) Confi
 		TokenURL:     endpoint.TokenEndpoint + "/oauth/token",
 	}
 
-	config.TokenSource = authConfig.TokenSource(ctx)
-	config.HttpClient = authConfig.Client(ctx)
+	config.tokenSource = authConfig.TokenSource(ctx)
+	config.httpClient = authConfig.Client(ctx)
 	return config
 }
 
@@ -282,8 +130,8 @@ func getUserTokenAuth(ctx context.Context, config Config, endpoint *Endpoint) Co
 		AccessToken: config.Token,
 		TokenType:   "Bearer"}
 
-	config.TokenSource = authConfig.TokenSource(ctx, token)
-	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
+	config.tokenSource = authConfig.TokenSource(ctx, token)
+	config.httpClient = oauth2.NewClient(ctx, config.tokenSource)
 
 	return config
 }
@@ -341,12 +189,12 @@ func (c *Client) DoRequest(r *Request) (*http.Response, error) {
 
 // DoRequestWithoutRedirects executes the request without following redirects
 func (c *Client) DoRequestWithoutRedirects(r *Request) (*http.Response, error) {
-	prevCheckRedirect := c.Config.HttpClient.CheckRedirect
-	c.Config.HttpClient.CheckRedirect = func(httpReq *http.Request, via []*http.Request) error {
+	prevCheckRedirect := c.Config.httpClient.CheckRedirect
+	c.Config.httpClient.CheckRedirect = func(httpReq *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	defer func() {
-		c.Config.HttpClient.CheckRedirect = prevCheckRedirect
+		c.Config.httpClient.CheckRedirect = prevCheckRedirect
 	}()
 	return c.DoRequest(r)
 }
@@ -357,7 +205,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		req.Header.Set("Content-type", "application/json")
 	}
 
-	resp, err := c.Config.HttpClient.Do(req)
+	resp, err := c.Config.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -367,6 +215,82 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func (c *Client) GetToken() (string, error) {
+	if c.Config.tokenSourceDeadline != nil && c.Config.tokenSourceDeadline.Before(time.Now()) {
+		if err := c.refreshEndpoint(); err != nil {
+			return "", err
+		}
+	}
+
+	token, err := c.Config.tokenSource.Token()
+	if err != nil {
+		return "", errors.Wrap(err, "Error getting bearer token")
+	}
+	return "bearer " + token.AccessToken, nil
+}
+
+func (c *Client) GetSSHCode() (string, error) {
+	authorizeUrl, err := url.Parse(c.Endpoint.TokenEndpoint)
+	if err != nil {
+		return "", err
+	}
+
+	values := url.Values{}
+	values.Set("response_type", "code")
+	values.Set("grant_type", "authorization_code")
+	values.Set("client_id", c.Endpoint.AppSSHOauthClient) // client_id，used by cf server
+
+	authorizeUrl.Path = "/oauth/authorize"
+	authorizeUrl.RawQuery = values.Encode()
+
+	req, err := http.NewRequest("GET", authorizeUrl.String(), nil)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := c.GetToken()
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("authorization", token)
+	httpClient := &http.Client{
+		CheckRedirect: func(req *http.Request, _ []*http.Request) error {
+			return ErrPreventRedirect
+		},
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			DisableKeepAlives: true,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: c.Config.skipSSLValidation,
+			},
+			Proxy:               http.ProxyFromEnvironment,
+			TLSHandshakeTimeout: 10 * time.Second,
+		},
+	}
+
+	resp, err := httpClient.Do(req)
+	if err == nil {
+		return "", errors.New("authorization server did not redirect with one time code")
+	}
+	defer resp.Body.Close()
+	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
+		return "", errors.New(fmt.Sprintf("error requesting one time code from server: %s", err.Error()))
+	}
+
+	loc, err := resp.Location()
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("error getting the redirected location:  %s", err.Error()))
+	}
+
+	codes := loc.Query()["code"]
+	if len(codes) != 1 {
+		return "", errors.New("unable to acquire one time code from authorization response")
+	}
+
+	return codes[0], nil
 }
 
 func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
@@ -407,11 +331,11 @@ func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 }
 
 func (c *Client) refreshEndpoint() error {
-	// we want to keep the Timeout value from config.HttpClient
-	timeout := c.Config.HttpClient.Timeout
+	// we want to keep the Timeout value from config.httpClient
+	timeout := c.Config.httpClient.Timeout
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, c.Config.HttpClient)
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, c.Config.httpClient)
 
 	endpoint, err := getInfo(c.Config.ApiAddress, oauth2.NewClient(ctx, nil))
 
@@ -431,8 +355,8 @@ func (c *Client) refreshEndpoint() error {
 		}
 	}
 	// make sure original Timeout value will be used
-	if c.Config.HttpClient.Timeout != timeout {
-		c.Config.HttpClient.Timeout = timeout
+	if c.Config.httpClient.Timeout != timeout {
+		c.Config.httpClient.Timeout = timeout
 	}
 
 	c.Endpoint = *endpoint
@@ -470,82 +394,4 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 		return nil, err
 	}
 	return buf, nil
-}
-
-func (c *Client) GetToken() (string, error) {
-	if c.Config.tokenSourceDeadline != nil && c.Config.tokenSourceDeadline.Before(time.Now()) {
-		if err := c.refreshEndpoint(); err != nil {
-			return "", err
-		}
-	}
-
-	token, err := c.Config.TokenSource.Token()
-	if err != nil {
-		return "", errors.Wrap(err, "Error getting bearer token")
-	}
-	return "bearer " + token.AccessToken, nil
-}
-
-var ErrPreventRedirect = errors.New("prevent-redirect")
-
-func (c *Client) GetSSHCode() (string, error) {
-	authorizeUrl, err := url.Parse(c.Endpoint.TokenEndpoint)
-	if err != nil {
-		return "", err
-	}
-
-	values := url.Values{}
-	values.Set("response_type", "code")
-	values.Set("grant_type", "authorization_code")
-	values.Set("client_id", c.Endpoint.AppSSHOauthClient) // client_id，used by cf server
-
-	authorizeUrl.Path = "/oauth/authorize"
-	authorizeUrl.RawQuery = values.Encode()
-
-	req, err := http.NewRequest("GET", authorizeUrl.String(), nil)
-	if err != nil {
-		return "", err
-	}
-
-	token, err := c.GetToken()
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add("authorization", token)
-	httpClient := &http.Client{
-		CheckRedirect: func(req *http.Request, _ []*http.Request) error {
-			return ErrPreventRedirect
-		},
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DisableKeepAlives: true,
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: c.Config.SkipSslValidation,
-			},
-			Proxy:               http.ProxyFromEnvironment,
-			TLSHandshakeTimeout: 10 * time.Second,
-		},
-	}
-
-	resp, err := httpClient.Do(req)
-	if err == nil {
-		return "", errors.New("authorization server did not redirect with one time code")
-	}
-	defer resp.Body.Close()
-	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
-		return "", errors.New(fmt.Sprintf("error requesting one time code from server: %s", err.Error()))
-	}
-
-	loc, err := resp.Location()
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("error getting the redirected location:  %s", err.Error()))
-	}
-
-	codes := loc.Query()["code"]
-	if len(codes) != 1 {
-		return "", errors.New("unable to acquire one time code from authorization response")
-	}
-
-	return codes[0], nil
 }

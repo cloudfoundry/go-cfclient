@@ -14,8 +14,8 @@ func TestCreateSpace(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/spaces", []string{createSpacePayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		space, err := client.CreateSpace(resource.CreateSpaceRequest{
@@ -39,8 +39,8 @@ func TestGetSpace(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/spaces/space-guid", []string{getSpacePayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		space, err := client.GetSpaceByGUID("space-guid")
@@ -61,8 +61,8 @@ func TestDeleteSpace(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v3/spaces/space-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.DeleteSpace("space-guid")
@@ -75,8 +75,8 @@ func TestUpdateSpace(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/spaces/space-guid", []string{updateSpacePayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		space, err := client.UpdateSpace("space-guid", resource.UpdateSpaceRequest{
@@ -100,8 +100,8 @@ func TestListSpacesByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/spaces", []string{listSpacesPayload, listSpacesPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		spaces, err := client.ListSpacesByQuery(nil)
@@ -123,8 +123,8 @@ func TestListSpaceUsersByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listSpaceUsersPayload, listSpaceUsersPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		users, err := client.ListSpaceUsers("space-guid")

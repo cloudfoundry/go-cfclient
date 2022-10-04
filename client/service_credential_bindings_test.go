@@ -13,8 +13,8 @@ func TestListServiceCredentialBindingsByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/service_credential_bindings", []string{listServiceCredentialBindingsPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		serviceCredentialsBindings, err := client.ListServiceCredentialBindings()
@@ -35,8 +35,8 @@ func TestGetServiceCredentialBindingsByGUID(t *testing.T) {
 		setup(MockRoute{"GET", fmt.Sprintf("/v3/service_credential_bindings/%s", GUID), []string{getServiceCredentialBindingsByGUIDPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		serviceCredentialsBinding, err := client.GetServiceCredentialBindingsByGUID(GUID)

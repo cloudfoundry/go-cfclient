@@ -19,8 +19,8 @@ func TestListSecurityGroupsByQuery(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		securityGroups, err := client.ListSecurityGroupsByQuery(nil)
@@ -59,8 +59,8 @@ func TestListSecurityGroupsByQuery(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		query := url.Values{}
@@ -92,8 +92,8 @@ func TestCreateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusCreated, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		securityGroups, err := client.CreateSecurityGroup(resource.CreateSecurityGroupRequest{
@@ -148,8 +148,8 @@ func TestCreateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/security_groups", []string{genericSecurityGroupPayload}, "", http.StatusCreated, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 		icmpType := 8
 		icmpCode := 0
@@ -221,8 +221,8 @@ func TestCreateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		_, err = client.CreateSecurityGroup(resource.CreateSecurityGroupRequest{
@@ -246,8 +246,8 @@ func TestDeleteSecurityGroup(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v3/security_groups/security-group-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.DeleteSecurityGroup("security-group-guid")
@@ -270,8 +270,8 @@ func TestUpdateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		_, err = client.UpdateSecurityGroup("guid-1", resource.UpdateSecurityGroupRequest{
@@ -293,8 +293,8 @@ func TestUpdateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusOK, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		securityGroups, err := client.UpdateSecurityGroup("guid-1", resource.UpdateSecurityGroupRequest{
@@ -337,8 +337,8 @@ func TestUpdateSecurityGroup(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", &expectedRequestBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 		icmpType := 8
 		icmpCode := 0
@@ -391,8 +391,8 @@ func TestGetSecurityGroup(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		securityGroup, err := client.GetSecurityGroupByGUID("guid-1")

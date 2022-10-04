@@ -14,8 +14,8 @@ func TestListPackagesForApp(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages", []string{listPackagesForAppPayloadPage1, listPackagesForAppPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		packages, err := client.ListPackagesForApp("f2efe391-2b5b-4836-8518-ad93fa9ebf69", nil)
@@ -40,8 +40,8 @@ func TestCopyPackage(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/packages", []string{copyPackagePayload}, "", http.StatusCreated, "source_guid=package-guid", &expectedBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		pkg, err := client.CopyPackage("package-guid", "app-guid")

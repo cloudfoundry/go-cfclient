@@ -17,8 +17,8 @@ func TestListSpaceRolesByQuery(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		query := url.Values{}
@@ -50,8 +50,8 @@ func TestListSpaceRolesByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesByUserGuidPayload}, "", http.StatusOK, "user_guids=userGUID1", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		query := url.Values{}
@@ -78,8 +78,8 @@ func TestListSpaceRolesByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesBySpaceAndUserGuidPayload}, "", http.StatusOK, "space_guids=spaceGUID2&user_guids=userGUID1", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		query := url.Values{}
@@ -109,8 +109,8 @@ func TestListSpaceRolesByGUID(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		roles, users, err := client.ListSpaceRolesByGUID("spaceGUID1")
@@ -133,8 +133,8 @@ func TestListSpaceRolesByGUIDAndType(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		users, err := client.ListSpaceRolesByGUIDAndType("spaceGUID1", "space_supporter")
@@ -156,8 +156,8 @@ func TestListOrgRolesByGUID(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		roles, users, err := client.ListOrganizationRolesByGUID("orgGUID1")
@@ -180,8 +180,8 @@ func TestListOrgRolesByGUIDAndType(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		users, err := client.ListOrganizationRolesByGUIDAndType("orgGUID1", "organization_auditor")
@@ -199,8 +199,8 @@ func TestCreateSpaceRoles(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/roles", []string{createSpaceRolePayload}, "", http.StatusCreated, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		role, err := client.CreateSpaceRole(
@@ -222,8 +222,8 @@ func TestCreateOrgRoles(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/roles", []string{createOrganizationRolePayload}, "", http.StatusCreated, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		role, err := client.CreateOrganizationRole(
@@ -245,8 +245,8 @@ func TestDeleteRole(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v3/roles/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.DeleteRole("1cb006ee-fb05-47e1-b541-c34179ddc446")

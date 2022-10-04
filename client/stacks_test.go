@@ -15,8 +15,8 @@ func TestListStacksByQuery(t *testing.T) {
 		setupMultiple(mocks, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		stacks, err := client.ListStacksByQuery(nil)

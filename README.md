@@ -34,7 +34,7 @@ func main() {
 		Username:   "admin",
 		Password:   "secret",
 	}
-	client, _ := cfclient.NewClient(c)
+	client, _ := cfclient.New(c)
 	apps, _ := client.ListApps()
 	fmt.Println(apps)
 }

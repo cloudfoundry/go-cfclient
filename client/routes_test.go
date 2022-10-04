@@ -12,8 +12,8 @@ func TestListRoutes(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/routes", []string{listRoutesPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		routes, err := client.ListRoutes()
@@ -39,8 +39,8 @@ func TestCreateRoutes(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/routes", []string{createRoutePayload}, "", http.StatusCreated, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		route, err := client.CreateRoute(

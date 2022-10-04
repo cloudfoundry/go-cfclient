@@ -14,8 +14,8 @@ func TestCreateOrganization(t *testing.T) {
 		setup(MockRoute{"POST", "/v3/organizations", []string{createOrganizationPayload}, "", http.StatusCreated, "", &expectedBody}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		organization, err := client.CreateOrganization(resource.CreateOrganizationRequest{
@@ -38,8 +38,8 @@ func TestGetOrganization(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/organizations/org-guid", []string{getOrganizationPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		organization, err := client.GetOrganizationByGUID("org-guid")
@@ -60,8 +60,8 @@ func TestDeleteOrganization(t *testing.T) {
 		setup(MockRoute{"DELETE", "/v3/organizations/org-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		err = client.DeleteOrganization("org-guid")
@@ -74,8 +74,8 @@ func TestUpdateOrganization(t *testing.T) {
 		setup(MockRoute{"PATCH", "/v3/organizations/org-guid", []string{updateOrganizationPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		organization, err := client.UpdateOrganization("org-guid", resource.UpdateOrganizationRequest{
@@ -99,8 +99,8 @@ func TestListOrganizationsByQuery(t *testing.T) {
 		setup(MockRoute{"GET", "/v3/organizations", []string{listOrganizationsPayload, listOrganizationsPayloadPage2}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
-		c := &Config{ApiAddress: server.URL, Token: "foobar"}
-		client, err := NewClient(c)
+		c, _ := NewTokenConfig(server.URL, "foobar")
+		client, err := New(c)
 		So(err, ShouldBeNil)
 
 		organizations, err := client.ListOrganizationsByQuery(nil)

@@ -12,6 +12,7 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20150712133111-4e1c5567d7c2 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
+	github.com/stretchr/testify v1.8.0 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1
 	google.golang.org/protobuf v1.28.0 // indirect
