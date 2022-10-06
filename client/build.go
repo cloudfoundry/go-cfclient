@@ -10,8 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) GetBuildByGUID(buildGUID string) (*resource.Build, error) {
-	resp, err := c.DoRequest(c.NewRequest("GET", "/v3/builds/"+buildGUID))
+type BuildClient commonClient
+
+func (c *BuildClient) GetByGUID(buildGUID string) (*resource.Build, error) {
+	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/builds/"+buildGUID))
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting  build")
 	}
@@ -27,8 +29,8 @@ func (c *Client) GetBuildByGUID(buildGUID string) (*resource.Build, error) {
 	return &build, nil
 }
 
-func (c *Client) CreateBuild(packageGUID string, lifecycle *resource.Lifecycle, metadata *resource.Metadata) (*resource.Build, error) {
-	req := c.NewRequest("POST", "/v3/builds")
+func (c *BuildClient) Create(packageGUID string, lifecycle *resource.Lifecycle, metadata *resource.Metadata) (*resource.Build, error) {
+	req := c.client.NewRequest("POST", "/v3/builds")
 	params := map[string]interface{}{
 		"package": map[string]interface{}{
 			"guid": packageGUID,
@@ -42,7 +44,7 @@ func (c *Client) CreateBuild(packageGUID string, lifecycle *resource.Lifecycle, 
 	}
 	req.obj = params
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error while creating v3 build")
 	}

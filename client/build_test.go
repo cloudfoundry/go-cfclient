@@ -17,7 +17,7 @@ func TestCreateBuild(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	build, err := client.CreateBuild("package-guid", nil,
+	build, err := client.Builds.Create("package-guid", nil,
 		&resource.Metadata{Labels: map[string]string{"foo": "bar"}})
 	require.NoError(t, err)
 	require.NotNil(t, build)

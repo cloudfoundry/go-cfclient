@@ -27,6 +27,7 @@ type Client struct {
 
 	Organizations *OrganizationClient
 	Applications  *AppClient
+	Builds        *BuildClient
 }
 
 type commonClient struct {
@@ -78,6 +79,7 @@ func New(config *Config) (*Client, error) {
 	client.common.client = client
 	client.Organizations = (*OrganizationClient)(&client.common)
 	client.Applications = (*AppClient)(&client.common)
+	client.Builds = (*BuildClient)(&client.common)
 	return client, nil
 }
 
