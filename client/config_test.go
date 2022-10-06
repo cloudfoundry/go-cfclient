@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -64,7 +63,7 @@ func TestConfigNewClientSecretConfig(t *testing.T) {
 }
 
 func TestNewConfigFromCFHomeDir(t *testing.T) {
-	cfHomeDir, err := ioutil.TempDir("", "cf_home")
+	cfHomeDir, err := os.MkdirTemp("", "cf_home")
 	require.NoError(t, err)
 
 	configDir := path.Join(cfHomeDir, ".cf")

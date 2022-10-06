@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -177,7 +176,7 @@ func shallowDefaultTransport() *http.Transport {
 
 func loadCFHomeConfig(cfHomeDir string) (*cfHomeConfig, error) {
 	cfConfigDir := filepath.Join(cfHomeDir, ".cf")
-	cfJSON, err := ioutil.ReadFile(filepath.Join(cfConfigDir, "config.json"))
+	cfJSON, err := os.ReadFile(filepath.Join(cfConfigDir, "config.json"))
 	if err != nil {
 		return nil, err
 	}
