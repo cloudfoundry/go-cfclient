@@ -18,18 +18,18 @@ import (
 
 // Config is used to configure the creation of a client
 type Config struct {
-	ApiAddress   string `json:"api_url"`
-	Username     string `json:"user"`
-	Password     string `json:"password"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	UserAgent    string `json:"user_agent"`
-	Origin       string `json:"-"`
-	Token        string `json:"auth_token"`
+	ApiAddress   string
+	Username     string
+	Password     string
+	ClientID     string
+	ClientSecret string
+	UserAgent    string
+	Origin       string
+	Token        string
 
 	tokenSource         oauth2.TokenSource
 	tokenSourceDeadline *time.Time
-	skipSSLValidation   bool `json:"skip_ssl_validation"`
+	skipSSLValidation   bool
 	httpClient          *http.Client
 }
 
