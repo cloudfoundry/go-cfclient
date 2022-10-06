@@ -17,7 +17,7 @@ func TestListStacksByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	stacks, err := client.ListStacksByQuery(nil)
+	stacks, err := client.Stacks.ListByQuery(nil)
 	require.NoError(t, err)
 	require.Len(t, stacks, 2)
 

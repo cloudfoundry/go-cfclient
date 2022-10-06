@@ -38,6 +38,7 @@ type Client struct {
 	ServiceCredentialBindings *ServiceCredentialBindingClient
 	ServiceInstances          *ServiceInstanceClient
 	Spaces                    *SpaceClient
+	Stacks                    *StackClient
 }
 
 type commonClient struct {
@@ -100,6 +101,7 @@ func New(config *Config) (*Client, error) {
 	client.ServiceCredentialBindings = (*ServiceCredentialBindingClient)(&client.common)
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
+	client.Stacks = (*StackClient)(&client.common)
 	return client, nil
 }
 
