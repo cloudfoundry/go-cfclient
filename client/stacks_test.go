@@ -1,35 +1,32 @@
 package client
 
 import (
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
-
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestListStacksByQuery(t *testing.T) {
-	Convey("List All  stacks", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/stacks", []string{listStacksPayload}, "", http.StatusOK, "", nil},
-		}
-		setupMultiple(mocks, t)
-		defer teardown()
+	mocks := []MockRoute{
+		{"GET", "/v3/stacks", []string{listStacksPayload}, "", http.StatusOK, "", nil},
+	}
+	setupMultiple(mocks, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		stacks, err := client.ListStacksByQuery(nil)
-		So(err, ShouldBeNil)
-		So(stacks, ShouldHaveLength, 2)
+	stacks, err := client.ListStacksByQuery(nil)
+	require.NoError(t, err)
+	require.Len(t, stacks, 2)
 
-		So(stacks[0].Name, ShouldEqual, "my-stack-1")
-		So(stacks[0].Description, ShouldEqual, "This is my first stack!")
-		So(stacks[0].GUID, ShouldEqual, "guid-1")
-		So(stacks[0].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/stacks/guid-1")
-		So(stacks[1].Name, ShouldEqual, "my-stack-2")
-		So(stacks[1].Description, ShouldEqual, "This is my second stack!")
-		So(stacks[1].GUID, ShouldEqual, "guid-2")
-		So(stacks[1].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/stacks/guid-2")
-	})
+	require.Equal(t, "my-stack-1", stacks[0].Name)
+	require.Equal(t, "This is my first stack!", stacks[0].Description)
+	require.Equal(t, "guid-1", stacks[0].GUID)
+	require.Equal(t, "https://api.example.org/v3/stacks/guid-1", stacks[0].Links["self"].Href)
+	require.Equal(t, "my-stack-2", stacks[1].Name)
+	require.Equal(t, "This is my second stack!", stacks[1].Description)
+	require.Equal(t, "guid-2", stacks[1].GUID)
+	require.Equal(t, "https://api.example.org/v3/stacks/guid-2", stacks[1].Links["self"].Href)
 }

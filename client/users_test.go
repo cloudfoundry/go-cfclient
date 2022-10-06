@@ -1,34 +1,30 @@
 package client
 
 import (
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/url"
 	"testing"
-
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestListUserByQuery(t *testing.T) {
-	Convey("List  Users by Query", t, func() {
-		mocks := []MockRoute{
-			{"GET", "/v3/users", []string{listUsersPayload}, "", http.StatusOK, "", nil},
-			{"GET", "/v3/userspage2", []string{listUsersPayloadPage2}, "", http.StatusOK, "page=2&per_page=2", nil},
-		}
-		setupMultiple(mocks, t)
-		defer teardown()
+	mocks := []MockRoute{
+		{"GET", "/v3/users", []string{listUsersPayload}, "", http.StatusOK, "", nil},
+		{"GET", "/v3/userspage2", []string{listUsersPayloadPage2}, "", http.StatusOK, "page=2&per_page=2", nil},
+	}
+	setupMultiple(mocks, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		query := url.Values{}
-		users, err := client.ListUsersByQuery(query)
-		So(err, ShouldBeNil)
-		So(users, ShouldHaveLength, 3)
+	query := url.Values{}
+	users, err := client.ListUsersByQuery(query)
+	require.NoError(t, err)
+	require.Len(t, users, 3)
 
-		So(users[0].Username, ShouldEqual, "smoke_tests")
-		So(users[1].Username, ShouldEqual, "test1")
-		So(users[2].Username, ShouldEqual, "test2")
-	})
-
+	require.Equal(t, "smoke_tests", users[0].Username)
+	require.Equal(t, "test1", users[1].Username)
+	require.Equal(t, "test2", users[2].Username)
 }

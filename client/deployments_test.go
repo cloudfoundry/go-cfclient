@@ -1,133 +1,126 @@
 package client
 
 import (
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGetDeployment(t *testing.T) {
-	Convey("Get  Deployment", t, func() {
-		setup(MockRoute{"GET", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getDeploymentPayload}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"GET", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getDeploymentPayload}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		resp, err := client.GetDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(err, ShouldBeNil)
-		So(resp, ShouldNotBeNil)
+	resp, err := client.GetDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
+	require.NoError(t, err)
+	require.NotNil(t, resp)
 
-		So(resp.GUID, ShouldEqual, "59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(resp.Status.Reason, ShouldEqual, "DEPLOYING")
-		So(resp.Relationships["app"].Data.GUID, ShouldEqual, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
-	})
+	require.Equal(t, "59c3d133-2b83-46f3-960e-7765a129aea4", resp.GUID)
+	require.Equal(t, "DEPLOYING", resp.Status.Reason)
+	require.Equal(t, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2", resp.Relationships["app"].Data.GUID)
 }
 
 func TestCreateDeployment(t *testing.T) {
-	Convey("Create  Deployment without optional parameters", t, func() {
-		body := `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-		setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	body := `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
 
-		defer teardown()
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", nil)
-		So(err, ShouldBeNil)
-		So(resp, ShouldNotBeNil)
+	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", nil)
+	require.NoError(t, err)
+	require.NotNil(t, resp)
 
-		So(resp.GUID, ShouldEqual, "59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(resp.Status.Reason, ShouldEqual, "DEPLOYING")
-		So(resp.Relationships["app"].Data.GUID, ShouldEqual, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+	require.Equal(t, "59c3d133-2b83-46f3-960e-7765a129aea4", resp.GUID)
+	require.Equal(t, "DEPLOYING", resp.Status.Reason)
+	require.Equal(t, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2", resp.Relationships["app"].Data.GUID)
+}
+
+func TestCreateDeploymentWithDroplet(t *testing.T) {
+	body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+
+	defer teardown()
+
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
+
+	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+		Droplet: &resource.Relationship{
+			GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
+		},
 	})
+	require.NoError(t, err)
+	require.NotNil(t, resp)
 
-	Convey("Create  Deployment with droplet", t, func() {
-		body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-		setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	require.Equal(t, "59c3d133-2b83-46f3-960e-7765a129aea4", resp.GUID)
+	require.Equal(t, "DEPLOYING", resp.Status.Reason)
+	require.Equal(t, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2", resp.Relationships["app"].Data.GUID)
+}
+func TestCreateDeploymentWithRevision(t *testing.T) {
+	body := `{"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
 
-		defer teardown()
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
-			Droplet: &resource.Relationship{
-				GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
-			},
-		})
-		So(err, ShouldBeNil)
-		So(resp, ShouldNotBeNil)
-
-		So(resp.GUID, ShouldEqual, "59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(resp.Status.Reason, ShouldEqual, "DEPLOYING")
-		So(resp.Relationships["app"].Data.GUID, ShouldEqual, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+		Revision: &resource.DeploymentRevision{
+			GUID:    "56126cba-656a-4eba-a81e-7e9951b2df57",
+			Version: 1,
+		},
 	})
+	require.NoError(t, err)
+	require.NotNil(t, resp)
 
-	Convey("Create  Deployment with revision", t, func() {
-		body := `{"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-		setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	require.Equal(t, "59c3d133-2b83-46f3-960e-7765a129aea4", resp.GUID)
+	require.Equal(t, "DEPLOYING", resp.Status.Reason)
+	require.Equal(t, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2", resp.Relationships["app"].Data.GUID)
+}
 
-		defer teardown()
+func TestCreateDeploymentWithRevisionAndDroplet(t *testing.T) {
+	body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	defer teardown()
 
-		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
-			Revision: &resource.DeploymentRevision{
-				GUID:    "56126cba-656a-4eba-a81e-7e9951b2df57",
-				Version: 1,
-			},
-		})
-		So(err, ShouldBeNil)
-		So(resp, ShouldNotBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		So(resp.GUID, ShouldEqual, "59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(resp.Status.Reason, ShouldEqual, "DEPLOYING")
-		So(resp.Relationships["app"].Data.GUID, ShouldEqual, "305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+		Droplet: &resource.Relationship{
+			GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
+		},
+		Revision: &resource.DeploymentRevision{
+			GUID:    "56126cba-656a-4eba-a81e-7e9951b2df57",
+			Version: 1,
+		},
 	})
-
-	Convey("Create  Deployment with revision and droplet", t, func() {
-		body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-		setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
-
-		defer teardown()
-
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
-
-		resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
-			Droplet: &resource.Relationship{
-				GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
-			},
-			Revision: &resource.DeploymentRevision{
-				GUID:    "56126cba-656a-4eba-a81e-7e9951b2df57",
-				Version: 1,
-			},
-		})
-		So(err, ShouldNotBeNil)
-		So(resp, ShouldBeNil)
-	})
+	require.NotNil(t, err)
+	require.Nil(t, resp)
 }
 
 func TestCancelDeployment(t *testing.T) {
-	Convey("Cancel  deployment", t, func() {
-		setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", []string{""}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", []string{""}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		err = client.CancelDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
-		So(err, ShouldBeNil)
-	})
+	err = client.CancelDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
+	require.NoError(t, err)
 }

@@ -1,144 +1,132 @@
 package client
 
 import (
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateSpace(t *testing.T) {
-	Convey("Create  Space", t, func() {
-		expectedBody := `{"name":"my-space","relationships":{"organization":{"data":{"guid":"org-guid"}}}}`
-		setup(MockRoute{"POST", "/v3/spaces", []string{createSpacePayload}, "", http.StatusCreated, "", &expectedBody}, t)
-		defer teardown()
+	expectedBody := `{"name":"my-space","relationships":{"organization":{"data":{"guid":"org-guid"}}}}`
+	setup(MockRoute{"POST", "/v3/spaces", []string{createSpacePayload}, "", http.StatusCreated, "", &expectedBody}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		space, err := client.CreateSpace(resource.CreateSpaceRequest{
-			Name:    "my-space",
-			OrgGUID: "org-guid",
-		})
-		So(err, ShouldBeNil)
-		So(space, ShouldNotBeNil)
-
-		So(space.GUID, ShouldEqual, "space-guid")
-		So(space.Relationships["organization"].Data.GUID, ShouldEqual, "org-guid")
-		So(space.Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
-		So(space.Metadata.Annotations, ShouldHaveLength, 0)
-		So(space.Metadata.Labels, ShouldContainKey, "SPACE_KEY")
-		So(space.Metadata.Labels["SPACE_KEY"], ShouldEqual, "space_value")
+	space, err := client.CreateSpace(resource.CreateSpaceRequest{
+		Name:    "my-space",
+		OrgGUID: "org-guid",
 	})
+	require.NoError(t, err)
+	require.NotNil(t, space)
+
+	require.Equal(t, "space-guid", space.GUID)
+	require.Equal(t, "org-guid", space.Relationships["organization"].Data.GUID)
+	require.Equal(t, "https://api.example.org/v3/organizations/org-guid", space.Links["organization"].Href)
+	require.Len(t, space.Metadata.Annotations, 0)
+	require.Contains(t, space.Metadata.Labels, "SPACE_KEY")
+	require.Equal(t, "space_value", space.Metadata.Labels["SPACE_KEY"])
 }
 
 func TestGetSpace(t *testing.T) {
-	Convey("Get  Space", t, func() {
-		setup(MockRoute{"GET", "/v3/spaces/space-guid", []string{getSpacePayload}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"GET", "/v3/spaces/space-guid", []string{getSpacePayload}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		space, err := client.GetSpaceByGUID("space-guid")
-		So(err, ShouldBeNil)
-		So(space, ShouldNotBeNil)
+	space, err := client.GetSpaceByGUID("space-guid")
+	require.NoError(t, err)
+	require.NotNil(t, space)
 
-		So(space.GUID, ShouldEqual, "space-guid")
-		So(space.Relationships["organization"].Data.GUID, ShouldEqual, "org-guid")
-		So(space.Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
-		So(space.Metadata.Annotations, ShouldHaveLength, 0)
-		So(space.Metadata.Labels, ShouldContainKey, "SPACE_KEY")
-		So(space.Metadata.Labels["SPACE_KEY"], ShouldEqual, "space_value")
-	})
+	require.Equal(t, "space-guid", space.GUID)
+	require.Equal(t, "org-guid", space.Relationships["organization"].Data.GUID)
+	require.Equal(t, "https://api.example.org/v3/organizations/org-guid", space.Links["organization"].Href)
+	require.Len(t, space.Metadata.Annotations, 0)
+	require.Contains(t, space.Metadata.Labels, "SPACE_KEY")
+	require.Equal(t, "space_value", space.Metadata.Labels["SPACE_KEY"])
 }
 
 func TestDeleteSpace(t *testing.T) {
-	Convey("Delete  Space", t, func() {
-		setup(MockRoute{"DELETE", "/v3/spaces/space-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"DELETE", "/v3/spaces/space-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		err = client.DeleteSpace("space-guid")
-		So(err, ShouldBeNil)
-	})
+	err = client.DeleteSpace("space-guid")
+	require.NoError(t, err)
 }
 
 func TestUpdateSpace(t *testing.T) {
-	Convey("Update  Space", t, func() {
-		setup(MockRoute{"PATCH", "/v3/spaces/space-guid", []string{updateSpacePayload}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"PATCH", "/v3/spaces/space-guid", []string{updateSpacePayload}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		space, err := client.UpdateSpace("space-guid", resource.UpdateSpaceRequest{
-			Name: "my-space",
-		})
-		So(err, ShouldBeNil)
-		So(space, ShouldNotBeNil)
-
-		So(space.Name, ShouldEqual, "my-space")
-		So(space.GUID, ShouldEqual, "space-guid")
-		So(space.Relationships["organization"].Data.GUID, ShouldEqual, "org-guid")
-		So(space.Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
-		So(space.Metadata.Annotations, ShouldHaveLength, 0)
-		So(space.Metadata.Labels, ShouldContainKey, "SPACE_KEY")
-		So(space.Metadata.Labels["SPACE_KEY"], ShouldEqual, "space_value")
+	space, err := client.UpdateSpace("space-guid", resource.UpdateSpaceRequest{
+		Name: "my-space",
 	})
+	require.NoError(t, err)
+	require.NotNil(t, space)
+
+	require.Equal(t, "my-space", space.Name)
+	require.Equal(t, "space-guid", space.GUID)
+	require.Equal(t, "org-guid", space.Relationships["organization"].Data.GUID)
+	require.Equal(t, "https://api.example.org/v3/organizations/org-guid", space.Links["organization"].Href)
+	require.Len(t, space.Metadata.Annotations, 0)
+	require.Contains(t, space.Metadata.Labels, "SPACE_KEY")
+	require.Equal(t, "space_value", space.Metadata.Labels["SPACE_KEY"])
 }
 
 func TestListSpacesByQuery(t *testing.T) {
-	Convey("List  Spaces", t, func() {
-		setup(MockRoute{"GET", "/v3/spaces", []string{listSpacesPayload, listSpacesPayloadPage2}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"GET", "/v3/spaces", []string{listSpacesPayload, listSpacesPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		spaces, err := client.ListSpacesByQuery(nil)
-		So(err, ShouldBeNil)
-		So(spaces, ShouldHaveLength, 2)
+	spaces, err := client.ListSpacesByQuery(nil)
+	require.NoError(t, err)
+	require.Len(t, spaces, 2)
 
-		So(spaces[0].Name, ShouldEqual, "my-space-1")
-		So(spaces[1].Name, ShouldEqual, "my-space-2")
+	require.Equal(t, "my-space-1", spaces[0].Name)
+	require.Equal(t, "my-space-2", spaces[1].Name)
 
-		So(spaces[0].Relationships["organization"].Data.GUID, ShouldEqual, "org-guid")
-		So(spaces[0].Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
-		So(spaces[1].Relationships["organization"].Data.GUID, ShouldEqual, "org-guid")
-		So(spaces[1].Links["organization"].Href, ShouldEqual, "https://api.example.org/v3/organizations/org-guid")
-	})
+	require.Equal(t, "org-guid", spaces[0].Relationships["organization"].Data.GUID)
+	require.Equal(t, "https://api.example.org/v3/organizations/org-guid", spaces[0].Links["organization"].Href)
+	require.Equal(t, "org-guid", spaces[1].Relationships["organization"].Data.GUID)
+	require.Equal(t, "https://api.example.org/v3/organizations/org-guid", spaces[1].Links["organization"].Href)
 }
 
 func TestListSpaceUsersByQuery(t *testing.T) {
-	Convey("List  Space Users", t, func() {
-		setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listSpaceUsersPayload, listSpaceUsersPayloadPage2}, "", http.StatusOK, "", nil}, t)
-		defer teardown()
+	setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listSpaceUsersPayload, listSpaceUsersPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	defer teardown()
 
-		c, _ := NewTokenConfig(server.URL, "foobar")
-		client, err := New(c)
-		So(err, ShouldBeNil)
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
 
-		users, err := client.ListSpaceUsers("space-guid")
-		So(err, ShouldBeNil)
-		So(users, ShouldHaveLength, 2)
+	users, err := client.ListSpaceUsers("space-guid")
+	require.NoError(t, err)
+	require.Len(t, users, 2)
 
-		So(users[0].Username, ShouldEqual, "some-name-1")
-		So(users[1].Username, ShouldEqual, "some-name-2")
+	require.Equal(t, "some-name-1", users[0].Username)
+	require.Equal(t, "some-name-2", users[1].Username)
 
-		So(users[0].PresentationName, ShouldEqual, "some-name-1")
-		So(users[0].Origin, ShouldEqual, "uaa")
-		So(users[0].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/users/10a93b89-3f89-4f05-7238-8a2b123c79l9")
-		So(users[1].PresentationName, ShouldEqual, "some-name-2")
-		So(users[1].Origin, ShouldEqual, "ldap")
-		So(users[1].Links["self"].Href, ShouldEqual, "https://api.example.org/v3/users/9da93b89-3f89-4f05-7238-8a2b123c79l9")
-	})
+	require.Equal(t, "some-name-1", users[0].PresentationName)
+	require.Equal(t, "uaa", users[0].Origin)
+	require.Equal(t, "https://api.example.org/v3/users/10a93b89-3f89-4f05-7238-8a2b123c79l9", users[0].Links["self"].Href)
+	require.Equal(t, "some-name-2", users[1].PresentationName)
+	require.Equal(t, "ldap", users[1].Origin)
+	require.Equal(t, "https://api.example.org/v3/users/9da93b89-3f89-4f05-7238-8a2b123c79l9", users[1].Links["self"].Href)
 }
