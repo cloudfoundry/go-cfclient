@@ -20,7 +20,7 @@ func TestListUserByQuery(t *testing.T) {
 	require.NoError(t, err)
 
 	query := url.Values{}
-	users, err := client.ListUsersByQuery(query)
+	users, err := client.Users.ListByQuery(query)
 	require.NoError(t, err)
 	require.Len(t, users, 3)
 

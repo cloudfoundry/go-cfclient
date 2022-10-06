@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ListUsersByQuery by query
-func (c *Client) ListUsersByQuery(query url.Values) ([]resource.User, error) {
+type UserClient commonClient
+
+// ListByQuery by query
+func (c *UserClient) ListByQuery(query url.Values) ([]resource.User, error) {
 	var users []resource.User
 	requestURL, err := url.Parse("/v3/users")
 	if err != nil {
@@ -21,8 +23,8 @@ func (c *Client) ListUsersByQuery(query url.Values) ([]resource.User, error) {
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  users")
 		}
