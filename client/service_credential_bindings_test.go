@@ -15,7 +15,7 @@ func TestListServiceCredentialBindingsByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	serviceCredentialsBindings, err := client.ListServiceCredentialBindings()
+	serviceCredentialsBindings, err := client.ServiceCredentialBindings.List()
 	require.NoError(t, err)
 	require.Len(t, serviceCredentialsBindings, 1)
 
@@ -35,7 +35,7 @@ func TestGetServiceCredentialBindingsByGUID(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	serviceCredentialsBinding, err := client.GetServiceCredentialBindingsByGUID(GUID)
+	serviceCredentialsBinding, err := client.ServiceCredentialBindings.Get(GUID)
 	require.NoError(t, err)
 
 	require.Equal(t, "my_service_key", serviceCredentialsBinding.Name)
