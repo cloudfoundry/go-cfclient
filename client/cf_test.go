@@ -1,7 +1,7 @@
 package client
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -63,7 +63,7 @@ func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
 	t.Helper()
 	if postFormBody != nil {
-		if body, err := ioutil.ReadAll(req.Body); err != nil {
+		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
 			defer req.Body.Close()
@@ -77,7 +77,7 @@ func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
 func testBodyContains(req *http.Request, expected *string, t *testing.T) {
 	t.Helper()
 	if expected != nil {
-		if body, err := ioutil.ReadAll(req.Body); err != nil {
+		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
 			defer req.Body.Close()
