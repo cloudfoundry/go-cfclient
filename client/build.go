@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
@@ -12,13 +13,15 @@ import (
 func (c *Client) GetBuildByGUID(buildGUID string) (*resource.Build, error) {
 	resp, err := c.DoRequest(c.NewRequest("GET", "/v3/builds/"+buildGUID))
 	if err != nil {
-		return nil, errors.Wrap(err, "Error getting  build")
+		return nil, errors.Wrap(err, "error getting  build")
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	var build resource.Build
 	if err := json.NewDecoder(resp.Body).Decode(&build); err != nil {
-		return nil, errors.Wrap(err, "Error reading  build JSON")
+		return nil, errors.Wrap(err, "error reading  build JSON")
 	}
 
 	return &build, nil
@@ -41,17 +44,19 @@ func (c *Client) CreateBuild(packageGUID string, lifecycle *resource.Lifecycle, 
 
 	resp, err := c.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating v3 build")
+		return nil, errors.Wrap(err, "error while creating v3 build")
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating v3 build, response code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("error creating v3 build, response code: %d", resp.StatusCode)
 	}
 
 	var build resource.Build
 	if err := json.NewDecoder(resp.Body).Decode(&build); err != nil {
-		return nil, errors.Wrap(err, "Error reading  Build JSON")
+		return nil, errors.Wrap(err, "error reading  Build JSON")
 	}
 
 	return &build, nil
