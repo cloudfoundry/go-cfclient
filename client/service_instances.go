@@ -11,11 +11,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) ListServiceInstances() ([]resource.ServiceInstance, error) {
-	return c.ListServiceInstancesByQuery(nil)
+type ServiceInstanceClient commonClient
+
+func (c *ServiceInstanceClient) List() ([]resource.ServiceInstance, error) {
+	return c.ListByQuery(nil)
 }
 
-func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]resource.ServiceInstance, error) {
+func (c *ServiceInstanceClient) ListByQuery(query url.Values) ([]resource.ServiceInstance, error) {
 	var svcInstances []resource.ServiceInstance
 	requestURL := "/v3/service_instances"
 	if e := query.Encode(); len(e) > 0 {
@@ -23,8 +25,8 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]resource.Servi
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  service instances")
 		}
