@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -39,7 +40,9 @@ func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating  app %s, response code: %d", r.Name, resp.StatusCode)
@@ -59,7 +62,9 @@ func (c *AppClient) Delete(guid string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
@@ -75,7 +80,9 @@ func (c *AppClient) GetByGUID(guid string) (*resource.App, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
@@ -97,7 +104,9 @@ func (c *AppClient) GetEnvironment(appGUID string) (resource.AppEnvironment, err
 		return result, errors.Wrapf(err, "Error requesting app env for %s", appGUID)
 	}
 
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return result, errors.Wrap(err, "Error parsing JSON for app env")
 	}
@@ -122,7 +131,9 @@ func (c *AppClient) ListByQuery(query url.Values) ([]resource.App, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  apps")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  apps, response code: %d", resp.StatusCode)
@@ -159,7 +170,9 @@ func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) 
 		return result.EnvVar, errors.Wrapf(err, "Error setting app env variables for %s", appGUID)
 	}
 
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return result.EnvVar, errors.Wrap(err, "Error parsing JSON for app env")
 	}
@@ -173,7 +186,9 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while starting  app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error starting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
@@ -207,7 +222,9 @@ func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resour
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating  app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error updating  app %s, response code: %d", appGUID, resp.StatusCode)

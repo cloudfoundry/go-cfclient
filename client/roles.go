@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -22,7 +23,9 @@ func (c *Client) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*resourc
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  role")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("error creating  role, response code: %d", resp.StatusCode)
@@ -48,7 +51,9 @@ func (c *Client) CreateOrganizationRole(orgGUID, userGUID, roleType string) (*re
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  role")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("error creating  role, response code: %d", resp.StatusCode)
@@ -77,7 +82,9 @@ func (c *Client) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  space roles")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  space roles, response code: %d", resp.StatusCode)
@@ -116,7 +123,9 @@ func (c *Client) ListRoleUsersByQuery(query url.Values) ([]resource.User, error)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  roles")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  roles, response code: %d", resp.StatusCode)
@@ -156,7 +165,9 @@ func (c *Client) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []r
 		if err != nil {
 			return nil, nil, errors.Wrap(err, "Error requesting  roles")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, nil, fmt.Errorf("Error listing  roles, response code: %d", resp.StatusCode)
@@ -222,7 +233,9 @@ func (c *Client) DeleteRole(roleGUID string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  role")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting  role with GUID [%s], response code: %d", roleGUID, resp.StatusCode)

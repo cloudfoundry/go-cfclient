@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -26,7 +27,9 @@ func (c *Client) ListSecurityGroupsByQuery(query url.Values) ([]resource.Securit
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  security groups")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  security groups, response code: %d", resp.StatusCode)
@@ -66,7 +69,9 @@ func (c *Client) CreateSecurityGroup(r resource.CreateSecurityGroupRequest) (*re
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  security group")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating  security group %s, response code: %d", r.Name, resp.StatusCode)
@@ -88,7 +93,9 @@ func (c *Client) DeleteSecurityGroup(GUID string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  security group")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting  security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
@@ -110,7 +117,9 @@ func (c *Client) UpdateSecurityGroup(GUID string, r resource.UpdateSecurityGroup
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating  security group")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error updating  security group %s, response code: %d", GUID, resp.StatusCode)
@@ -132,7 +141,9 @@ func (c *Client) GetSecurityGroupByGUID(GUID string) (*resource.SecurityGroup, e
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  security group")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting  security group with GUID [%s], response code: %d", GUID, resp.StatusCode)

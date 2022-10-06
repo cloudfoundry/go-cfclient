@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -22,7 +23,9 @@ func (c *Client) ListDomains(query url.Values) ([]resource.Domain, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error getting domains")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing v3 app domains, response code: %d", resp.StatusCode)

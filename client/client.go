@@ -288,7 +288,9 @@ func (c *Client) GetSSHCode() (string, error) {
 	if err == nil {
 		return "", errors.New("authorization server did not redirect with one time code")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
 		return "", errors.New(fmt.Sprintf("error requesting one time code from server: %s", err.Error()))
 	}
@@ -316,7 +318,9 @@ func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 			Body:       body,
 		}
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	// Unmarshal V2 error response
 	if strings.HasPrefix(resp.Request.URL.Path, "/v2/") {

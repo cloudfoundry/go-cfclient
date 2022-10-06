@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
@@ -15,7 +16,9 @@ func (c *Client) GetDeployment(deploymentGUID string) (*resource.Deployment, err
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting deployment")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting deployment with GUID [%s], response code: %d", deploymentGUID, resp.StatusCode)
@@ -57,7 +60,9 @@ func (c *Client) CreateDeployment(appGUID string, optionalParams *resource.Creat
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating deployment")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating deployment for app GUID [%s], response code: %d", appGUID, resp.StatusCode)
@@ -77,7 +82,9 @@ func (c *Client) CancelDeployment(deploymentGUID string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error canceling deployment")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Error canceling deployment [%s], response code: %d", deploymentGUID, resp.StatusCode)

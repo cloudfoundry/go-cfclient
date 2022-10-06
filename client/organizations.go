@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -29,7 +30,9 @@ func (o *OrganizationClient) Create(r resource.CreateOrganizationRequest) (*reso
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating v3 organization")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating v3 organization %s, response code: %d", r.Name, resp.StatusCode)
@@ -50,7 +53,9 @@ func (o *OrganizationClient) GetByGUID(organizationGUID string) (*resource.Organ
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting v3 organization")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
@@ -70,7 +75,9 @@ func (o *OrganizationClient) Delete(organizationGUID string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting v3 organization")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
@@ -99,7 +106,9 @@ func (o *OrganizationClient) Update(organizationGUID string, r resource.UpdateOr
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating v3 organization")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error updating v3 organization %s, response code: %d", organizationGUID, resp.StatusCode)
@@ -126,7 +135,9 @@ func (o *OrganizationClient) ListByQuery(query url.Values) ([]resource.Organizat
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting v3 organizations")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing v3 organizations, response code: %d", resp.StatusCode)

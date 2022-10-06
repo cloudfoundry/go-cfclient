@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -29,7 +30,9 @@ func (c *Client) ListServiceCredentialBindingsByQuery(query url.Values) ([]resou
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  service credential bindings")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("error listing  service credential bindings, response code: %d", resp.StatusCode)
@@ -64,7 +67,9 @@ func (c *Client) GetServiceCredentialBindingsByGUID(GUID string) (*resource.Serv
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  service credential binding")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting  service credential binding with GUID [%s], response code: %d", GUID, resp.StatusCode)
