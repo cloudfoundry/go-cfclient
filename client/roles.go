@@ -11,15 +11,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*resource.Role, error) {
+type RoleClient commonClient
+
+func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*resource.Role, error) {
 	spaceRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: spaceGUID}}
 	userRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: userGUID}}
-	req := c.NewRequest("POST", "/v3/roles")
+	req := c.client.NewRequest("POST", "/v3/roles")
 	req.obj = resource.CreateSpaceRoleRequest{
 		RoleType:      roleType,
 		Relationships: resource.SpaceUserRelationships{Space: spaceRel, User: userRel},
 	}
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  role")
 	}
@@ -39,15 +41,15 @@ func (c *Client) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*resourc
 	return &role, nil
 }
 
-func (c *Client) CreateOrganizationRole(orgGUID, userGUID, roleType string) (*resource.Role, error) {
+func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID, roleType string) (*resource.Role, error) {
 	orgRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: orgGUID}}
 	userRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: userGUID}}
-	req := c.NewRequest("POST", "/v3/roles")
+	req := c.client.NewRequest("POST", "/v3/roles")
 	req.obj = resource.CreateOrganizationRoleRequest{
 		RoleType:      roleType,
 		Relationships: resource.OrgUserRelationships{Org: orgRel, User: userRel},
 	}
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  role")
 	}
@@ -68,7 +70,7 @@ func (c *Client) CreateOrganizationRole(orgGUID, userGUID, roleType string) (*re
 }
 
 // ListRolesByQuery retrieves roles based on query
-func (c *Client) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
+func (c *RoleClient) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
 	var roles []resource.Role
 	requestURL, err := url.Parse("/v3/roles")
 	if err != nil {
@@ -77,8 +79,8 @@ func (c *Client) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  space roles")
 		}
@@ -109,7 +111,7 @@ func (c *Client) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
 	return roles, nil
 }
 
-func (c *Client) ListRoleUsersByQuery(query url.Values) ([]resource.User, error) {
+func (c *RoleClient) ListRoleUsersByQuery(query url.Values) ([]resource.User, error) {
 	var users []resource.User
 	requestURL, err := url.Parse("/v3/roles")
 	if err != nil {
@@ -118,8 +120,8 @@ func (c *Client) ListRoleUsersByQuery(query url.Values) ([]resource.User, error)
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  roles")
 		}
@@ -150,7 +152,7 @@ func (c *Client) ListRoleUsersByQuery(query url.Values) ([]resource.User, error)
 	return users, nil
 }
 
-func (c *Client) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []resource.User, error) {
+func (c *RoleClient) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []resource.User, error) {
 	var roles []resource.Role
 	var users []resource.User
 	requestURL, err := url.Parse("/v3/roles")
@@ -160,8 +162,8 @@ func (c *Client) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []r
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, nil, errors.Wrap(err, "Error requesting  roles")
 		}
@@ -194,7 +196,7 @@ func (c *Client) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []r
 }
 
 // ListSpaceRolesByGUID retrieves roles based on query
-func (c *Client) ListSpaceRolesByGUID(spaceGUID string) ([]resource.Role, []resource.User, error) {
+func (c *RoleClient) ListSpaceRolesByGUID(spaceGUID string) ([]resource.Role, []resource.User, error) {
 	query := url.Values{}
 	query["space_guids"] = []string{spaceGUID}
 	query["include"] = []string{"user"}
@@ -202,7 +204,7 @@ func (c *Client) ListSpaceRolesByGUID(spaceGUID string) ([]resource.Role, []reso
 }
 
 // ListSpaceRolesByGUIDAndType retrieves roles based on query
-func (c *Client) ListSpaceRolesByGUIDAndType(spaceGUID string, roleType string) ([]resource.User, error) {
+func (c *RoleClient) ListSpaceRolesByGUIDAndType(spaceGUID string, roleType string) ([]resource.User, error) {
 	query := url.Values{}
 	query["space_guids"] = []string{spaceGUID}
 	query["types"] = []string{roleType}
@@ -210,8 +212,8 @@ func (c *Client) ListSpaceRolesByGUIDAndType(spaceGUID string, roleType string) 
 	return c.ListRoleUsersByQuery(query)
 }
 
-// ListSpaceRolesByGUIDAndType retrieves roles based on query
-func (c *Client) ListOrganizationRolesByGUIDAndType(orgGUID string, roleType string) ([]resource.User, error) {
+// ListOrganizationRolesByGUIDAndType retrieves roles based on query
+func (c *RoleClient) ListOrganizationRolesByGUIDAndType(orgGUID string, roleType string) ([]resource.User, error) {
 	query := url.Values{}
 	query["organization_guids"] = []string{orgGUID}
 	query["types"] = []string{roleType}
@@ -220,16 +222,16 @@ func (c *Client) ListOrganizationRolesByGUIDAndType(orgGUID string, roleType str
 }
 
 // ListOrganizationRolesByGUID retrieves roles based on query
-func (c *Client) ListOrganizationRolesByGUID(orgGUID string) ([]resource.Role, []resource.User, error) {
+func (c *RoleClient) ListOrganizationRolesByGUID(orgGUID string) ([]resource.Role, []resource.User, error) {
 	query := url.Values{}
 	query["organization_guids"] = []string{orgGUID}
 	query["include"] = []string{"user"}
 	return c.ListRoleAndUsersByQuery(query)
 }
 
-func (c *Client) DeleteRole(roleGUID string) error {
-	req := c.NewRequest("DELETE", "/v3/roles/"+roleGUID)
-	resp, err := c.DoRequest(req)
+func (c *RoleClient) Delete(roleGUID string) error {
+	req := c.client.NewRequest("DELETE", "/v3/roles/"+roleGUID)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  role")
 	}
