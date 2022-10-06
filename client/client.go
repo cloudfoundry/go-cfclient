@@ -37,6 +37,7 @@ type Client struct {
 	SecurityGroups            *SecurityGroupClient
 	ServiceCredentialBindings *ServiceCredentialBindingClient
 	ServiceInstances          *ServiceInstanceClient
+	Spaces                    *SpaceClient
 }
 
 type commonClient struct {
@@ -98,6 +99,7 @@ func New(config *Config) (*Client, error) {
 	client.SecurityGroups = (*SecurityGroupClient)(&client.common)
 	client.ServiceCredentialBindings = (*ServiceCredentialBindingClient)(&client.common)
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
+	client.Spaces = (*SpaceClient)(&client.common)
 	return client, nil
 }
 
