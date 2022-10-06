@@ -12,7 +12,7 @@ import (
 
 type BuildClient commonClient
 
-func (c *BuildClient) GetByGUID(buildGUID string) (*resource.Build, error) {
+func (c *BuildClient) Get(buildGUID string) (*resource.Build, error) {
 	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/builds/"+buildGUID))
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting  build")

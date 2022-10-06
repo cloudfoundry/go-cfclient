@@ -39,7 +39,7 @@ func TestGetOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.Organizations.GetByGUID("org-guid")
+	organization, err := client.Organizations.Get("org-guid")
 	require.NoError(t, err)
 	require.NotNil(t, organization)
 

@@ -16,7 +16,7 @@ func TestGetDeployment(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.Deployments.GetByGUID("59c3d133-2b83-46f3-960e-7765a129aea4")
+	resp, err := client.Deployments.Get("59c3d133-2b83-46f3-960e-7765a129aea4")
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 

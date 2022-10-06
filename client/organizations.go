@@ -46,7 +46,7 @@ func (o *OrgClient) Create(r resource.CreateOrganizationRequest) (*resource.Orga
 	return &organization, nil
 }
 
-func (o *OrgClient) GetByGUID(organizationGUID string) (*resource.Organization, error) {
+func (o *OrgClient) Get(organizationGUID string) (*resource.Organization, error) {
 	req := o.client.NewRequest("GET", "/v3/organizations/"+organizationGUID)
 
 	resp, err := o.client.DoRequest(req)

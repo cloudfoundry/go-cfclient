@@ -12,7 +12,7 @@ import (
 
 type DeploymentClient commonClient
 
-func (c *DeploymentClient) GetByGUID(deploymentGUID string) (*resource.Deployment, error) {
+func (c *DeploymentClient) Get(deploymentGUID string) (*resource.Deployment, error) {
 	req := c.client.NewRequest("GET", "/v3/deployments/"+deploymentGUID)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {

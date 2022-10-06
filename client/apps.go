@@ -73,7 +73,7 @@ func (c *AppClient) Delete(guid string) error {
 	return nil
 }
 
-func (c *AppClient) GetByGUID(guid string) (*resource.App, error) {
+func (c *AppClient) Get(guid string) (*resource.App, error) {
 	req := c.client.NewRequest("GET", "/v3/apps/"+guid)
 
 	resp, err := c.client.DoRequest(req)

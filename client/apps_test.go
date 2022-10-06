@@ -43,7 +43,7 @@ func TestGetApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.Applications.GetByGUID("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	app, err := client.Applications.Get("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
