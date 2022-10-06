@@ -14,7 +14,7 @@ func TestListServiceInstancesByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	services, err := client.ListServiceInstances()
+	services, err := client.ServiceInstances.List()
 	require.NoError(t, err)
 	require.Len(t, services, 1)
 
