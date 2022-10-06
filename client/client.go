@@ -39,6 +39,7 @@ type Client struct {
 	ServiceInstances          *ServiceInstanceClient
 	Spaces                    *SpaceClient
 	Stacks                    *StackClient
+	Users                     *UserClient
 }
 
 type commonClient struct {
@@ -102,6 +103,7 @@ func New(config *Config) (*Client, error) {
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
 	client.Stacks = (*StackClient)(&client.common)
+	client.Users = (*UserClient)(&client.common)
 	return client, nil
 }
 
