@@ -10,9 +10,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) GetDeployment(deploymentGUID string) (*resource.Deployment, error) {
-	req := c.NewRequest("GET", "/v3/deployments/"+deploymentGUID)
-	resp, err := c.DoRequest(req)
+type DeploymentClient commonClient
+
+func (c *DeploymentClient) GetByGUID(deploymentGUID string) (*resource.Deployment, error) {
+	req := c.client.NewRequest("GET", "/v3/deployments/"+deploymentGUID)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting deployment")
 	}
@@ -32,7 +34,7 @@ func (c *Client) GetDeployment(deploymentGUID string) (*resource.Deployment, err
 	return &r, nil
 }
 
-func (c *Client) CreateDeployment(appGUID string, optionalParams *resource.CreateDeploymentOptionalParameters) (*resource.Deployment, error) {
+func (c *DeploymentClient) Create(appGUID string, optionalParams *resource.CreateDeploymentOptionalParameters) (*resource.Deployment, error) {
 	// validate the params
 	if optionalParams != nil {
 		if optionalParams.Droplet != nil && optionalParams.Revision != nil {
@@ -53,10 +55,10 @@ func (c *Client) CreateDeployment(appGUID string, optionalParams *resource.Creat
 		},
 	}
 
-	req := c.NewRequest("POST", "/v3/deployments")
+	req := c.client.NewRequest("POST", "/v3/deployments")
 	req.obj = requestBody
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating deployment")
 	}
@@ -76,9 +78,9 @@ func (c *Client) CreateDeployment(appGUID string, optionalParams *resource.Creat
 	return &r, nil
 }
 
-func (c *Client) CancelDeployment(deploymentGUID string) error {
-	req := c.NewRequest("POST", "/v3/deployments/"+deploymentGUID+"/actions/cancel")
-	resp, err := c.DoRequest(req)
+func (c *DeploymentClient) Cancel(deploymentGUID string) error {
+	req := c.client.NewRequest("POST", "/v3/deployments/"+deploymentGUID+"/actions/cancel")
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error canceling deployment")
 	}
