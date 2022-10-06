@@ -11,7 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) ListDomains(query url.Values) ([]resource.Domain, error) {
+type DomainClient commonClient
+
+func (c *DomainClient) ListByQuery(query url.Values) ([]resource.Domain, error) {
 	var domains []resource.Domain
 	requestURL := "/v3/domains"
 	if e := query.Encode(); len(e) > 0 {
@@ -19,7 +21,7 @@ func (c *Client) ListDomains(query url.Values) ([]resource.Domain, error) {
 	}
 
 	for {
-		resp, err := c.DoRequest(c.NewRequest("GET", requestURL))
+		resp, err := c.client.DoRequest(c.client.NewRequest("GET", requestURL))
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error getting domains")
 		}
