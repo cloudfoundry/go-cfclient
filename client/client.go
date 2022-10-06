@@ -29,6 +29,7 @@ type Client struct {
 	Applications  *AppClient
 	Builds        *BuildClient
 	Deployments   *DeploymentClient
+	Domains       *DomainClient
 }
 
 type commonClient struct {
@@ -82,6 +83,7 @@ func New(config *Config) (*Client, error) {
 	client.Applications = (*AppClient)(&client.common)
 	client.Builds = (*BuildClient)(&client.common)
 	client.Deployments = (*DeploymentClient)(&client.common)
+	client.Domains = (*DomainClient)(&client.common)
 	return client, nil
 }
 

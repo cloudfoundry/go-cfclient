@@ -14,7 +14,7 @@ func TestListDomains(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.ListDomains(nil)
+	resp, err := client.Domains.ListByQuery(nil)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
