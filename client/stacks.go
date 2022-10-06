@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ListStacksByQuery retrieves stacks based on query
-func (c *Client) ListStacksByQuery(query url.Values) ([]resource.Stack, error) {
+type StackClient commonClient
+
+// ListByQuery retrieves stacks based on query
+func (c *StackClient) ListByQuery(query url.Values) ([]resource.Stack, error) {
 	var stacks []resource.Stack
 	requestURL, err := url.Parse("/v3/stacks")
 	if err != nil {
@@ -21,8 +23,8 @@ func (c *Client) ListStacksByQuery(query url.Values) ([]resource.Stack, error) {
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  stacks")
 		}
