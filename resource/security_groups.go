@@ -34,7 +34,7 @@ type ListSecurityGroupResponse struct {
 	Resources  []SecurityGroup `json:"resources,omitempty"`
 }
 
-// CreateSecurityGroupRequest implements an object that is passed to CreateSecurityGroup method
+// CreateSecurityGroupRequest implements an object that is passed to Create method
 type CreateSecurityGroupRequest struct {
 	Name            string                         `json:"name"`
 	GloballyEnabled *GloballyEnabled               `json:"globally_enabled,omitempty"`
@@ -42,7 +42,7 @@ type CreateSecurityGroupRequest struct {
 	Relationships   map[string]ToManyRelationships `json:"relationships,omitempty"`
 }
 
-// UpdateSecurityGroupRequest implements an object that is passed to UpdateSecurityGroup method
+// UpdateSecurityGroupRequest implements an object that is passed to Update method
 type UpdateSecurityGroupRequest struct {
 	Name            string           `json:"name,omitempty"`
 	GloballyEnabled *GloballyEnabled `json:"globally_enabled,omitempty"`

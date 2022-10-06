@@ -12,8 +12,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ListSecurityGroupsByQuery retrieves security groups based on query
-func (c *Client) ListSecurityGroupsByQuery(query url.Values) ([]resource.SecurityGroup, error) {
+type SecurityGroupClient commonClient
+
+// ListByQuery retrieves security groups based on query
+func (c *SecurityGroupClient) ListByQuery(query url.Values) ([]resource.SecurityGroup, error) {
 	var securityGroups []resource.SecurityGroup
 	requestURL, err := url.Parse("/v3/security_groups")
 	if err != nil {
@@ -22,8 +24,8 @@ func (c *Client) ListSecurityGroupsByQuery(query url.Values) ([]resource.Securit
 	requestURL.RawQuery = query.Encode()
 
 	for {
-		r := c.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  security groups")
 		}
@@ -54,9 +56,9 @@ func (c *Client) ListSecurityGroupsByQuery(query url.Values) ([]resource.Securit
 	return securityGroups, nil
 }
 
-// CreateSecurityGroup creates security group from CreateSecurityGroupRequest
-func (c *Client) CreateSecurityGroup(r resource.CreateSecurityGroupRequest) (*resource.SecurityGroup, error) {
-	req := c.NewRequest("POST", "/v3/security_groups")
+// Create creates security group from CreateSecurityGroupRequest
+func (c *SecurityGroupClient) Create(r resource.CreateSecurityGroupRequest) (*resource.SecurityGroup, error) {
+	req := c.client.NewRequest("POST", "/v3/security_groups")
 
 	buf := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buf)
@@ -65,7 +67,7 @@ func (c *Client) CreateSecurityGroup(r resource.CreateSecurityGroupRequest) (*re
 	}
 	req.body = buf
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  security group")
 	}
@@ -85,11 +87,11 @@ func (c *Client) CreateSecurityGroup(r resource.CreateSecurityGroupRequest) (*re
 	return &securitygroup, nil
 }
 
-// DeleteSecurityGroup deletes security group by GUID
-func (c *Client) DeleteSecurityGroup(GUID string) error {
-	req := c.NewRequest("DELETE", "/v3/security_groups/"+GUID)
+// Delete deletes security group by GUID
+func (c *SecurityGroupClient) Delete(GUID string) error {
+	req := c.client.NewRequest("DELETE", "/v3/security_groups/"+GUID)
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  security group")
 	}
@@ -103,9 +105,9 @@ func (c *Client) DeleteSecurityGroup(GUID string) error {
 	return nil
 }
 
-// UpdateSecurityGroup updates security group by GUID and from UpdateSecurityGroupRequest
-func (c *Client) UpdateSecurityGroup(GUID string, r resource.UpdateSecurityGroupRequest) (*resource.SecurityGroup, error) {
-	req := c.NewRequest("PATCH", "/v3/security_groups/"+GUID)
+// Update updates security group by GUID and from UpdateSecurityGroupRequest
+func (c *SecurityGroupClient) Update(GUID string, r resource.UpdateSecurityGroupRequest) (*resource.SecurityGroup, error) {
+	req := c.client.NewRequest("PATCH", "/v3/security_groups/"+GUID)
 	buf := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buf)
 	if err := enc.Encode(r); err != nil {
@@ -113,7 +115,7 @@ func (c *Client) UpdateSecurityGroup(GUID string, r resource.UpdateSecurityGroup
 	}
 	req.body = buf
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating  security group")
 	}
@@ -133,11 +135,11 @@ func (c *Client) UpdateSecurityGroup(GUID string, r resource.UpdateSecurityGroup
 	return &securityGroup, nil
 }
 
-// GetSecurityGroupByGUID retrieves security group base on provided GUID
-func (c *Client) GetSecurityGroupByGUID(GUID string) (*resource.SecurityGroup, error) {
-	req := c.NewRequest("GET", "/v3/security_groups/"+GUID)
+// Get retrieves security group base on provided GUID
+func (c *SecurityGroupClient) Get(GUID string) (*resource.SecurityGroup, error) {
+	req := c.client.NewRequest("GET", "/v3/security_groups/"+GUID)
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  security group")
 	}
