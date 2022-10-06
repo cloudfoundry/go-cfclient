@@ -15,7 +15,7 @@ func TestSetCurrentDropletForApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.SetCurrentDropletForApp("9d8e007c-ce52-4ea7-8a57-f2825d2c6b39", "3fc0916f-2cea-4f3a-ae53-048388baa6bd")
+	resp, err := client.Droplets.SetCurrentForApp("9d8e007c-ce52-4ea7-8a57-f2825d2c6b39", "3fc0916f-2cea-4f3a-ae53-048388baa6bd")
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -32,7 +32,7 @@ func TestGetCurrentDropletForApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.GetCurrentDropletForApp("7b34f1cf-7e73-428a-bb5a-8a17a8058396")
+	resp, err := client.Droplets.GetCurrentForApp("7b34f1cf-7e73-428a-bb5a-8a17a8058396")
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -50,6 +50,6 @@ func TestDeleteDroplet(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteDroplet("59c3d133-2b83-46f3-960e-7765a129aea4")
+	err = client.Droplets.Delete("59c3d133-2b83-46f3-960e-7765a129aea4")
 	require.NoError(t, err)
 }
