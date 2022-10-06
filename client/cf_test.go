@@ -53,7 +53,7 @@ func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
 func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 	t.Helper()
 	if len(UserAgentExp) < 1 {
-		UserAgentExp = "Go-CF-client/1.1"
+		UserAgentExp = "Go-CF-client/2.0"
 	}
 	if UserAgent != UserAgentExp {
 		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
