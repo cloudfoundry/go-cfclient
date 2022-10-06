@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
@@ -17,7 +18,9 @@ func (c *Client) SetCurrentDropletForApp(appGUID, dropletGUID string) (*resource
 	if err != nil {
 		return nil, errors.Wrap(err, "Error setting droplet for v3 app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error setting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
@@ -37,7 +40,9 @@ func (c *Client) GetCurrentDropletForApp(appGUID string) (*resource.Droplet, err
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting droplet for v3 app")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
@@ -57,7 +62,9 @@ func (c *Client) DeleteDroplet(dropletGUID string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Error deleting droplet %s", dropletGUID)
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting droplet %s with response code %d", dropletGUID, resp.StatusCode)
 	}

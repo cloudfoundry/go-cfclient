@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -31,7 +32,9 @@ func (c *Client) CreateSpace(r resource.CreateSpaceRequest) (*resource.Space, er
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  space")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error creating  space %s, response code: %d", r.Name, resp.StatusCode)
@@ -52,7 +55,9 @@ func (c *Client) GetSpaceByGUID(spaceGUID string) (*resource.Space, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  space")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error getting  space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
@@ -72,7 +77,9 @@ func (c *Client) DeleteSpace(spaceGUID string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  space")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("Error deleting  space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
@@ -98,7 +105,9 @@ func (c *Client) UpdateSpace(spaceGUID string, r resource.UpdateSpaceRequest) (*
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating  space")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Error updating  space %s, response code: %d", spaceGUID, resp.StatusCode)
@@ -125,7 +134,9 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]resource.Space, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  spaces")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  spaces, response code: %d", resp.StatusCode)
@@ -162,7 +173,9 @@ func (c *Client) ListSpaceUsers(spaceGUID string) ([]resource.User, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  space users")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  space users, response code: %d", resp.StatusCode)

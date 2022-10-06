@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -27,7 +28,9 @@ func (c *Client) ListServiceInstancesByQuery(query url.Values) ([]resource.Servi
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  service instances")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("error listing  service instances, response code: %d", resp.StatusCode)

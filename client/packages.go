@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -22,7 +23,9 @@ func (c *Client) ListPackagesForApp(appGUID string, query url.Values) ([]resourc
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error requesting packages for app %s", appGUID)
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing v3 app packages, response code: %d", resp.StatusCode)
@@ -64,7 +67,9 @@ func (c *Client) CopyPackage(packageGUID, appGUID string) (*resource.Package, er
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while copying v3 package")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("Error copying v3 package %s, response code: %d", packageGUID, resp.StatusCode)
@@ -96,7 +101,9 @@ func (c *Client) CreateDockerPackage(image string, appGUID string, dockerCredent
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while copying v3 package")
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("error creating v3 docker package, response code: %d", resp.StatusCode)

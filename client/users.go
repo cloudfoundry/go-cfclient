@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -25,7 +26,9 @@ func (c *Client) ListUsersByQuery(query url.Values) ([]resource.User, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  users")
 		}
-		defer resp.Body.Close()
+		defer func(b io.ReadCloser) {
+			_ = b.Close()
+		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("Error listing  users, response code: %d", resp.StatusCode)
