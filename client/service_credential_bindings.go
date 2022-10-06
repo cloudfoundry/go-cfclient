@@ -11,13 +11,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ListServiceCredentialBindings retrieves all service credential bindings
-func (c *Client) ListServiceCredentialBindings() ([]resource.ServiceCredentialBindings, error) {
-	return c.ListServiceCredentialBindingsByQuery(nil)
+type ServiceCredentialBindingClient commonClient
+
+// List retrieves all service credential bindings
+func (c *ServiceCredentialBindingClient) List() ([]resource.ServiceCredentialBindings, error) {
+	return c.ListByQuery(nil)
 }
 
-// ListServiceCredentialBindingsByQuery retrieves service credential bindings using a query
-func (c *Client) ListServiceCredentialBindingsByQuery(query url.Values) ([]resource.ServiceCredentialBindings, error) {
+// ListByQuery retrieves service credential bindings using a query
+func (c *ServiceCredentialBindingClient) ListByQuery(query url.Values) ([]resource.ServiceCredentialBindings, error) {
 	var svcCredentialBindings []resource.ServiceCredentialBindings
 	requestURL := "/v3/service_credential_bindings"
 	if e := query.Encode(); len(e) > 0 {
@@ -25,8 +27,8 @@ func (c *Client) ListServiceCredentialBindingsByQuery(query url.Values) ([]resou
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  service credential bindings")
 		}
@@ -58,11 +60,11 @@ func (c *Client) ListServiceCredentialBindingsByQuery(query url.Values) ([]resou
 	return svcCredentialBindings, nil
 }
 
-// GetServiceCredentialBindingsByGUID retrieves the service credential binding based on the provided guid
-func (c *Client) GetServiceCredentialBindingsByGUID(GUID string) (*resource.ServiceCredentialBindings, error) {
+// Get retrieves the service credential binding based on the provided guid
+func (c *ServiceCredentialBindingClient) Get(GUID string) (*resource.ServiceCredentialBindings, error) {
 	requestURL := fmt.Sprintf("/v3/service_credential_bindings/%s", GUID)
-	req := c.NewRequest("GET", requestURL)
-	resp, err := c.DoRequest(req)
+	req := c.client.NewRequest("GET", requestURL)
+	resp, err := c.client.DoRequest(req)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  service credential binding")
