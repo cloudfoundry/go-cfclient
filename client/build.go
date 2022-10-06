@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type BuildClient commonClient
@@ -15,7 +14,7 @@ type BuildClient commonClient
 func (c *BuildClient) Get(buildGUID string) (*resource.Build, error) {
 	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/builds/"+buildGUID))
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting  build")
+		return nil, fmt.Errorf("error getting build: %w", err)
 	}
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
@@ -23,7 +22,7 @@ func (c *BuildClient) Get(buildGUID string) (*resource.Build, error) {
 
 	var build resource.Build
 	if err := json.NewDecoder(resp.Body).Decode(&build); err != nil {
-		return nil, errors.Wrap(err, "error reading  build JSON")
+		return nil, fmt.Errorf("error reading build JSON: %w", err)
 	}
 
 	return &build, nil
@@ -46,7 +45,7 @@ func (c *BuildClient) Create(packageGUID string, lifecycle *resource.Lifecycle, 
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "error while creating v3 build")
+		return nil, fmt.Errorf("error while creating v3 build: %w", err)
 	}
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
@@ -58,7 +57,7 @@ func (c *BuildClient) Create(packageGUID string, lifecycle *resource.Lifecycle, 
 
 	var build resource.Build
 	if err := json.NewDecoder(resp.Body).Decode(&build); err != nil {
-		return nil, errors.Wrap(err, "error reading  Build JSON")
+		return nil, fmt.Errorf("error reading build JSON: %w", err)
 	}
 
 	return &build, nil

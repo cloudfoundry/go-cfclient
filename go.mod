@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/go-martini/martini v0.0.0-20170121215854-22fa46961aab
 	github.com/martini-contrib/render v0.0.0-20150707142108-ec18f8345a11
-	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1

@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type RoleClient commonClient
@@ -23,7 +22,7 @@ func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*res
 	}
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  role")
+		return nil, fmt.Errorf("error while creating  role: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
@@ -35,7 +34,7 @@ func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*res
 
 	var role resource.Role
 	if err := json.NewDecoder(resp.Body).Decode(&role); err != nil {
-		return nil, errors.Wrap(err, "Error reading  role")
+		return nil, fmt.Errorf("error reading  role: %w", err)
 	}
 
 	return &role, nil
@@ -51,7 +50,7 @@ func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID, roleType string) 
 	}
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  role")
+		return nil, fmt.Errorf("error while creating  role: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
@@ -63,7 +62,7 @@ func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID, roleType string) 
 
 	var role resource.Role
 	if err := json.NewDecoder(resp.Body).Decode(&role); err != nil {
-		return nil, errors.Wrap(err, "Error reading  role")
+		return nil, fmt.Errorf("error reading  role: %w", err)
 	}
 
 	return &role, nil
@@ -82,26 +81,26 @@ func (c *RoleClient) ListRolesByQuery(query url.Values) ([]resource.Role, error)
 		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  space roles")
+			return nil, fmt.Errorf("error requesting  space roles: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  space roles, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing  space roles, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListRolesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  space roles")
+			return nil, fmt.Errorf("error parsing JSON from list  space roles: %w", err)
 		}
 
 		roles = append(roles, data.Resources...)
 
 		requestURL, err = url.Parse(data.Pagination.Next.Href)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing next page URL")
+			return nil, fmt.Errorf("error parsing next page URL: %w", err)
 		}
 		if requestURL.String() == "" {
 			break
@@ -123,26 +122,26 @@ func (c *RoleClient) ListRoleUsersByQuery(query url.Values) ([]resource.User, er
 		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  roles")
+			return nil, fmt.Errorf("error requesting  roles: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  roles, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing  roles, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListRolesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  roles")
+			return nil, fmt.Errorf("error parsing JSON from list  roles: %w", err)
 		}
 
 		users = append(users, data.Included.Users...)
 
 		requestURL, err = url.Parse(data.Pagination.Next.Href)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing next page URL")
+			return nil, fmt.Errorf("error parsing next page URL: %w", err)
 		}
 		if requestURL.String() == "" {
 			break
@@ -165,19 +164,19 @@ func (c *RoleClient) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role,
 		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, nil, errors.Wrap(err, "Error requesting  roles")
+			return nil, nil, fmt.Errorf("error requesting  roles: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, nil, fmt.Errorf("Error listing  roles, response code: %d", resp.StatusCode)
+			return nil, nil, fmt.Errorf("error listing  roles, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListRolesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, nil, errors.Wrap(err, "Error parsing JSON from list  roles")
+			return nil, nil, fmt.Errorf("error parsing JSON from list  roles: %w", err)
 		}
 
 		roles = append(roles, data.Resources...)
@@ -185,7 +184,7 @@ func (c *RoleClient) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role,
 
 		requestURL, err = url.Parse(data.Pagination.Next.Href)
 		if err != nil {
-			return nil, nil, errors.Wrap(err, "Error parsing next page URL")
+			return nil, nil, fmt.Errorf("error parsing next page URL: %w", err)
 		}
 		if requestURL.String() == "" {
 			break
@@ -233,14 +232,14 @@ func (c *RoleClient) Delete(roleGUID string) error {
 	req := c.client.NewRequest("DELETE", "/v3/roles/"+roleGUID)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error while deleting  role")
+		return fmt.Errorf("error while deleting role: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting  role with GUID [%s], response code: %d", roleGUID, resp.StatusCode)
+		return fmt.Errorf("error deleting role with GUID [%s], response code: %d", roleGUID, resp.StatusCode)
 	}
 
 	return nil

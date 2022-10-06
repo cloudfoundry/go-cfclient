@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type OrgClient commonClient
@@ -28,19 +27,19 @@ func (o *OrgClient) Create(r resource.CreateOrganizationRequest) (*resource.Orga
 	req.obj = params
 	resp, err := o.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating v3 organization")
+		return nil, fmt.Errorf("error while creating v3 organization: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating v3 organization %s, response code: %d", r.Name, resp.StatusCode)
+		return nil, fmt.Errorf("error creating v3 organization %s, response code: %d", r.Name, resp.StatusCode)
 	}
 
 	var organization resource.Organization
 	if err := json.NewDecoder(resp.Body).Decode(&organization); err != nil {
-		return nil, errors.Wrap(err, "Error reading v3 organization JSON")
+		return nil, fmt.Errorf("error reading v3 organization JSON: %w", err)
 	}
 
 	return &organization, nil
@@ -51,19 +50,19 @@ func (o *OrgClient) Get(organizationGUID string) (*resource.Organization, error)
 
 	resp, err := o.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while getting v3 organization")
+		return nil, fmt.Errorf("error while getting v3 organization: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
 	}
 
 	var organization resource.Organization
 	if err := json.NewDecoder(resp.Body).Decode(&organization); err != nil {
-		return nil, errors.Wrap(err, "Error reading v3 organization JSON")
+		return nil, fmt.Errorf("error reading v3 organization JSON: %w", err)
 	}
 
 	return &organization, nil
@@ -73,14 +72,14 @@ func (o *OrgClient) Delete(organizationGUID string) error {
 	req := o.client.NewRequest("DELETE", "/v3/organizations/"+organizationGUID)
 	resp, err := o.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error while deleting v3 organization")
+		return fmt.Errorf("error while deleting v3 organization: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
+		return fmt.Errorf("error deleting v3 organization with GUID [%s], response code: %d", organizationGUID, resp.StatusCode)
 	}
 
 	return nil
@@ -104,19 +103,19 @@ func (o *OrgClient) Update(organizationGUID string, r resource.UpdateOrganizatio
 
 	resp, err := o.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while updating v3 organization")
+		return nil, fmt.Errorf("error while updating v3 organization: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error updating v3 organization %s, response code: %d", organizationGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error updating v3 organization %s, response code: %d", organizationGUID, resp.StatusCode)
 	}
 
 	var organization resource.Organization
 	if err := json.NewDecoder(resp.Body).Decode(&organization); err != nil {
-		return nil, errors.Wrap(err, "Error reading v3 organization JSON")
+		return nil, fmt.Errorf("error reading v3 organization JSON: %w", err)
 	}
 
 	return &organization, nil
@@ -133,19 +132,19 @@ func (o *OrgClient) ListByQuery(query url.Values) ([]resource.Organization, erro
 		r := o.client.NewRequest("GET", requestURL)
 		resp, err := o.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting v3 organizations")
+			return nil, fmt.Errorf("error requesting v3 organizations: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing v3 organizations, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing v3 organizations, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListOrganizationsResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list v3 organizations")
+			return nil, fmt.Errorf("error parsing JSON from list v3 organizations: %w", err)
 		}
 
 		organizations = append(organizations, data.Resources...)
@@ -156,7 +155,7 @@ func (o *OrgClient) ListByQuery(query url.Values) ([]resource.Organization, erro
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for v3 organizations")
+			return nil, fmt.Errorf("error parsing the next page request url for v3 organizations: %w", err)
 		}
 	}
 

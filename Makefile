@@ -13,7 +13,7 @@ test: ## Run the unit tests
 
 .PHONY: generate
 generate: ## Generate fakes
-	go generate
+	go generate ./...
 
 .PHONY: lint-prepare
 lint-prepare:

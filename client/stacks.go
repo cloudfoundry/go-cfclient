@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type StackClient commonClient
@@ -26,26 +25,26 @@ func (c *StackClient) ListByQuery(query url.Values) ([]resource.Stack, error) {
 		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  stacks")
+			return nil, fmt.Errorf("error requesting stacks: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  stacks, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing stacks, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListStacksResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  stacks")
+			return nil, fmt.Errorf("error parsing JSON from list stacks: %w", err)
 		}
 
 		stacks = append(stacks, data.Resources...)
 
 		requestURL, err = url.Parse(data.Pagination.Next.Href)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing next page URL")
+			return nil, fmt.Errorf("error parsing next page URL: %w", err)
 		}
 		if requestURL.String() == "" {
 			break
