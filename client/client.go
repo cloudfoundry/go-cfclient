@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 
 	"time"
 
-	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -120,7 +120,7 @@ func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config
 		loginHint := LoginHint{config.Origin}
 		origin, err := json.Marshal(loginHint)
 		if err != nil {
-			return config, errors.Wrap(err, "Error creating login_hint")
+			return config, fmt.Errorf("error creating login_hint: %w", err)
 		}
 		val := url.Values{}
 		val.Set("login_hint", string(origin))
@@ -129,7 +129,7 @@ func getUserAuth(ctx context.Context, config Config, endpoint *Endpoint) (Config
 
 	token, err := authConfig.PasswordCredentialsToken(ctx, config.Username, config.Password)
 	if err != nil {
-		return config, errors.Wrap(err, "Error getting token")
+		return config, fmt.Errorf("error getting token: %w", err)
 	}
 
 	config.tokenSourceDeadline = &token.Expiry
@@ -265,7 +265,7 @@ func (c *Client) GetToken() (string, error) {
 
 	token, err := c.Config.tokenSource.Token()
 	if err != nil {
-		return "", errors.Wrap(err, "Error getting bearer token")
+		return "", fmt.Errorf("error getting bearer token: %w", err)
 	}
 	return "bearer " + token.AccessToken, nil
 }
@@ -318,12 +318,12 @@ func (c *Client) GetSSHCode() (string, error) {
 		_ = b.Close()
 	}(resp.Body)
 	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
-		return "", errors.New(fmt.Sprintf("error requesting one time code from server: %s", err.Error()))
+		return "", fmt.Errorf("error requesting one time code from server: %w", err)
 	}
 
 	loc, err := resp.Location()
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error getting the redirected location:  %s", err.Error()))
+		return "", fmt.Errorf("error getting the redirected location: %w", err)
 	}
 
 	codes := loc.Query()["code"]
@@ -383,7 +383,7 @@ func (c *Client) refreshEndpoint() error {
 	endpoint, err := getInfo(c.Config.ApiAddress, oauth2.NewClient(ctx, nil))
 
 	if err != nil {
-		return errors.Wrap(err, "Could not get api /v2/info")
+		return fmt.Errorf("Could not get api /v2/info: %w", err)
 	}
 
 	switch {

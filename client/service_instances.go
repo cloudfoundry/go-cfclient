@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type ServiceInstanceClient commonClient
@@ -28,19 +27,19 @@ func (c *ServiceInstanceClient) ListByQuery(query url.Values) ([]resource.Servic
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  service instances")
+			return nil, fmt.Errorf("error requesting service instances: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing  service instances, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing service instances, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListServiceInstancesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  service instances")
+			return nil, fmt.Errorf("error parsing JSON from list service instances: %w", err)
 		}
 
 		svcInstances = append(svcInstances, data.Resources...)
@@ -51,7 +50,7 @@ func (c *ServiceInstanceClient) ListByQuery(query url.Values) ([]resource.Servic
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  service instances")
+			return nil, fmt.Errorf("error parsing the next page request url for service instances: %w", err)
 		}
 	}
 

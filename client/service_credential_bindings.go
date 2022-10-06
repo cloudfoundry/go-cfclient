@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type ServiceCredentialBindingClient commonClient
@@ -30,19 +29,19 @@ func (c *ServiceCredentialBindingClient) ListByQuery(query url.Values) ([]resour
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  service credential bindings")
+			return nil, fmt.Errorf("error requesting service credential bindings: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing  service credential bindings, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing service credential bindings, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListServiceCredentialBindingsResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  service credential bindings")
+			return nil, fmt.Errorf("error parsing JSON from list service credential bindings: %w", err)
 		}
 
 		svcCredentialBindings = append(svcCredentialBindings, data.Resources...)
@@ -53,7 +52,7 @@ func (c *ServiceCredentialBindingClient) ListByQuery(query url.Values) ([]resour
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  service credential bindings")
+			return nil, fmt.Errorf("error parsing the next page request url for service credential bindings: %w", err)
 		}
 	}
 
@@ -67,19 +66,19 @@ func (c *ServiceCredentialBindingClient) Get(GUID string) (*resource.ServiceCred
 	resp, err := c.client.DoRequest(req)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while getting  service credential binding")
+		return nil, fmt.Errorf("error while getting service credential binding: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting  service credential binding with GUID [%s], response code: %d", GUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting service credential binding with GUID [%s], response code: %d", GUID, resp.StatusCode)
 	}
 
 	var svcCredentialBindings resource.ServiceCredentialBindings
 	if err := json.NewDecoder(resp.Body).Decode(&svcCredentialBindings); err != nil {
-		return nil, errors.Wrap(err, "Error reading  service credential binding JSON")
+		return nil, fmt.Errorf("error reading service credential binding JSON: %w", err)
 	}
 
 	return &svcCredentialBindings, nil

@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type SpaceClient commonClient
@@ -32,19 +31,19 @@ func (c *SpaceClient) Create(r resource.CreateSpaceRequest) (*resource.Space, er
 	req.obj = params
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  space")
+		return nil, fmt.Errorf("error while creating space: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating  space %s, response code: %d", r.Name, resp.StatusCode)
+		return nil, fmt.Errorf("error creating space %s, response code: %d", r.Name, resp.StatusCode)
 	}
 
 	var space resource.Space
 	if err := json.NewDecoder(resp.Body).Decode(&space); err != nil {
-		return nil, errors.Wrap(err, "Error reading  space JSON")
+		return nil, fmt.Errorf("error reading space JSON: %w", err)
 	}
 
 	return &space, nil
@@ -55,19 +54,19 @@ func (c *SpaceClient) Get(spaceGUID string) (*resource.Space, error) {
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while getting  space")
+		return nil, fmt.Errorf("error while getting space: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting  space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
 	}
 
 	var space resource.Space
 	if err := json.NewDecoder(resp.Body).Decode(&space); err != nil {
-		return nil, errors.Wrap(err, "Error reading  space JSON")
+		return nil, fmt.Errorf("error reading space JSON: %w", err)
 	}
 
 	return &space, nil
@@ -77,14 +76,14 @@ func (c *SpaceClient) Delete(spaceGUID string) error {
 	req := c.client.NewRequest("DELETE", "/v3/spaces/"+spaceGUID)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error while deleting  space")
+		return fmt.Errorf("error while deleting space: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting  space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
+		return fmt.Errorf("error deleting space with GUID [%s], response code: %d", spaceGUID, resp.StatusCode)
 	}
 
 	return nil
@@ -105,19 +104,19 @@ func (c *SpaceClient) Update(spaceGUID string, r resource.UpdateSpaceRequest) (*
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while updating  space")
+		return nil, fmt.Errorf("error while updating space: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error updating  space %s, response code: %d", spaceGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error updating space %s, response code: %d", spaceGUID, resp.StatusCode)
 	}
 
 	var space resource.Space
 	if err := json.NewDecoder(resp.Body).Decode(&space); err != nil {
-		return nil, errors.Wrap(err, "Error reading  space JSON")
+		return nil, fmt.Errorf("error reading space JSON: %w", err)
 	}
 
 	return &space, nil
@@ -134,19 +133,19 @@ func (c *SpaceClient) ListByQuery(query url.Values) ([]resource.Space, error) {
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  spaces")
+			return nil, fmt.Errorf("error requesting spaces: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  spaces, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing spaces, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListSpacesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  spaces")
+			return nil, fmt.Errorf("error parsing JSON from list spaces: %w", err)
 		}
 
 		spaces = append(spaces, data.Resources...)
@@ -157,7 +156,7 @@ func (c *SpaceClient) ListByQuery(query url.Values) ([]resource.Space, error) {
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  spaces")
+			return nil, fmt.Errorf("error parsing the next page request url for spaces: %w", err)
 		}
 	}
 
@@ -173,19 +172,19 @@ func (c *SpaceClient) ListUsers(spaceGUID string) ([]resource.User, error) {
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  space users")
+			return nil, fmt.Errorf("error requesting space users: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  space users, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing space users, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListSpaceUsersResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  space users")
+			return nil, fmt.Errorf("error parsing JSON from list space users: %w", err)
 		}
 		users = append(users, data.Resources...)
 
@@ -195,7 +194,7 @@ func (c *SpaceClient) ListUsers(spaceGUID string) ([]resource.User, error) {
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  space users")
+			return nil, fmt.Errorf("error parsing the next page request url for space users: %w", err)
 		}
 	}
 

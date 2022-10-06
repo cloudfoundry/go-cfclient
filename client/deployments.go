@@ -2,12 +2,12 @@ package client
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type DeploymentClient commonClient
@@ -16,19 +16,19 @@ func (c *DeploymentClient) Get(deploymentGUID string) (*resource.Deployment, err
 	req := c.client.NewRequest("GET", "/v3/deployments/"+deploymentGUID)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error getting deployment")
+		return nil, fmt.Errorf("error getting deployment: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting deployment with GUID [%s], response code: %d", deploymentGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting deployment with GUID [%s], response code: %d", deploymentGUID, resp.StatusCode)
 	}
 
 	var r resource.Deployment
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, errors.Wrap(err, "Error reading deployment response JSON")
+		return nil, fmt.Errorf("error reading deployment response JSON: %w", err)
 	}
 
 	return &r, nil
@@ -60,19 +60,19 @@ func (c *DeploymentClient) Create(appGUID string, optionalParams *resource.Creat
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error creating deployment")
+		return nil, fmt.Errorf("error creating deployment: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating deployment for app GUID [%s], response code: %d", appGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error creating deployment for app GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
 	var r resource.Deployment
 	if err = json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, errors.Wrap(err, "Error reading deployment response JSON")
+		return nil, fmt.Errorf("error reading deployment response JSON: %w", err)
 	}
 
 	return &r, nil
@@ -82,14 +82,14 @@ func (c *DeploymentClient) Cancel(deploymentGUID string) error {
 	req := c.client.NewRequest("POST", "/v3/deployments/"+deploymentGUID+"/actions/cancel")
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error canceling deployment")
+		return fmt.Errorf("error canceling deployment: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Error canceling deployment [%s], response code: %d", deploymentGUID, resp.StatusCode)
+		return fmt.Errorf("error canceling deployment [%s], response code: %d", deploymentGUID, resp.StatusCode)
 	}
 
 	return nil

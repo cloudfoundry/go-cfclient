@@ -1,6 +1,6 @@
 package client
 
-//go:generate go run gen_error.go
+//go:generate go run ../tools/gen_error.go
 
 import (
 	"fmt"

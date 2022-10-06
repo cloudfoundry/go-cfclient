@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type DomainClient commonClient
@@ -23,19 +22,19 @@ func (c *DomainClient) ListByQuery(query url.Values) ([]resource.Domain, error) 
 	for {
 		resp, err := c.client.DoRequest(c.client.NewRequest("GET", requestURL))
 		if err != nil {
-			return nil, errors.Wrapf(err, "Error getting domains")
+			return nil, fmt.Errorf("error getting domains: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing v3 app domains, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing v3 app domains, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListDomainsResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list v3 app domains")
+			return nil, fmt.Errorf("error parsing JSON from list v3 app domains: %w", err)
 		}
 
 		domains = append(domains, data.Resources...)
@@ -45,7 +44,7 @@ func (c *DomainClient) ListByQuery(query url.Values) ([]resource.Domain, error) 
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for v3 domains")
+			return nil, fmt.Errorf("error parsing the next page request url for v3 domains: %w", err)
 		}
 	}
 	return domains, nil

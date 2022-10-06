@@ -9,7 +9,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type SecurityGroupClient commonClient
@@ -27,26 +26,26 @@ func (c *SecurityGroupClient) ListByQuery(query url.Values) ([]resource.Security
 		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  security groups")
+			return nil, fmt.Errorf("error requesting security groups: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  security groups, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing security groups, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListSecurityGroupResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  security groups")
+			return nil, fmt.Errorf("error parsing JSON from list security groups: %w", err)
 		}
 
 		securityGroups = append(securityGroups, data.Resources...)
 
 		requestURL, err = url.Parse(data.Pagination.Next.Href)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing next page URL")
+			return nil, fmt.Errorf("error parsing next page URL: %w", err)
 		}
 		if requestURL.String() == "" {
 			break
@@ -69,19 +68,19 @@ func (c *SecurityGroupClient) Create(r resource.CreateSecurityGroupRequest) (*re
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  security group")
+		return nil, fmt.Errorf("error while creating security group: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating  security group %s, response code: %d", r.Name, resp.StatusCode)
+		return nil, fmt.Errorf("error creating security group %s, response code: %d", r.Name, resp.StatusCode)
 	}
 
 	var securitygroup resource.SecurityGroup
 	if err := json.NewDecoder(resp.Body).Decode(&securitygroup); err != nil {
-		return nil, errors.Wrap(err, "Error reading  security group JSON")
+		return nil, fmt.Errorf("error reading security group JSON: %w", err)
 	}
 
 	return &securitygroup, nil
@@ -93,14 +92,14 @@ func (c *SecurityGroupClient) Delete(GUID string) error {
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error while deleting  security group")
+		return fmt.Errorf("error while deleting security group: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting  security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
+		return fmt.Errorf("error deleting security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
 	}
 	return nil
 }
@@ -117,19 +116,19 @@ func (c *SecurityGroupClient) Update(GUID string, r resource.UpdateSecurityGroup
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while updating  security group")
+		return nil, fmt.Errorf("error while updating security group: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error updating  security group %s, response code: %d", GUID, resp.StatusCode)
+		return nil, fmt.Errorf("error updating security group %s, response code: %d", GUID, resp.StatusCode)
 	}
 
 	var securityGroup resource.SecurityGroup
 	if err := json.NewDecoder(resp.Body).Decode(&securityGroup); err != nil {
-		return nil, errors.Wrap(err, "Error reading  security group JSON")
+		return nil, fmt.Errorf("error reading security group JSON: %w", err)
 	}
 
 	return &securityGroup, nil
@@ -141,19 +140,19 @@ func (c *SecurityGroupClient) Get(GUID string) (*resource.SecurityGroup, error) 
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while getting  security group")
+		return nil, fmt.Errorf("error while getting security group: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting  security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting security group with GUID [%s], response code: %d", GUID, resp.StatusCode)
 	}
 
 	var securityGroup resource.SecurityGroup
 	if err := json.NewDecoder(resp.Body).Decode(&securityGroup); err != nil {
-		return nil, errors.Wrap(err, "Error reading  security group JSON")
+		return nil, fmt.Errorf("error reading security group JSON: %w", err)
 	}
 
 	return &securityGroup, nil

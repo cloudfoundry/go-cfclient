@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type DropletClient commonClient
@@ -18,19 +17,19 @@ func (c *DropletClient) SetCurrentForApp(appGUID, dropletGUID string) (*resource
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error setting droplet for v3 app")
+		return nil, fmt.Errorf("error setting droplet for v3 app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error setting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error setting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
 	var r resource.CurrentDropletResponse
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, errors.Wrap(err, "Error reading droplet response JSON")
+		return nil, fmt.Errorf("error reading droplet response JSON: %w", err)
 	}
 
 	return &r, nil
@@ -40,19 +39,19 @@ func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, err
 	req := c.client.NewRequest("GET", "/v3/apps/"+appGUID+"/droplets/current")
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error getting droplet for v3 app")
+		return nil, fmt.Errorf("error getting droplet for v3 app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error getting droplet for v3 app with GUID [%s], response code: %d", appGUID, resp.StatusCode)
 	}
 
 	var r resource.Droplet
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, errors.Wrap(err, "Error reading droplet response JSON")
+		return nil, fmt.Errorf("error reading droplet response JSON: %w", err)
 	}
 
 	return &r, nil
@@ -62,13 +61,13 @@ func (c *DropletClient) Delete(dropletGUID string) error {
 	req := c.client.NewRequest("DELETE", "/v3/droplets/"+dropletGUID)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "Error deleting droplet %s", dropletGUID)
+		return fmt.Errorf("error deleting droplet %s: %w", dropletGUID, err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting droplet %s with response code %d", dropletGUID, resp.StatusCode)
+		return fmt.Errorf("error deleting droplet %s with response code %d", dropletGUID, resp.StatusCode)
 	}
 
 	return nil

@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type AppClient commonClient
@@ -38,19 +37,19 @@ func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
 	req.obj = params
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  app")
+		return nil, fmt.Errorf("error while creating app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error creating  app %s, response code: %d", r.Name, resp.StatusCode)
+		return nil, fmt.Errorf("error creating app %s, response code: %d", r.Name, resp.StatusCode)
 	}
 
 	var app resource.App
 	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
+		return nil, fmt.Errorf("error reading app JSON: %w", err)
 	}
 
 	return &app, nil
@@ -60,14 +59,14 @@ func (c *AppClient) Delete(guid string) error {
 	req := c.client.NewRequest("DELETE", "/v3/apps/"+guid)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return errors.Wrap(err, "Error while deleting  app")
+		return fmt.Errorf("error while deleting app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+		return fmt.Errorf("error deleting app with GUID [%s], response code: %d", guid, resp.StatusCode)
 	}
 
 	return nil
@@ -78,19 +77,19 @@ func (c *AppClient) Get(guid string) (*resource.App, error) {
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while getting  app")
+		return nil, fmt.Errorf("error while getting app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error getting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+		return nil, fmt.Errorf("error getting app with GUID [%s], response code: %d", guid, resp.StatusCode)
 	}
 
 	var app resource.App
 	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
+		return nil, fmt.Errorf("error reading app JSON: %w", err)
 	}
 
 	return &app, nil
@@ -101,14 +100,14 @@ func (c *AppClient) GetEnvironment(appGUID string) (resource.AppEnvironment, err
 
 	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/apps/"+appGUID+"/env"))
 	if err != nil {
-		return result, errors.Wrapf(err, "Error requesting app env for %s", appGUID)
+		return result, fmt.Errorf("error requesting app env for %s: %w", appGUID, err)
 	}
 
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result, errors.Wrap(err, "Error parsing JSON for app env")
+		return result, fmt.Errorf("error parsing JSON for app env: %w", err)
 	}
 
 	return result, nil
@@ -129,19 +128,19 @@ func (c *AppClient) ListByQuery(query url.Values) ([]resource.App, error) {
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  apps")
+			return nil, fmt.Errorf("error requesting  apps: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing  apps, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing apps, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListAppsResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  apps")
+			return nil, fmt.Errorf("error parsing JSON from list apps: %w", err)
 		}
 
 		apps = append(apps, data.Resources...)
@@ -152,7 +151,7 @@ func (c *AppClient) ListByQuery(query url.Values) ([]resource.App, error) {
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  apps")
+			return nil, fmt.Errorf("error parsing the next page request url for apps: %w", err)
 		}
 	}
 
@@ -167,14 +166,14 @@ func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) 
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return result.EnvVar, errors.Wrapf(err, "Error setting app env variables for %s", appGUID)
+		return result.EnvVar, fmt.Errorf("error setting app env variables for %s: %w", appGUID, err)
 	}
 
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result.EnvVar, errors.Wrap(err, "Error parsing JSON for app env")
+		return result.EnvVar, fmt.Errorf("error parsing JSON for app env: %w", err)
 	}
 
 	return result.EnvVar, nil
@@ -184,19 +183,19 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 	req := c.client.NewRequest("POST", "/v3/apps/"+guid+"/actions/start")
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while starting  app")
+		return nil, fmt.Errorf("error while starting app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error starting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+		return nil, fmt.Errorf("error starting app with GUID [%s], response code: %d", guid, resp.StatusCode)
 	}
 
 	var app resource.App
 	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
+		return nil, fmt.Errorf("error reading app JSON: %w", err)
 	}
 
 	return &app, nil
@@ -220,19 +219,19 @@ func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resour
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while updating  app")
+		return nil, fmt.Errorf("error while updating app: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error updating  app %s, response code: %d", appGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error updating app %s, response code: %d", appGUID, resp.StatusCode)
 	}
 
 	var app resource.App
 	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
+		return nil, fmt.Errorf("error reading app JSON: %w", err)
 	}
 
 	return &app, nil

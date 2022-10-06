@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type RouteClient commonClient
@@ -28,19 +27,19 @@ func (c *RouteClient) ListByQuery(query url.Values) ([]resource.Route, error) {
 		r := c.client.NewRequest("GET", requestURL)
 		resp, err := c.client.DoRequest(r)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error requesting  service instances")
+			return nil, fmt.Errorf("error requesting service instances: %w", err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing  service instances, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing service instances, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListRouteResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list  service instances")
+			return nil, fmt.Errorf("error parsing JSON from list service instances: %w", err)
 		}
 
 		routes = append(routes, data.Resources...)
@@ -51,7 +50,7 @@ func (c *RouteClient) ListByQuery(query url.Values) ([]resource.Route, error) {
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for  service instances")
+			return nil, fmt.Errorf("error parsing the next page request url for service instances: %w", err)
 		}
 	}
 
@@ -74,19 +73,19 @@ func (c *RouteClient) Create(
 	}
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while creating  route")
+		return nil, fmt.Errorf("error while creating route: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating  route, response code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("error creating route, response code: %d", resp.StatusCode)
 	}
 
 	var route resource.Route
 	if err := json.NewDecoder(resp.Body).Decode(&route); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app package")
+		return nil, fmt.Errorf("error reading app package: %w", err)
 	}
 
 	return &route, nil

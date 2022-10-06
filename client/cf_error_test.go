@@ -1,11 +1,9 @@
 package client
 
 import (
-	stderrors "errors"
+	"errors"
 	"fmt"
 	"testing"
-
-	pkgerrors "github.com/pkg/errors"
 )
 
 func TestIsSpaceNotFoundError(t *testing.T) {
@@ -14,14 +12,10 @@ func TestIsSpaceNotFoundError(t *testing.T) {
 		error
 		want bool
 	}{
-		{"std/errors error", stderrors.New("is not"), false},
-		{"pkg/errors error", pkgerrors.New("is not"), false},
+		{"std/errors error", errors.New("is not"), false},
 		{"unwrapped CloudFoundry error", CloudFoundryError{
 			Code: 40004,
 		}, true},
-		{"pkg wrapped CloudFoundry error", pkgerrors.Wrap(CloudFoundryError{
-			Code: 40004,
-		}, ""), true},
 		{"std wrapped CloudFoundry error", fmt.Errorf("%w", CloudFoundryError{
 			Code: 40004,
 		}), true},

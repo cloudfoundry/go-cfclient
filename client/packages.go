@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/pkg/errors"
 )
 
 type PackageClient commonClient
@@ -23,19 +22,19 @@ func (c *PackageClient) ListForApp(appGUID string, query url.Values) ([]resource
 	for {
 		resp, err := c.client.DoRequest(c.client.NewRequest("GET", requestURL))
 		if err != nil {
-			return nil, errors.Wrapf(err, "Error requesting packages for app %s", appGUID)
+			return nil, fmt.Errorf("error requesting packages for app %s: %w", appGUID, err)
 		}
 		defer func(b io.ReadCloser) {
 			_ = b.Close()
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Error listing v3 app packages, response code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("error listing v3 app packages, response code: %d", resp.StatusCode)
 		}
 
 		var data resource.ListPackagesResponse
 		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, errors.Wrap(err, "Error parsing JSON from list v3 app packages")
+			return nil, fmt.Errorf("error parsing JSON from list v3 app packages: %w", err)
 		}
 
 		packages = append(packages, data.Resources...)
@@ -45,7 +44,7 @@ func (c *PackageClient) ListForApp(appGUID string, query url.Values) ([]resource
 		}
 		requestURL, err = extractPathFromURL(requestURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error parsing the next page request url for v3 packages")
+			return nil, fmt.Errorf("error parsing the next page request url for v3 packages: %w", err)
 		}
 	}
 	return packages, nil
@@ -67,19 +66,19 @@ func (c *PackageClient) Copy(packageGUID, appGUID string) (*resource.Package, er
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while copying v3 package")
+		return nil, fmt.Errorf("error while copying v3 package: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("Error copying v3 package %s, response code: %d", packageGUID, resp.StatusCode)
+		return nil, fmt.Errorf("error copying v3 package %s, response code: %d", packageGUID, resp.StatusCode)
 	}
 
 	var pkg resource.Package
 	if err := json.NewDecoder(resp.Body).Decode(&pkg); err != nil {
-		return nil, errors.Wrap(err, "Error reading v3 app package")
+		return nil, fmt.Errorf("error reading v3 app package: %w", err)
 	}
 
 	return &pkg, nil
@@ -101,7 +100,7 @@ func (c *PackageClient) CreateDocker(image string, appGUID string, dockerCredent
 
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while copying v3 package")
+		return nil, fmt.Errorf("error while copying v3 package: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
@@ -113,7 +112,7 @@ func (c *PackageClient) CreateDocker(image string, appGUID string, dockerCredent
 
 	var pkg resource.Package
 	if err := json.NewDecoder(resp.Body).Decode(&pkg); err != nil {
-		return nil, errors.Wrap(err, "Error reading v3 app package")
+		return nil, fmt.Errorf("error reading v3 app package: %w", err)
 	}
 
 	return &pkg, nil
