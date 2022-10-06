@@ -16,7 +16,7 @@ func TestGetDeployment(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.GetDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
+	resp, err := client.Deployments.GetByGUID("59c3d133-2b83-46f3-960e-7765a129aea4")
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -35,7 +35,7 @@ func TestCreateDeployment(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", nil)
+	resp, err := client.Deployments.Create("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", nil)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -54,7 +54,7 @@ func TestCreateDeploymentWithDroplet(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+	resp, err := client.Deployments.Create("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
 		Droplet: &resource.Relationship{
 			GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
 		},
@@ -76,7 +76,7 @@ func TestCreateDeploymentWithRevision(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+	resp, err := client.Deployments.Create("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
 		Revision: &resource.DeploymentRevision{
 			GUID:    "56126cba-656a-4eba-a81e-7e9951b2df57",
 			Version: 1,
@@ -100,7 +100,7 @@ func TestCreateDeploymentWithRevisionAndDroplet(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	resp, err := client.CreateDeployment("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
+	resp, err := client.Deployments.Create("305cea31-5a44-45ca-b51b-e89c7a8ef8b2", &resource.CreateDeploymentOptionalParameters{
 		Droplet: &resource.Relationship{
 			GUID: "44ccfa61-dbcf-4a0d-82fe-f668e9d2a962",
 		},
@@ -121,6 +121,6 @@ func TestCancelDeployment(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.CancelDeployment("59c3d133-2b83-46f3-960e-7765a129aea4")
+	err = client.Deployments.Cancel("59c3d133-2b83-46f3-960e-7765a129aea4")
 	require.NoError(t, err)
 }
