@@ -17,7 +17,7 @@ func TestListPackagesForApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	packages, err := client.ListPackagesForApp("f2efe391-2b5b-4836-8518-ad93fa9ebf69", nil)
+	packages, err := client.Packages.ListForApp("f2efe391-2b5b-4836-8518-ad93fa9ebf69", nil)
 	require.NoError(t, err)
 	require.Len(t, packages, 2)
 
@@ -41,7 +41,7 @@ func TestCopyPackage(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	pkg, err := client.CopyPackage("package-guid", "app-guid")
+	pkg, err := client.Packages.Copy("package-guid", "app-guid")
 	require.NoError(t, err)
 
 	require.Equal(t, "COPYING", string(pkg.State))

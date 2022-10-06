@@ -11,7 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) ListPackagesForApp(appGUID string, query url.Values) ([]resource.Package, error) {
+type PackageClient commonClient
+
+func (c *PackageClient) ListForApp(appGUID string, query url.Values) ([]resource.Package, error) {
 	var packages []resource.Package
 	requestURL := "/v3/apps/" + appGUID + "/packages"
 	if e := query.Encode(); len(e) > 0 {
@@ -19,7 +21,7 @@ func (c *Client) ListPackagesForApp(appGUID string, query url.Values) ([]resourc
 	}
 
 	for {
-		resp, err := c.DoRequest(c.NewRequest("GET", requestURL))
+		resp, err := c.client.DoRequest(c.client.NewRequest("GET", requestURL))
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error requesting packages for app %s", appGUID)
 		}
@@ -49,10 +51,10 @@ func (c *Client) ListPackagesForApp(appGUID string, query url.Values) ([]resourc
 	return packages, nil
 }
 
-// CopyPackage makes a copy of a package that is associated with one app
+// Copy makes a copy of a package that is associated with one app
 // and associates the copy with a new app.
-func (c *Client) CopyPackage(packageGUID, appGUID string) (*resource.Package, error) {
-	req := c.NewRequest("POST", "/v3/packages?source_guid="+packageGUID)
+func (c *PackageClient) Copy(packageGUID, appGUID string) (*resource.Package, error) {
+	req := c.client.NewRequest("POST", "/v3/packages?source_guid="+packageGUID)
 	req.obj = map[string]interface{}{
 		"relationships": map[string]interface{}{
 			"app": resource.ToOneRelationship{
@@ -63,7 +65,7 @@ func (c *Client) CopyPackage(packageGUID, appGUID string) (*resource.Package, er
 		},
 	}
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while copying v3 package")
 	}
@@ -83,9 +85,9 @@ func (c *Client) CopyPackage(packageGUID, appGUID string) (*resource.Package, er
 	return &pkg, nil
 }
 
-// CreateDockerPackage creates a Docker package
-func (c *Client) CreateDockerPackage(image string, appGUID string, dockerCredentials *resource.DockerCredentials) (*resource.Package, error) {
-	req := c.NewRequest("POST", "/v3/packages")
+// CreateDocker creates a Docker package
+func (c *PackageClient) CreateDocker(image string, appGUID string, dockerCredentials *resource.DockerCredentials) (*resource.Package, error) {
+	req := c.client.NewRequest("POST", "/v3/packages")
 	req.obj = resource.CreateDockerPackageRequest{
 		Type: "docker",
 		Relationships: map[string]resource.ToOneRelationship{
@@ -97,7 +99,7 @@ func (c *Client) CreateDockerPackage(image string, appGUID string, dockerCredent
 		},
 	}
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while copying v3 package")
 	}
