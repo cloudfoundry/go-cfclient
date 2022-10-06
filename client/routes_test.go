@@ -14,7 +14,7 @@ func TestListRoutes(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	routes, err := client.ListRoutes()
+	routes, err := client.Routes.List()
 	require.NoError(t, err)
 	require.Len(t, routes, 1)
 
@@ -39,7 +39,7 @@ func TestCreateRoutes(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	route, err := client.CreateRoute(
+	route, err := client.Routes.Create(
 		"885a8cb3-c07b-4856-b448-eeb10bf36236",
 		"0b5f3633-194c-42d2-9408-972366617e0e",
 		nil,

@@ -11,11 +11,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) ListRoutes() ([]resource.Route, error) {
-	return c.ListRoutesByQuery(nil)
+type RouteClient commonClient
+
+func (c *RouteClient) List() ([]resource.Route, error) {
+	return c.ListByQuery(nil)
 }
 
-func (c *Client) ListRoutesByQuery(query url.Values) ([]resource.Route, error) {
+func (c *RouteClient) ListByQuery(query url.Values) ([]resource.Route, error) {
 	var routes []resource.Route
 	requestURL := "/v3/routes"
 	if e := query.Encode(); len(e) > 0 {
@@ -23,8 +25,8 @@ func (c *Client) ListRoutesByQuery(query url.Values) ([]resource.Route, error) {
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  service instances")
 		}
@@ -56,7 +58,7 @@ func (c *Client) ListRoutesByQuery(query url.Values) ([]resource.Route, error) {
 	return routes, nil
 }
 
-func (c *Client) CreateRoute(
+func (c *RouteClient) Create(
 	spaceGUID string,
 	domainGUID string,
 	opt *resource.CreateRouteOptionalParameters,
@@ -65,12 +67,12 @@ func (c *Client) CreateRoute(
 	spaceRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: spaceGUID}}
 	domainRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: domainGUID}}
 
-	req := c.NewRequest("POST", "/v3/routes")
+	req := c.client.NewRequest("POST", "/v3/routes")
 	req.obj = resource.CreateRouteRequest{
 		Relationships:                 resource.RouteRelationships{Space: spaceRel, Domain: domainRel},
 		CreateRouteOptionalParameters: opt,
 	}
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  route")
 	}
