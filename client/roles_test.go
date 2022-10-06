@@ -22,7 +22,7 @@ func TestListSpaceRolesByQueryWithSpaceGUID(t *testing.T) {
 	query := url.Values{}
 	query["space_guids"] = []string{"spaceGUID1"}
 
-	roles, err := client.ListRolesByQuery(query)
+	roles, err := client.Roles.ListRolesByQuery(query)
 	require.NoError(t, err)
 	require.Len(t, roles, 3)
 
@@ -54,7 +54,7 @@ func TestListSpaceRolesByQueryWithUserGUID(t *testing.T) {
 	query := url.Values{}
 	query["user_guids"] = []string{"userGUID1"}
 
-	roles, err := client.ListRolesByQuery(query)
+	roles, err := client.Roles.ListRolesByQuery(query)
 	require.NoError(t, err)
 	require.Len(t, roles, 2)
 
@@ -83,7 +83,7 @@ func TestListSpaceRolesByQueryWithSpaceAndUserGUID(t *testing.T) {
 	query["space_guids"] = []string{"spaceGUID2"}
 	query["user_guids"] = []string{"userGUID1"}
 
-	roles, err := client.ListRolesByQuery(query)
+	roles, err := client.Roles.ListRolesByQuery(query)
 	require.NoError(t, err)
 	require.Len(t, roles, 1)
 
@@ -108,7 +108,7 @@ func TestListSpaceRolesByGUID(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	roles, users, err := client.ListSpaceRolesByGUID("spaceGUID1")
+	roles, users, err := client.Roles.ListSpaceRolesByGUID("spaceGUID1")
 	require.NoError(t, err)
 	require.Len(t, roles, 3)
 	require.Len(t, users, 3)
@@ -130,7 +130,7 @@ func TestListSpaceRolesByGUIDAndType(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	users, err := client.ListSpaceRolesByGUIDAndType("spaceGUID1", "space_supporter")
+	users, err := client.Roles.ListSpaceRolesByGUIDAndType("spaceGUID1", "space_supporter")
 	require.NoError(t, err)
 	require.Len(t, users, 3)
 
@@ -151,7 +151,7 @@ func TestListOrgRolesByGUID(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	roles, users, err := client.ListOrganizationRolesByGUID("orgGUID1")
+	roles, users, err := client.Roles.ListOrganizationRolesByGUID("orgGUID1")
 	require.NoError(t, err)
 	require.Len(t, roles, 3)
 	require.Len(t, users, 3)
@@ -173,7 +173,7 @@ func TestListOrgRolesByGUIDAndType(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	users, err := client.ListOrganizationRolesByGUIDAndType("orgGUID1", "organization_auditor")
+	users, err := client.Roles.ListOrganizationRolesByGUIDAndType("orgGUID1", "organization_auditor")
 	require.NoError(t, err)
 	require.Len(t, users, 3)
 
@@ -190,7 +190,7 @@ func TestCreateSpaceRoles(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	role, err := client.CreateSpaceRole(
+	role, err := client.Roles.CreateSpaceRole(
 		"b40a40c8-58b7-49a0-b47d-9d6fe5d72905",
 		"c4958204-6b65-43ea-832b-e4c57aea6641",
 		"space_supporter",
@@ -211,7 +211,7 @@ func TestCreateOrgRoles(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	role, err := client.CreateOrganizationRole(
+	role, err := client.Roles.CreateOrganizationRole(
 		"fa8a8346-0d92-4729-870c-77ee1934f973",
 		"ac2e02c9-2c5c-4712-a620-a68449d263c3",
 		"organization_user",
@@ -232,6 +232,6 @@ func TestDeleteRole(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteRole("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	err = client.Roles.Delete("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 }

@@ -32,6 +32,7 @@ type Client struct {
 	Domains       *DomainClient
 	Droplets      *DropletClient
 	Packages      *PackageClient
+	Roles         *RoleClient
 }
 
 type commonClient struct {
@@ -88,6 +89,7 @@ func New(config *Config) (*Client, error) {
 	client.Domains = (*DomainClient)(&client.common)
 	client.Droplets = (*DropletClient)(&client.common)
 	client.Packages = (*PackageClient)(&client.common)
+	client.Roles = (*RoleClient)(&client.common)
 	return client, nil
 }
 
