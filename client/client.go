@@ -25,15 +25,16 @@ type Client struct {
 
 	common commonClient // Reuse a single struct instead of allocating one for each commonClient on the heap.
 
-	Organizations *OrgClient
-	Applications  *AppClient
-	Builds        *BuildClient
-	Deployments   *DeploymentClient
-	Domains       *DomainClient
-	Droplets      *DropletClient
-	Packages      *PackageClient
-	Roles         *RoleClient
-	Routes        *RouteClient
+	Organizations  *OrgClient
+	Applications   *AppClient
+	Builds         *BuildClient
+	Deployments    *DeploymentClient
+	Domains        *DomainClient
+	Droplets       *DropletClient
+	Packages       *PackageClient
+	Roles          *RoleClient
+	Routes         *RouteClient
+	SecurityGroups *SecurityGroupClient
 }
 
 type commonClient struct {
@@ -92,6 +93,7 @@ func New(config *Config) (*Client, error) {
 	client.Packages = (*PackageClient)(&client.common)
 	client.Roles = (*RoleClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
+	client.SecurityGroups = (*SecurityGroupClient)(&client.common)
 	return client, nil
 }
 

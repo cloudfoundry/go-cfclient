@@ -22,7 +22,7 @@ func TestListSecurityGroupsByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	securityGroups, err := client.ListSecurityGroupsByQuery(nil)
+	securityGroups, err := client.SecurityGroups.ListByQuery(nil)
 	require.NoError(t, err)
 	require.Len(t, securityGroups, 2)
 
@@ -65,7 +65,7 @@ func TestListSecurityGroupsByQueryWithGroupGUID(t *testing.T) {
 	query := url.Values{}
 	query["guids"] = []string{"guid-1"}
 
-	securityGroups, err := client.ListSecurityGroupsByQuery(query)
+	securityGroups, err := client.SecurityGroups.ListByQuery(query)
 	require.NoError(t, err)
 	require.Len(t, securityGroups, 1)
 
@@ -93,7 +93,7 @@ func TestCreateSecurityGroupWithMinimalParams(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	securityGroups, err := client.CreateSecurityGroup(resource.CreateSecurityGroupRequest{
+	securityGroups, err := client.SecurityGroups.Create(resource.CreateSecurityGroupRequest{
 		Name: "my-sec-group",
 	})
 	require.NoError(t, err)
@@ -184,7 +184,7 @@ func TestCreateSecurityGroupWithOptionalParams(t *testing.T) {
 		},
 	}
 
-	securityGroups, err := client.CreateSecurityGroup(createSecGroupRequest)
+	securityGroups, err := client.SecurityGroups.Create(createSecGroupRequest)
 	require.NoError(t, err)
 	require.NotNil(t, securityGroups)
 	require.Equal(t, "guid-1", securityGroups.GUID)
@@ -223,7 +223,7 @@ func TestCreateSecurityGroupWithICMPTypeCodeAndNoName(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	_, err = client.CreateSecurityGroup(resource.CreateSecurityGroupRequest{
+	_, err = client.SecurityGroups.Create(resource.CreateSecurityGroupRequest{
 		Rules: []*resource.Rule{
 			{
 				Protocol:    "icmp",
@@ -245,7 +245,7 @@ func TestDeleteSecurityGroup(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteSecurityGroup("security-group-guid")
+	err = client.SecurityGroups.Delete("security-group-guid")
 	require.NoError(t, err)
 }
 
@@ -267,7 +267,7 @@ func TestUpdateSecurityGroup(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	_, err = client.UpdateSecurityGroup("guid-1", resource.UpdateSecurityGroupRequest{
+	_, err = client.SecurityGroups.Update("guid-1", resource.UpdateSecurityGroupRequest{
 		Rules: []*resource.Rule{
 			{
 				Protocol:    "icmp",
@@ -290,7 +290,7 @@ func TestUpdateSecurityGroupUpdateName(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	securityGroups, err := client.UpdateSecurityGroup("guid-1", resource.UpdateSecurityGroupRequest{
+	securityGroups, err := client.SecurityGroups.Update("guid-1", resource.UpdateSecurityGroupRequest{
 		Name: "my-sec-group",
 	})
 	require.NoError(t, err)
@@ -357,7 +357,7 @@ func TestUpdateSecurityGroupWithOptionalParams(t *testing.T) {
 		},
 	}
 
-	securityGroups, err := client.UpdateSecurityGroup("guid-1", updateSecGroupRequest)
+	securityGroups, err := client.SecurityGroups.Update("guid-1", updateSecGroupRequest)
 	require.NoError(t, err)
 	require.NotNil(t, securityGroups)
 	require.Equal(t, "guid-1", securityGroups.GUID)
@@ -386,7 +386,7 @@ func TestGetSecurityGroup(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	securityGroup, err := client.GetSecurityGroupByGUID("guid-1")
+	securityGroup, err := client.SecurityGroups.Get("guid-1")
 	require.NoError(t, err)
 	require.NotNil(t, securityGroup)
 	require.Equal(t, "guid-1", securityGroup.GUID)
