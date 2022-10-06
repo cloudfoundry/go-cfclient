@@ -17,7 +17,7 @@ func TestCreateSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	space, err := client.CreateSpace(resource.CreateSpaceRequest{
+	space, err := client.Spaces.Create(resource.CreateSpaceRequest{
 		Name:    "my-space",
 		OrgGUID: "org-guid",
 	})
@@ -40,7 +40,7 @@ func TestGetSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	space, err := client.GetSpaceByGUID("space-guid")
+	space, err := client.Spaces.Get("space-guid")
 	require.NoError(t, err)
 	require.NotNil(t, space)
 
@@ -60,7 +60,7 @@ func TestDeleteSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteSpace("space-guid")
+	err = client.Spaces.Delete("space-guid")
 	require.NoError(t, err)
 }
 
@@ -72,7 +72,7 @@ func TestUpdateSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	space, err := client.UpdateSpace("space-guid", resource.UpdateSpaceRequest{
+	space, err := client.Spaces.Update("space-guid", resource.UpdateSpaceRequest{
 		Name: "my-space",
 	})
 	require.NoError(t, err)
@@ -95,7 +95,7 @@ func TestListSpacesByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	spaces, err := client.ListSpacesByQuery(nil)
+	spaces, err := client.Spaces.ListByQuery(nil)
 	require.NoError(t, err)
 	require.Len(t, spaces, 2)
 
@@ -116,7 +116,7 @@ func TestListSpaceUsersByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	users, err := client.ListSpaceUsers("space-guid")
+	users, err := client.Spaces.ListUsers("space-guid")
 	require.NoError(t, err)
 	require.Len(t, users, 2)
 

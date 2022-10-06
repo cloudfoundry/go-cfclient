@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) CreateSpace(r resource.CreateSpaceRequest) (*resource.Space, error) {
-	req := c.NewRequest("POST", "/v3/spaces")
+type SpaceClient commonClient
+
+func (c *SpaceClient) Create(r resource.CreateSpaceRequest) (*resource.Space, error) {
+	req := c.client.NewRequest("POST", "/v3/spaces")
 	params := map[string]interface{}{
 		"name": r.Name,
 		"relationships": map[string]interface{}{
@@ -28,7 +30,7 @@ func (c *Client) CreateSpace(r resource.CreateSpaceRequest) (*resource.Space, er
 	}
 
 	req.obj = params
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  space")
 	}
@@ -48,10 +50,10 @@ func (c *Client) CreateSpace(r resource.CreateSpaceRequest) (*resource.Space, er
 	return &space, nil
 }
 
-func (c *Client) GetSpaceByGUID(spaceGUID string) (*resource.Space, error) {
-	req := c.NewRequest("GET", "/v3/spaces/"+spaceGUID)
+func (c *SpaceClient) Get(spaceGUID string) (*resource.Space, error) {
+	req := c.client.NewRequest("GET", "/v3/spaces/"+spaceGUID)
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  space")
 	}
@@ -71,9 +73,9 @@ func (c *Client) GetSpaceByGUID(spaceGUID string) (*resource.Space, error) {
 	return &space, nil
 }
 
-func (c *Client) DeleteSpace(spaceGUID string) error {
-	req := c.NewRequest("DELETE", "/v3/spaces/"+spaceGUID)
-	resp, err := c.DoRequest(req)
+func (c *SpaceClient) Delete(spaceGUID string) error {
+	req := c.client.NewRequest("DELETE", "/v3/spaces/"+spaceGUID)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting  space")
 	}
@@ -88,8 +90,8 @@ func (c *Client) DeleteSpace(spaceGUID string) error {
 	return nil
 }
 
-func (c *Client) UpdateSpace(spaceGUID string, r resource.UpdateSpaceRequest) (*resource.Space, error) {
-	req := c.NewRequest("PATCH", "/v3/spaces/"+spaceGUID)
+func (c *SpaceClient) Update(spaceGUID string, r resource.UpdateSpaceRequest) (*resource.Space, error) {
+	req := c.client.NewRequest("PATCH", "/v3/spaces/"+spaceGUID)
 	params := make(map[string]interface{})
 	if r.Name != "" {
 		params["name"] = r.Name
@@ -101,7 +103,7 @@ func (c *Client) UpdateSpace(spaceGUID string, r resource.UpdateSpaceRequest) (*
 		req.obj = params
 	}
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating  space")
 	}
@@ -121,7 +123,7 @@ func (c *Client) UpdateSpace(spaceGUID string, r resource.UpdateSpaceRequest) (*
 	return &space, nil
 }
 
-func (c *Client) ListSpacesByQuery(query url.Values) ([]resource.Space, error) {
+func (c *SpaceClient) ListByQuery(query url.Values) ([]resource.Space, error) {
 	var spaces []resource.Space
 	requestURL := "/v3/spaces"
 	if e := query.Encode(); len(e) > 0 {
@@ -129,8 +131,8 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]resource.Space, error) {
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  spaces")
 		}
@@ -162,14 +164,14 @@ func (c *Client) ListSpacesByQuery(query url.Values) ([]resource.Space, error) {
 	return spaces, nil
 }
 
-// ListSpaceUsers lists users by space GUID
-func (c *Client) ListSpaceUsers(spaceGUID string) ([]resource.User, error) {
+// ListUsers lists users by space GUID
+func (c *SpaceClient) ListUsers(spaceGUID string) ([]resource.User, error) {
 	var users []resource.User
 	requestURL := "/v3/spaces/" + spaceGUID + "/users"
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  space users")
 		}
