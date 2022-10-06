@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-type OrganizationClient commonClient
+type OrgClient commonClient
 
-func (o *OrganizationClient) Create(r resource.CreateOrganizationRequest) (*resource.Organization, error) {
+func (o *OrgClient) Create(r resource.CreateOrganizationRequest) (*resource.Organization, error) {
 	req := o.client.NewRequest("POST", "/v3/organizations")
 	params := map[string]interface{}{
 		"name": r.Name,
@@ -46,7 +46,7 @@ func (o *OrganizationClient) Create(r resource.CreateOrganizationRequest) (*reso
 	return &organization, nil
 }
 
-func (o *OrganizationClient) GetByGUID(organizationGUID string) (*resource.Organization, error) {
+func (o *OrgClient) GetByGUID(organizationGUID string) (*resource.Organization, error) {
 	req := o.client.NewRequest("GET", "/v3/organizations/"+organizationGUID)
 
 	resp, err := o.client.DoRequest(req)
@@ -69,7 +69,7 @@ func (o *OrganizationClient) GetByGUID(organizationGUID string) (*resource.Organ
 	return &organization, nil
 }
 
-func (o *OrganizationClient) Delete(organizationGUID string) error {
+func (o *OrgClient) Delete(organizationGUID string) error {
 	req := o.client.NewRequest("DELETE", "/v3/organizations/"+organizationGUID)
 	resp, err := o.client.DoRequest(req)
 	if err != nil {
@@ -86,7 +86,7 @@ func (o *OrganizationClient) Delete(organizationGUID string) error {
 	return nil
 }
 
-func (o *OrganizationClient) Update(organizationGUID string, r resource.UpdateOrganizationRequest) (*resource.Organization, error) {
+func (o *OrgClient) Update(organizationGUID string, r resource.UpdateOrganizationRequest) (*resource.Organization, error) {
 	req := o.client.NewRequest("PATCH", "/v3/organizations/"+organizationGUID)
 	params := make(map[string]interface{})
 	if r.Name != "" {
@@ -122,7 +122,7 @@ func (o *OrganizationClient) Update(organizationGUID string, r resource.UpdateOr
 	return &organization, nil
 }
 
-func (o *OrganizationClient) ListByQuery(query url.Values) ([]resource.Organization, error) {
+func (o *OrgClient) ListByQuery(query url.Values) ([]resource.Organization, error) {
 	var organizations []resource.Organization
 	requestURL := "/v3/organizations"
 	if e := query.Encode(); len(e) > 0 {
