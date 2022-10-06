@@ -26,6 +26,7 @@ type Client struct {
 	common commonClient // Reuse a single struct instead of allocating one for each commonClient on the heap.
 
 	Organizations *OrganizationClient
+	Applications  *AppClient
 }
 
 type commonClient struct {
@@ -76,6 +77,7 @@ func New(config *Config) (*Client, error) {
 	}
 	client.common.client = client
 	client.Organizations = (*OrganizationClient)(&client.common)
+	client.Applications = (*AppClient)(&client.common)
 	return client, nil
 }
 
@@ -156,7 +158,9 @@ func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 
 	err = decodeBody(resp, &endpoint)
 	if err != nil {
@@ -390,7 +394,9 @@ func (r *Request) toHTTP() (*http.Request, error) {
 
 // decodeBody is used to JSON decode a body
 func decodeBody(resp *http.Response, out interface{}) error {
-	defer resp.Body.Close()
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
 	dec := json.NewDecoder(resp.Body)
 	return dec.Decode(out)
 }
@@ -403,4 +409,16 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+func extractPathFromURL(requestURL string) (string, error) {
+	u, err := url.Parse(requestURL)
+	if err != nil {
+		return "", err
+	}
+	result := u.Path
+	if q := u.Query().Encode(); q != "" {
+		result = result + "?" + q
+	}
+	return result, nil
 }

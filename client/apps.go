@@ -10,8 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) CreateApp(r resource.CreateAppRequest) (*resource.App, error) {
-	req := c.NewRequest("POST", "/v3/apps")
+type AppClient commonClient
+
+func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
+	req := c.client.NewRequest("POST", "/v3/apps")
 	params := map[string]interface{}{
 		"name": r.Name,
 		"relationships": map[string]interface{}{
@@ -33,7 +35,7 @@ func (c *Client) CreateApp(r resource.CreateAppRequest) (*resource.App, error) {
 	}
 
 	req.obj = params
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating  app")
 	}
@@ -51,10 +53,25 @@ func (c *Client) CreateApp(r resource.CreateAppRequest) (*resource.App, error) {
 	return &app, nil
 }
 
-func (c *Client) GetAppByGUID(guid string) (*resource.App, error) {
-	req := c.NewRequest("GET", "/v3/apps/"+guid)
+func (c *AppClient) Delete(guid string) error {
+	req := c.client.NewRequest("DELETE", "/v3/apps/"+guid)
+	resp, err := c.client.DoRequest(req)
+	if err != nil {
+		return errors.Wrap(err, "Error while deleting  app")
+	}
+	defer resp.Body.Close()
 
-	resp, err := c.DoRequest(req)
+	if resp.StatusCode != http.StatusAccepted {
+		return fmt.Errorf("Error deleting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+	}
+
+	return nil
+}
+
+func (c *AppClient) GetByGUID(guid string) (*resource.App, error) {
+	req := c.client.NewRequest("GET", "/v3/apps/"+guid)
+
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting  app")
 	}
@@ -72,80 +89,27 @@ func (c *Client) GetAppByGUID(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
-func (c *Client) StartApp(guid string) (*resource.App, error) {
-	req := c.NewRequest("POST", "/v3/apps/"+guid+"/actions/start")
-	resp, err := c.DoRequest(req)
+func (c *AppClient) GetEnvironment(appGUID string) (resource.AppEnvironment, error) {
+	var result resource.AppEnvironment
+
+	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/apps/"+appGUID+"/env"))
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while starting  app")
+		return result, errors.Wrapf(err, "Error requesting app env for %s", appGUID)
 	}
+
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error starting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return result, errors.Wrap(err, "Error parsing JSON for app env")
 	}
 
-	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
-	}
-
-	return &app, nil
+	return result, nil
 }
 
-func (c *Client) DeleteApp(guid string) error {
-	req := c.NewRequest("DELETE", "/v3/apps/"+guid)
-	resp, err := c.DoRequest(req)
-	if err != nil {
-		return errors.Wrap(err, "Error while deleting  app")
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error deleting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
-	}
-
-	return nil
+func (c *AppClient) List() ([]resource.App, error) {
+	return c.ListByQuery(url.Values{})
 }
 
-func (c *Client) UpdateApp(appGUID string, r resource.UpdateAppRequest) (*resource.App, error) {
-	req := c.NewRequest("PATCH", "/v3/apps/"+appGUID)
-	params := make(map[string]interface{})
-	if r.Name != "" {
-		params["name"] = r.Name
-	}
-	if r.Lifecycle != nil {
-		params["lifecycle"] = r.Lifecycle
-	}
-	if r.Metadata != nil {
-		params["metadata"] = r.Metadata
-	}
-	if len(params) > 0 {
-		req.obj = params
-	}
-
-	resp, err := c.DoRequest(req)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error while updating  app")
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Error updating  app %s, response code: %d", appGUID, resp.StatusCode)
-	}
-
-	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, errors.Wrap(err, "Error reading  app JSON")
-	}
-
-	return &app, nil
-}
-
-func (c *Client) ListApps() ([]resource.App, error) {
-	return c.ListAppsByQuery(url.Values{})
-}
-
-func (c *Client) ListAppsByQuery(query url.Values) ([]resource.App, error) {
+func (c *AppClient) ListByQuery(query url.Values) ([]resource.App, error) {
 	var apps []resource.App
 	requestURL := "/v3/apps"
 	if e := query.Encode(); len(e) > 0 {
@@ -153,8 +117,8 @@ func (c *Client) ListAppsByQuery(query url.Values) ([]resource.App, error) {
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := c.client.NewRequest("GET", requestURL)
+		resp, err := c.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting  apps")
 		}
@@ -184,41 +148,13 @@ func (c *Client) ListAppsByQuery(query url.Values) ([]resource.App, error) {
 	return apps, nil
 }
 
-func extractPathFromURL(requestURL string) (string, error) {
-	url, err := url.Parse(requestURL)
-	if err != nil {
-		return "", err
-	}
-	result := url.Path
-	if q := url.Query().Encode(); q != "" {
-		result = result + "?" + q
-	}
-	return result, nil
-}
-
-func (c *Client) GetAppEnvironment(appGUID string) (resource.AppEnvironment, error) {
-	var result resource.AppEnvironment
-
-	resp, err := c.DoRequest(c.NewRequest("GET", "/v3/apps/"+appGUID+"/env"))
-	if err != nil {
-		return result, errors.Wrapf(err, "Error requesting app env for %s", appGUID)
-	}
-
-	defer resp.Body.Close()
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result, errors.Wrap(err, "Error parsing JSON for app env")
-	}
-
-	return result, nil
-}
-
-func (c *Client) SetAppEnvVariables(appGUID string, envRequest resource.EnvVar) (resource.EnvVar, error) {
+func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (resource.EnvVar, error) {
 	var result resource.EnvVarResponse
 
-	req := c.NewRequest("PATCH", "/v3/apps/"+appGUID+"/environment_variables")
+	req := c.client.NewRequest("PATCH", "/v3/apps/"+appGUID+"/environment_variables")
 	req.obj = envRequest
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return result.EnvVar, errors.Wrapf(err, "Error setting app env variables for %s", appGUID)
 	}
@@ -229,4 +165,58 @@ func (c *Client) SetAppEnvVariables(appGUID string, envRequest resource.EnvVar) 
 	}
 
 	return result.EnvVar, nil
+}
+
+func (c *AppClient) Start(guid string) (*resource.App, error) {
+	req := c.client.NewRequest("POST", "/v3/apps/"+guid+"/actions/start")
+	resp, err := c.client.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while starting  app")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error starting  app with GUID [%s], response code: %d", guid, resp.StatusCode)
+	}
+
+	var app resource.App
+	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
+		return nil, errors.Wrap(err, "Error reading  app JSON")
+	}
+
+	return &app, nil
+}
+
+func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resource.App, error) {
+	req := c.client.NewRequest("PATCH", "/v3/apps/"+appGUID)
+	params := make(map[string]interface{})
+	if r.Name != "" {
+		params["name"] = r.Name
+	}
+	if r.Lifecycle != nil {
+		params["lifecycle"] = r.Lifecycle
+	}
+	if r.Metadata != nil {
+		params["metadata"] = r.Metadata
+	}
+	if len(params) > 0 {
+		req.obj = params
+	}
+
+	resp, err := c.client.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while updating  app")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error updating  app %s, response code: %d", appGUID, resp.StatusCode)
+	}
+
+	var app resource.App
+	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
+		return nil, errors.Wrap(err, "Error reading  app JSON")
+	}
+
+	return &app, nil
 }

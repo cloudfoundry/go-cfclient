@@ -17,7 +17,7 @@ func TestCreateApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.CreateApp(resource.CreateAppRequest{
+	app, err := client.Applications.Create(resource.CreateAppRequest{
 		Name:                 "my-app",
 		SpaceGUID:            "space-guid",
 		EnvironmentVariables: map[string]string{"FOO": "BAR"},
@@ -43,7 +43,7 @@ func TestGetApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.GetAppByGUID("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	app, err := client.Applications.GetByGUID("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
@@ -66,7 +66,7 @@ func TestGetAppEnv(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	env, err := client.GetAppEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	env, err := client.Applications.GetEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 
 	require.Len(t, env.EnvVars, 1)
@@ -93,7 +93,7 @@ func TestSetAppEnvVariables(t *testing.T) {
 	require.NoError(t, err)
 
 	falseVar := "false"
-	env, err := client.SetAppEnvVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
+	env, err := client.Applications.SetEnvVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
 		resource.EnvVar{Var: map[string]*string{
 			"DEBUG": &falseVar,
 			"USER":  nil,
@@ -113,7 +113,7 @@ func TestStartApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.StartApp("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	app, err := client.Applications.Start("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
@@ -136,7 +136,7 @@ func TestDeleteApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteApp("1cb006ee-fb05-47e1-b541-c34179ddc446")
+	err = client.Applications.Delete("1cb006ee-fb05-47e1-b541-c34179ddc446")
 	require.NoError(t, err)
 }
 
@@ -148,7 +148,7 @@ func TestUpdateApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.UpdateApp("1cb006ee-fb05-47e1-b541-c34179ddc446", resource.UpdateAppRequest{})
+	app, err := client.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", resource.UpdateAppRequest{})
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
@@ -174,7 +174,7 @@ func TestListAppsByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	apps, err := client.ListAppsByQuery(nil)
+	apps, err := client.Applications.ListByQuery(nil)
 	require.NoError(t, err)
 	require.Len(t, apps, 2)
 
