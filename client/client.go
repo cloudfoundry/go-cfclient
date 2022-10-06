@@ -30,6 +30,7 @@ type Client struct {
 	Builds        *BuildClient
 	Deployments   *DeploymentClient
 	Domains       *DomainClient
+	Droplets      *DropletClient
 }
 
 type commonClient struct {
@@ -84,6 +85,7 @@ func New(config *Config) (*Client, error) {
 	client.Builds = (*BuildClient)(&client.common)
 	client.Deployments = (*DeploymentClient)(&client.common)
 	client.Domains = (*DomainClient)(&client.common)
+	client.Droplets = (*DropletClient)(&client.common)
 	return client, nil
 }
 

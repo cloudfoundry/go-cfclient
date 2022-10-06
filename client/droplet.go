@@ -10,11 +10,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) SetCurrentDropletForApp(appGUID, dropletGUID string) (*resource.CurrentDropletResponse, error) {
-	req := c.NewRequest("PATCH", "/v3/apps/"+appGUID+"/relationships/current_droplet")
+type DropletClient commonClient
+
+func (c *DropletClient) SetCurrentForApp(appGUID, dropletGUID string) (*resource.CurrentDropletResponse, error) {
+	req := c.client.NewRequest("PATCH", "/v3/apps/"+appGUID+"/relationships/current_droplet")
 	req.obj = resource.ToOneRelationship{Data: resource.Relationship{GUID: dropletGUID}}
 
-	resp, err := c.DoRequest(req)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error setting droplet for v3 app")
 	}
@@ -34,9 +36,9 @@ func (c *Client) SetCurrentDropletForApp(appGUID, dropletGUID string) (*resource
 	return &r, nil
 }
 
-func (c *Client) GetCurrentDropletForApp(appGUID string) (*resource.Droplet, error) {
-	req := c.NewRequest("GET", "/v3/apps/"+appGUID+"/droplets/current")
-	resp, err := c.DoRequest(req)
+func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, error) {
+	req := c.client.NewRequest("GET", "/v3/apps/"+appGUID+"/droplets/current")
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting droplet for v3 app")
 	}
@@ -56,9 +58,9 @@ func (c *Client) GetCurrentDropletForApp(appGUID string) (*resource.Droplet, err
 	return &r, nil
 }
 
-func (c *Client) DeleteDroplet(dropletGUID string) error {
-	req := c.NewRequest("DELETE", "/v3/droplets/"+dropletGUID)
-	resp, err := c.DoRequest(req)
+func (c *DropletClient) Delete(dropletGUID string) error {
+	req := c.client.NewRequest("DELETE", "/v3/droplets/"+dropletGUID)
+	resp, err := c.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrapf(err, "Error deleting droplet %s", dropletGUID)
 	}
