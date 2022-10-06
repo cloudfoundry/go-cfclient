@@ -23,6 +23,14 @@ import (
 type Client struct {
 	Config   Config
 	Endpoint Endpoint
+
+	common commonClient // Reuse a single struct instead of allocating one for each commonClient on the heap.
+
+	Organizations *OrganizationClient
+}
+
+type commonClient struct {
+	client *Client
 }
 
 type Endpoint struct {
@@ -67,6 +75,8 @@ func New(config *Config) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	client.common.client = client
+	client.Organizations = (*OrganizationClient)(&client.common)
 	return client, nil
 }
 

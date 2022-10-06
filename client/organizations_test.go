@@ -17,7 +17,7 @@ func TestCreateOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.CreateOrganization(resource.CreateOrganizationRequest{
+	organization, err := client.Organizations.Create(resource.CreateOrganizationRequest{
 		Name: "my-org",
 	})
 	require.NoError(t, err)
@@ -39,7 +39,7 @@ func TestGetOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.GetOrganizationByGUID("org-guid")
+	organization, err := client.Organizations.GetByGUID("org-guid")
 	require.NoError(t, err)
 	require.NotNil(t, organization)
 
@@ -59,7 +59,7 @@ func TestDeleteOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	err = client.DeleteOrganization("org-guid")
+	err = client.Organizations.Delete("org-guid")
 	require.NoError(t, err)
 }
 
@@ -71,7 +71,7 @@ func TestUpdateOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.UpdateOrganization("org-guid", resource.UpdateOrganizationRequest{
+	organization, err := client.Organizations.Update("org-guid", resource.UpdateOrganizationRequest{
 		Name: "my-org",
 	})
 	require.NoError(t, err)
@@ -94,7 +94,7 @@ func TestListOrganizationsByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organizations, err := client.ListOrganizationsByQuery(nil)
+	organizations, err := client.Organizations.ListByQuery(nil)
 	require.NoError(t, err)
 	require.Len(t, organizations, 2)
 

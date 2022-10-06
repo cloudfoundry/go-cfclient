@@ -10,8 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (c *Client) CreateOrganization(r resource.CreateOrganizationRequest) (*resource.Organization, error) {
-	req := c.NewRequest("POST", "/v3/organizations")
+type OrganizationClient commonClient
+
+func (o *OrganizationClient) Create(r resource.CreateOrganizationRequest) (*resource.Organization, error) {
+	req := o.client.NewRequest("POST", "/v3/organizations")
 	params := map[string]interface{}{
 		"name": r.Name,
 	}
@@ -23,7 +25,7 @@ func (c *Client) CreateOrganization(r resource.CreateOrganizationRequest) (*reso
 	}
 
 	req.obj = params
-	resp, err := c.DoRequest(req)
+	resp, err := o.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while creating v3 organization")
 	}
@@ -41,10 +43,10 @@ func (c *Client) CreateOrganization(r resource.CreateOrganizationRequest) (*reso
 	return &organization, nil
 }
 
-func (c *Client) GetOrganizationByGUID(organizationGUID string) (*resource.Organization, error) {
-	req := c.NewRequest("GET", "/v3/organizations/"+organizationGUID)
+func (o *OrganizationClient) GetByGUID(organizationGUID string) (*resource.Organization, error) {
+	req := o.client.NewRequest("GET", "/v3/organizations/"+organizationGUID)
 
-	resp, err := c.DoRequest(req)
+	resp, err := o.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while getting v3 organization")
 	}
@@ -62,9 +64,9 @@ func (c *Client) GetOrganizationByGUID(organizationGUID string) (*resource.Organ
 	return &organization, nil
 }
 
-func (c *Client) DeleteOrganization(organizationGUID string) error {
-	req := c.NewRequest("DELETE", "/v3/organizations/"+organizationGUID)
-	resp, err := c.DoRequest(req)
+func (o *OrganizationClient) Delete(organizationGUID string) error {
+	req := o.client.NewRequest("DELETE", "/v3/organizations/"+organizationGUID)
+	resp, err := o.client.DoRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "Error while deleting v3 organization")
 	}
@@ -77,8 +79,8 @@ func (c *Client) DeleteOrganization(organizationGUID string) error {
 	return nil
 }
 
-func (c *Client) UpdateOrganization(organizationGUID string, r resource.UpdateOrganizationRequest) (*resource.Organization, error) {
-	req := c.NewRequest("PATCH", "/v3/organizations/"+organizationGUID)
+func (o *OrganizationClient) Update(organizationGUID string, r resource.UpdateOrganizationRequest) (*resource.Organization, error) {
+	req := o.client.NewRequest("PATCH", "/v3/organizations/"+organizationGUID)
 	params := make(map[string]interface{})
 	if r.Name != "" {
 		params["name"] = r.Name
@@ -93,7 +95,7 @@ func (c *Client) UpdateOrganization(organizationGUID string, r resource.UpdateOr
 		req.obj = params
 	}
 
-	resp, err := c.DoRequest(req)
+	resp, err := o.client.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while updating v3 organization")
 	}
@@ -111,7 +113,7 @@ func (c *Client) UpdateOrganization(organizationGUID string, r resource.UpdateOr
 	return &organization, nil
 }
 
-func (c *Client) ListOrganizationsByQuery(query url.Values) ([]resource.Organization, error) {
+func (o *OrganizationClient) ListByQuery(query url.Values) ([]resource.Organization, error) {
 	var organizations []resource.Organization
 	requestURL := "/v3/organizations"
 	if e := query.Encode(); len(e) > 0 {
@@ -119,8 +121,8 @@ func (c *Client) ListOrganizationsByQuery(query url.Values) ([]resource.Organiza
 	}
 
 	for {
-		r := c.NewRequest("GET", requestURL)
-		resp, err := c.DoRequest(r)
+		r := o.client.NewRequest("GET", requestURL)
+		resp, err := o.client.DoRequest(r)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error requesting v3 organizations")
 		}
