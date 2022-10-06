@@ -25,7 +25,7 @@ type Client struct {
 
 	common commonClient // Reuse a single struct instead of allocating one for each commonClient on the heap.
 
-	Organizations *OrganizationClient
+	Organizations *OrgClient
 	Applications  *AppClient
 	Builds        *BuildClient
 }
@@ -77,7 +77,7 @@ func New(config *Config) (*Client, error) {
 		return nil, err
 	}
 	client.common.client = client
-	client.Organizations = (*OrganizationClient)(&client.common)
+	client.Organizations = (*OrgClient)(&client.common)
 	client.Applications = (*AppClient)(&client.common)
 	client.Builds = (*BuildClient)(&client.common)
 	return client, nil
