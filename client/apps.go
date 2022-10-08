@@ -1,19 +1,107 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type AppClient commonClient
 
+const AppsPath = "/v3/apps"
+
+const (
+	StacksField            = "stacks"
+	SpaceGUIDsField        = "space_guids"
+	OrganizationGUIDsField = "organization_guids"
+	NamesField             = "names"
+	LifecycleTypeField     = "lifecycle_type"
+)
+
+// LifecycleType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#list-apps
+type LifecycleType int
+
+const (
+	LifecycleNone LifecycleType = iota
+	LifecycleBuildpack
+	LifecycleDocker
+)
+
+func (l LifecycleType) String() string {
+	switch l {
+	case LifecycleBuildpack:
+		return "buildpack"
+	case LifecycleDocker:
+		return "docker"
+	}
+	return ""
+}
+
+func (l LifecycleType) ToQueryString() url.Values {
+	v := url.Values{}
+	if l != LifecycleNone {
+		v.Set(LifecycleTypeField, l.String())
+	}
+	return v
+}
+
+// AppIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
+type AppIncludeType int
+
+const (
+	AppIncludeNone AppIncludeType = iota
+	AppIncludeSpace
+	AppIncludeSpaceOrganization
+)
+
+func (a AppIncludeType) String() string {
+	switch a {
+	case AppIncludeSpace:
+		return "space"
+	case AppIncludeSpaceOrganization:
+		return "space.organization"
+	}
+	return ""
+}
+
+func (a AppIncludeType) ToQueryString() url.Values {
+	v := url.Values{}
+	if a != AppIncludeNone {
+		v.Set(IncludeField, a.String())
+	}
+	return v
+}
+
+type AppListOptions struct {
+	*ListOptions
+
+	GUIDs             Filter
+	Names             Filter
+	OrganizationGUIDs Filter
+	SpaceGUIDs        Filter
+	Stacks            Filter
+	LifecycleType     LifecycleType
+	Include           AppIncludeType
+}
+
+func NewAppListOptions() *AppListOptions {
+	return &AppListOptions{
+		ListOptions: NewListOptions(),
+	}
+}
+
+func (a AppListOptions) ToQuerystring() url.Values {
+	v := a.ListOptions.ToQueryString()
+	v = appendQueryStrings(v, a.Stacks.ToQueryString(StacksField))
+	v = appendQueryStrings(v, a.SpaceGUIDs.ToQueryString(SpaceGUIDsField))
+	v = appendQueryStrings(v, a.OrganizationGUIDs.ToQueryString(OrganizationGUIDsField))
+	v = appendQueryStrings(v, a.GUIDs.ToQueryString(GUIDsField))
+	v = appendQueryStrings(v, a.Names.ToQueryString(NamesField))
+	v = appendQueryStrings(v, a.LifecycleType.ToQueryString())
+	v = appendQueryStrings(v, a.Include.ToQueryString())
+	return v
+}
+
 func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
-	req := c.client.NewRequest("POST", "/v3/apps")
 	params := map[string]interface{}{
 		"name": r.Name,
 		"relationships": map[string]interface{}{
@@ -34,175 +122,92 @@ func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
 		params["metadata"] = r.Metadata
 	}
 
-	req.obj = params
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while creating app: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating app %s, response code: %d", r.Name, resp.StatusCode)
-	}
-
 	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, fmt.Errorf("error reading app JSON: %w", err)
+	err := c.client.post(r.Name, AppsPath, params, &app)
+	if err != nil {
+		return nil, err
 	}
-
 	return &app, nil
 }
 
 func (c *AppClient) Delete(guid string) error {
-	req := c.client.NewRequest("DELETE", "/v3/apps/"+guid)
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return fmt.Errorf("error while deleting app: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("error deleting app with GUID [%s], response code: %d", guid, resp.StatusCode)
-	}
-
-	return nil
+	return c.client.delete(joinPath(AppsPath, guid))
 }
 
 func (c *AppClient) Get(guid string) (*resource.App, error) {
-	req := c.client.NewRequest("GET", "/v3/apps/"+guid)
-
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while getting app: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error getting app with GUID [%s], response code: %d", guid, resp.StatusCode)
-	}
-
 	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, fmt.Errorf("error reading app JSON: %w", err)
+	err := c.client.get(joinPath(AppsPath, guid), &app)
+	if err != nil {
+		return nil, err
 	}
-
 	return &app, nil
 }
 
-func (c *AppClient) GetEnvironment(appGUID string) (resource.AppEnvironment, error) {
-	var result resource.AppEnvironment
-
-	resp, err := c.client.DoRequest(c.client.NewRequest("GET", "/v3/apps/"+appGUID+"/env"))
+func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, error) {
+	var appEnv resource.AppEnvironment
+	err := c.client.get(joinPath(AppsPath, appGUID, "env"), &appEnv)
 	if err != nil {
-		return result, fmt.Errorf("error requesting app env for %s: %w", appGUID, err)
+		return nil, err
 	}
-
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result, fmt.Errorf("error parsing JSON for app env: %w", err)
-	}
-
-	return result, nil
+	return &appEnv, nil
 }
 
-func (c *AppClient) List() ([]resource.App, error) {
-	return c.ListByQuery(url.Values{})
+func (c *AppClient) GetInclude(guid string, include AppIncludeType) (*resource.App, error) {
+	var app resource.App
+	err := c.client.get(joinPathAndQS(include.ToQueryString(), AppsPath, guid), &app)
+	if err != nil {
+		return nil, err
+	}
+	return &app, nil
 }
 
-func (c *AppClient) ListByQuery(query url.Values) ([]resource.App, error) {
-	var apps []resource.App
-	requestURL := "/v3/apps"
-	if e := query.Encode(); len(e) > 0 {
-		requestURL += "?" + e
+func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
+	var res resource.ListAppsResponse
+	err := c.client.get(joinPathAndQS(opts.ToQuerystring(), AppsPath), &res)
+	if err != nil {
+		return nil, nil, err
 	}
+	pager := &Pager{
+		pagination: res.Pagination,
+	}
+	return res.Resources, pager, nil
+}
 
+func (c *AppClient) ListAll() ([]*resource.App, error) {
+	opts := NewAppListOptions()
+	var allApps []*resource.App
 	for {
-		r := c.client.NewRequest("GET", requestURL)
-		resp, err := c.client.DoRequest(r)
+		apps, pager, err := c.List(opts)
 		if err != nil {
-			return nil, fmt.Errorf("error requesting  apps: %w", err)
+			return nil, err
 		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing apps, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListAppsResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list apps: %w", err)
-		}
-
-		apps = append(apps, data.Resources...)
-
-		requestURL = data.Pagination.Next.Href
-		if requestURL == "" || query.Get("page") != "" {
+		allApps = append(allApps, apps...)
+		if !pager.NextPage(opts.ListOptions) {
 			break
 		}
-		requestURL, err = extractPathFromURL(requestURL)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing the next page request url for apps: %w", err)
-		}
 	}
-
-	return apps, nil
+	return allApps, nil
 }
 
-func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (resource.EnvVar, error) {
-	var result resource.EnvVarResponse
-
-	req := c.client.NewRequest("PATCH", "/v3/apps/"+appGUID+"/environment_variables")
-	req.obj = envRequest
-
-	resp, err := c.client.DoRequest(req)
+func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (*resource.EnvVar, error) {
+	var envVarResponse resource.EnvVarResponse
+	err := c.client.patch(joinPath(AppsPath, appGUID, "environment_variables"), envRequest, &envVarResponse)
 	if err != nil {
-		return result.EnvVar, fmt.Errorf("error setting app env variables for %s: %w", appGUID, err)
+		return nil, err
 	}
-
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result.EnvVar, fmt.Errorf("error parsing JSON for app env: %w", err)
-	}
-
-	return result.EnvVar, nil
+	return &envVarResponse.EnvVar, nil
 }
 
 func (c *AppClient) Start(guid string) (*resource.App, error) {
-	req := c.client.NewRequest("POST", "/v3/apps/"+guid+"/actions/start")
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while starting app: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error starting app with GUID [%s], response code: %d", guid, resp.StatusCode)
-	}
-
 	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, fmt.Errorf("error reading app JSON: %w", err)
+	err := c.client.post(guid, joinPath(AppsPath, guid, "actions/start"), nil, &app)
+	if err != nil {
+		return nil, err
 	}
-
 	return &app, nil
 }
 
 func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resource.App, error) {
-	req := c.client.NewRequest("PATCH", "/v3/apps/"+appGUID)
 	params := make(map[string]interface{})
 	if r.Name != "" {
 		params["name"] = r.Name
@@ -213,26 +218,10 @@ func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resour
 	if r.Metadata != nil {
 		params["metadata"] = r.Metadata
 	}
-	if len(params) > 0 {
-		req.obj = params
-	}
-
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while updating app: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error updating app %s, response code: %d", appGUID, resp.StatusCode)
-	}
-
 	var app resource.App
-	if err := json.NewDecoder(resp.Body).Decode(&app); err != nil {
-		return nil, fmt.Errorf("error reading app JSON: %w", err)
+	err := c.client.patch("/v3/apps/"+appGUID, params, &app)
+	if err != nil {
+		return nil, err
 	}
-
 	return &app, nil
 }

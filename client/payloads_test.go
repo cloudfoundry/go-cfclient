@@ -1,6 +1,6 @@
 package client
 
-const listAppsPayload = `{
+const listAppsPayloadPage1 = `{
   "pagination": {
     "total_results": 2,
     "total_pages": 2,
@@ -86,13 +86,15 @@ const listAppsPayloadPage2 = `{
     "total_results": 2,
     "total_pages": 2,
     "first": {
-      "href": "https://api.example.org/v3/apps?page=1&per_page=2"
+      "href": "https://api.example.org/v3/apps?page=1&per_page=1"
     },
     "last": {
-      "href": "https://api.example.org/v3/apps?page=2&per_page=2"
+      "href": "https://api.example.org/v3/apps?page=2&per_page=1"
     },
     "next": null,
-    "previous": null
+    "previous": {
+      "href": "https://api.example.org/v3/apps?page=1&per_page=1"
+    }
   },
   "resources": [
     {

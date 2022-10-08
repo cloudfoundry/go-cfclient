@@ -59,5 +59,5 @@ type EnvVarResponse struct {
 
 type ListAppsResponse struct {
 	Pagination Pagination `json:"pagination,omitempty"`
-	Resources  []App      `json:"resources,omitempty"`
+	Resources  []*App     `json:"resources,omitempty"`
 }

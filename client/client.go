@@ -441,14 +441,78 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 	return buf, nil
 }
 
-func extractPathFromURL(requestURL string) (string, error) {
-	u, err := url.Parse(requestURL)
+func (c *Client) delete(path string) error {
+	req := c.NewRequest("DELETE", path)
+	resp, err := c.DoRequest(req)
 	if err != nil {
-		return "", err
+		return fmt.Errorf("error deleting %s: %w", path, err)
 	}
-	result := u.Path
-	if q := u.Query().Encode(); q != "" {
-		result = result + "?" + q
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusAccepted {
+		return fmt.Errorf("error deleting %s, response code: %d", path, resp.StatusCode)
 	}
-	return result, nil
+	return nil
+}
+
+func (c *Client) get(path string, result any) error {
+	req := c.NewRequest("GET", path)
+
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return fmt.Errorf("error getting %s: %w", path, err)
+	}
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error getting %s, response code: %d", path, resp.StatusCode)
+	}
+	err = json.NewDecoder(resp.Body).Decode(result)
+	if err != nil {
+		return fmt.Errorf("error decoding %s get response JSON: %w", path, err)
+	}
+	return nil
+}
+
+func (c *Client) patch(path string, params any, result any) error {
+	req := c.NewRequest("PATCH", path)
+	req.obj = params
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return fmt.Errorf("error updating %s: %w", path, err)
+	}
+
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return fmt.Errorf("error decoding %s patch response JSON: %w", path, err)
+	}
+	return nil
+}
+
+func (c *Client) post(id, path string, params map[string]any, result any) error {
+	req := c.NewRequest("POST", path)
+	req.obj = params
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return fmt.Errorf("error creating %s/%s: %w", path, id, err)
+	}
+	defer func(b io.ReadCloser) {
+		_ = b.Close()
+	}(resp.Body)
+
+	// This always be created but some resource return OK on POST like starting an app
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error creating %s/%s, response code: %d", path, id, resp.StatusCode)
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return fmt.Errorf("error decoding %s/%s post response JSON: %w", path, id, err)
+	}
+	return nil
 }
