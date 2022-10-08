@@ -1,11 +1,10 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
-
-	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
 func TestCreateApp(t *testing.T) {
@@ -166,16 +165,43 @@ func TestUpdateApp(t *testing.T) {
 	require.Equal(t, "false", app.Metadata.Labels["internet-facing"])
 }
 
-func TestListAppsByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/apps", []string{listAppsPayload, listAppsPayloadPage2}, "", http.StatusOK, "", nil}, t)
+func TestListApps(t *testing.T) {
+	setup(MockRoute{"GET", "/v3/apps", []string{listAppsPayloadPage1}, "", http.StatusOK, "", nil}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
 	client, err := New(c)
 	require.NoError(t, err)
 
-	apps, err := client.Applications.ListByQuery(nil)
+	opts := NewAppListOptions()
+	apps, _, err := client.Applications.List(opts)
 	require.NoError(t, err)
+	require.Len(t, apps, 1)
+
+	require.Equal(t, "1cb006ee-fb05-47e1-b541-c34179ddc446", apps[0].GUID)
+	require.Equal(t, "my_app", apps[0].Name)
+	require.Equal(t, "java_buildpack", apps[0].Lifecycle.BuildpackData.Buildpacks[0])
+}
+
+func TestListAllApps(t *testing.T) {
+	mr := MockRoute{
+		"GET",
+		"/v3/apps",
+		[]string{listAppsPayloadPage1, listAppsPayloadPage2},
+		"",
+		http.StatusOK,
+		"",
+		nil}
+	setup(mr, t)
+	defer teardown()
+
+	c, _ := NewTokenConfig(server.URL, "foobar")
+	client, err := New(c)
+	require.NoError(t, err)
+
+	apps, err := client.Applications.ListAll()
+	require.NoError(t, err)
+
 	require.Len(t, apps, 2)
 
 	require.Equal(t, "my_app", apps[0].Name)

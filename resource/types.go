@@ -7,7 +7,7 @@ type Meta struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// Pagination is used by the  apis
+// Pagination is used by the apis to page list results
 type Pagination struct {
 	TotalResults int  `json:"total_results"`
 	TotalPages   int  `json:"total_pages"`
@@ -17,7 +17,7 @@ type Pagination struct {
 	Previous     Link `json:"previous"`
 }
 
-// Link is a HATEOAS-style link for  apis
+// Link is a HATEOAS-style link for apis
 type Link struct {
 	Href   string `json:"href"`
 	Method string `json:"method,omitempty"`
