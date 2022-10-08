@@ -19,6 +19,7 @@ const (
 	UpdatedAtsField    = "updated_ats"
 	IncludeField       = "include"
 	GUIDsField         = "guids"
+	NamesField         = "names"
 )
 
 // ListOptions is the shared common type for all other list option types

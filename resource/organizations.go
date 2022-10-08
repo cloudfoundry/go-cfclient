@@ -24,6 +24,6 @@ type UpdateOrganizationRequest struct {
 }
 
 type ListOrganizationsResponse struct {
-	Pagination Pagination     `json:"pagination,omitempty"`
-	Resources  []Organization `json:"resources,omitempty"`
+	Pagination Pagination      `json:"pagination,omitempty"`
+	Resources  []*Organization `json:"resources,omitempty"`
 }
