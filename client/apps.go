@@ -13,7 +13,6 @@ const (
 	StacksField            = "stacks"
 	SpaceGUIDsField        = "space_guids"
 	OrganizationGUIDsField = "organization_guids"
-	NamesField             = "names"
 	LifecycleTypeField     = "lifecycle_type"
 )
 
@@ -207,7 +206,7 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
-func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resource.App, error) {
+func (c *AppClient) Update(guid string, r resource.UpdateAppRequest) (*resource.App, error) {
 	params := make(map[string]interface{})
 	if r.Name != "" {
 		params["name"] = r.Name
@@ -218,8 +217,9 @@ func (c *AppClient) Update(appGUID string, r resource.UpdateAppRequest) (*resour
 	if r.Metadata != nil {
 		params["metadata"] = r.Metadata
 	}
+
 	var app resource.App
-	err := c.client.patch("/v3/apps/"+appGUID, params, &app)
+	err := c.client.patch(joinPath(AppsPath, guid), params, &app)
 	if err != nil {
 		return nil, err
 	}

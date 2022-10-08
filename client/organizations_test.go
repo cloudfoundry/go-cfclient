@@ -86,7 +86,7 @@ func TestUpdateOrganization(t *testing.T) {
 	require.Equal(t, "org_value", organization.Metadata.Labels["ORG_KEY"])
 }
 
-func TestListOrganizationsByQuery(t *testing.T) {
+func TestListAll(t *testing.T) {
 	setup(MockRoute{"GET", "/v3/organizations", []string{listOrganizationsPayload, listOrganizationsPayloadPage2}, "", http.StatusOK, "", nil}, t)
 	defer teardown()
 
@@ -94,7 +94,7 @@ func TestListOrganizationsByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organizations, err := client.Organizations.ListByQuery(nil)
+	organizations, err := client.Organizations.ListAll()
 	require.NoError(t, err)
 	require.Len(t, organizations, 2)
 
