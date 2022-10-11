@@ -104,3 +104,13 @@ func (c *Client) DeleteDroplet(dropletGUID string) error {
 
 	return nil
 }
+
+func (c *Client) GetDroplet(dropletGUID string) (*http.Response, error) {
+	req := c.NewRequest("GET", "/v3/droplets/"+dropletGUID)
+	resp, err := c.DoRequest(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Error getting droplet %s", dropletGUID)
+	}
+
+	return resp, nil
+}

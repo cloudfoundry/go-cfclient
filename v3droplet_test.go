@@ -60,3 +60,18 @@ func TestDeleteDroplet(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestGetDroplet(t *testing.T) {
+	Convey("Get Droplet", t, func() {
+		setup(MockRoute{"Get", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{""}, "", http.StatusAccepted, "", nil}, t)
+		defer teardown()
+
+		c := &Config{ApiAddress: server.URL, Token: "foobar"}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		resp, err := client.GetDroplet("59c3d133-2b83-46f3-960e-7765a129aea4")
+		So(err, ShouldBeNil)
+		So(resp, ShouldNotBeNil)
+	})
+}
