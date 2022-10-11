@@ -11,19 +11,19 @@ type Organization struct {
 	Metadata      Metadata                     `json:"metadata,omitempty"`
 }
 
-type CreateOrganizationRequest struct {
-	Name      string
-	Suspended *bool `json:"suspended,omitempty"`
-	Metadata  *Metadata
+type OrganizationCreate struct {
+	Name      string    `json:"name"`
+	Suspended *bool     `json:"suspended,omitempty"`
+	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
-type UpdateOrganizationRequest struct {
-	Name      string
-	Suspended *bool `json:"suspended,omitempty"`
-	Metadata  *Metadata
+type OrganizationUpdate struct {
+	Name      string    `json:"name,omitempty"`
+	Suspended *bool     `json:"suspended,omitempty"`
+	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
-type ListOrganizationsResponse struct {
+type OrganizationList struct {
 	Pagination Pagination      `json:"pagination,omitempty"`
 	Resources  []*Organization `json:"resources,omitempty"`
 }

@@ -100,29 +100,9 @@ func (a AppListOptions) ToQuerystring() url.Values {
 	return v
 }
 
-func (c *AppClient) Create(r resource.CreateAppRequest) (*resource.App, error) {
-	params := map[string]interface{}{
-		"name": r.Name,
-		"relationships": map[string]interface{}{
-			"space": resource.ToOneRelationship{
-				Data: resource.Relationship{
-					GUID: r.SpaceGUID,
-				},
-			},
-		},
-	}
-	if len(r.EnvironmentVariables) > 0 {
-		params["environment_variables"] = r.EnvironmentVariables
-	}
-	if r.Lifecycle != nil {
-		params["lifecycle"] = r.Lifecycle
-	}
-	if r.Metadata != nil {
-		params["metadata"] = r.Metadata
-	}
-
+func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(r.Name, AppsPath, params, &app)
+	err := c.client.post(r.Name, AppsPath, r, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +141,7 @@ func (c *AppClient) GetInclude(guid string, include AppIncludeType) (*resource.A
 }
 
 func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
-	var res resource.ListAppsResponse
+	var res resource.AppList
 	err := c.client.get(joinPathAndQS(opts.ToQuerystring(), AppsPath), &res)
 	if err != nil {
 		return nil, nil, err
@@ -206,20 +186,9 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
-func (c *AppClient) Update(guid string, r resource.UpdateAppRequest) (*resource.App, error) {
-	params := make(map[string]interface{})
-	if r.Name != "" {
-		params["name"] = r.Name
-	}
-	if r.Lifecycle != nil {
-		params["lifecycle"] = r.Lifecycle
-	}
-	if r.Metadata != nil {
-		params["metadata"] = r.Metadata
-	}
-
+func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.patch(joinPath(AppsPath, guid), params, &app)
+	err := c.client.patch(joinPath(AppsPath, guid), r, &app)
 	if err != nil {
 		return nil, err
 	}

@@ -26,15 +26,40 @@ type BuildpackLifecycle struct {
 	Stack      string   `json:"stack,omitempty"`
 }
 
-type CreateAppRequest struct {
-	Name                 string
-	SpaceGUID            string
-	EnvironmentVariables map[string]string
-	Lifecycle            *Lifecycle
-	Metadata             *Metadata
+type AppCreate struct {
+	Name                 string                 `json:"name"`
+	Relationships        AppCreateRelationships `json:"relationships"`
+	EnvironmentVariables map[string]string      `json:"environment_variables,omitempty"`
+	Lifecycle            *Lifecycle             `json:"lifecycle,omitempty"`
+	Metadata             *Metadata              `json:"metadata,omitempty"`
 }
 
-type UpdateAppRequest struct {
+type AppCreateRelationships struct {
+	Space AppCreateSpace `json:"space"`
+}
+
+type AppCreateSpace struct {
+	Data AppCreateData `json:"data"`
+}
+
+type AppCreateData struct {
+	GUID string `json:"guid"`
+}
+
+func NewAppCreate(name, spaceGUID string) *AppCreate {
+	return &AppCreate{
+		Name: name,
+		Relationships: AppCreateRelationships{
+			Space: AppCreateSpace{
+				Data: AppCreateData{
+					GUID: spaceGUID,
+				},
+			},
+		},
+	}
+}
+
+type AppUpdate struct {
 	Name      string     `json:"name"`
 	Lifecycle *Lifecycle `json:"lifecycle"`
 	Metadata  *Metadata  `json:"metadata"`
@@ -57,7 +82,7 @@ type EnvVarResponse struct {
 	Links map[string]Link `json:"links"`
 }
 
-type ListAppsResponse struct {
+type AppList struct {
 	Pagination Pagination `json:"pagination,omitempty"`
 	Resources  []*App     `json:"resources,omitempty"`
 }

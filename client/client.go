@@ -495,7 +495,7 @@ func (c *Client) patch(path string, params any, result any) error {
 	return nil
 }
 
-func (c *Client) post(id, path string, params map[string]any, result any) error {
+func (c *Client) post(id, path string, params any, result any) error {
 	req := c.NewRequest("POST", path)
 	req.obj = params
 	resp, err := c.DoRequest(req)
@@ -506,7 +506,7 @@ func (c *Client) post(id, path string, params map[string]any, result any) error 
 		_ = b.Close()
 	}(resp.Body)
 
-	// This always be created but some resource return OK on POST like starting an app
+	// This should always be created but some resources return OK on POST like starting an app
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error creating %s/%s, response code: %d", path, id, resp.StatusCode)
 	}

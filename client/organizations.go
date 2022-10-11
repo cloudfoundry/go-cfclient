@@ -30,19 +30,9 @@ func (a OrgListOptions) ToQuerystring() url.Values {
 	return v
 }
 
-func (o *OrgClient) Create(r resource.CreateOrganizationRequest) (*resource.Organization, error) {
-	params := map[string]interface{}{
-		"name": r.Name,
-	}
-	if r.Suspended != nil {
-		params["suspended"] = r.Suspended
-	}
-	if r.Metadata != nil {
-		params["metadata"] = r.Metadata
-	}
-
+func (o *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organization, error) {
 	var org resource.Organization
-	err := o.client.post(r.Name, OrgsPath, params, &org)
+	err := o.client.post(r.Name, OrgsPath, r, &org)
 	if err != nil {
 		return nil, err
 	}
@@ -79,31 +69,21 @@ func (o *OrgClient) ListAll() ([]*resource.Organization, error) {
 }
 
 func (o *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
-	var res resource.ListOrganizationsResponse
+	var res resource.OrganizationList
 	err := o.client.get(joinPathAndQS(opts.ToQuerystring(), OrgsPath), &res)
 	if err != nil {
 		return nil, nil, err
 	}
+
 	pager := &Pager{
 		pagination: res.Pagination,
 	}
 	return res.Resources, pager, nil
 }
 
-func (o *OrgClient) Update(guid string, r resource.UpdateOrganizationRequest) (*resource.Organization, error) {
-	params := make(map[string]interface{})
-	if r.Name != "" {
-		params["name"] = r.Name
-	}
-	if r.Suspended != nil {
-		params["suspended"] = r.Suspended
-	}
-	if r.Metadata != nil {
-		params["metadata"] = r.Metadata
-	}
-
+func (o *OrgClient) Update(guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
 	var org resource.Organization
-	err := o.client.patch(joinPath(OrgsPath, guid), params, &org)
+	err := o.client.patch(joinPath(OrgsPath, guid), r, &org)
 	if err != nil {
 		return nil, err
 	}
