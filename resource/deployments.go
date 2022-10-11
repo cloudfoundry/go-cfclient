@@ -1,5 +1,7 @@
 package resource
 
+import "time"
+
 type CreateDeploymentOptionalParameters struct {
 	Droplet  *Relationship       `json:"droplet,omitempty"`
 	Revision *DeploymentRevision `json:"revision,omitempty"`
@@ -39,8 +41,8 @@ type Deployment struct {
 	PreviousDroplet Relationship                 `json:"previous_droplet"`
 	NewProcesses    []ProcessReference           `json:"new_processes"`
 	Revision        DeploymentRevision           `json:"revision"`
-	CreatedAt       string                       `json:"created_at,omitempty"`
-	UpdatedAt       string                       `json:"updated_at,omitempty"`
+	CreatedAt       time.Time                    `json:"created_at"`
+	UpdatedAt       time.Time                    `json:"updated_at"`
 	Links           map[string]Link              `json:"links,omitempty"`
 	Metadata        Metadata                     `json:"metadata,omitempty"`
 	Relationships   map[string]ToOneRelationship `json:"relationships,omitempty"`

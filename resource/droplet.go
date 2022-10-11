@@ -1,16 +1,18 @@
 package resource
 
+import "time"
+
 // Droplet is the result of staging an application package.
 // There are two types (lifecycles) of droplets: buildpack and
 // docker. In the case of buildpacks, the droplet contains the
 // bits produced by the buildpack.
 type Droplet struct {
+	GUID              string            `json:"guid"`
+	CreatedAt         time.Time         `json:"created_at"`
+	UpdatedAt         time.Time         `json:"updated_at"`
 	State             string            `json:"state,omitempty"`
 	Error             string            `json:"error,omitempty"`
 	Lifecycle         Lifecycle         `json:"lifecycle,omitempty"`
-	GUID              string            `json:"guid,omitempty"`
-	CreatedAt         string            `json:"created_at,omitempty"`
-	UpdatedAt         string            `json:"updated_at,omitempty"`
 	Links             map[string]Link   `json:"links,omitempty"`
 	ExecutionMetadata string            `json:"execution_metadata,omitempty"`
 	ProcessTypes      map[string]string `json:"process_types,omitempty"`

@@ -1,10 +1,12 @@
 package resource
 
+import "time"
+
 type Meta struct {
-	GUID      string `json:"guid"`
-	Url       string `json:"url"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	GUID      string    `json:"guid"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Url       string    `json:"url"`
 }
 
 // Pagination is used by the apis to page list results

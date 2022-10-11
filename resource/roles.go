@@ -1,10 +1,12 @@
 package resource
 
+import "time"
+
 // Role implements role object. Roles control access to resources in organizations and spaces. Roles are assigned to users.
 type Role struct {
-	GUID          string                       `json:"guid,omitempty"`
-	CreatedAt     string                       `json:"created_at,omitempty"`
-	UpdatedAt     string                       `json:"updated_at,omitempty"`
+	GUID          string                       `json:"guid"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
 	Type          string                       `json:"type,omitempty"`
 	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link              `json:"links,omitempty"`

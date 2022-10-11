@@ -2,15 +2,16 @@ package resource
 
 import (
 	"encoding/json"
+	"time"
 )
 
 type App struct {
-	Name          string                       `json:"name,omitempty"`
+	GUID          string                       `json:"guid"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
+	Name          string                       `json:"name"`
 	State         string                       `json:"state,omitempty"`
 	Lifecycle     Lifecycle                    `json:"lifecycle,omitempty"`
-	GUID          string                       `json:"guid,omitempty"`
-	CreatedAt     string                       `json:"created_at,omitempty"`
-	UpdatedAt     string                       `json:"updated_at,omitempty"`
 	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link              `json:"links,omitempty"`
 	Metadata      Metadata                     `json:"metadata,omitempty"`

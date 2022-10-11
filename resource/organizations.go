@@ -1,11 +1,13 @@
 package resource
 
+import "time"
+
 type Organization struct {
-	Name          string                       `json:"name,omitempty"`
-	GUID          string                       `json:"guid,omitempty"`
+	GUID          string                       `json:"guid"`
+	Name          string                       `json:"name"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
 	Suspended     *bool                        `json:"suspended,omitempty"`
-	CreatedAt     string                       `json:"created_at,omitempty"`
-	UpdatedAt     string                       `json:"updated_at,omitempty"`
 	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link              `json:"links,omitempty"`
 	Metadata      Metadata                     `json:"metadata,omitempty"`
