@@ -16,11 +16,9 @@ func TestCreateApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.Applications.Create(resource.CreateAppRequest{
-		Name:                 "my-app",
-		SpaceGUID:            "space-guid",
-		EnvironmentVariables: map[string]string{"FOO": "BAR"},
-	})
+	r := resource.NewAppCreate("my-app", "space-guid")
+	r.EnvironmentVariables = map[string]string{"FOO": "BAR"}
+	app, err := client.Applications.Create(r)
 	require.NoError(t, err)
 	require.NotNil(t, app)
 
@@ -147,7 +145,7 @@ func TestUpdateApp(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	app, err := client.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", resource.UpdateAppRequest{})
+	app, err := client.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", &resource.AppUpdate{})
 	require.NoError(t, err)
 	require.NotNil(t, app)
 

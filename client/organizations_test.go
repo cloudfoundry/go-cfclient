@@ -17,7 +17,7 @@ func TestCreateOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.Organizations.Create(resource.CreateOrganizationRequest{
+	organization, err := client.Organizations.Create(&resource.OrganizationCreate{
 		Name: "my-org",
 	})
 	require.NoError(t, err)
@@ -71,7 +71,7 @@ func TestUpdateOrganization(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organization, err := client.Organizations.Update("org-guid", resource.UpdateOrganizationRequest{
+	organization, err := client.Organizations.Update("org-guid", &resource.OrganizationUpdate{
 		Name: "my-org",
 	})
 	require.NoError(t, err)

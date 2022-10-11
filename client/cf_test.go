@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -66,10 +67,11 @@ func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
 		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
-			defer req.Body.Close()
-			if strings.TrimSpace(string(body)) != strings.TrimSpace(*postFormBody) {
-				t.Errorf("Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
-			}
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
+			require.JSONEq(t, *postFormBody, string(body),
+				"Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
 		}
 	}
 }
@@ -80,7 +82,9 @@ func testBodyContains(req *http.Request, expected *string, t *testing.T) {
 		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
-			defer req.Body.Close()
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
 			if !strings.Contains(string(body), *expected) {
 				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", *expected, body)
 			}
