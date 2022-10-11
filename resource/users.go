@@ -1,10 +1,12 @@
 package resource
 
+import "time"
+
 // User implements the user object
 type User struct {
-	GUID             string          `json:"guid,omitempty"`
-	CreatedAt        string          `json:"created_at,omitempty"`
-	UpdatedAt        string          `json:"updated_at,omitempty"`
+	GUID             string          `json:"guid"`
+	CreatedAt        time.Time       `json:"created_at"`
+	UpdatedAt        time.Time       `json:"updated_at"`
 	Username         string          `json:"username,omitempty"`
 	PresentationName string          `json:"presentation_name,omitempty"`
 	Origin           string          `json:"origin,omitempty"`

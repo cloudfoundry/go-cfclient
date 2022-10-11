@@ -18,11 +18,11 @@ type ServiceCredentialBindings struct {
 }
 
 type LastOperation struct {
-	Type        string `json:"type"`
-	State       string `json:"state"`
-	Description string `json:"description"`
-	UpdatedAt   string `json:"updated_at"`
-	CreatedAt   string `json:"created_at"`
+	Type        string    `json:"type"`
+	State       string    `json:"state"`
+	Description string    `json:"description"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type ListServiceCredentialBindingsResponse struct {

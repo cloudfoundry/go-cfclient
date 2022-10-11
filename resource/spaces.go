@@ -1,13 +1,15 @@
 package resource
 
+import "time"
+
 type Space struct {
-	Name          string                       `json:"name,omitempty"`
-	GUID          string                       `json:"guid,omitempty"`
-	CreatedAt     string                       `json:"created_at,omitempty"`
-	UpdatedAt     string                       `json:"updated_at,omitempty"`
-	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
-	Links         map[string]Link              `json:"links,omitempty"`
-	Metadata      Metadata                     `json:"metadata,omitempty"`
+	GUID          string                       `json:"guid"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
+	Name          string                       `json:"name"`
+	Relationships map[string]ToOneRelationship `json:"relationships"`
+	Links         map[string]Link              `json:"links"`
+	Metadata      Metadata                     `json:"metadata"`
 }
 
 type CreateSpaceRequest struct {
@@ -22,10 +24,10 @@ type UpdateSpaceRequest struct {
 }
 
 type SpaceUsers struct {
-	Name          string                       `json:"name,omitempty"`
-	GUID          string                       `json:"guid,omitempty"`
-	CreatedAt     string                       `json:"created_at,omitempty"`
-	UpdatedAt     string                       `json:"updated_at,omitempty"`
+	GUID          string                       `json:"guid"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
+	Name          string                       `json:"name"`
 	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link              `json:"links,omitempty"`
 	Metadata      Metadata                     `json:"metadata,omitempty"`

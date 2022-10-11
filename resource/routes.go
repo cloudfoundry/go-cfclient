@@ -1,16 +1,14 @@
 package resource
 
-import (
-	"time"
-)
+import "time"
 
 type Route struct {
 	Guid          string                       `json:"guid"`
+	CreatedAt     time.Time                    `json:"created_at"`
+	UpdatedAt     time.Time                    `json:"updated_at"`
 	Host          string                       `json:"host"`
 	Path          string                       `json:"path"`
 	Url           string                       `json:"url"`
-	CreatedAt     time.Time                    `json:"created_at"`
-	UpdatedAt     time.Time                    `json:"updated_at"`
 	Metadata      Metadata                     `json:"metadata"`
 	Relationships map[string]ToOneRelationship `json:"relationships"`
 	Links         map[string]Link              `json:"links"`
