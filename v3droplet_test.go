@@ -63,7 +63,7 @@ func TestDeleteDroplet(t *testing.T) {
 
 func TestGetDroplet(t *testing.T) {
 	Convey("Get Droplet", t, func() {
-		setup(MockRoute{"Get", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{""}, "", http.StatusAccepted, "", nil}, t)
+		setup(MockRoute{"GET", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getV3CurrentAppDropletPayload}, "", http.StatusOK, "", nil}, t)
 		defer teardown()
 
 		c := &Config{ApiAddress: server.URL, Token: "foobar"}

@@ -33,8 +33,16 @@ type V3Droplet struct {
 		Type  string `json:"type,omitempty"`
 		Value string `json:"value,omitempty"`
 	} `json:"checksum,omitempty"`
-	Stack      string                `json:"stack,omitempty"`
-	Buildpacks []V3DetectedBuildpack `json:"buildpacks,omitempty"`
+	Stack         string                `json:"stack,omitempty"`
+	Buildpacks    []V3DetectedBuildpack `json:"buildpacks,omitempty"`
+	Relationships V3Relationships       `json:"relationships,omitempty"`
+}
+type V3Relationships struct {
+	App struct {
+		Data struct {
+			GUID string `json:"guid,omitempty"`
+		} `json:"data,omitempty"`
+	} `json:"app,omitempty"`
 }
 
 type V3DetectedBuildpack struct {
@@ -105,12 +113,20 @@ func (c *Client) DeleteDroplet(dropletGUID string) error {
 	return nil
 }
 
-func (c *Client) GetDroplet(dropletGUID string) (*http.Response, error) {
+func (c *Client) GetDroplet(dropletGUID string) (*V3Droplet, error) {
 	req := c.NewRequest("GET", "/v3/droplets/"+dropletGUID)
 	resp, err := c.DoRequest(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error getting droplet %s", dropletGUID)
 	}
+	defer resp.Body.Close()
 
-	return resp, nil
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error getting droplet for v3 droplet with GUID [%s], response code: %d", dropletGUID, resp.StatusCode)
+	}
+	var r V3Droplet
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		return nil, errors.Wrap(err, "Error reading droplet response JSON")
+	}
+	return &r, nil
 }
