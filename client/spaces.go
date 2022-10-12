@@ -98,9 +98,10 @@ func (c *SpaceClient) ListAll() ([]*resource.Space, error) {
 			return nil, err
 		}
 		allSpaces = append(allSpaces, spaces...)
-		if !pager.NextPage(opts.ListOptions) {
+		if !pager.HasNextPage() {
 			break
 		}
+		opts.ListOptions = pager.NextPage(opts.ListOptions)
 	}
 	return allSpaces, nil
 }
@@ -125,9 +126,10 @@ func (c *SpaceClient) ListUsersAll(spaceGUID string) ([]*resource.User, error) {
 			return nil, err
 		}
 		allUsers = append(allUsers, users...)
-		if !pager.NextPage(opts) {
+		if !pager.HasNextPage() {
 			break
 		}
+		opts = pager.NextPage(opts)
 	}
 	return allUsers, nil
 }
