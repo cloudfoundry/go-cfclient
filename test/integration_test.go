@@ -1,11 +1,20 @@
+//go:build integration
+// +build integration
+
 package test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/cloudfoundry-community/go-cfclient/client"
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"github.com/stretchr/testify/require"
-	"testing"
+)
+
+const (
+	OrgName   = "go-cfclient-e2e"
+	SpaceName = "go-cfclient-e2e"
 )
 
 func TestEndToEnd(t *testing.T) {
@@ -17,7 +26,7 @@ func TestEndToEnd(t *testing.T) {
 func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 	opts := client.NewOrgListOptions()
 	opts.Names = client.Filter{
-		Values: []string{"e2e-test-org"},
+		Values: []string{OrgName},
 	}
 	orgs, _, err := c.Organizations.List(opts)
 	require.NoError(t, err)
@@ -27,12 +36,12 @@ func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 		org = orgs[0]
 	} else {
 		oc := &resource.OrganizationCreate{
-			Name: "e2e-test-org",
+			Name: OrgName,
 		}
 		org, err = c.Organizations.Create(oc)
 		require.NoError(t, err)
 	}
-	require.Equal(t, "e2e-test-org", org.Name)
+	require.Equal(t, OrgName, org.Name)
 	require.NotEmpty(t, org.GUID)
 	require.NotEmpty(t, org.CreatedAt)
 	require.NotEmpty(t, org.UpdatedAt)
@@ -40,8 +49,28 @@ func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 }
 
 func getSpace(t *testing.T, c *client.Client) *resource.Space {
-	// TODO find/create space
-	return nil
+	opts := client.NewSpaceListOptions()
+	opts.Names = client.Filter{
+		Values: []string{SpaceName},
+	}
+	spaces, _, err := c.Spaces.List(opts)
+	require.NoError(t, err)
+
+	var space *resource.Space
+	if len(spaces) > 0 {
+		space = spaces[0]
+	} else {
+		sc := &resource.SpaceCreate{
+			Name: SpaceName,
+		}
+		space, err = c.Spaces.Create(sc)
+		require.NoError(t, err)
+	}
+	require.Equal(t, SpaceName, space.Name)
+	require.NotEmpty(t, space.GUID)
+	require.NotEmpty(t, space.CreatedAt)
+	require.NotEmpty(t, space.UpdatedAt)
+	return space
 }
 
 func createClient(t *testing.T) *client.Client {

@@ -12,33 +12,55 @@ type Space struct {
 	Metadata      Metadata                     `json:"metadata"`
 }
 
-type CreateSpaceRequest struct {
-	Name     string
-	OrgGUID  string
-	Metadata *Metadata
+type SpaceCreate struct {
+	Name          string                   `json:"name"`
+	Relationships SpaceCreateRelationships `json:"relationships"`
+	Metadata      *Metadata                `json:"metadata,omitempty"`
+}
+type SpaceCreateData struct {
+	GUID string `json:"guid"`
+}
+type SpaceCreateOrganization struct {
+	Data SpaceCreateData `json:"data"`
+}
+type SpaceCreateRelationships struct {
+	Organization SpaceCreateOrganization `json:"organization"`
 }
 
-type UpdateSpaceRequest struct {
-	Name     string
-	Metadata *Metadata
+func NewSpaceCreate(name, orgGUID string) *SpaceCreate {
+	return &SpaceCreate{
+		Name: name,
+		Relationships: SpaceCreateRelationships{
+			Organization: SpaceCreateOrganization{
+				Data: SpaceCreateData{
+					GUID: orgGUID,
+				},
+			},
+		},
+	}
 }
 
-type SpaceUsers struct {
+type SpaceUpdate struct {
+	Name     string    `json:"name,omitempty"`
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
+
+type SpaceList struct {
+	Pagination Pagination `json:"pagination"`
+	Resources  []*Space   `json:"resources"`
+}
+
+type SpaceUser struct {
 	GUID          string                       `json:"guid"`
 	CreatedAt     time.Time                    `json:"created_at"`
 	UpdatedAt     time.Time                    `json:"updated_at"`
 	Name          string                       `json:"name"`
-	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
-	Links         map[string]Link              `json:"links,omitempty"`
-	Metadata      Metadata                     `json:"metadata,omitempty"`
+	Relationships map[string]ToOneRelationship `json:"relationships"`
+	Links         map[string]Link              `json:"links"`
+	Metadata      Metadata                     `json:"metadata"`
 }
 
-type ListSpacesResponse struct {
-	Pagination Pagination `json:"pagination,omitempty"`
-	Resources  []Space    `json:"resources,omitempty"`
-}
-
-type ListSpaceUsersResponse struct {
-	Pagination Pagination `json:"pagination,omitempty"`
-	Resources  []User     `json:"resources,omitempty"`
+type SpaceUserList struct {
+	Pagination Pagination `json:"pagination"`
+	Resources  []*User    `json:"resources"`
 }

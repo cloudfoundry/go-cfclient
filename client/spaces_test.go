@@ -1,9 +1,10 @@
 package client
 
 import (
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
@@ -17,10 +18,8 @@ func TestCreateSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	space, err := client.Spaces.Create(resource.CreateSpaceRequest{
-		Name:    "my-space",
-		OrgGUID: "org-guid",
-	})
+	sc := resource.NewSpaceCreate("my-space", "org-guid")
+	space, err := client.Spaces.Create(sc)
 	require.NoError(t, err)
 	require.NotNil(t, space)
 
@@ -72,9 +71,10 @@ func TestUpdateSpace(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	space, err := client.Spaces.Update("space-guid", resource.UpdateSpaceRequest{
+	su := &resource.SpaceUpdate{
 		Name: "my-space",
-	})
+	}
+	space, err := client.Spaces.Update("space-guid", su)
 	require.NoError(t, err)
 	require.NotNil(t, space)
 
@@ -95,7 +95,7 @@ func TestListSpacesByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	spaces, err := client.Spaces.ListByQuery(nil)
+	spaces, err := client.Spaces.ListAll()
 	require.NoError(t, err)
 	require.Len(t, spaces, 2)
 
@@ -116,7 +116,7 @@ func TestListSpaceUsersByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	users, err := client.Spaces.ListUsers("space-guid")
+	users, err := client.Spaces.ListUsersAll("space-guid")
 	require.NoError(t, err)
 	require.Len(t, users, 2)
 
