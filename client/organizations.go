@@ -52,6 +52,19 @@ func (o *OrgClient) Get(guid string) (*resource.Organization, error) {
 	return &org, nil
 }
 
+func (o *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+	var res resource.OrganizationList
+	err := o.client.get(joinPathAndQS(opts.ToQuerystring(), OrgsPath), &res)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pager := &Pager{
+		pagination: res.Pagination,
+	}
+	return res.Resources, pager, nil
+}
+
 func (o *OrgClient) ListAll() ([]*resource.Organization, error) {
 	opts := NewOrgListOptions()
 	var allOrgs []*resource.Organization
@@ -66,19 +79,6 @@ func (o *OrgClient) ListAll() ([]*resource.Organization, error) {
 		}
 	}
 	return allOrgs, nil
-}
-
-func (o *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
-	var res resource.OrganizationList
-	err := o.client.get(joinPathAndQS(opts.ToQuerystring(), OrgsPath), &res)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	pager := &Pager{
-		pagination: res.Pagination,
-	}
-	return res.Resources, pager, nil
 }
 
 func (o *OrgClient) Update(guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
