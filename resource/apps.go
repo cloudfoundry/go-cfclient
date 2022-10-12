@@ -19,7 +19,7 @@ type App struct {
 
 type Lifecycle struct {
 	Type          string             `json:"type,omitempty"`
-	BuildpackData BuildpackLifecycle `json:"data,omitempty"`
+	BuildpackData BuildpackLifecycle `json:"data,omitempty"` // TODO: support other lifecycles
 }
 
 type BuildpackLifecycle struct {
