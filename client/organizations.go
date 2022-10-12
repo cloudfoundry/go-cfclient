@@ -62,9 +62,10 @@ func (o *OrgClient) ListAll() ([]*resource.Organization, error) {
 			return nil, err
 		}
 		allOrgs = append(allOrgs, orgs...)
-		if !pager.NextPage(opts.ListOptions) {
+		if !pager.HasNextPage() {
 			break
 		}
+		opts.ListOptions = pager.NextPage(opts.ListOptions)
 	}
 	return allOrgs, nil
 }

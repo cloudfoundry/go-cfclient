@@ -1,14 +1,19 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"errors"
 	"net/url"
 	"strconv"
+
+	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
 type Pager struct {
 	NextPageURL     string
 	PreviousPageURL string
+
+	nextPageQSReader     *querystringReader
+	previousPageQSReader *querystringReader
 }
 
 func NewPager(pagination resource.Pagination) *Pager {
@@ -18,40 +23,40 @@ func NewPager(pagination resource.Pagination) *Pager {
 	}
 }
 
-func (p Pager) HasNextPage() bool {
-	return p.NextPageURL != ""
+func (p *Pager) HasNextPage() bool {
+	q, err := newQuerystringReader(p.NextPageURL)
+	if err != nil {
+		return false
+	}
+	p.nextPageQSReader = q
+	return true
 }
 
-func (p Pager) NextPage(opts *ListOptions) bool {
+func (p Pager) NextPage(opts *ListOptions) *ListOptions {
 	if !p.HasNextPage() {
-		return false
+		return opts
 	}
+	opts.Page = p.nextPageQSReader.Int(PageField)
+	opts.PerPage = p.nextPageQSReader.Int(PerPageField)
+	return opts
+}
 
-	qs, err := newQuerystringReader(p.NextPageURL)
+func (p *Pager) HasPreviousPage() bool {
+	q, err := newQuerystringReader(p.PreviousPageURL)
 	if err != nil {
 		return false
 	}
-	opts.Page = qs.Int(PageField)
-	opts.PerPage = qs.Int(PerPageField)
+	p.previousPageQSReader = q
 	return true
 }
 
-func (p Pager) HasPreviousPage() bool {
-	return p.PreviousPageURL != ""
-}
-
-func (p Pager) PreviousPage(opts *ListOptions) bool {
+func (p Pager) PreviousPage(opts *ListOptions) *ListOptions {
 	if !p.HasPreviousPage() {
-		return false
+		return opts
 	}
-
-	qs, err := newQuerystringReader(p.PreviousPageURL)
-	if err != nil {
-		return false
-	}
-	opts.Page = qs.Int(PageField)
-	opts.PerPage = qs.Int(PerPageField)
-	return true
+	opts.Page = p.previousPageQSReader.Int(PageField)
+	opts.PerPage = p.previousPageQSReader.Int(PerPageField)
+	return opts
 }
 
 type querystringReader struct {
@@ -59,6 +64,9 @@ type querystringReader struct {
 }
 
 func newQuerystringReader(pageURL string) (*querystringReader, error) {
+	if pageURL == "" {
+		return nil, errors.New("cannot parse an empty pageURL")
+	}
 	u, err := url.Parse(pageURL)
 	if err != nil {
 		return nil, err

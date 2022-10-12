@@ -1,9 +1,10 @@
 package client
 
 import (
+	"testing"
+
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestQuerystringReader(t *testing.T) {
@@ -22,6 +23,9 @@ func TestQuerystringReader(t *testing.T) {
 	reader, err = newQuerystringReader(u)
 	require.NoError(t, err)
 	require.Equal(t, "id", reader.String("order_by"))
+
+	_, err = newQuerystringReader("")
+	require.Error(t, err)
 }
 
 func TestPager(t *testing.T) {
@@ -79,21 +83,44 @@ func TestPager(t *testing.T) {
 	// First page
 	pager := NewPager(paginationPage1)
 	require.True(t, pager.HasNextPage())
-	require.True(t, pager.NextPage(listOpts))
+	require.False(t, pager.HasPreviousPage())
+	listOpts = pager.NextPage(listOpts)
 	require.Equal(t, 2, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
 	// Second page
 	pager = NewPager(paginationPage2)
 	require.True(t, pager.HasNextPage())
-	require.True(t, pager.NextPage(listOpts))
+	require.True(t, pager.HasPreviousPage())
+	listOpts = pager.NextPage(listOpts)
 	require.Equal(t, 3, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
 	// Third page
 	pager = NewPager(paginationPage3)
 	require.False(t, pager.HasNextPage())
-	require.False(t, pager.NextPage(listOpts))
+	require.True(t, pager.HasPreviousPage())
+	listOpts = pager.NextPage(listOpts)
 	require.Equal(t, 3, listOpts.Page)
+	require.Equal(t, 50, listOpts.PerPage)
+
+	listOpts = pager.PreviousPage(listOpts)
+	require.Equal(t, 2, listOpts.Page)
+	require.Equal(t, 50, listOpts.PerPage)
+
+	// Second page
+	pager = NewPager(paginationPage2)
+	require.True(t, pager.HasNextPage())
+	require.True(t, pager.HasPreviousPage())
+	listOpts = pager.PreviousPage(listOpts)
+	require.Equal(t, 1, listOpts.Page)
+	require.Equal(t, 50, listOpts.PerPage)
+
+	// First page
+	pager = NewPager(paginationPage1)
+	require.True(t, pager.HasNextPage())
+	require.False(t, pager.HasPreviousPage())
+	listOpts = pager.PreviousPage(listOpts)
+	require.Equal(t, 1, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 }

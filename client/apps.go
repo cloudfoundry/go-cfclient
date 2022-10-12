@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"net/url"
+
+	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
 type AppClient commonClient
@@ -132,9 +133,10 @@ func (c *AppClient) ListAll() ([]*resource.App, error) {
 			return nil, err
 		}
 		allApps = append(allApps, apps...)
-		if !pager.NextPage(opts.ListOptions) {
+		if !pager.HasNextPage() {
 			break
 		}
+		opts.ListOptions = pager.NextPage(opts.ListOptions)
 	}
 	return allApps, nil
 }
