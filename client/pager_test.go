@@ -77,27 +77,21 @@ func TestPager(t *testing.T) {
 	require.Equal(t, "", listOpts.OrderBy)
 
 	// First page
-	pager := Pager{
-		pagination: paginationPage1,
-	}
+	pager := NewPager(paginationPage1)
 	require.True(t, pager.HasNextPage())
 	require.True(t, pager.NextPage(listOpts))
 	require.Equal(t, 2, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
 	// Second page
-	pager = Pager{
-		pagination: paginationPage2,
-	}
+	pager = NewPager(paginationPage2)
 	require.True(t, pager.HasNextPage())
 	require.True(t, pager.NextPage(listOpts))
 	require.Equal(t, 3, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
 	// Third page
-	pager = Pager{
-		pagination: paginationPage3,
-	}
+	pager = NewPager(paginationPage3)
 	require.False(t, pager.HasNextPage())
 	require.False(t, pager.NextPage(listOpts))
 	require.Equal(t, 3, listOpts.Page)

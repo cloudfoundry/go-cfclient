@@ -55,22 +55,3 @@ type Filter struct {
 	Values []string
 	Not    bool
 }
-
-func (f Filter) ToQueryString(fieldName string) url.Values {
-	v := url.Values{}
-	if len(f.Values) > 0 {
-		key := fieldName
-		if f.Not {
-			key = key + "[not]"
-		}
-		v.Set(key, strings.Join(f.Values, ","))
-	}
-	return v
-}
-
-func appendQueryStrings(a, b url.Values) url.Values {
-	for k, v := range a {
-		b.Set(k, v[0]) // url.Values get only returns 1st item anyway
-	}
-	return b
-}

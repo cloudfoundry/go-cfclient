@@ -1,8 +1,6 @@
 package client
 
 import (
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
@@ -13,21 +11,14 @@ const OrgsPath = "/v3/organizations"
 type OrgListOptions struct {
 	*ListOptions
 
-	GUIDs Filter
-	Names Filter
+	GUIDs Filter `filter:"guids,omitempty"`
+	Names Filter `filter:"names,omitempty"`
 }
 
 func NewOrgListOptions() *OrgListOptions {
 	return &OrgListOptions{
 		ListOptions: NewListOptions(),
 	}
-}
-
-func (a OrgListOptions) ToQuerystring() url.Values {
-	v := a.ListOptions.ToQueryString()
-	v = appendQueryStrings(v, a.GUIDs.ToQueryString(GUIDsField))
-	v = appendQueryStrings(v, a.Names.ToQueryString(NamesField))
-	return v
 }
 
 func (o *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organization, error) {
@@ -54,14 +45,11 @@ func (o *OrgClient) Get(guid string) (*resource.Organization, error) {
 
 func (o *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
 	var res resource.OrganizationList
-	err := o.client.get(joinPathAndQS(opts.ToQuerystring(), OrgsPath), &res)
+	err := o.client.get(joinPathAndQS(opts.ToQueryString(opts), OrgsPath), &res)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	pager := &Pager{
-		pagination: res.Pagination,
-	}
+	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
 }
 

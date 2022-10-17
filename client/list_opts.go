@@ -15,15 +15,8 @@ const (
 )
 
 const (
-	PageField          = "page"
-	PerPageField       = "per_page"
-	OrderByField       = "order_by"
-	LabelSelectorField = "label_selector"
-	CreatedAtsField    = "created_ats"
-	UpdatedAtsField    = "updated_ats"
-	IncludeField       = "include"
-	GUIDsField         = "guids"
-	NamesField         = "names"
+	PageField    = "page"
+	PerPageField = "per_page"
 )
 
 // ListOptions is the shared common type for all other list option types
@@ -32,7 +25,7 @@ type ListOptions struct {
 	PerPage int    `filter:"per_page,omitempty"`
 	OrderBy string `filter:"order_by,omitempty"`
 
-	LabelSelector Filter
+	LabelSelector Filter          `filter:"label_selector,omitempty"`
 	CreateAts     TimestampFilter `filter:"created_ats,omitempty"`
 	UpdatedAts    TimestampFilter `filter:"updated_ats,omitempty"`
 }
@@ -44,36 +37,49 @@ func NewListOptions() *ListOptions {
 	}
 }
 
-func (lo ListOptions) ToQueryString() url.Values {
+func (lo ListOptions) ToQueryString(subOptionsPtr any) url.Values {
 	s := ListOptionsSerializer{}
-	val, err := s.Serialize(&lo)
+	s.Add(&lo)
+	s.Add(subOptionsPtr)
+	val, err := s.Serialize()
 	if err != nil {
 		panic("go-cfclient filter bug: " + err.Error())
 	}
 	return val
-	// v := url.Values{}
-	// if lo.Page > 0 {
-	// 	v.Set(PageField, strconv.Itoa(lo.Page))
-	// }
-	// if lo.PerPage > 0 {
-	// 	v.Set(PerPageField, strconv.Itoa(lo.PerPage))
-	// }
-	// if len(lo.OrderBy) > 0 {
-	// 	v.Set(OrderByField, lo.OrderBy)
-	// }
-	// v = appendQueryStrings(v, lo.LabelSelector.ToQueryString(LabelSelectorField))
-	// v = appendQueryStrings(v, lo.CreateAts.ToQuerystring(CreatedAtsField))
-	// v = appendQueryStrings(v, lo.UpdatedAts.ToQuerystring(UpdatedAtsField))
-	// return v
+}
+
+func appendQueryStrings(a, b url.Values) url.Values {
+	for k, v := range a {
+		b.Set(k, v[0]) // url.Values get only returns 1st item anyway
+	}
+	return b
 }
 
 var filterType = reflect.TypeOf(Filter{})
 var timeFilterType = reflect.TypeOf(TimestampFilter{})
 var timeType = reflect.TypeOf(time.Time{})
 
-type ListOptionsSerializer struct{}
+type ListOptionsSerializer struct {
+	optStructs []any
+}
 
-func (los ListOptionsSerializer) Serialize(o any) (url.Values, error) {
+func (los *ListOptionsSerializer) Add(optStruct any) {
+	los.optStructs = append(los.optStructs, optStruct)
+}
+
+func (los ListOptionsSerializer) Serialize() (url.Values, error) {
+	var values url.Values
+	for _, opt := range los.optStructs {
+		val, err := los.serializeOptionStruct(opt)
+		if err != nil {
+			return url.Values{}, err
+		}
+		values = appendQueryStrings(values, val)
+	}
+	return values, nil
+}
+
+func (los ListOptionsSerializer) serializeOptionStruct(o any) (url.Values, error) {
 	if o == nil {
 		return url.Values{}, nil
 	}
@@ -94,7 +100,7 @@ func (los ListOptionsSerializer) Serialize(o any) (url.Values, error) {
 }
 
 func (los ListOptionsSerializer) reflectValues(val reflect.Value) (url.Values, error) {
-	vals := url.Values{}
+	values := url.Values{}
 	for i := 0; i < val.Type().NumField(); i++ {
 		sv := val.Field(i)
 		rawTag := val.Type().Field(i).Tag.Get("filter")
@@ -103,7 +109,7 @@ func (los ListOptionsSerializer) reflectValues(val reflect.Value) (url.Values, e
 		}
 		tag, err := parseTag(rawTag)
 		if err != nil {
-			return vals, err
+			return values, err
 		}
 		if tag.name == "-" {
 			continue
@@ -115,41 +121,81 @@ func (los ListOptionsSerializer) reflectValues(val reflect.Value) (url.Values, e
 		sv = getNonPointerValue(sv)
 		switch sv.Type() {
 		case filterType:
-			// TODO: parse filter
-			break
+			err := reflectFilter(sv, tag, values)
+			if err != nil {
+				return url.Values{}, err
+			}
 		case timeFilterType:
-			tfv := reflect.ValueOf(sv)
-			tfv = getNonPointerValue(tfv)
-			var timestamps []string
-			var relationalOperator RelationalOperator
-			for tfi := 0; i < tfv.Type().NumField(); tfi++ {
-				tfsv := tfv.Field(tfi)
-				if tfsv.Kind() == reflect.Slice || tfsv.Kind() == reflect.Array {
-					for tfsvi := 0; tfsvi < tfsv.Len(); tfsvi++ {
-						tsv := tfsv.Index(tfsvi)
-						if tsv.Type() == timeType {
-							timestamp := tsv.Interface().(time.Time)
-							timestamps = append(timestamps, timestamp.Format(time.RFC3339))
-						}
-					}
-				} else if tfsv.Kind() == reflect.Int {
-					relationalOperator = tfsv.Interface().(RelationalOperator)
-				}
+			err := reflectTimestampFilter(sv, tag, values)
+			if err != nil {
+				return url.Values{}, err
 			}
-			if len(timestamps) > 0 {
-				key := tag.name
-				if relationalOperator != RelationalOperatorNone {
-					key = key + "[" + relationalOperator.String() + "]"
-				}
-				vals.Add(key, strings.Join(timestamps, ","))
-			}
-			break
 		default:
-			vals.Add(tag.name, fmt.Sprint(sv.Interface()))
+			values.Add(tag.name, fmt.Sprint(sv.Interface()))
 		}
 	}
 
-	return vals, nil
+	return values, nil
+}
+
+func reflectFilter(val reflect.Value, tag filterTag, values url.Values) error {
+	var filterStrings []string
+	var not bool
+
+	for i := 0; i < val.Type().NumField(); i++ {
+		f := val.Field(i)
+		if f.Kind() == reflect.Slice || f.Kind() == reflect.Array {
+			for ti := 0; ti < f.Len(); ti++ {
+				tv := f.Index(ti)
+				if tv.Kind() == reflect.String {
+					s := tv.Interface().(string)
+					filterStrings = append(filterStrings, s)
+				}
+			}
+		} else if f.Kind() == reflect.Bool {
+			not = f.Interface().(bool)
+		}
+	}
+
+	if len(filterStrings) > 0 {
+		key := tag.name
+		if not {
+			key = key + "[not]"
+		}
+		values.Add(key, strings.Join(filterStrings, ","))
+	}
+
+	return nil
+}
+
+func reflectTimestampFilter(val reflect.Value, tag filterTag, values url.Values) error {
+	var timestamps []string
+	var relationalOperator RelationalOperator
+
+	for i := 0; i < val.Type().NumField(); i++ {
+		f := val.Field(i)
+		if f.Kind() == reflect.Slice || f.Kind() == reflect.Array {
+			for ti := 0; ti < f.Len(); ti++ {
+				tv := f.Index(ti)
+				if tv.Type() == timeType {
+					timestamp := tv.Interface().(time.Time)
+					timestamps = append(timestamps, timestamp.Format(time.RFC3339))
+				}
+			}
+		} else if f.Kind() == reflect.Int {
+			relationalOperator = f.Interface().(RelationalOperator)
+		}
+	}
+
+	if len(timestamps) > 0 {
+		key := tag.name
+		if relationalOperator != RelationalOperatorNone {
+			key = key + "[" + relationalOperator.String() + "]"
+		}
+		values.Add(key, strings.Join(timestamps, ","))
+	}
+
+	return nil
 }
 
 func isEmptyValue(v reflect.Value) bool {
