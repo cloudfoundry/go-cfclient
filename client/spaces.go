@@ -28,7 +28,7 @@ func (s SpaceIncludeType) String() string {
 func (s SpaceIncludeType) ToQueryString() url.Values {
 	v := url.Values{}
 	if s != SpaceIncludeNone {
-		v.Set(IncludeField, s.String())
+		v.Set("include", s.String())
 	}
 	return v
 }
@@ -46,15 +46,6 @@ func NewSpaceListOptions() *SpaceListOptions {
 	return &SpaceListOptions{
 		ListOptions: NewListOptions(),
 	}
-}
-
-func (a SpaceListOptions) ToQuerystring() url.Values {
-	v := a.ListOptions.ToQueryString()
-	v = appendQueryStrings(v, a.OrganizationGUIDs.ToQueryString(OrganizationGUIDsField))
-	v = appendQueryStrings(v, a.GUIDs.ToQueryString(GUIDsField))
-	v = appendQueryStrings(v, a.Names.ToQueryString(NamesField))
-	v = appendQueryStrings(v, a.Include.ToQueryString())
-	return v
 }
 
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
@@ -79,7 +70,7 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	return &space, nil
 }
 
-func (c *SpaceClient) GetInclude(guid string, include SpaceIncludeType) (*resource.Space, error) {
+func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*resource.Space, error) {
 	var space resource.Space
 	err := c.client.get(joinPathAndQS(include.ToQueryString(), SpacesPath, guid), &space)
 	if err != nil {
@@ -90,13 +81,11 @@ func (c *SpaceClient) GetInclude(guid string, include SpaceIncludeType) (*resour
 
 func (c *SpaceClient) List(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
 	var res resource.SpaceList
-	err := c.client.get(joinPathAndQS(opts.ToQuerystring(), SpacesPath), &res)
+	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), SpacesPath), &res)
 	if err != nil {
 		return nil, nil, err
 	}
-	pager := &Pager{
-		pagination: res.Pagination,
-	}
+	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
 }
 
@@ -123,9 +112,7 @@ func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, err
 	if err != nil {
 		return nil, nil, err
 	}
-	pager := &Pager{
-		pagination: res.Pagination,
-	}
+	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
 }
 

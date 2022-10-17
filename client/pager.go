@@ -7,19 +7,27 @@ import (
 )
 
 type Pager struct {
-	pagination resource.Pagination
+	NextPageURL     string
+	PreviousPageURL string
 }
 
-func (p *Pager) HasNextPage() bool {
-	return p.pagination.Next.Href != ""
+func NewPager(pagination resource.Pagination) *Pager {
+	return &Pager{
+		NextPageURL:     pagination.Next.Href,
+		PreviousPageURL: pagination.Previous.Href,
+	}
 }
 
-func (p *Pager) NextPage(opts *ListOptions) bool {
+func (p Pager) HasNextPage() bool {
+	return p.NextPageURL != ""
+}
+
+func (p Pager) NextPage(opts *ListOptions) bool {
 	if !p.HasNextPage() {
 		return false
 	}
 
-	qs, err := newQuerystringReader(p.pagination.Next.Href)
+	qs, err := newQuerystringReader(p.NextPageURL)
 	if err != nil {
 		return false
 	}
@@ -28,16 +36,16 @@ func (p *Pager) NextPage(opts *ListOptions) bool {
 	return true
 }
 
-func (p *Pager) HasPreviousPage() bool {
-	return p.pagination.Previous.Href != ""
+func (p Pager) HasPreviousPage() bool {
+	return p.PreviousPageURL != ""
 }
 
-func (p *Pager) PreviousPage(opts *ListOptions) bool {
+func (p Pager) PreviousPage(opts *ListOptions) bool {
 	if !p.HasPreviousPage() {
 		return false
 	}
 
-	qs, err := newQuerystringReader(p.pagination.Previous.Href)
+	qs, err := newQuerystringReader(p.PreviousPageURL)
 	if err != nil {
 		return false
 	}

@@ -9,13 +9,6 @@ type AppClient commonClient
 
 const AppsPath = "/v3/apps"
 
-const (
-	StacksField            = "stacks"
-	SpaceGUIDsField        = "space_guids"
-	OrganizationGUIDsField = "organization_guids"
-	LifecycleTypeField     = "lifecycle_type"
-)
-
 // LifecycleType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#list-apps
 type LifecycleType int
 
@@ -33,14 +26,6 @@ func (l LifecycleType) String() string {
 		return "docker"
 	}
 	return ""
-}
-
-func (l LifecycleType) ToQueryString() url.Values {
-	v := url.Values{}
-	if l != LifecycleNone {
-		v.Set(LifecycleTypeField, l.String())
-	}
-	return v
 }
 
 // AppIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
@@ -65,7 +50,7 @@ func (a AppIncludeType) String() string {
 func (a AppIncludeType) ToQueryString() url.Values {
 	v := url.Values{}
 	if a != AppIncludeNone {
-		v.Set(IncludeField, a.String())
+		v.Set("include", a.String())
 	}
 	return v
 }
@@ -73,31 +58,19 @@ func (a AppIncludeType) ToQueryString() url.Values {
 type AppListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter
-	Names             Filter
-	OrganizationGUIDs Filter
-	SpaceGUIDs        Filter
-	Stacks            Filter
-	LifecycleType     LifecycleType
-	Include           AppIncludeType
+	GUIDs             Filter         `filter:"guids,omitempty"`
+	Names             Filter         `filter:"names,omitempty"`
+	OrganizationGUIDs Filter         `filter:"organization_guids,omitempty"`
+	SpaceGUIDs        Filter         `filter:"space_guids,omitempty"`
+	Stacks            Filter         `filter:"stacks,omitempty"`
+	LifecycleType     LifecycleType  `filter:"lifecycle_type,omitempty"`
+	Include           AppIncludeType `filter:"include,omitempty"`
 }
 
 func NewAppListOptions() *AppListOptions {
 	return &AppListOptions{
 		ListOptions: NewListOptions(),
 	}
-}
-
-func (a AppListOptions) ToQuerystring() url.Values {
-	v := a.ListOptions.ToQueryString()
-	v = appendQueryStrings(v, a.Stacks.ToQueryString(StacksField))
-	v = appendQueryStrings(v, a.SpaceGUIDs.ToQueryString(SpaceGUIDsField))
-	v = appendQueryStrings(v, a.OrganizationGUIDs.ToQueryString(OrganizationGUIDsField))
-	v = appendQueryStrings(v, a.GUIDs.ToQueryString(GUIDsField))
-	v = appendQueryStrings(v, a.Names.ToQueryString(NamesField))
-	v = appendQueryStrings(v, a.LifecycleType.ToQueryString())
-	v = appendQueryStrings(v, a.Include.ToQueryString())
-	return v
 }
 
 func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
@@ -131,7 +104,7 @@ func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, er
 	return &appEnv, nil
 }
 
-func (c *AppClient) GetInclude(guid string, include AppIncludeType) (*resource.App, error) {
+func (c *AppClient) GetAndInclude(guid string, include AppIncludeType) (*resource.App, error) {
 	var app resource.App
 	err := c.client.get(joinPathAndQS(include.ToQueryString(), AppsPath, guid), &app)
 	if err != nil {
@@ -142,13 +115,11 @@ func (c *AppClient) GetInclude(guid string, include AppIncludeType) (*resource.A
 
 func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
 	var res resource.AppList
-	err := c.client.get(joinPathAndQS(opts.ToQuerystring(), AppsPath), &res)
+	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), AppsPath), &res)
 	if err != nil {
 		return nil, nil, err
 	}
-	pager := &Pager{
-		pagination: res.Pagination,
-	}
+	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
 }
 
