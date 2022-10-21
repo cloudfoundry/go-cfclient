@@ -6,8 +6,6 @@ import (
 
 type BuildClient commonClient
 
-const BuildsPath = "/v3/builds"
-
 type BuildListOptions struct {
 	*ListOptions
 
@@ -36,7 +34,7 @@ func NewBuildAppListOptions() *BuildAppListOptions {
 
 func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.post(r.Package.GUID, BuildsPath, r, &build)
+	err := c.client.post(r.Package.GUID, "/v3/builds", r, &build)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +42,12 @@ func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 }
 
 func (c *BuildClient) Delete(guid string) error {
-	return c.client.delete(joinPath(BuildsPath, guid))
+	return c.client.delete(path("/v3/builds/%s", guid))
 }
 
 func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.get(joinPath(BuildsPath, guid), &build)
+	err := c.client.get(path("/v3/builds/%s", guid), &build)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +56,7 @@ func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 
 func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
 	var res resource.BuildList
-	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), BuildsPath), &res)
+	err := c.client.get(path("/v3/builds?%s", opts.ToQueryString(opts)), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -85,7 +83,7 @@ func (c *BuildClient) ListAll() ([]*resource.Build, error) {
 
 func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
 	var res resource.BuildList
-	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), AppsPath, appGUID, "builds"), &res)
+	err := c.client.get(path("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString(opts)), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -95,7 +93,7 @@ func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*
 
 func (c *BuildClient) Update(guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.patch(joinPath(BuildsPath, guid), r, &build)
+	err := c.client.patch(path("/v3/builds/%s", guid), r, &build)
 	if err != nil {
 		return nil, err
 	}
