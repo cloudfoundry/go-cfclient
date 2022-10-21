@@ -8,8 +8,6 @@ import (
 
 type SpaceClient commonClient
 
-const SpacesPath = "/v3/spaces"
-
 type SpaceIncludeType int
 
 const (
@@ -50,7 +48,7 @@ func NewSpaceListOptions() *SpaceListOptions {
 
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.post(r.Name, SpacesPath, r, &space)
+	err := c.client.post(r.Name, "/v3/spaces", r, &space)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +56,12 @@ func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 }
 
 func (c *SpaceClient) Delete(guid string) error {
-	return c.client.delete(joinPath(SpacesPath, guid))
+	return c.client.delete(path("/v3/spaces/%s", guid))
 }
 
 func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.get(joinPath(SpacesPath, guid), &space)
+	err := c.client.get(path("/v3/spaces/%s", guid), &space)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +70,7 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 
 func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.get(joinPathAndQS(include.ToQueryString(), SpacesPath, guid), &space)
+	err := c.client.get(path("/v3/spaces/%s?%s", guid, include.ToQueryString()), &space)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +79,7 @@ func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*res
 
 func (c *SpaceClient) List(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
 	var res resource.SpaceList
-	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), SpacesPath), &res)
+	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString(opts)), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -109,7 +107,7 @@ func (c *SpaceClient) ListAll() ([]*resource.Space, error) {
 // ListUsers lists users by space GUID
 func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, error) {
 	var res resource.SpaceUserList
-	err := c.client.get(joinPath(SpacesPath, spaceGUID, "users"), &res)
+	err := c.client.get(path("/v3/spaces/%s/users", spaceGUID), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -136,7 +134,7 @@ func (c *SpaceClient) ListUsersAll(spaceGUID string) ([]*resource.User, error) {
 
 func (c *SpaceClient) Update(guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.patch(joinPath(SpacesPath, guid), r, &space)
+	err := c.client.patch(path("/v3/spaces/%s", guid), r, &space)
 	if err != nil {
 		return nil, err
 	}

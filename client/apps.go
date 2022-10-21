@@ -8,8 +8,6 @@ import (
 
 type AppClient commonClient
 
-const AppsPath = "/v3/apps"
-
 // LifecycleType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#list-apps
 type LifecycleType int
 
@@ -76,7 +74,7 @@ func NewAppListOptions() *AppListOptions {
 
 func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(r.Name, AppsPath, r, &app)
+	err := c.client.post(r.Name, "/v3/apps", r, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -84,12 +82,12 @@ func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 }
 
 func (c *AppClient) Delete(guid string) error {
-	return c.client.delete(joinPath(AppsPath, guid))
+	return c.client.delete(path("/v3/apps/%s", guid))
 }
 
 func (c *AppClient) Get(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.get(joinPath(AppsPath, guid), &app)
+	err := c.client.get(path("/v3/apps/%s", guid), &app)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +96,7 @@ func (c *AppClient) Get(guid string) (*resource.App, error) {
 
 func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, error) {
 	var appEnv resource.AppEnvironment
-	err := c.client.get(joinPath(AppsPath, appGUID, "env"), &appEnv)
+	err := c.client.get(path("/v3/apps/%s/env", appGUID), &appEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +105,8 @@ func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, er
 
 func (c *AppClient) GetAndInclude(guid string, include AppIncludeType) (*resource.App, error) {
 	var app resource.App
-	err := c.client.get(joinPathAndQS(include.ToQueryString(), AppsPath, guid), &app)
+
+	err := c.client.get(path("/v3/apps/%s?%s", guid, include.ToQueryString()), &app)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +115,7 @@ func (c *AppClient) GetAndInclude(guid string, include AppIncludeType) (*resourc
 
 func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
 	var res resource.AppList
-	err := c.client.get(joinPathAndQS(opts.ToQueryString(opts), AppsPath), &res)
+	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString(opts)), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,7 +142,7 @@ func (c *AppClient) ListAll() ([]*resource.App, error) {
 
 func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (*resource.EnvVar, error) {
 	var envVarResponse resource.EnvVarResponse
-	err := c.client.patch(joinPath(AppsPath, appGUID, "environment_variables"), envRequest, &envVarResponse)
+	err := c.client.patch(path("/v3/apps/%s/environment_variables", appGUID), envRequest, &envVarResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +151,7 @@ func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) 
 
 func (c *AppClient) Start(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(guid, joinPath(AppsPath, guid, "actions/start"), nil, &app)
+	err := c.client.post(guid, path("/v3/apps/%s/actions/start", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +160,7 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 
 func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.patch(joinPath(AppsPath, guid), r, &app)
+	err := c.client.patch(path("/v3/apps/%s", guid), r, &app)
 	if err != nil {
 		return nil, err
 	}

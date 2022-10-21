@@ -31,12 +31,12 @@ func (o *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organizati
 }
 
 func (o *OrgClient) Delete(guid string) error {
-	return o.client.delete(joinPath(OrgsPath, guid))
+	return o.client.delete(path("/v3/organizations/%s", guid))
 }
 
 func (o *OrgClient) Get(guid string) (*resource.Organization, error) {
 	var org resource.Organization
-	err := o.client.get(joinPath(OrgsPath, guid), &org)
+	err := o.client.get(path("/v3/organizations/%s", guid), &org)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (o *OrgClient) Get(guid string) (*resource.Organization, error) {
 
 func (o *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
 	var res resource.OrganizationList
-	err := o.client.get(joinPathAndQS(opts.ToQueryString(opts), OrgsPath), &res)
+	err := o.client.get(path("/v3/organizations?%s", opts.ToQueryString(opts)), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -72,7 +72,7 @@ func (o *OrgClient) ListAll() ([]*resource.Organization, error) {
 
 func (o *OrgClient) Update(guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
 	var org resource.Organization
-	err := o.client.patch(joinPath(OrgsPath, guid), r, &org)
+	err := o.client.patch(path("/v3/organizations/%s", guid), r, &org)
 	if err != nil {
 		return nil, err
 	}
