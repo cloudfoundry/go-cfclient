@@ -8,7 +8,7 @@ import (
 )
 
 func TestListServiceCredentialBindingsByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/service_credential_bindings", []string{listServiceCredentialBindingsPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/service_credential_bindings", []string{listServiceCredentialBindingsPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -28,7 +28,7 @@ func TestListServiceCredentialBindingsByQuery(t *testing.T) {
 
 func TestGetServiceCredentialBindingsByGUID(t *testing.T) {
 	GUID := "d9634934-8e1f-4c2d-bb33-fa5df019cf9d"
-	setup(MockRoute{"GET", fmt.Sprintf("/v3/service_credential_bindings/%s", GUID), []string{getServiceCredentialBindingsByGUIDPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", fmt.Sprintf("/v3/service_credential_bindings/%s", GUID), []string{getServiceCredentialBindingsByGUIDPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

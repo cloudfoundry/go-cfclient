@@ -14,7 +14,7 @@ type App struct {
 	Lifecycle     Lifecycle                    `json:"lifecycle,omitempty"`
 	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link              `json:"links,omitempty"`
-	Metadata      Metadata                     `json:"metadata,omitempty"`
+	Metadata      Metadata                     `json:"metadata"`
 }
 
 type Lifecycle struct {

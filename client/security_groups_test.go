@@ -13,7 +13,7 @@ import (
 
 func TestListSecurityGroupsByQuery(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/security_groups", []string{listSecurityGroupsPayload}, "", http.StatusOK, "", nil},
+		{"GET", "/v3/security_groups", []string{listSecurityGroupsPayload}, "", http.StatusOK, "", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -53,7 +53,7 @@ func TestListSecurityGroupsByQuery(t *testing.T) {
 
 func TestListSecurityGroupsByQueryWithGroupGUID(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/security_groups", []string{listSecurityGroupsByGuidPayload}, "", http.StatusOK, "", nil},
+		{"GET", "/v3/security_groups", []string{listSecurityGroupsByGuidPayload}, "", http.StatusOK, "", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -86,7 +86,7 @@ func TestListSecurityGroupsByQueryWithGroupGUID(t *testing.T) {
 func TestCreateSecurityGroupWithMinimalParams(t *testing.T) {
 	expectedRequestBody := `{"name":"my-sec-group"}`
 	expectedResponseBody := `{"guid":"guid-1", "name":"my-sec-group", "globally_enabled": {"running": false,"staging": false}, "rules": []}`
-	setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusCreated, "", &expectedRequestBody}, t)
+	setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusCreated, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -142,7 +142,7 @@ func TestCreateSecurityGroupWithOptionalParams(t *testing.T) {
 	err := json.Compact(buffer, []byte(requestBody))
 	require.NoError(t, err)
 	expectedRequestBody := buffer.String()
-	setup(MockRoute{"POST", "/v3/security_groups", []string{genericSecurityGroupPayload}, "", http.StatusCreated, "", &expectedRequestBody}, t)
+	setup(MockRoute{"POST", "/v3/security_groups", []string{genericSecurityGroupPayload}, "", http.StatusCreated, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -216,7 +216,7 @@ func TestCreateSecurityGroupWithICMPTypeCodeAndNoName(t *testing.T) {
 			  }
 			]
 		  }`
-	setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", &expectedRequestBody}, t)
+	setup(MockRoute{"POST", "/v3/security_groups", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -238,7 +238,7 @@ func TestCreateSecurityGroupWithICMPTypeCodeAndNoName(t *testing.T) {
 }
 
 func TestDeleteSecurityGroup(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/security_groups/security-group-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/security_groups/security-group-guid", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -260,7 +260,7 @@ func TestUpdateSecurityGroup(t *testing.T) {
 			  }
 			]
 		  }`
-	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", &expectedRequestBody}, t)
+	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusUnprocessableEntity, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -283,7 +283,7 @@ func TestUpdateSecurityGroup(t *testing.T) {
 func TestUpdateSecurityGroupUpdateName(t *testing.T) {
 	expectedRequestBody := `{"name":"my-sec-group"}`
 	expectedResponseBody := `{"guid":"guid-1", "name":"my-sec-group", "globally_enabled": {"running": false,"staging": false}, "rules": []}`
-	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusOK, "", &expectedRequestBody}, t)
+	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{expectedResponseBody}, "", http.StatusOK, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -327,7 +327,7 @@ func TestUpdateSecurityGroupWithOptionalParams(t *testing.T) {
 	err := json.Compact(buffer, []byte(requestBody))
 	require.NoError(t, err)
 	expectedRequestBody := buffer.String()
-	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", &expectedRequestBody}, t)
+	setup(MockRoute{"PATCH", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", expectedRequestBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -379,7 +379,7 @@ func TestUpdateSecurityGroupWithOptionalParams(t *testing.T) {
 }
 
 func TestGetSecurityGroup(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/security_groups/guid-1", []string{genericSecurityGroupPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

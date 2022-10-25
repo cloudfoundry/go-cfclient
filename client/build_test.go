@@ -10,8 +10,8 @@ import (
 )
 
 func TestCreateBuild(t *testing.T) {
-	body := `{"metadata":{"labels":{"foo":"bar"}},"package":{"guid":"package-guid"}}`
-	setup(MockRoute{"POST", "/v3/builds", []string{buildPayload}, "", http.StatusCreated, "", &body}, t)
+	body := `{"metadata":{"labels":{"foo":"bar"},"annotations":null},"package":{"guid":"package-guid"}}`
+	setup(MockRoute{"POST", "/v3/builds", []string{buildPayload}, "", http.StatusCreated, "", body}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -34,7 +34,7 @@ func TestCreateBuild(t *testing.T) {
 }
 
 func TestGetBuild(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -58,7 +58,7 @@ func TestGetBuild(t *testing.T) {
 }
 
 func TestDeleteBuild(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -70,7 +70,7 @@ func TestDeleteBuild(t *testing.T) {
 }
 
 func TestUpdateBuild(t *testing.T) {
-	setup(MockRoute{"PATCH", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"PATCH", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -97,7 +97,7 @@ func TestUpdateBuild(t *testing.T) {
 }
 
 func TestListBuilds(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/builds", []string{buildListPayloadPage1}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/builds", []string{buildListPayloadPage1}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -123,7 +123,7 @@ func TestListAllBuilds(t *testing.T) {
 		"",
 		http.StatusOK,
 		"",
-		nil}
+		""}
 	setup(mr, t)
 	defer teardown()
 
@@ -148,7 +148,7 @@ func TestListForAppBuilds(t *testing.T) {
 		"",
 		http.StatusOK,
 		"",
-		nil}
+		""}
 	setup(mr, t)
 	defer teardown()
 

@@ -1,0 +1,48 @@
+{
+  "staging_env_json": {
+    "GEM_CACHE": "http://gem-cache.example.org"
+  },
+  "running_env_json": {
+    "HTTP_PROXY": "http://proxy.example.org"
+  },
+  "environment_variables": {
+    "RAILS_ENV": "production"
+  },
+  "system_env_json": {
+    "VCAP_SERVICES": {
+      "mysql": [
+        {
+          "name": "db-for-my-app",
+          "binding_id": "0e85b634-e043-4b43-96da-f83dfe83ab33",
+          "binding_name": "db-for-my-app",
+          "instance_id": "07fca01c-f789-4d45-80b4-e19ba3ca862c",
+          "instance_name": "my-mysql-service",
+          "label": "mysql",
+          "tags": ["relational", "sql"],
+          "plan": "xlarge",
+          "credentials": {
+            "username": "user",
+            "password": "top-secret"
+          },
+          "syslog_drain_url": "https://syslog.example.org/drain",
+          "volume_mounts": [],
+          "provider": null
+        }
+      ]
+    }
+  },
+  "application_env_json": {
+    "VCAP_APPLICATION": {
+      "limits": {
+        "fds": 16384
+      },
+      "application_name": "{{.Name}}",
+      "application_uris": [ "{{.Name}}.example.org" ],
+      "name": "{{.Name}}",
+      "space_name": "my_space",
+      "space_id": "2f35885d-0c9d-4423-83ad-fd05066f8576",
+      "uris": [ "my_app.example.org" ],
+      "users": null
+    }
+  }
+}

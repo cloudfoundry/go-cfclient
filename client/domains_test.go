@@ -7,7 +7,7 @@ import (
 )
 
 func TestListDomains(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/domains", []string{listDomainsPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/domains", []string{listDomainsPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
