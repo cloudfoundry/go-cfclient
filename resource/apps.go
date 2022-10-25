@@ -66,6 +66,16 @@ type AppUpdate struct {
 	Metadata  *Metadata  `json:"metadata"`
 }
 
+type AppSSHEnabled struct {
+	Enabled bool   `json:"enabled"`
+	Reason  string `json:"reason"`
+}
+
+type AppPermissions struct {
+	ReadBasicData     bool `json:"read_basic_data"`
+	ReadSensitiveData bool `json:"read_sensitive_data"`
+}
+
 type AppEnvironment struct {
 	EnvVars       map[string]string          `json:"environment_variables,omitempty"`
 	StagingEnv    map[string]string          `json:"staging_env_json,omitempty"`

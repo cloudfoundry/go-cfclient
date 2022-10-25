@@ -54,6 +54,14 @@ func (o *ObjectJSONGenerator) AppEnvVars() string {
 	return o.template(r, "app_envvar.json")
 }
 
+func (o *ObjectJSONGenerator) AppSSH() string {
+	return o.template(resourceTemplate{}, "app_ssh.json")
+}
+
+func (o *ObjectJSONGenerator) AppPermission() string {
+	return o.template(resourceTemplate{}, "app_permissions.json")
+}
+
 func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
 	apiPath := "https://cf.example.com/v3/" + apiResourcePath
 
