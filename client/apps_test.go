@@ -17,6 +17,8 @@ func TestApps(t *testing.T) {
 	app3 := g.Application()
 	app4 := g.Application()
 	appEnvVars := g.AppEnvVars()
+	appSSH := g.AppSSH()
+	appPermission := g.AppPermission()
 
 	tests := []RouteTest{
 		{
@@ -79,6 +81,32 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
+			Description: "Get SSH enabled for app",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/ssh_enabled",
+				Output:   []string{appSSH},
+				Status:   http.StatusOK,
+			},
+			Expected: appSSH,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.SSHEnabled("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Get app permissions",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/permissions",
+				Output:   []string{appPermission},
+				Status:   http.StatusOK,
+			},
+			Expected: appPermission,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Permissions("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
 			Description: "Start app",
 			Route: MockRoute{
 				Method:   "POST",
@@ -89,6 +117,32 @@ func TestApps(t *testing.T) {
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Applications.Start("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Stop app",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+				Output:   []string{app1},
+				Status:   http.StatusOK,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Stop("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Restart app",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
+				Output:   []string{app1},
+				Status:   http.StatusOK,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Restart("1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{

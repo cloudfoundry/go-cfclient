@@ -140,6 +140,24 @@ func (c *AppClient) ListAll() ([]*resource.App, error) {
 	return allApps, nil
 }
 
+func (c *AppClient) Permissions(guid string) (*resource.AppPermissions, error) {
+	var appPerms resource.AppPermissions
+	err := c.client.get(path("/v3/apps/%s/permissions", guid), &appPerms)
+	if err != nil {
+		return nil, err
+	}
+	return &appPerms, nil
+}
+
+func (c *AppClient) Restart(guid string) (*resource.App, error) {
+	var app resource.App
+	err := c.client.post(guid, path("/v3/apps/%s/actions/restart", guid), nil, &app)
+	if err != nil {
+		return nil, err
+	}
+	return &app, nil
+}
+
 func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (*resource.EnvVar, error) {
 	var envVarResponse resource.EnvVarResponse
 	err := c.client.patch(path("/v3/apps/%s/environment_variables", appGUID), envRequest, &envVarResponse)
@@ -158,6 +176,15 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
+func (c *AppClient) Stop(guid string) (*resource.App, error) {
+	var app resource.App
+	err := c.client.post(guid, path("/v3/apps/%s/actions/stop", guid), nil, &app)
+	if err != nil {
+		return nil, err
+	}
+	return &app, nil
+}
+
 func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, error) {
 	var app resource.App
 	err := c.client.patch(path("/v3/apps/%s", guid), r, &app)
@@ -165,4 +192,13 @@ func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, e
 		return nil, err
 	}
 	return &app, nil
+}
+
+func (c *AppClient) SSHEnabled(guid string) (*resource.AppSSHEnabled, error) {
+	var appSSH resource.AppSSHEnabled
+	err := c.client.get(path("/v3/apps/%s/ssh_enabled", guid), &appSSH)
+	if err != nil {
+		return nil, err
+	}
+	return &appSSH, nil
 }
