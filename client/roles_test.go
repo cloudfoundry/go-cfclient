@@ -9,8 +9,8 @@ import (
 
 func TestListSpaceRolesByQueryWithSpaceGUID(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/roles", []string{listSpaceRolesBySpaceGUIDPayload}, "", http.StatusOK, "space_guids=spaceGUID1", nil},
-		{"GET", "/v3/rolespage2", []string{listSpaceRolesBySpaceGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&space_guids=spaceGUID1", nil},
+		{"GET", "/v3/roles", []string{listSpaceRolesBySpaceGUIDPayload}, "", http.StatusOK, "space_guids=spaceGUID1", ""},
+		{"GET", "/v3/rolespage2", []string{listSpaceRolesBySpaceGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&space_guids=spaceGUID1", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -44,7 +44,7 @@ func TestListSpaceRolesByQueryWithSpaceGUID(t *testing.T) {
 	require.Equal(t, "https://api.example.org/v3/roles/roleGUID3", roles[2].Links["self"].Href)
 }
 func TestListSpaceRolesByQueryWithUserGUID(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesByUserGuidPayload}, "", http.StatusOK, "user_guids=userGUID1", nil}, t)
+	setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesByUserGuidPayload}, "", http.StatusOK, "user_guids=userGUID1", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -72,7 +72,7 @@ func TestListSpaceRolesByQueryWithUserGUID(t *testing.T) {
 }
 
 func TestListSpaceRolesByQueryWithSpaceAndUserGUID(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesBySpaceAndUserGuidPayload}, "", http.StatusOK, "space_guids=spaceGUID2&user_guids=userGUID1", nil}, t)
+	setup(MockRoute{"GET", "/v3/roles", []string{listSpaceRolesBySpaceAndUserGuidPayload}, "", http.StatusOK, "space_guids=spaceGUID2&user_guids=userGUID1", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -98,8 +98,8 @@ func TestListSpaceRolesByQueryWithSpaceAndUserGUID(t *testing.T) {
 
 func TestListSpaceRolesByGUID(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/roles", []string{listSpaceRoleUsersBySpaceGUIDPayload}, "", http.StatusOK, "include=user&space_guids=spaceGUID1", nil},
-		{"GET", "/v3/rolespage2", []string{listSpaceRoleUsersBySpaceGUIDPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&space_guids=spaceGUID1", nil},
+		{"GET", "/v3/roles", []string{listSpaceRoleUsersBySpaceGUIDPayload}, "", http.StatusOK, "include=user&space_guids=spaceGUID1", ""},
+		{"GET", "/v3/rolespage2", []string{listSpaceRoleUsersBySpaceGUIDPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&space_guids=spaceGUID1", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -120,8 +120,8 @@ func TestListSpaceRolesByGUID(t *testing.T) {
 
 func TestListSpaceRolesByGUIDAndType(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/roles", []string{listSpaceRolesBySpaceGUIDAndTypePayload}, "", http.StatusOK, "include=user&space_guids=spaceGUID1&types=space_supporter", nil},
-		{"GET", "/v3/rolespage2", []string{listSpaceRolesBySpaceGuidAndTypePayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&space_guids=spaceGUID1&types=space_supporter", nil},
+		{"GET", "/v3/roles", []string{listSpaceRolesBySpaceGUIDAndTypePayload}, "", http.StatusOK, "include=user&space_guids=spaceGUID1&types=space_supporter", ""},
+		{"GET", "/v3/rolespage2", []string{listSpaceRolesBySpaceGuidAndTypePayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&space_guids=spaceGUID1&types=space_supporter", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -141,8 +141,8 @@ func TestListSpaceRolesByGUIDAndType(t *testing.T) {
 
 func TestListOrgRolesByGUID(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/roles", []string{listOrganizationRolesByOrganizationGUIDPayload}, "", http.StatusOK, "include=user&organization_guids=orgGUID1", nil},
-		{"GET", "/v3/rolespage2", []string{listOrganizationRolesByOrganizationGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&organization_guids=orgGUID1", nil},
+		{"GET", "/v3/roles", []string{listOrganizationRolesByOrganizationGUIDPayload}, "", http.StatusOK, "include=user&organization_guids=orgGUID1", ""},
+		{"GET", "/v3/rolespage2", []string{listOrganizationRolesByOrganizationGuidPayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&organization_guids=orgGUID1", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -163,8 +163,8 @@ func TestListOrgRolesByGUID(t *testing.T) {
 
 func TestListOrgRolesByGUIDAndType(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/roles", []string{listOrganizationRolesByOrganizationGUIDAndTypePayload}, "", http.StatusOK, "include=user&organization_guids=orgGUID1&types=organization_auditor", nil},
-		{"GET", "/v3/rolespage2", []string{listOrganizationRolesByOrganizationGuidAndTypePayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&organization_guids=orgGUID1&types=organization_auditor", nil},
+		{"GET", "/v3/roles", []string{listOrganizationRolesByOrganizationGUIDAndTypePayload}, "", http.StatusOK, "include=user&organization_guids=orgGUID1&types=organization_auditor", ""},
+		{"GET", "/v3/rolespage2", []string{listOrganizationRolesByOrganizationGuidAndTypePayloadPage2}, "", http.StatusOK, "page=2&per_page=2&include=user&organization_guids=orgGUID1&types=organization_auditor", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()
@@ -183,7 +183,7 @@ func TestListOrgRolesByGUIDAndType(t *testing.T) {
 }
 
 func TestCreateSpaceRoles(t *testing.T) {
-	setup(MockRoute{"POST", "/v3/roles", []string{createSpaceRolePayload}, "", http.StatusCreated, "", nil}, t)
+	setup(MockRoute{"POST", "/v3/roles", []string{createSpaceRolePayload}, "", http.StatusCreated, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -204,7 +204,7 @@ func TestCreateSpaceRoles(t *testing.T) {
 }
 
 func TestCreateOrgRoles(t *testing.T) {
-	setup(MockRoute{"POST", "/v3/roles", []string{createOrganizationRolePayload}, "", http.StatusCreated, "", nil}, t)
+	setup(MockRoute{"POST", "/v3/roles", []string{createOrganizationRolePayload}, "", http.StatusCreated, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -225,7 +225,7 @@ func TestCreateOrgRoles(t *testing.T) {
 }
 
 func TestDeleteRole(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/roles/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/roles/1cb006ee-fb05-47e1-b541-c34179ddc446", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

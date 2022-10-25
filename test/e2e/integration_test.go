@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package test
+package e2e
 
 import (
 	"fmt"

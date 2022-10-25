@@ -471,9 +471,12 @@ func (c *Client) get(path string, result any) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error getting %s, response code: %d", path, resp.StatusCode)
 	}
+
 	err = json.NewDecoder(resp.Body).Decode(result)
 	if err != nil {
-		return fmt.Errorf("error decoding %s get response JSON: %w", path, err)
+		buf := new(strings.Builder)
+		_, _ = io.Copy(buf, resp.Body)
+		return fmt.Errorf("error decoding %s get response JSON before '%s': %w", path, buf.String(), err)
 	}
 	return nil
 }

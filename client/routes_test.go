@@ -7,7 +7,7 @@ import (
 )
 
 func TestListRoutes(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/routes", []string{listRoutesPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/routes", []string{listRoutesPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -32,7 +32,7 @@ func TestListRoutes(t *testing.T) {
 }
 
 func TestCreateRoutes(t *testing.T) {
-	setup(MockRoute{"POST", "/v3/routes", []string{createRoutePayload}, "", http.StatusCreated, "", nil}, t)
+	setup(MockRoute{"POST", "/v3/routes", []string{createRoutePayload}, "", http.StatusCreated, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

@@ -10,7 +10,7 @@ import (
 )
 
 func TestListPackagesForApp(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages", []string{listPackagesForAppPayloadPage1, listPackagesForAppPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages", []string{listPackagesForAppPayloadPage1, listPackagesForAppPayloadPage2}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -34,7 +34,7 @@ func TestListPackagesForApp(t *testing.T) {
 
 func TestCopyPackage(t *testing.T) {
 	expectedBody := `{"relationships":{"app":{"data":{"guid":"app-guid"}}}}`
-	setup(MockRoute{"POST", "/v3/packages", []string{copyPackagePayload}, "", http.StatusCreated, "source_guid=package-guid", &expectedBody}, t)
+	setup(MockRoute{"POST", "/v3/packages", []string{copyPackagePayload}, "", http.StatusCreated, "source_guid=package-guid", expectedBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

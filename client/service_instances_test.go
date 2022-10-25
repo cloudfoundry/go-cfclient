@@ -7,7 +7,7 @@ import (
 )
 
 func TestListServiceInstancesByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/service_instances", []string{listServiceInstancesPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/service_instances", []string{listServiceInstancesPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

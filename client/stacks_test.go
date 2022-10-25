@@ -8,7 +8,7 @@ import (
 
 func TestListStacksByQuery(t *testing.T) {
 	mocks := []MockRoute{
-		{"GET", "/v3/stacks", []string{listStacksPayload}, "", http.StatusOK, "", nil},
+		{"GET", "/v3/stacks", []string{listStacksPayload}, "", http.StatusOK, "", ""},
 	}
 	setupMultiple(mocks, t)
 	defer teardown()

@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetDeployment(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getDeploymentPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4", []string{getDeploymentPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -27,7 +27,7 @@ func TestGetDeployment(t *testing.T) {
 
 func TestCreateDeployment(t *testing.T) {
 	body := `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", body}, t)
 
 	defer teardown()
 
@@ -46,7 +46,7 @@ func TestCreateDeployment(t *testing.T) {
 
 func TestCreateDeploymentWithDroplet(t *testing.T) {
 	body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", body}, t)
 
 	defer teardown()
 
@@ -68,7 +68,7 @@ func TestCreateDeploymentWithDroplet(t *testing.T) {
 }
 func TestCreateDeploymentWithRevision(t *testing.T) {
 	body := `{"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", body}, t)
 
 	defer teardown()
 
@@ -92,7 +92,7 @@ func TestCreateDeploymentWithRevision(t *testing.T) {
 
 func TestCreateDeploymentWithRevisionAndDroplet(t *testing.T) {
 	body := `{"droplet":{"guid":"44ccfa61-dbcf-4a0d-82fe-f668e9d2a962"},"revision":{"guid":"56126cba-656a-4eba-a81e-7e9951b2df57","version":1},"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}}`
-	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", &body}, t)
+	setup(MockRoute{"POST", "/v3/deployments", []string{getDeploymentPayload}, "", http.StatusCreated, "", body}, t)
 
 	defer teardown()
 
@@ -114,7 +114,7 @@ func TestCreateDeploymentWithRevisionAndDroplet(t *testing.T) {
 }
 
 func TestCancelDeployment(t *testing.T) {
-	setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", []string{""}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"POST", "/v3/deployments/59c3d133-2b83-46f3-960e-7765a129aea4/actions/cancel", []string{""}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

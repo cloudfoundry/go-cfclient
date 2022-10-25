@@ -20,6 +20,13 @@ var (
 	fakeUAAServer *httptest.Server
 )
 
+type RouteTest struct {
+	Description string
+	Route       MockRoute
+	Expected    string
+	Action      func(c *Client, t *testing.T) (any, error)
+}
+
 type MockRoute struct {
 	Method      string
 	Endpoint    string
@@ -27,7 +34,7 @@ type MockRoute struct {
 	UserAgent   string
 	Status      int
 	QueryString string
-	PostForm    *string
+	PostForm    string
 }
 
 type MockRouteWithRedirect struct {
@@ -61,32 +68,32 @@ func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 	}
 }
 
-func testReqBody(req *http.Request, postFormBody *string, t *testing.T) {
+func testReqBody(req *http.Request, postFormBody string, t *testing.T) {
 	t.Helper()
-	if postFormBody != nil {
+	if postFormBody != "" {
 		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
 			defer func(Body io.ReadCloser) {
 				_ = Body.Close()
 			}(req.Body)
-			require.JSONEq(t, *postFormBody, string(body),
-				"Expected request body (%s) does not equal request body (%s)", *postFormBody, body)
+			require.JSONEq(t, postFormBody, string(body),
+				"Expected request body (%s) does not equal request body (%s)", postFormBody, body)
 		}
 	}
 }
 
-func testBodyContains(req *http.Request, expected *string, t *testing.T) {
+func testBodyContains(req *http.Request, expected string, t *testing.T) {
 	t.Helper()
-	if expected != nil {
+	if expected != "" {
 		if body, err := io.ReadAll(req.Body); err != nil {
 			t.Error("No request body but expected one")
 		} else {
 			defer func(Body io.ReadCloser) {
 				_ = Body.Close()
 			}(req.Body)
-			if !strings.Contains(string(body), *expected) {
-				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", *expected, body)
+			if !strings.Contains(string(body), expected) {
+				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", expected, body)
 			}
 		}
 	}
@@ -115,7 +122,7 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 		endpoint := mock.Endpoint
 		output := mock.Output
 		if len(output) == 0 {
-			t.Fatal("Mock output cannot be an array of length 0, did you mean to use []string{\"\"}?")
+			output = []string{""}
 		}
 		userAgent := mock.UserAgent
 		status := mock.Status

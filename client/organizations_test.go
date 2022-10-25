@@ -10,7 +10,7 @@ import (
 
 func TestCreateOrganization(t *testing.T) {
 	expectedBody := `{"name":"my-org"}`
-	setup(MockRoute{"POST", "/v3/organizations", []string{createOrganizationPayload}, "", http.StatusCreated, "", &expectedBody}, t)
+	setup(MockRoute{"POST", "/v3/organizations", []string{createOrganizationPayload}, "", http.StatusCreated, "", expectedBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -32,7 +32,7 @@ func TestCreateOrganization(t *testing.T) {
 }
 
 func TestGetOrganization(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/organizations/org-guid", []string{getOrganizationPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/organizations/org-guid", []string{getOrganizationPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -52,7 +52,7 @@ func TestGetOrganization(t *testing.T) {
 }
 
 func TestDeleteOrganization(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/organizations/org-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/organizations/org-guid", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -64,7 +64,7 @@ func TestDeleteOrganization(t *testing.T) {
 }
 
 func TestUpdateOrganization(t *testing.T) {
-	setup(MockRoute{"PATCH", "/v3/organizations/org-guid", []string{updateOrganizationPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"PATCH", "/v3/organizations/org-guid", []string{updateOrganizationPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -87,7 +87,7 @@ func TestUpdateOrganization(t *testing.T) {
 }
 
 func TestListAll(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/organizations", []string{listOrganizationsPayload, listOrganizationsPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/organizations", []string{listOrganizationsPayload, listOrganizationsPayloadPage2}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

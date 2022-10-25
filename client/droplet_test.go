@@ -8,7 +8,7 @@ import (
 
 func TestSetCurrentDropletForApp(t *testing.T) {
 	body := `{"data":{"guid":"3fc0916f-2cea-4f3a-ae53-048388baa6bd"}}`
-	setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", []string{currentDropletV3AppPayload}, "", http.StatusOK, "", &body}, t)
+	setup(MockRoute{"PATCH", "/v3/apps/9d8e007c-ce52-4ea7-8a57-f2825d2c6b39/relationships/current_droplet", []string{currentDropletV3AppPayload}, "", http.StatusOK, "", body}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -25,7 +25,7 @@ func TestSetCurrentDropletForApp(t *testing.T) {
 }
 
 func TestGetCurrentDropletForApp(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/droplets/current", []string{getCurrentAppDropletPayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396/droplets/current", []string{getCurrentAppDropletPayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -43,7 +43,7 @@ func TestGetCurrentDropletForApp(t *testing.T) {
 }
 
 func TestDeleteDroplet(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")

@@ -11,7 +11,7 @@ import (
 
 func TestCreateSpace(t *testing.T) {
 	expectedBody := `{"name":"my-space","relationships":{"organization":{"data":{"guid":"org-guid"}}}}`
-	setup(MockRoute{"POST", "/v3/spaces", []string{createSpacePayload}, "", http.StatusCreated, "", &expectedBody}, t)
+	setup(MockRoute{"POST", "/v3/spaces", []string{createSpacePayload}, "", http.StatusCreated, "", expectedBody}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -32,7 +32,7 @@ func TestCreateSpace(t *testing.T) {
 }
 
 func TestGetSpace(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/spaces/space-guid", []string{getSpacePayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/spaces/space-guid", []string{getSpacePayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -52,7 +52,7 @@ func TestGetSpace(t *testing.T) {
 }
 
 func TestDeleteSpace(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/spaces/space-guid", []string{""}, "", http.StatusAccepted, "", nil}, t)
+	setup(MockRoute{"DELETE", "/v3/spaces/space-guid", []string{""}, "", http.StatusAccepted, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -64,7 +64,7 @@ func TestDeleteSpace(t *testing.T) {
 }
 
 func TestUpdateSpace(t *testing.T) {
-	setup(MockRoute{"PATCH", "/v3/spaces/space-guid", []string{updateSpacePayload}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"PATCH", "/v3/spaces/space-guid", []string{updateSpacePayload}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -88,7 +88,7 @@ func TestUpdateSpace(t *testing.T) {
 }
 
 func TestListSpacesByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/spaces", []string{listSpacesPayload, listSpacesPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/spaces", []string{listSpacesPayload, listSpacesPayloadPage2}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
@@ -109,7 +109,7 @@ func TestListSpacesByQuery(t *testing.T) {
 }
 
 func TestListSpaceUsersByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listSpaceUsersPayload, listSpaceUsersPayloadPage2}, "", http.StatusOK, "", nil}, t)
+	setup(MockRoute{"GET", "/v3/spaces/space-guid/users", []string{listSpaceUsersPayload, listSpaceUsersPayloadPage2}, "", http.StatusOK, "", ""}, t)
 	defer teardown()
 
 	c, _ := NewTokenConfig(server.URL, "foobar")
