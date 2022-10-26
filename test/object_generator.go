@@ -83,6 +83,13 @@ func (o *ObjectJSONGenerator) Build() string {
 	return o.template(r, "build.json")
 }
 
+func (o *ObjectJSONGenerator) Deployment() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "deployment.json")
+}
+
 func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
 	apiPath := "https://cf.example.com/v3/" + apiResourcePath
 
