@@ -1,0 +1,45 @@
+{
+  "guid": "{{.GUID}}",
+  "created_at": "2016-03-28T23:39:34Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "created_by": {
+    "guid": "3cb4e243-bed4-49d5-8739-f8b45abdec1c",
+    "name": "bill",
+    "email": "bill@example.com"
+  },
+  "state": "STAGING",
+  "staging_memory_in_mb": 1024,
+  "staging_disk_in_mb": 1024,
+  "staging_log_rate_limit_bytes_per_second": 1024,
+  "error": null,
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": [ "ruby_buildpack" ],
+      "stack": "cflinuxfs3"
+    }
+  },
+  "package": {
+    "guid": "8e4da443-f255-499c-8b47-b3729b5b7432"
+  },
+  "droplet": null,
+  "relationships": {
+    "app": {
+      "data": {
+        "guid": "7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+      }
+    }
+  },
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/builds/{{.GUID}}"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396"
+    }
+  }
+}

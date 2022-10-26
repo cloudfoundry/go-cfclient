@@ -1,166 +1,145 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/test"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
-
-	"github.com/stretchr/testify/require"
-
-	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
-func TestCreateBuild(t *testing.T) {
-	body := `{"metadata":{"labels":{"foo":"bar"},"annotations":null},"package":{"guid":"package-guid"}}`
-	setup(MockRoute{"POST", "/v3/builds", []string{buildPayload}, "", http.StatusCreated, "", body}, t)
-	defer teardown()
+func TestBuilds(t *testing.T) {
+	g := test.NewObjectJSONGenerator(2)
+	build := g.Build()
+	build2 := g.Build()
+	build3 := g.Build()
+	build4 := g.Build()
 
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	bc := resource.NewBuildCreate("package-guid")
-	bc.Metadata = &resource.Metadata{
-		Labels: map[string]string{
-			"foo": "bar",
+	tests := []RouteTest{
+		{
+			Description: "Create build",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/builds",
+				Output:   []string{build},
+				Status:   http.StatusCreated,
+				PostForm: `{"metadata":{"labels":{"foo":"bar"},"annotations":null},"package":{"guid":"993386e8-5f68-403c-b372-d4aba7c71dbc"}}`},
+			Expected: build,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewBuildCreate("993386e8-5f68-403c-b372-d4aba7c71dbc")
+				r.Metadata = &resource.Metadata{
+					Labels: map[string]string{
+						"foo": "bar",
+					},
+				}
+				return c.Builds.Create(r)
+			},
+		},
+		{
+			Description: "Get build",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
+				Output:   []string{build},
+				Status:   http.StatusOK,
+			},
+			Expected: build,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Builds.Get("be9db090-ad79-41c1-9a01-6200d896f20f")
+			},
+		},
+		{
+			Description: "Delete build",
+			Route: MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
+				Status:   http.StatusAccepted,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Builds.Delete("be9db090-ad79-41c1-9a01-6200d896f20f")
+			},
+		},
+		{
+			Description: "Update build",
+			Route: MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
+				Output:   []string{build},
+				PostForm: `{"metadata":{"labels":{"env":"dev"},"annotations":{"foo": "bar"}}}`,
+				Status:   http.StatusOK,
+			},
+			Expected: build,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewBuildUpdate()
+				r.Metadata.Annotations["foo"] = "bar"
+				r.Metadata.Labels["env"] = "dev"
+				return c.Builds.Update("be9db090-ad79-41c1-9a01-6200d896f20f", r)
+			},
+		},
+		{
+			Description: "List first page of builds",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/builds",
+				Output:   g.Paged("builds", []string{build}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(build),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				builds, _, err := c.Builds.List(NewBuildListOptions())
+				return builds, err
+			},
+		},
+		{
+			Description: "List all builds",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/builds",
+				Output:   g.Paged("apps", []string{build, build2}, []string{build3, build4}),
+				Status:   http.StatusOK},
+			Expected: g.Array(build, build2, build3, build4),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Builds.ListAll()
+			},
+		},
+		{
+			Description: "List first page of builds for app",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
+				Output:   g.Paged("builds", []string{build}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(build),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				opts := NewBuildAppListOptions()
+				builds, _, err := c.Builds.ListForApp("1cb006ee-fb05-47e1-b541-c34179ddc446", opts)
+				return builds, err
+			},
 		},
 	}
-	build, err := client.Builds.Create(bc)
-	require.NoError(t, err)
-	require.NotNil(t, build)
+	for _, tt := range tests {
+		func() {
+			setup(tt.Route, t)
+			defer teardown()
+			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
+			if tt.Description != "" {
+				details = tt.Description + ": " + details
+			}
 
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", build.GUID)
-	require.Equal(t, "bill", build.CreatedBy.Name)
-	require.Equal(t, "8e4da443-f255-499c-8b47-b3729b5b7432", build.Package.GUID)
-}
+			c, _ := NewTokenConfig(server.URL, "foobar")
+			cl, err := New(c)
+			require.NoError(t, err, details)
 
-func TestGetBuild(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	build, err := client.Builds.Get("585bc3c1-3743-497d-88b0-403ad6b56d16")
-	require.NoError(t, err)
-	require.NotNil(t, build)
-
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", build.GUID)
-	require.Equal(t, "bill", build.CreatedBy.Name)
-	require.Equal(t, "8e4da443-f255-499c-8b47-b3729b5b7432", build.Package.GUID)
-	require.Equal(t, resource.BuildStateStaging, build.State)
-	require.Nil(t, build.Error)
-	require.Equal(t, "buildpack", build.Lifecycle.Type)
-	require.Equal(t, "8e4da443-f255-499c-8b47-b3729b5b7432", build.Package.GUID)
-	require.Nil(t, build.Droplet)
-	require.Equal(t, "https://api.example.org/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", build.Links["self"].Href)
-	require.Equal(t, "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396", build.Links["app"].Href)
-}
-
-func TestDeleteBuild(t *testing.T) {
-	setup(MockRoute{"DELETE", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{""}, "", http.StatusAccepted, "", ""}, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	err = client.Builds.Delete("585bc3c1-3743-497d-88b0-403ad6b56d16")
-	require.NoError(t, err)
-}
-
-func TestUpdateBuild(t *testing.T) {
-	setup(MockRoute{"PATCH", "/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", []string{buildPayload}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	u := resource.NewBuildUpdate()
-	u.Metadata.Annotations["foo"] = "bar"
-	u.Metadata.Labels["env"] = "dev"
-	build, err := client.Builds.Update("585bc3c1-3743-497d-88b0-403ad6b56d16", u)
-	require.NoError(t, err)
-	require.NotNil(t, build)
-
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", build.GUID)
-	require.Equal(t, "bill", build.CreatedBy.Name)
-	require.Equal(t, "8e4da443-f255-499c-8b47-b3729b5b7432", build.Package.GUID)
-	require.Equal(t, resource.BuildStateStaging, build.State)
-	require.Nil(t, build.Error)
-	require.Equal(t, "buildpack", build.Lifecycle.Type)
-	require.Equal(t, "8e4da443-f255-499c-8b47-b3729b5b7432", build.Package.GUID)
-	require.Nil(t, build.Droplet)
-	require.Equal(t, "https://api.example.org/v3/builds/585bc3c1-3743-497d-88b0-403ad6b56d16", build.Links["self"].Href)
-	require.Equal(t, "https://api.example.org/v3/apps/7b34f1cf-7e73-428a-bb5a-8a17a8058396", build.Links["app"].Href)
-}
-
-func TestListBuilds(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/builds", []string{buildListPayloadPage1}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	opts := NewBuildListOptions()
-	opts.PerPage = 1
-	builds, _, err := client.Builds.List(opts)
-	require.NoError(t, err)
-	require.Len(t, builds, 1)
-
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", builds[0].GUID)
-	require.Equal(t, resource.BuildStateStaging, builds[0].State)
-	require.Equal(t, "ruby_buildpack", builds[0].Lifecycle.BuildpackData.Buildpacks[0])
-}
-
-func TestListAllBuilds(t *testing.T) {
-	mr := MockRoute{
-		"GET",
-		"/v3/builds",
-		[]string{buildListPayloadPage1, buildListPayloadPage2},
-		"",
-		http.StatusOK,
-		"",
-		""}
-	setup(mr, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	builds, err := client.Builds.ListAll()
-	require.NoError(t, err)
-
-	require.Len(t, builds, 2)
-
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", builds[0].GUID)
-	require.Equal(t, "787bc3c1-3743-497d-88b0-403ad6b56d23", builds[1].GUID)
-}
-
-func TestListForAppBuilds(t *testing.T) {
-	mr := MockRoute{
-		"GET",
-		"/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
-		[]string{buildListPayloadPage1},
-		"",
-		http.StatusOK,
-		"",
-		""}
-	setup(mr, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	opts := NewBuildAppListOptions()
-	opts.PerPage = 1
-	builds, _, err := client.Builds.ListForApp("1cb006ee-fb05-47e1-b541-c34179ddc446", opts)
-	require.NoError(t, err)
-
-	require.Len(t, builds, 1)
-	require.Equal(t, "585bc3c1-3743-497d-88b0-403ad6b56d16", builds[0].GUID)
+			obj, err := tt.Action(cl, t)
+			require.NoError(t, err, details)
+			if tt.Expected != "" {
+				actual, err := json.Marshal(obj)
+				require.NoError(t, err, details)
+				require.JSONEq(t, tt.Expected, string(actual), details)
+			}
+		}()
+	}
 }
