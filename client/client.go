@@ -513,9 +513,11 @@ func (c *Client) post(id, path string, params any, result any) error {
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error creating %s/%s, response code: %d", path, id, resp.StatusCode)
 	}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return fmt.Errorf("error decoding %s/%s post response JSON: %w", path, id, err)
+	if result != nil {
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			return fmt.Errorf("error decoding %s/%s post response JSON: %w", path, id, err)
+		}
 	}
 	return nil
 }
