@@ -1,96 +1,94 @@
 package client
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
-	"net/http"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
 type DeploymentClient commonClient
 
-func (c *DeploymentClient) Get(deploymentGUID string) (*resource.Deployment, error) {
-	req := c.client.NewRequest("GET", "/v3/deployments/"+deploymentGUID)
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error getting deployment: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
+// DeploymentListOptions list filters
+type DeploymentListOptions struct {
+	*ListOptions
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error getting deployment with GUID [%s], response code: %d", deploymentGUID, resp.StatusCode)
-	}
-
-	var r resource.Deployment
-	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, fmt.Errorf("error reading deployment response JSON: %w", err)
-	}
-
-	return &r, nil
+	AppGUIDs      Filter `filter:"app_guids,omitempty"`
+	States        Filter `filter:"states,omitempty"`
+	StatusReasons Filter `filter:"status_reasons,omitempty"`
+	StatusValues  Filter `filter:"status_values,omitempty"`
 }
 
-func (c *DeploymentClient) Create(appGUID string, optionalParams *resource.CreateDeploymentOptionalParameters) (*resource.Deployment, error) {
+// NewDeploymentListOptions creates new options to pass to list
+func NewDeploymentListOptions() *DeploymentListOptions {
+	return &DeploymentListOptions{
+		ListOptions: NewListOptions(),
+	}
+}
+
+// Cancel the ongoing deployment
+func (c *DeploymentClient) Cancel(guid string) error {
+	return c.client.post(guid, path("/v3/deployments/%s/actions/cancel", guid), nil, nil)
+}
+
+// Create a new deployment
+func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deployment, error) {
 	// validate the params
-	if optionalParams != nil {
-		if optionalParams.Droplet != nil && optionalParams.Revision != nil {
-			return nil, errors.New("droplet and revision cannot both be set")
-		}
+	if r.Droplet != nil && r.Revision != nil {
+		return nil, errors.New("droplet and revision cannot both be set")
 	}
 
-	requestBody := resource.CreateDeploymentRequest{}
-	requestBody.CreateDeploymentOptionalParameters = optionalParams
-
-	requestBody.Relationships = struct {
-		App resource.ToOneRelationship "json:\"app\""
-	}{
-		App: resource.ToOneRelationship{
-			Data: resource.Relationship{
-				GUID: appGUID,
-			},
-		},
-	}
-
-	req := c.client.NewRequest("POST", "/v3/deployments")
-	req.obj = requestBody
-
-	resp, err := c.client.DoRequest(req)
+	var d resource.Deployment
+	err := c.client.post("", "/v3/deployments", r, &d)
 	if err != nil {
-		return nil, fmt.Errorf("error creating deployment: %w", err)
+		return nil, err
 	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating deployment for app GUID [%s], response code: %d", appGUID, resp.StatusCode)
-	}
-
-	var r resource.Deployment
-	if err = json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, fmt.Errorf("error reading deployment response JSON: %w", err)
-	}
-
-	return &r, nil
+	return &d, nil
 }
 
-func (c *DeploymentClient) Cancel(deploymentGUID string) error {
-	req := c.client.NewRequest("POST", "/v3/deployments/"+deploymentGUID+"/actions/cancel")
-	resp, err := c.client.DoRequest(req)
+// Get the specified app
+func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
+	var d resource.Deployment
+	err := c.client.get(path("/v3/deployments/%s", guid), &d)
 	if err != nil {
-		return fmt.Errorf("error canceling deployment: %w", err)
+		return nil, err
 	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
+	return &d, nil
+}
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error canceling deployment [%s], response code: %d", deploymentGUID, resp.StatusCode)
+// List all deployments the user has access to in paged results
+func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+	var res resource.DeploymentList
+	err := c.client.get(path("/v3/deployments?%s", opts.ToQueryString(opts)), &res)
+	if err != nil {
+		return nil, nil, err
 	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
 
-	return nil
+// ListAll retrieves all deployments the user has access to
+func (c *DeploymentClient) ListAll() ([]*resource.Deployment, error) {
+	opts := NewDeploymentListOptions()
+	var allDeployments []*resource.Deployment
+	for {
+		apps, pager, err := c.List(opts)
+		if err != nil {
+			return nil, err
+		}
+		allDeployments = append(allDeployments, apps...)
+		if !pager.HasNextPage() {
+			break
+		}
+		opts.ListOptions = pager.NextPage(opts.ListOptions)
+	}
+	return allDeployments, nil
+}
+
+// Update the specified attributes of the deployment
+func (c *DeploymentClient) Update(guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
+	var d resource.Deployment
+	err := c.client.patch(path("/v3/deployments/%s", guid), r, &d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
 }
