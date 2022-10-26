@@ -62,6 +62,20 @@ func (o *ObjectJSONGenerator) AppPermission() string {
 	return o.template(resourceTemplate{}, "app_permissions.json")
 }
 
+func (o *ObjectJSONGenerator) Droplet() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "droplet.json")
+}
+
+func (o *ObjectJSONGenerator) DropletAssociation() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "droplet_association.json")
+}
+
 func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
 	apiPath := "https://cf.example.com/v3/" + apiResourcePath
 
