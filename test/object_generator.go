@@ -76,6 +76,13 @@ func (o *ObjectJSONGenerator) DropletAssociation() string {
 	return o.template(r, "droplet_association.json")
 }
 
+func (o *ObjectJSONGenerator) Build() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "build.json")
+}
+
 func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
 	apiPath := "https://cf.example.com/v3/" + apiResourcePath
 

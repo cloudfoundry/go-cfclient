@@ -7,7 +7,7 @@ type Build struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	State     string    `json:"state"`
-	Error     *string   `json:"error,omitempty"`
+	Error     *string   `json:"error"`
 
 	StagingMemoryInMB                 int `json:"staging_memory_in_mb"`
 	StagingDiskInMB                   int `json:"staging_disk_in_mb"`
@@ -15,10 +15,10 @@ type Build struct {
 
 	Lifecycle     Lifecycle                    `json:"lifecycle"`
 	Package       Relationship                 `json:"package"`
-	Droplet       *Relationship                `json:"droplet,omitempty"`
+	Droplet       *Relationship                `json:"droplet"`
 	CreatedBy     CreatedBy                    `json:"created_by"`
 	Links         map[string]Link              `json:"links"`
-	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
+	Relationships map[string]ToOneRelationship `json:"relationships"`
 	Metadata      Metadata                     `json:"metadata"`
 }
 
