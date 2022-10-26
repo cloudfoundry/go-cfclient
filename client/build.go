@@ -6,6 +6,7 @@ import (
 
 type BuildClient commonClient
 
+// BuildListOptions list filters
 type BuildListOptions struct {
 	*ListOptions
 
@@ -14,24 +15,28 @@ type BuildListOptions struct {
 	PackageGUIDs Filter `filter:"package_guids,omitempty"`
 }
 
+// BuildAppListOptions list filters
 type BuildAppListOptions struct {
 	*ListOptions
 
 	States Filter `filter:"states,omitempty"`
 }
 
+// NewBuildListOptions creates new options to pass to list
 func NewBuildListOptions() *BuildListOptions {
 	return &BuildListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
+// NewBuildAppListOptions creates new options to pass to list
 func NewBuildAppListOptions() *BuildAppListOptions {
 	return &BuildAppListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
+// Create a new build
 func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 	var build resource.Build
 	err := c.client.post(r.Package.GUID, "/v3/builds", r, &build)
@@ -41,10 +46,12 @@ func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 	return &build, nil
 }
 
+// Delete the specified build
 func (c *BuildClient) Delete(guid string) error {
 	return c.client.delete(path("/v3/builds/%s", guid))
 }
 
+// Get the specified build
 func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 	var build resource.Build
 	err := c.client.get(path("/v3/builds/%s", guid), &build)
@@ -54,6 +61,7 @@ func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 	return &build, nil
 }
 
+// List all builds the user has access to in paged results
 func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
 	var res resource.BuildList
 	err := c.client.get(path("/v3/builds?%s", opts.ToQueryString(opts)), &res)
@@ -64,6 +72,7 @@ func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, e
 	return res.Resources, pager, nil
 }
 
+// ListAll retrieves all builds the user has access to
 func (c *BuildClient) ListAll() ([]*resource.Build, error) {
 	opts := NewBuildListOptions()
 	var allBuilds []*resource.Build
@@ -81,6 +90,7 @@ func (c *BuildClient) ListAll() ([]*resource.Build, error) {
 	return allBuilds, nil
 }
 
+// ListForApp retrieves all builds for the app in paged results
 func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
 	var res resource.BuildList
 	err := c.client.get(path("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString(opts)), &res)
@@ -91,6 +101,7 @@ func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*
 	return res.Resources, pager, nil
 }
 
+// Update the specified attributes of the build
 func (c *BuildClient) Update(guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build
 	err := c.client.patch(path("/v3/builds/%s", guid), r, &build)
