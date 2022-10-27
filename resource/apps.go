@@ -62,8 +62,8 @@ func NewAppCreate(name, spaceGUID string) *AppCreate {
 
 type AppUpdate struct {
 	Name      string     `json:"name"`
-	Lifecycle *Lifecycle `json:"lifecycle"`
-	Metadata  *Metadata  `json:"metadata"`
+	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
+	Metadata  *Metadata  `json:"metadata,omitempty"`
 }
 
 type AppSSHEnabled struct {
@@ -94,6 +94,6 @@ type EnvVarResponse struct {
 }
 
 type AppList struct {
-	Pagination Pagination `json:"pagination,omitempty"`
-	Resources  []*App     `json:"resources,omitempty"`
+	Pagination Pagination `json:"pagination"`
+	Resources  []*App     `json:"resources"`
 }

@@ -28,7 +28,8 @@ func TestApps(t *testing.T) {
 				Endpoint: "/v3/apps",
 				Output:   []string{app1},
 				Status:   http.StatusCreated,
-				PostForm: `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`},
+				PostForm: `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`,
+			},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewAppCreate("my-app", "space-guid")
@@ -163,10 +164,20 @@ func TestApps(t *testing.T) {
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
 				Output:   []string{app1},
 				Status:   http.StatusOK,
+				PostForm: `{ "name": "new_name", "lifecycle": { "type": "buildpack", "data": { "buildpacks": ["java_offline"] }}}`,
 			},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", &resource.AppUpdate{})
+				r := &resource.AppUpdate{
+					Name: "new_name",
+					Lifecycle: &resource.Lifecycle{
+						Type: "buildpack",
+						BuildpackData: resource.BuildpackLifecycle{
+							Buildpacks: []string{"java_offline"},
+						},
+					},
+				}
+				return c.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", r)
 			},
 		},
 		{
