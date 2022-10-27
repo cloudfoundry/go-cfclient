@@ -451,7 +451,8 @@ func (c *Client) delete(path string) error {
 		_ = b.Close()
 	}(resp.Body)
 
-	if resp.StatusCode != http.StatusAccepted {
+	// some endpoints return accepted and others return no content
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("error deleting %s, response code: %d", path, resp.StatusCode)
 	}
 	return nil

@@ -90,6 +90,17 @@ func (o *ObjectJSONGenerator) Deployment() string {
 	return o.template(r, "deployment.json")
 }
 
+func (o *ObjectJSONGenerator) Domain() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "domain.json")
+}
+
+func (o *ObjectJSONGenerator) DomainShared() string {
+	return o.template(resourceTemplate{}, "domain_shared.json")
+}
+
 func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
 	apiPath := "https://cf.example.com/v3/" + apiResourcePath
 
