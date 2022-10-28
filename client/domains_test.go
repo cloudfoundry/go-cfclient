@@ -53,7 +53,7 @@ func TestDomains(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
-				Output:   g.Paged("domains", []string{domain}),
+				Output:   g.Paged([]string{domain}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),
@@ -67,7 +67,7 @@ func TestDomains(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
-				Output:   g.Paged("domains", []string{domain, domain2}, []string{domain3, domain4}),
+				Output:   g.Paged([]string{domain, domain2}, []string{domain3, domain4}),
 				Status:   http.StatusOK},
 			Expected: g.Array(domain, domain2, domain3, domain4),
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -79,7 +79,7 @@ func TestDomains(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b/domains",
-				Output:   g.Paged("domains", []string{domain}),
+				Output:   g.Paged([]string{domain}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),

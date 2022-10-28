@@ -99,7 +99,7 @@ func TestDeployments(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
-				Output:   g.Paged("deployments", []string{deployment}),
+				Output:   g.Paged([]string{deployment}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(deployment),
@@ -113,7 +113,7 @@ func TestDeployments(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
-				Output:   g.Paged("deployments", []string{deployment, deployment2}, []string{deployment3, deployment4}),
+				Output:   g.Paged([]string{deployment, deployment2}, []string{deployment3, deployment4}),
 				Status:   http.StatusOK},
 			Expected: g.Array(deployment, deployment2, deployment3, deployment4),
 			Action: func(c *Client, t *testing.T) (any, error) {

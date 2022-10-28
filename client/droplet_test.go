@@ -79,7 +79,7 @@ func TestDroplets(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets",
-				Output:   g.Paged("droplets", []string{droplet}),
+				Output:   g.Paged([]string{droplet}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(droplet),
@@ -93,7 +93,7 @@ func TestDroplets(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets",
-				Output:   g.Paged("droplets", []string{droplet, droplet2}, []string{droplet3, droplet4}),
+				Output:   g.Paged([]string{droplet, droplet2}, []string{droplet3, droplet4}),
 				Status:   http.StatusOK},
 			Expected: g.Array(droplet, droplet2, droplet3, droplet4),
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -105,7 +105,7 @@ func TestDroplets(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/8222f76a-9e09-4360-b3aa-1ed329945e92/droplets",
-				Output:   g.Paged("droplets", []string{droplet}),
+				Output:   g.Paged([]string{droplet}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(droplet),
@@ -115,11 +115,24 @@ func TestDroplets(t *testing.T) {
 			},
 		},
 		{
+			Description: "List all droplets for a package",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/packages/8222f76a-9e09-4360-b3aa-1ed329945e92/droplets",
+				Output:   g.Paged([]string{droplet, droplet2}, []string{droplet3}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(droplet, droplet2, droplet3),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Droplets.ListForPackageAll("8222f76a-9e09-4360-b3aa-1ed329945e92", nil)
+			},
+		},
+		{
 			Description: "List first page of droplets for an app",
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/droplets",
-				Output:   g.Paged("droplets", []string{droplet}),
+				Output:   g.Paged([]string{droplet}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(droplet),
