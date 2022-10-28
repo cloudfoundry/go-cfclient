@@ -111,6 +111,20 @@ func (o *ObjectJSONGenerator) Organization() string {
 	return o.template(r, "org.json")
 }
 
+func (o *ObjectJSONGenerator) Package() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "package.json")
+}
+
+func (o *ObjectJSONGenerator) PackageDocker() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "package_docker.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
