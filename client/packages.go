@@ -1,7 +1,6 @@
 package client
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,108 +11,137 @@ import (
 
 type PackageClient commonClient
 
-func (c *PackageClient) ListForApp(appGUID string, query url.Values) ([]resource.Package, error) {
-	var packages []resource.Package
-	requestURL := "/v3/apps/" + appGUID + "/packages"
-	if e := query.Encode(); len(e) > 0 {
-		requestURL += "?" + e
-	}
+// PackageListOptions list filters
+type PackageListOptions struct {
+	*ListOptions
 
-	for {
-		resp, err := c.client.DoRequest(c.client.NewRequest("GET", requestURL))
-		if err != nil {
-			return nil, fmt.Errorf("error requesting packages for app %s: %w", appGUID, err)
-		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing v3 app packages, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListPackagesResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list v3 app packages: %w", err)
-		}
-
-		packages = append(packages, data.Resources...)
-		requestURL = data.Pagination.Next.Href
-		if requestURL == "" || query.Get("page") != "" {
-			break
-		}
-		requestURL, err = extractPathFromURL(requestURL)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing the next page request url for v3 packages: %w", err)
-		}
-	}
-	return packages, nil
+	GUIDs  Filter `filter:"guids,omitempty"`  // list of package guids to filter by
+	States Filter `filter:"states,omitempty"` // list of package states to filter by
+	Types  Filter `filter:"types,omitempty"`  // list of package types to filter by, docker or bits
 }
 
-// Copy makes a copy of a package that is associated with one app
-// and associates the copy with a new app.
-func (c *PackageClient) Copy(packageGUID, appGUID string) (*resource.Package, error) {
-	req := c.client.NewRequest("POST", "/v3/packages?source_guid="+packageGUID)
-	req.obj = map[string]interface{}{
-		"relationships": map[string]interface{}{
-			"app": resource.ToOneRelationship{
-				Data: resource.Relationship{
-					GUID: appGUID,
-				},
-			},
-		},
+// NewPackageListOptions creates new options to pass to list
+func NewPackageListOptions() *PackageListOptions {
+	return &PackageListOptions{
+		ListOptions: NewListOptions(),
 	}
+}
 
+func (o PackageListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
+// Copy the bits of a source package to a target package
+func (c *PackageClient) Copy(srcPackageGUID string, destAppGUID string) (*resource.Package, error) {
+	var d resource.Package
+	r := resource.NewPackageCopy(destAppGUID)
+	err := c.client.post(srcPackageGUID, path("/v3/packages?source_guid=%s", srcPackageGUID), r, &d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
+// Create a new package
+func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, error) {
+	var p resource.Package
+	err := c.client.post("", "/v3/packages", r, &p)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+// Delete the specified package
+func (c *PackageClient) Delete(guid string) error {
+	return c.client.delete(path("/v3/packages/%s", guid))
+}
+
+// Download the bits of an existing package
+// It is the caller's responsibility to close the io.ReadCloser
+func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
+	// This is the initial request, which will redirect to the internal blobstore location.
+	// The client should automatically follow this redirect. External blob stores are untested.
+	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-package-bits
+	p := path("/v3/packages/%s/download", guid)
+	req := c.client.NewRequest("GET", p)
 	resp, err := c.client.DoRequest(req)
 	if err != nil {
-		return nil, fmt.Errorf("error while copying v3 package: %w", err)
+		return nil, fmt.Errorf("error getting %s: %w", p, err)
 	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error copying v3 package %s, response code: %d", packageGUID, resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error getting %s, response code: %d", p, resp.StatusCode)
 	}
-
-	var pkg resource.Package
-	if err := json.NewDecoder(resp.Body).Decode(&pkg); err != nil {
-		return nil, fmt.Errorf("error reading v3 app package: %w", err)
-	}
-
-	return &pkg, nil
+	return resp.Body, nil
 }
 
-// CreateDocker creates a Docker package
-func (c *PackageClient) CreateDocker(image string, appGUID string, dockerCredentials *resource.DockerCredentials) (*resource.Package, error) {
-	req := c.client.NewRequest("POST", "/v3/packages")
-	req.obj = resource.CreateDockerPackageRequest{
-		Type: "docker",
-		Relationships: map[string]resource.ToOneRelationship{
-			"app": {Data: resource.Relationship{GUID: appGUID}},
-		},
-		Data: resource.DockerPackageData{
-			Image:             image,
-			DockerCredentials: dockerCredentials,
-		},
-	}
-
-	resp, err := c.client.DoRequest(req)
+// Get the specified build
+func (c *PackageClient) Get(guid string) (*resource.Package, error) {
+	var p resource.Package
+	err := c.client.get(path("/v3/packages/%s", guid), &p)
 	if err != nil {
-		return nil, fmt.Errorf("error while copying v3 package: %w", err)
+		return nil, err
 	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating v3 docker package, response code: %d", resp.StatusCode)
-	}
-
-	var pkg resource.Package
-	if err := json.NewDecoder(resp.Body).Decode(&pkg); err != nil {
-		return nil, fmt.Errorf("error reading v3 app package: %w", err)
-	}
-
-	return &pkg, nil
+	return &p, nil
 }
+
+// List pages all the packages the user has access to
+func (c *PackageClient) List(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+	if opts == nil {
+		opts = NewPackageListOptions()
+	}
+	var res resource.PackageList
+	err := c.client.get(path("/v3/packages?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
+
+// ListAll retrieves all the packages the user has access to
+func (c *PackageClient) ListAll(opts *PackageListOptions) ([]*resource.Package, error) {
+	if opts == nil {
+		opts = NewPackageListOptions()
+	}
+	return AutoPage[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+		return c.List(opts)
+	})
+}
+
+// ListForApp pages all the packages the user has access to
+func (c *PackageClient) ListForApp(appGUID string, opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+	if opts == nil {
+		opts = NewPackageListOptions()
+	}
+	var res resource.PackageList
+	err := c.client.get(path("/v3/apps/%s/packages?%s", appGUID, opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
+
+// ListForAppAll retrieves all the packages the user has access to
+func (c *PackageClient) ListForAppAll(appGUID string, opts *PackageListOptions) ([]*resource.Package, error) {
+	if opts == nil {
+		opts = NewPackageListOptions()
+	}
+	return AutoPage[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+		return c.ListForApp(appGUID, opts)
+	})
+}
+
+// Update the specified attributes of the package
+func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resource.Package, error) {
+	var p resource.Package
+	err := c.client.patch(path("/v3/packages/%s", guid), r, &p)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+// TODO Stage a package
+// TODO Upload package bits

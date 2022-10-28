@@ -1,0 +1,39 @@
+{
+  "guid": "{{.GUID}}",
+  "type": "docker",
+  "data": {
+    "image": "registry/image:latest",
+    "username": "username",
+    "password": "secret"
+  },
+  "state": "PROCESSING_UPLOAD",
+  "created_at": "2015-11-13T17:02:56Z",
+  "updated_at": "2016-06-08T16:41:26Z",
+  "relationships": {
+    "app": {
+      "data": {
+        "guid": "1d3bf0ec-5806-43c4-b64e-8364dba1086a"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/packages/{{.GUID}}"
+    },
+    "upload": {
+      "href": "https://api.example.org/v3/packages/{{.GUID}}/upload",
+      "method": "POST"
+    },
+    "download": {
+      "href": "https://api.example.org/v3/packages/{{.GUID}}/download",
+      "method": "GET"
+    },
+    "app": {
+      "href": "https://api.example.org/v3/apps/1d3bf0ec-5806-43c4-b64e-8364dba1086a"
+    }
+  },
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  }
+}

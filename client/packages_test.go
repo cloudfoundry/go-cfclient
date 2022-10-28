@@ -2,88 +2,218 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
-
+	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/test"
+	"github.com/stretchr/testify/require"
+	"io"
+	"net/http"
+	"strings"
+	"testing"
 )
 
-func TestListPackagesForApp(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69/packages", []string{listPackagesForAppPayloadPage1, listPackagesForAppPayloadPage2}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
+func TestBitsMarshalling(t *testing.T) {
+	g := test.NewObjectJSONGenerator(1)
+	rawPkg := g.Package()
 
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
+	var pkg resource.Package
+	err := json.Unmarshal([]byte(rawPkg), &pkg)
 	require.NoError(t, err)
+	require.Nil(t, pkg.Data.Docker)
+	require.NotNil(t, pkg.Data.Bits)
+	require.Equal(t, "sha256", pkg.Data.Bits.Checksum.Type)
+	require.Nil(t, pkg.Data.Bits.Error)
 
-	packages, err := client.Packages.ListForApp("f2efe391-2b5b-4836-8518-ad93fa9ebf69", nil)
+	b, err := json.Marshal(&pkg)
 	require.NoError(t, err)
-	require.Len(t, packages, 2)
-
-	require.Equal(t, "bits", packages[0].Type)
-	require.Equal(t, "READY", string(packages[0].State))
-	require.Equal(t, "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69", packages[0].Links["app"].Href)
-	require.Equal(t, "https://api.example.org/v3/packages/752edab0-2147-4f58-9c25-cd72ad8c3561/download", packages[0].Links["download"].Href)
-	require.Equal(t, "bits", string(packages[1].Type))
-	require.Equal(t, "READY", string(packages[1].State))
-	require.Equal(t, "https://api.example.org/v3/apps/f2efe391-2b5b-4836-8518-ad93fa9ebf69", packages[1].Links["app"].Href)
-	require.Equal(t, "https://api.example.org/v3/packages/2345ab-2147-4f58-9c25-cd72ad8c3561/download", packages[1].Links["download"].Href)
-
+	require.JSONEq(t, rawPkg, string(b))
 }
 
-func TestCopyPackage(t *testing.T) {
-	expectedBody := `{"relationships":{"app":{"data":{"guid":"app-guid"}}}}`
-	setup(MockRoute{"POST", "/v3/packages", []string{copyPackagePayload}, "", http.StatusCreated, "source_guid=package-guid", expectedBody}, t)
-	defer teardown()
+func TestDockerMarshalling(t *testing.T) {
+	g := test.NewObjectJSONGenerator(1)
+	rawPkg := g.PackageDocker()
 
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
+	var pkg resource.Package
+	err := json.Unmarshal([]byte(rawPkg), &pkg)
 	require.NoError(t, err)
+	require.NotNil(t, pkg.Data.Docker)
+	require.Nil(t, pkg.Data.Bits)
+	require.Equal(t, "registry/image:latest", pkg.Data.Docker.Image)
+	require.Equal(t, "username", pkg.Data.Docker.Username)
+	require.Equal(t, "secret", pkg.Data.Docker.Password)
 
-	pkg, err := client.Packages.Copy("package-guid", "app-guid")
+	b, err := json.Marshal(&pkg)
 	require.NoError(t, err)
-
-	require.Equal(t, "COPYING", string(pkg.State))
-	require.Equal(t, "docker", pkg.Type)
-	require.Equal(t, "fec72fc1-e453-4463-a86d-5df426f337a3", pkg.GUID)
-
-	docker, err := pkg.DockerData()
-	require.NoError(t, err)
-	require.Equal(t, "http://awesome-sauce.example.org", docker.Image)
+	require.JSONEq(t, rawPkg, string(b))
 }
 
-func TestPackageDataDockerErrorsWhenTypeIsBits(t *testing.T) {
-	p := resource.Package{Type: "bits"}
-	_, err := p.DockerData()
-	require.NotNil(t, err)
-}
+func TestPackages(t *testing.T) {
+	g := test.NewObjectJSONGenerator(1)
+	pkg := g.Package()
+	pkg2 := g.Package()
+	pkg3 := g.Package()
+	pkg4 := g.Package()
 
-func TestPackageDataDocker(t *testing.T) {
-	p := resource.Package{
-		Type: "docker",
-		Data: json.RawMessage(`{"image":"nginx","username":"admin","password":"password"}`),
+	tests := []RouteTest{
+		{
+			Description: "Create package",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/packages",
+				Output:   []string{pkg},
+				Status:   http.StatusCreated,
+				PostForm: `{ "type": "bits", "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
+			},
+			Expected: pkg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewPackageCreate("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
+				return c.Packages.Create(r)
+			},
+		},
+		{
+			Description: "Copy package",
+			Route: MockRoute{
+				Method:      "POST",
+				Endpoint:    "/v3/packages",
+				QueryString: "source_guid=66e89f29-475e-4baf-9675-40c6096c017b",
+				Output:      []string{pkg},
+				Status:      http.StatusCreated,
+				PostForm:    `{ "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
+			},
+			Expected: pkg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Packages.Copy("66e89f29-475e-4baf-9675-40c6096c017b", "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
+			},
+		},
+		{
+			Description: "Delete package",
+			Route: MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
+				Status:   http.StatusAccepted,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Packages.Delete("66e89f29-475e-4baf-9675-40c6096c017b")
+			},
+		},
+		{
+			Description: "Download package",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b/download",
+				Output:   []string{"package bits..."},
+				Status:   http.StatusOK,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				reader, err := c.Packages.Download("66e89f29-475e-4baf-9675-40c6096c017b")
+				require.NoError(t, err)
+				buf := new(strings.Builder)
+				_, err = io.Copy(buf, reader)
+				require.NoError(t, err)
+				require.Equal(t, "package bits...", buf.String())
+				return nil, nil
+			},
+		},
+		{
+			Description: "Get package",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
+				Output:   []string{pkg},
+				Status:   http.StatusOK,
+			},
+			Expected: pkg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Packages.Get("66e89f29-475e-4baf-9675-40c6096c017b")
+			},
+		},
+		{
+			Description: "List first page of packages",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/packages",
+				Output:   g.Paged([]string{pkg}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(pkg),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				ds, _, err := c.Packages.List(nil)
+				return ds, err
+			},
+		},
+		{
+			Description: "List all packages",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/packages",
+				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3, pkg4}),
+				Status:   http.StatusOK},
+			Expected: g.Array(pkg, pkg2, pkg3, pkg4),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Packages.ListAll(nil)
+			},
+		},
+		{
+			Description: "List first page of packages for an app",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
+				Output:   g.Paged([]string{pkg}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(pkg),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				ds, _, err := c.Packages.ListForApp("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
+				return ds, err
+			},
+		},
+		{
+			Description: "List all packages for an app",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
+				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(pkg, pkg2, pkg3),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Packages.ListForAppAll("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
+			},
+		},
+		{
+			Description: "Update package",
+			Route: MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/packages/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b",
+				Output:   []string{pkg},
+				Status:   http.StatusOK,
+			},
+			Expected: pkg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Packages.Update("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", &resource.PackageUpdate{})
+			},
+		},
 	}
-	d, err := p.DockerData()
-	require.NoError(t, err)
-	require.Equal(t, "nginx", d.Image)
-	require.Equal(t, "admin", d.Username)
-	require.Equal(t, "password", d.Password)
-}
+	for _, tt := range tests {
+		func() {
+			setup(tt.Route, t)
+			defer teardown()
+			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
+			if tt.Description != "" {
+				details = tt.Description + ": " + details
+			}
 
-func TestPackageDataBitsErrorsWhenTypeIsDocker(t *testing.T) {
-	p := resource.Package{Type: "docker"}
-	_, err := p.BitsData()
-	require.NotNil(t, err)
-}
+			c, _ := NewTokenConfig(server.URL, "foobar")
+			cl, err := New(c)
+			require.NoError(t, err, details)
 
-func TestPackageDataBits(t *testing.T) {
-	p := resource.Package{
-		Type: "bits",
-		Data: json.RawMessage(`{"error":"None","checksum":{"type":"sha256","value":"foo"}}`),
+			obj, err := tt.Action(cl, t)
+			require.NoError(t, err, details)
+			if tt.Expected != "" {
+				actual, err := json.Marshal(obj)
+				require.NoError(t, err, details)
+				require.JSONEq(t, tt.Expected, string(actual), details)
+			}
+		}()
 	}
-	b, err := p.BitsData()
-	require.NoError(t, err)
-	require.Equal(t, "None", b.Error)
-	require.Equal(t, "sha256", b.Checksum.Type)
 }
