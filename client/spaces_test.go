@@ -95,7 +95,7 @@ func TestListSpacesByQuery(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	spaces, err := client.Spaces.ListAll()
+	spaces, err := client.Spaces.ListAll(nil)
 	require.NoError(t, err)
 	require.Len(t, spaces, 2)
 

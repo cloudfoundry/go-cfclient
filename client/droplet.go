@@ -5,6 +5,7 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type DropletClient commonClient
@@ -27,6 +28,10 @@ func NewDropletListOptions() *DropletListOptions {
 	}
 }
 
+func (o DropletListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
 // DropletPackageListOptions list filters
 type DropletPackageListOptions struct {
 	*ListOptions
@@ -40,6 +45,10 @@ func NewDropletPackageListOptions() *DropletPackageListOptions {
 	return &DropletPackageListOptions{
 		ListOptions: NewListOptions(),
 	}
+}
+
+func (o DropletPackageListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
 }
 
 // DropletAppListOptions list filters
@@ -56,6 +65,10 @@ func NewDropletAppListOptions() *DropletAppListOptions {
 	return &DropletAppListOptions{
 		ListOptions: NewListOptions(),
 	}
+}
+
+func (o DropletAppListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
 }
 
 // Copy a droplet to a different app. The copied droplet excludes the environment variables listed on the source droplet
@@ -114,8 +127,11 @@ func (c *DropletClient) Get(guid string) (*resource.Droplet, error) {
 
 // List pages all droplets the user has access to
 func (c *DropletClient) List(opts *DropletListOptions) ([]*resource.Droplet, *Pager, error) {
+	if opts == nil {
+		opts = NewDropletListOptions()
+	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/droplets?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/droplets?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -124,27 +140,22 @@ func (c *DropletClient) List(opts *DropletListOptions) ([]*resource.Droplet, *Pa
 }
 
 // ListAll retrieves all droplets the user has access to
-func (c *DropletClient) ListAll() ([]*resource.Droplet, error) {
-	opts := NewDropletListOptions()
-	var allDroplets []*resource.Droplet
-	for {
-		apps, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allDroplets = append(allDroplets, apps...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+func (c *DropletClient) ListAll(opts *DropletListOptions) ([]*resource.Droplet, error) {
+	if opts == nil {
+		opts = NewDropletListOptions()
 	}
-	return allDroplets, nil
+	return AutoPage[*DropletListOptions, *resource.Droplet](opts, func(opts *DropletListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
 // ListForApp pages all droplets for the specified app
 func (c *DropletClient) ListForApp(appGUID string, opts *DropletAppListOptions) ([]*resource.Droplet, *Pager, error) {
+	if opts == nil {
+		opts = NewDropletAppListOptions()
+	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/apps/%s/droplets?%s", appGUID, opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/apps/%s/droplets?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -152,15 +163,38 @@ func (c *DropletClient) ListForApp(appGUID string, opts *DropletAppListOptions) 
 	return res.Resources, pager, nil
 }
 
+// ListForAppAll retrieves all droplets for the specified app
+func (c *DropletClient) ListForAppAll(appGUID string, opts *DropletAppListOptions) ([]*resource.Droplet, error) {
+	if opts == nil {
+		opts = NewDropletAppListOptions()
+	}
+	return AutoPage[*DropletAppListOptions, *resource.Droplet](opts, func(opts *DropletAppListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForApp(appGUID, opts)
+	})
+}
+
 // ListForPackage pages all droplets for the specified package
 func (c *DropletClient) ListForPackage(packageGUID string, opts *DropletPackageListOptions) ([]*resource.Droplet, *Pager, error) {
+	if opts == nil {
+		opts = NewDropletPackageListOptions()
+	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/packages/%s/droplets?%s", packageGUID, opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/packages/%s/droplets?%s", packageGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
+}
+
+// ListForPackageAll retrieves all droplets for the specified package
+func (c *DropletClient) ListForPackageAll(packageGUID string, opts *DropletPackageListOptions) ([]*resource.Droplet, error) {
+	if opts == nil {
+		opts = NewDropletPackageListOptions()
+	}
+	return AutoPage[*DropletPackageListOptions, *resource.Droplet](opts, func(opts *DropletPackageListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForPackage(packageGUID, opts)
+	})
 }
 
 // GetCurrentAssociationForApp retrieves the current droplet relationship for an app

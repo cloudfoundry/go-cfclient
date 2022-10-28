@@ -17,12 +17,12 @@ func TestListOptions(t *testing.T) {
 
 	// defaults
 	defaultOpts := NewAppListOptions()
-	qs := defaultOpts.ToQueryString(defaultOpts)
+	qs := defaultOpts.ToQueryString()
 	require.Equal(t, "page=1&per_page=50", qs.Encode())
 
 	// should not include zero values
 	opts := newEmptyOpts()
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "", qs.Encode())
 
 	// single app by guid
@@ -30,7 +30,7 @@ func TestListOptions(t *testing.T) {
 	opts.GUIDs = Filter{
 		Values: []string{"guid-1"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "guids="+url.QueryEscape("guid-1"), qs.Encode())
 
 	// single app by name
@@ -38,7 +38,7 @@ func TestListOptions(t *testing.T) {
 	opts.Names = Filter{
 		Values: []string{"app1"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "names="+url.QueryEscape("app1"), qs.Encode())
 
 	// apps by org ids
@@ -46,7 +46,7 @@ func TestListOptions(t *testing.T) {
 	opts.OrganizationGUIDs = Filter{
 		Values: []string{"org-guid-1", "org-guid-2"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "organization_guids="+url.QueryEscape("org-guid-1,org-guid-2"), qs.Encode())
 
 	// apps by space ids
@@ -54,7 +54,7 @@ func TestListOptions(t *testing.T) {
 	opts.SpaceGUIDs = Filter{
 		Values: []string{"space-guid-1"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "space_guids="+url.QueryEscape("space-guid-1"), qs.Encode())
 
 	// apps by stacks
@@ -62,7 +62,7 @@ func TestListOptions(t *testing.T) {
 	opts.Stacks = Filter{
 		Values: []string{"cflinuxfs2"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "stacks="+url.QueryEscape("cflinuxfs2"), qs.Encode())
 
 	// multiple apps by name
@@ -70,7 +70,7 @@ func TestListOptions(t *testing.T) {
 	opts.Names = Filter{
 		Values: []string{"app1", "app2"},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "names="+url.QueryEscape("app1,app2"), qs.Encode())
 
 	// all apps but this one
@@ -79,7 +79,7 @@ func TestListOptions(t *testing.T) {
 		Values: []string{"app2"},
 		Not:    true,
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, url.QueryEscape("names[not]")+"="+url.QueryEscape("app2"), qs.Encode())
 
 	// multiple dates
@@ -89,7 +89,7 @@ func TestListOptions(t *testing.T) {
 	opts.CreateAts = TimestampFilter{
 		Timestamp: []time.Time{time1, time2},
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "created_ats="+url.QueryEscape("2016-03-18T00:00:00Z,2016-10-17T00:00:00Z"), qs.Encode())
 
 	// gt date
@@ -99,18 +99,18 @@ func TestListOptions(t *testing.T) {
 		Timestamp: []time.Time{time1},
 		Operator:  GreaterThan,
 	}
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, url.QueryEscape("created_ats[gt]")+"="+url.QueryEscape("2019-12-31T23:59:59Z"), qs.Encode())
 
 	// lifecycle type
 	opts = newEmptyOpts()
 	opts.LifecycleType = LifecycleBuildpack
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "lifecycle_type="+url.QueryEscape("buildpack"), qs.Encode())
 
 	// app include type
 	opts = newEmptyOpts()
 	opts.Include = AppIncludeSpaceOrganization
-	qs = opts.ToQueryString(opts)
+	qs = opts.ToQueryString()
 	require.Equal(t, "include="+url.QueryEscape("space.organization"), qs.Encode())
 }

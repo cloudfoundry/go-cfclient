@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type DomainClient commonClient
@@ -20,6 +21,10 @@ func NewDomainListOptions() *DomainListOptions {
 	return &DomainListOptions{
 		ListOptions: NewListOptions(),
 	}
+}
+
+func (o DomainListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
 }
 
 // Create a new domain
@@ -47,10 +52,10 @@ func (c *DomainClient) Get(guid string) (*resource.Domain, error) {
 	return &d, nil
 }
 
-// List all Domains the user has access to in paged results
+// List pages Domains the user has access to
 func (c *DomainClient) List(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
 	var res resource.DomainList
-	err := c.client.get(path("/v3/domains?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/domains?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -59,32 +64,37 @@ func (c *DomainClient) List(opts *DomainListOptions) ([]*resource.Domain, *Pager
 }
 
 // ListAll retrieves all Domains the user has access to
-func (c *DomainClient) ListAll() ([]*resource.Domain, error) {
-	opts := NewDomainListOptions()
-	var allDomains []*resource.Domain
-	for {
-		Domains, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allDomains = append(allDomains, Domains...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+func (c *DomainClient) ListAll(opts *DomainListOptions) ([]*resource.Domain, error) {
+	if opts == nil {
+		opts = NewDomainListOptions()
 	}
-	return allDomains, nil
+	return AutoPage[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
-// ListForOrg retrieves all domains for the specified org that the user has access to in paged results
+// ListForOrg pages all domains for the specified org that the user has access to
 func (c *DomainClient) ListForOrg(orgGUID string, opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+	if opts == nil {
+		opts = NewDomainListOptions()
+	}
 	var res resource.DomainList
-	err := c.client.get(path("/v3/organizations/%s/domains?%s", orgGUID, opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/organizations/%s/domains?%s", orgGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
+}
+
+// ListForOrgAll retrieves all domains for the specified org that the user has access to
+func (c *DomainClient) ListForOrgAll(orgGUID string, opts *DomainListOptions) ([]*resource.Domain, error) {
+	if opts == nil {
+		opts = NewDomainListOptions()
+	}
+	return AutoPage[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.ListForOrg(orgGUID, opts)
+	})
 }
 
 // Share an organization-scoped domain to the organization specified by the org guid

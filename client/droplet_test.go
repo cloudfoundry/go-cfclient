@@ -97,7 +97,7 @@ func TestDroplets(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(droplet, droplet2, droplet3, droplet4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.ListAll()
+				return c.Droplets.ListAll(nil)
 			},
 		},
 		{

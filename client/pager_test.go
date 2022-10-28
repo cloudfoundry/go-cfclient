@@ -73,7 +73,7 @@ func TestPager(t *testing.T) {
 			Href: "https://api.example.org/v3/apps?page=2&per_page=50",
 		},
 	}
-	listOpts := NewListOptions()
+	listOpts := NewAppListOptions()
 
 	// Defaults
 	require.Equal(t, 1, listOpts.Page)
@@ -84,7 +84,7 @@ func TestPager(t *testing.T) {
 	pager := NewPager(paginationPage1)
 	require.True(t, pager.HasNextPage())
 	require.False(t, pager.HasPreviousPage())
-	listOpts = pager.NextPage(listOpts)
+	pager.NextPage(listOpts)
 	require.Equal(t, 2, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
@@ -92,7 +92,7 @@ func TestPager(t *testing.T) {
 	pager = NewPager(paginationPage2)
 	require.True(t, pager.HasNextPage())
 	require.True(t, pager.HasPreviousPage())
-	listOpts = pager.NextPage(listOpts)
+	pager.NextPage(listOpts)
 	require.Equal(t, 3, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
@@ -100,11 +100,11 @@ func TestPager(t *testing.T) {
 	pager = NewPager(paginationPage3)
 	require.False(t, pager.HasNextPage())
 	require.True(t, pager.HasPreviousPage())
-	listOpts = pager.NextPage(listOpts)
+	pager.NextPage(listOpts)
 	require.Equal(t, 3, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
-	listOpts = pager.PreviousPage(listOpts)
+	pager.PreviousPage(listOpts)
 	require.Equal(t, 2, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
@@ -112,7 +112,7 @@ func TestPager(t *testing.T) {
 	pager = NewPager(paginationPage2)
 	require.True(t, pager.HasNextPage())
 	require.True(t, pager.HasPreviousPage())
-	listOpts = pager.PreviousPage(listOpts)
+	pager.PreviousPage(listOpts)
 	require.Equal(t, 1, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 
@@ -120,7 +120,7 @@ func TestPager(t *testing.T) {
 	pager = NewPager(paginationPage1)
 	require.True(t, pager.HasNextPage())
 	require.False(t, pager.HasPreviousPage())
-	listOpts = pager.PreviousPage(listOpts)
+	pager.PreviousPage(listOpts)
 	require.Equal(t, 1, listOpts.Page)
 	require.Equal(t, 50, listOpts.PerPage)
 }

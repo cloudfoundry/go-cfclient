@@ -19,6 +19,11 @@ const (
 	PerPageField = "per_page"
 )
 
+type ListOptioner interface {
+	CurrentPage(page, perPage int)
+	ToQueryString() url.Values
+}
+
 // ListOptions is the shared common type for all other list option types
 type ListOptions struct {
 	Page    int    `filter:"page,omitempty"`
@@ -35,6 +40,11 @@ func NewListOptions() *ListOptions {
 		Page:    DefaultPage,
 		PerPage: DefaultPageSize,
 	}
+}
+
+func (lo *ListOptions) CurrentPage(page, perPage int) {
+	lo.PerPage = perPage
+	lo.Page = page
 }
 
 func (lo ListOptions) ToQueryString(subOptionsPtr any) url.Values {

@@ -74,6 +74,10 @@ func NewAppListOptions() *AppListOptions {
 	}
 }
 
+func (o AppListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
 // Create a new app
 func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 	var app resource.App
@@ -123,8 +127,11 @@ func (c *AppClient) GetAndInclude(guid string, include AppIncludeType) (*resourc
 
 // List all apps the user has access to in paged results
 func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
+	if opts == nil {
+		opts = NewAppListOptions()
+	}
 	var res resource.AppList
-	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -133,21 +140,13 @@ func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) 
 }
 
 // ListAll retrieves all apps the user has access to
-func (c *AppClient) ListAll() ([]*resource.App, error) {
-	opts := NewAppListOptions()
-	var allApps []*resource.App
-	for {
-		apps, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allApps = append(allApps, apps...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+func (c *AppClient) ListAll(opts *AppListOptions) ([]*resource.App, error) {
+	if opts == nil {
+		opts = NewAppListOptions()
 	}
-	return allApps, nil
+	return AutoPage[*AppListOptions, *resource.App](opts, func(opts *AppListOptions) ([]*resource.App, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
 // Permissions gets the current user’s permissions for the given app.

@@ -104,7 +104,7 @@ func TestDeployments(t *testing.T) {
 			},
 			Expected: g.Array(deployment),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Deployments.List(NewDeploymentListOptions())
+				apps, _, err := c.Deployments.List(nil)
 				return apps, err
 			},
 		},
@@ -117,7 +117,7 @@ func TestDeployments(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(deployment, deployment2, deployment3, deployment4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Deployments.ListAll()
+				return c.Deployments.ListAll(nil)
 			},
 		},
 		{

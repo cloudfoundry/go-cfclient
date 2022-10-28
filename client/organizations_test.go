@@ -94,7 +94,7 @@ func TestListAll(t *testing.T) {
 	client, err := New(c)
 	require.NoError(t, err)
 
-	organizations, err := client.Organizations.ListAll()
+	organizations, err := client.Organizations.ListAll(nil)
 	require.NoError(t, err)
 	require.Len(t, organizations, 2)
 

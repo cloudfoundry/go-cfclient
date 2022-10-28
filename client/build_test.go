@@ -101,7 +101,7 @@ func TestBuilds(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(build, build2, build3, build4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Builds.ListAll()
+				return c.Builds.ListAll(nil)
 			},
 		},
 		{
@@ -114,8 +114,7 @@ func TestBuilds(t *testing.T) {
 			},
 			Expected: g.Array(build),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				opts := NewBuildAppListOptions()
-				builds, _, err := c.Builds.ListForApp("1cb006ee-fb05-47e1-b541-c34179ddc446", opts)
+				builds, _, err := c.Builds.ListForApp("1cb006ee-fb05-47e1-b541-c34179ddc446", nil)
 				return builds, err
 			},
 		},

@@ -32,13 +32,13 @@ func (p *Pager) HasNextPage() bool {
 	return true
 }
 
-func (p Pager) NextPage(opts *ListOptions) *ListOptions {
+func (p Pager) NextPage(opts ListOptioner) {
 	if !p.HasNextPage() {
-		return opts
+		return
 	}
-	opts.Page = p.nextPageQSReader.Int(PageField)
-	opts.PerPage = p.nextPageQSReader.Int(PerPageField)
-	return opts
+	page := p.nextPageQSReader.Int(PageField)
+	perPage := p.nextPageQSReader.Int(PerPageField)
+	opts.CurrentPage(page, perPage)
 }
 
 func (p *Pager) HasPreviousPage() bool {
@@ -50,13 +50,13 @@ func (p *Pager) HasPreviousPage() bool {
 	return true
 }
 
-func (p Pager) PreviousPage(opts *ListOptions) *ListOptions {
+func (p Pager) PreviousPage(opts ListOptioner) {
 	if !p.HasPreviousPage() {
-		return opts
+		return
 	}
-	opts.Page = p.previousPageQSReader.Int(PageField)
-	opts.PerPage = p.previousPageQSReader.Int(PerPageField)
-	return opts
+	page := p.previousPageQSReader.Int(PageField)
+	perPage := p.previousPageQSReader.Int(PerPageField)
+	opts.CurrentPage(page, perPage)
 }
 
 type querystringReader struct {
@@ -83,4 +83,22 @@ func (r querystringReader) String(key string) string {
 func (r querystringReader) Int(key string) int {
 	i, _ := strconv.Atoi(r.qs.Get(key))
 	return i
+}
+
+type ListFunc[T ListOptioner, R any] func(opts T) ([]R, *Pager, error)
+
+func AutoPage[T ListOptioner, R any](opts T, list ListFunc[T, R]) ([]R, error) {
+	var all []R
+	for {
+		page, pager, err := list(opts)
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, page...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, nil
 }
