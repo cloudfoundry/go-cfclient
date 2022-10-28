@@ -29,3 +29,9 @@ type OrganizationList struct {
 	Pagination Pagination      `json:"pagination,omitempty"`
 	Resources  []*Organization `json:"resources,omitempty"`
 }
+
+func NewOrganizationCreate(name string) *OrganizationCreate {
+	return &OrganizationCreate{
+		Name: name,
+	}
+}
