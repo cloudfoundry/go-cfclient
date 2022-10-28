@@ -103,6 +103,14 @@ func (o *ObjectJSONGenerator) DomainShared() string {
 	return o.template(resourceTemplate{}, "domain_shared.json")
 }
 
+func (o *ObjectJSONGenerator) Organization() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "org.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
