@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type DeploymentClient commonClient
@@ -22,6 +23,10 @@ func NewDeploymentListOptions() *DeploymentListOptions {
 	return &DeploymentListOptions{
 		ListOptions: NewListOptions(),
 	}
+}
+
+func (o DeploymentListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
 }
 
 // Cancel the ongoing deployment
@@ -54,10 +59,13 @@ func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
 	return &d, nil
 }
 
-// List all deployments the user has access to in paged results
+// List pages deployments the user has access to
 func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+	if opts == nil {
+		opts = NewDeploymentListOptions()
+	}
 	var res resource.DeploymentList
-	err := c.client.get(path("/v3/deployments?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/deployments?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,21 +74,13 @@ func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deploy
 }
 
 // ListAll retrieves all deployments the user has access to
-func (c *DeploymentClient) ListAll() ([]*resource.Deployment, error) {
-	opts := NewDeploymentListOptions()
-	var allDeployments []*resource.Deployment
-	for {
-		apps, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allDeployments = append(allDeployments, apps...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+func (c *DeploymentClient) ListAll(opts *DeploymentListOptions) ([]*resource.Deployment, error) {
+	if opts == nil {
+		opts = NewDeploymentListOptions()
 	}
-	return allDeployments, nil
+	return AutoPage[*DeploymentListOptions, *resource.Deployment](opts, func(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
 // Update the specified attributes of the deployment

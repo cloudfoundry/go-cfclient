@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type BuildClient commonClient
@@ -29,11 +30,19 @@ func NewBuildListOptions() *BuildListOptions {
 	}
 }
 
+func (o BuildListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
 // NewBuildAppListOptions creates new options to pass to list
 func NewBuildAppListOptions() *BuildAppListOptions {
 	return &BuildAppListOptions{
 		ListOptions: NewListOptions(),
 	}
+}
+
+func (o BuildAppListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
 }
 
 // Create a new build
@@ -61,10 +70,13 @@ func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 	return &build, nil
 }
 
-// List all builds the user has access to in paged results
+// List pages all builds the user has access to
 func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
+	if opts == nil {
+		opts = NewBuildListOptions()
+	}
 	var res resource.BuildList
-	err := c.client.get(path("/v3/builds?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/builds?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,32 +85,37 @@ func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, e
 }
 
 // ListAll retrieves all builds the user has access to
-func (c *BuildClient) ListAll() ([]*resource.Build, error) {
-	opts := NewBuildListOptions()
-	var allBuilds []*resource.Build
-	for {
-		builds, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allBuilds = append(allBuilds, builds...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+func (c *BuildClient) ListAll(opts *BuildListOptions) ([]*resource.Build, error) {
+	if opts == nil {
+		opts = NewBuildListOptions()
 	}
-	return allBuilds, nil
+	return AutoPage[*BuildListOptions, *resource.Build](opts, func(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
-// ListForApp retrieves all builds for the app in paged results
+// ListForApp pages all builds for the app the user has access to
 func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
+	if opts == nil {
+		opts = NewBuildAppListOptions()
+	}
 	var res resource.BuildList
-	err := c.client.get(path("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
 	return res.Resources, pager, nil
+}
+
+// ListForAppAll retrieves all builds for the app the user has access to
+func (c *BuildClient) ListForAppAll(appGUID string, opts *BuildAppListOptions) ([]*resource.Build, error) {
+	if opts == nil {
+		opts = NewBuildAppListOptions()
+	}
+	return AutoPage[*BuildAppListOptions, *resource.Build](opts, func(opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
+		return c.ListForApp(appGUID, opts)
+	})
 }
 
 // Update the specified attributes of the build

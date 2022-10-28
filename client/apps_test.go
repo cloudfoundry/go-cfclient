@@ -190,7 +190,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: g.Array(app1),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Applications.List(NewAppListOptions())
+				apps, _, err := c.Applications.List(nil)
 				return apps, err
 			},
 		},
@@ -203,7 +203,7 @@ func TestApps(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(app1, app2, app3, app4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.ListAll()
+				return c.Applications.ListAll(nil)
 			},
 		},
 	}

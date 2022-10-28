@@ -31,21 +31,28 @@ func (s SpaceIncludeType) ToQueryString() url.Values {
 	return v
 }
 
+// SpaceListOptions list filters
 type SpaceListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter
-	Names             Filter
-	OrganizationGUIDs Filter
-	Include           SpaceIncludeType
+	GUIDs             Filter           // list of space guids to filter by
+	Names             Filter           // list of space names to filter by
+	OrganizationGUIDs Filter           // list of organization guids to filter by
+	Include           SpaceIncludeType // include parent objects if any
 }
 
+// NewSpaceListOptions creates new options to pass to list
 func NewSpaceListOptions() *SpaceListOptions {
 	return &SpaceListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
+func (o SpaceListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
+// Create a new space
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	var space resource.Space
 	err := c.client.post(r.Name, "/v3/spaces", r, &space)
@@ -55,10 +62,12 @@ func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	return &space, nil
 }
 
+// Delete the specified space
 func (c *SpaceClient) Delete(guid string) error {
 	return c.client.delete(path("/v3/spaces/%s", guid))
 }
 
+// Get the specified space
 func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	var space resource.Space
 	err := c.client.get(path("/v3/spaces/%s", guid), &space)
@@ -68,6 +77,7 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	return &space, nil
 }
 
+// GetAndInclude allows callers to fetch an space and include information of parent objects in the response
 func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*resource.Space, error) {
 	var space resource.Space
 	err := c.client.get(path("/v3/spaces/%s?%s", guid, include.ToQueryString()), &space)
@@ -77,9 +87,13 @@ func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*res
 	return &space, nil
 }
 
+// List pages all spaces the user has access to
 func (c *SpaceClient) List(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
+	if opts == nil {
+		opts = NewSpaceListOptions()
+	}
 	var res resource.SpaceList
-	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString(opts)), &res)
+	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,24 +101,17 @@ func (c *SpaceClient) List(opts *SpaceListOptions) ([]*resource.Space, *Pager, e
 	return res.Resources, pager, nil
 }
 
-func (c *SpaceClient) ListAll() ([]*resource.Space, error) {
-	opts := NewSpaceListOptions()
-	var allSpaces []*resource.Space
-	for {
-		spaces, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		allSpaces = append(allSpaces, spaces...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts.ListOptions = pager.NextPage(opts.ListOptions)
+// ListAll retrieves all spaces the user has access to
+func (c *SpaceClient) ListAll(opts *SpaceListOptions) ([]*resource.Space, error) {
+	if opts == nil {
+		opts = NewSpaceListOptions()
 	}
-	return allSpaces, nil
+	return AutoPage[*SpaceListOptions, *resource.Space](opts, func(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
-// ListUsers lists users by space GUID
+// ListUsers pages users by space GUID
 func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, error) {
 	var res resource.SpaceUserList
 	err := c.client.get(path("/v3/spaces/%s/users", spaceGUID), &res)
@@ -115,23 +122,15 @@ func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, err
 	return res.Resources, pager, nil
 }
 
+// ListUsersAll retrieves all users by space GUID
 func (c *SpaceClient) ListUsersAll(spaceGUID string) ([]*resource.User, error) {
-	opts := NewListOptions()
-	var allUsers []*resource.User
-	for {
-		users, pager, err := c.ListUsers(spaceGUID)
-		if err != nil {
-			return nil, err
-		}
-		allUsers = append(allUsers, users...)
-		if !pager.HasNextPage() {
-			break
-		}
-		opts = pager.NextPage(opts)
-	}
-	return allUsers, nil
+	opts := NewSpaceListOptions()
+	return AutoPage[*SpaceListOptions, *resource.User](opts, func(opts *SpaceListOptions) ([]*resource.User, *Pager, error) {
+		return c.ListUsers(spaceGUID)
+	})
 }
 
+// Update the specified attributes of a space
 func (c *SpaceClient) Update(guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space
 	err := c.client.patch(path("/v3/spaces/%s", guid), r, &space)

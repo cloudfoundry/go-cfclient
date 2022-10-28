@@ -71,7 +71,7 @@ func TestDomains(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(domain, domain2, domain3, domain4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Domains.ListAll()
+				return c.Domains.ListAll(nil)
 			},
 		},
 		{
