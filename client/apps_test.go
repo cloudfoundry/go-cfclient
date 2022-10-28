@@ -181,14 +181,14 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
-			Description: "List first page of apps",
+			Description: "List paged apps",
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
-				Output:   g.Paged("apps", []string{app1}),
+				Output:   g.Paged([]string{app1, app2}),
 				Status:   http.StatusOK,
 			},
-			Expected: g.Array(app1),
+			Expected: g.Array(app1, app2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				apps, _, err := c.Applications.List(nil)
 				return apps, err
@@ -199,7 +199,7 @@ func TestApps(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
-				Output:   g.Paged("apps", []string{app1, app2}, []string{app3, app4}),
+				Output:   g.Paged([]string{app1, app2}, []string{app3, app4}),
 				Status:   http.StatusOK},
 			Expected: g.Array(app1, app2, app3, app4),
 			Action: func(c *Client, t *testing.T) (any, error) {

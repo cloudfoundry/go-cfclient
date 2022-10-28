@@ -83,7 +83,7 @@ func TestBuilds(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
-				Output:   g.Paged("builds", []string{build}),
+				Output:   g.Paged([]string{build}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),
@@ -97,7 +97,7 @@ func TestBuilds(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
-				Output:   g.Paged("apps", []string{build, build2}, []string{build3, build4}),
+				Output:   g.Paged([]string{build, build2}, []string{build3, build4}),
 				Status:   http.StatusOK},
 			Expected: g.Array(build, build2, build3, build4),
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -109,7 +109,7 @@ func TestBuilds(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
-				Output:   g.Paged("builds", []string{build}),
+				Output:   g.Paged([]string{build}),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),

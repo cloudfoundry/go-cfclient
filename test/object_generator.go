@@ -10,6 +10,8 @@ import (
 	"text/template"
 )
 
+const defaultAPIResourcePath = "https://api.example.org/v3/somepagedresource"
+
 type resourceTemplate struct {
 	GUID string
 	Name string
@@ -101,9 +103,7 @@ func (o *ObjectJSONGenerator) DomainShared() string {
 	return o.template(resourceTemplate{}, "domain_shared.json")
 }
 
-func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON ...[]string) []string {
-	apiPath := "https://cf.example.com/v3/" + apiResourcePath
-
+func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
 	for _, pageOfResourcesJSON := range pagesOfResourcesJSON {
@@ -119,14 +119,14 @@ func (o ObjectJSONGenerator) Paged(apiResourcePath string, pagesOfResourcesJSON 
 		p := paginationTemplate{
 			TotalResults: totalResults,
 			TotalPages:   totalPages,
-			FirstPage:    fmt.Sprintf("%s?page=1&per_page=%d", apiPath, resourcesPerPage),
-			LastPage:     fmt.Sprintf("%s?page=%d&per_page=%d", apiPath, totalPages, resourcesPerPage),
+			FirstPage:    fmt.Sprintf("%s?page=1&per_page=%d", defaultAPIResourcePath, resourcesPerPage),
+			LastPage:     fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, totalPages, resourcesPerPage),
 		}
 		if pageIndex < totalPages {
-			p.NextPage = fmt.Sprintf("%s?page=%d&per_page=%d", apiPath, pageIndex+1, resourcesPerPage)
+			p.NextPage = fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, pageIndex+1, resourcesPerPage)
 		}
 		if pageIndex > 1 {
-			p.PreviousPage = fmt.Sprintf("%s?page=%d&per_page=%d", apiPath, pageIndex-1, resourcesPerPage)
+			p.PreviousPage = fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, pageIndex-1, resourcesPerPage)
 		}
 
 		t, err := template.New("page").Parse(responseListHeader)
