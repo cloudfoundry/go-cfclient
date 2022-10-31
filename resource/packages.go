@@ -18,32 +18,27 @@ const (
 )
 
 type Package struct {
-	GUID          string                       `json:"guid"`
-	CreatedAt     time.Time                    `json:"created_at"`
-	UpdatedAt     time.Time                    `json:"updated_at"`
-	Type          string                       `json:"type"` // bits or docker
-	DataRaw       json.RawMessage              `json:"data"`
-	Data          BitsOrDockerPackage          `json:"-"` // depends on value of Type
-	State         PackageState                 `json:"state"`
-	Links         map[string]Link              `json:"links"`
-	Relationships map[string]ToOneRelationship `json:"relationships"`
-	Metadata      Metadata                     `json:"metadata"`
+	GUID          string              `json:"guid"`
+	CreatedAt     time.Time           `json:"created_at"`
+	UpdatedAt     time.Time           `json:"updated_at"`
+	Type          string              `json:"type"` // bits or docker
+	DataRaw       json.RawMessage     `json:"data"`
+	Data          BitsOrDockerPackage `json:"-"` // depends on value of Type
+	State         PackageState        `json:"state"`
+	Links         map[string]Link     `json:"links"`
+	Relationships AppRelationship     `json:"relationships"`
+	Metadata      Metadata            `json:"metadata"`
 }
 
 type PackageCreate struct {
-	Type          string                       `json:"type"`
-	Relationships map[string]ToOneRelationship `json:"relationships"`
-	Data          *DockerPackage               `json:"data,omitempty"`
-	Metadata      *Metadata                    `json:"metadata,omitempty"`
+	Type          string          `json:"type"`
+	Relationships AppRelationship `json:"relationships"`
+	Data          *DockerPackage  `json:"data,omitempty"`
+	Metadata      *Metadata       `json:"metadata,omitempty"`
 }
 
 type PackageUpdate struct {
 	Metadata *Metadata `json:"metadata,omitempty"`
-}
-
-type PackageCopy struct {
-	// Link to the associated app
-	Relationships DropletRelationships `json:"relationships"`
 }
 
 type PackageList struct {
@@ -51,14 +46,8 @@ type PackageList struct {
 	Resources  []*Package `json:"resources,omitempty"`
 }
 
-type DockerCredentials struct {
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-}
-
-type DockerPackage struct {
-	Image string `json:"image"`
-	*DockerCredentials
+type PackageCopy struct {
+	Relationships AppRelationship `json:"relationships"`
 }
 
 type BitsOrDockerPackage struct {
@@ -73,16 +62,26 @@ type BitsPackage struct {
 	Checksum BitsPackageChecksum `json:"checksum"`
 }
 
+type DockerPackage struct {
+	Image string `json:"image"`
+	*DockerCredentials
+}
+
 type BitsPackageChecksum struct {
 	Type  string  `json:"type"`  // eg. sha256
 	Value *string `json:"value"` // populated after the bits are uploaded
 }
 
+type DockerCredentials struct {
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
 func NewPackageCreate(appGUID string) *PackageCreate {
 	return &PackageCreate{
 		Type: "bits",
-		Relationships: map[string]ToOneRelationship{
-			"app": {
+		Relationships: AppRelationship{
+			App: ToOneRelationship{
 				Data: Relationship{
 					GUID: appGUID,
 				},
@@ -94,8 +93,8 @@ func NewPackageCreate(appGUID string) *PackageCreate {
 func NewDockerPackageCreate(appGUID, image, username, password string) *PackageCreate {
 	return &PackageCreate{
 		Type: "docker",
-		Relationships: map[string]ToOneRelationship{
-			"app": {
+		Relationships: AppRelationship{
+			App: ToOneRelationship{
 				Data: Relationship{
 					GUID: appGUID,
 				},
@@ -113,7 +112,7 @@ func NewDockerPackageCreate(appGUID, image, username, password string) *PackageC
 
 func NewPackageCopy(appGUID string) *PackageCopy {
 	return &PackageCopy{
-		Relationships: DropletRelationships{
+		Relationships: AppRelationship{
 			App: ToOneRelationship{
 				Data: Relationship{
 					GUID: appGUID,

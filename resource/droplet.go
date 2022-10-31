@@ -17,9 +17,7 @@ type Droplet struct {
 	ExecutionMetadata string            `json:"execution_metadata"`
 	ProcessTypes      map[string]string `json:"process_types"`
 	Metadata          Metadata          `json:"metadata"`
-
-	// Link to the associated app, if any
-	Relationships DropletRelationships `json:"relationships"`
+	Relationships     AppRelationship   `json:"relationships"`
 
 	// Only specified when the droplet is using the Docker lifecycle.
 	Image *string `json:"image"`
@@ -34,38 +32,9 @@ type Droplet struct {
 	Buildpacks []DetectedBuildpack `json:"buildpacks"`
 }
 
-type DetectedBuildpack struct {
-	Name          string `json:"name"`           // system buildpack name
-	BuildpackName string `json:"buildpack_name"` // name reported by the buildpack
-	DetectOutput  string `json:"detect_output"`  // output during detect process
-	Version       string `json:"version"`
-}
-
-type CurrentDropletResponse struct {
-	Data  Relationship    `json:"data"`
-	Links map[string]Link `json:"links"`
-}
-
-type DropletRelationships struct {
-	App ToOneRelationship `json:"app"`
-}
-
 type DropletCreate struct {
-	Relationships DropletRelationships `json:"relationships"`
-	ProcessTypes  map[string]string    `json:"process_types"`
-}
-
-func NewDropletCreate(appGUID string) *DropletCreate {
-	return &DropletCreate{
-		Relationships: DropletRelationships{
-			App: ToOneRelationship{
-				Data: Relationship{
-					GUID: appGUID,
-				},
-			},
-		},
-		ProcessTypes: make(map[string]string),
-	}
+	Relationships AppRelationship   `json:"relationships"`
+	ProcessTypes  map[string]string `json:"process_types"`
 }
 
 type DropletList struct {
@@ -78,14 +47,38 @@ type DropletUpdate struct {
 	Image    string   `json:"image"`
 }
 
+type DropletCurrent struct {
+	Data  Relationship    `json:"data"`
+	Links map[string]Link `json:"links"`
+}
+
 type DropletCopy struct {
-	// Link to the associated app
-	Relationships DropletRelationships `json:"relationships"`
+	Relationships AppRelationship `json:"relationships"`
+}
+
+type DetectedBuildpack struct {
+	Name          string `json:"name"`           // system buildpack name
+	BuildpackName string `json:"buildpack_name"` // name reported by the buildpack
+	DetectOutput  string `json:"detect_output"`  // output during detect process
+	Version       string `json:"version"`
+}
+
+func NewDropletCreate(appGUID string) *DropletCreate {
+	return &DropletCreate{
+		Relationships: AppRelationship{
+			App: ToOneRelationship{
+				Data: Relationship{
+					GUID: appGUID,
+				},
+			},
+		},
+		ProcessTypes: make(map[string]string),
+	}
 }
 
 func NewDropletCopy(appGUID string) *DropletCopy {
 	return &DropletCopy{
-		Relationships: DropletRelationships{
+		Relationships: AppRelationship{
 			App: ToOneRelationship{
 				Data: Relationship{
 					GUID: appGUID,

@@ -198,8 +198,8 @@ func (c *DropletClient) ListForPackageAll(packageGUID string, opts *DropletPacka
 }
 
 // GetCurrentAssociationForApp retrieves the current droplet relationship for an app
-func (c *DropletClient) GetCurrentAssociationForApp(appGUID string) (*resource.CurrentDropletResponse, error) {
-	var d resource.CurrentDropletResponse
+func (c *DropletClient) GetCurrentAssociationForApp(appGUID string) (*resource.DropletCurrent, error) {
+	var d resource.DropletCurrent
 	err := c.client.get(path("/v3/apps/%s/relationships/current_droplet", appGUID), &d)
 	if err != nil {
 		return nil, err
@@ -218,8 +218,8 @@ func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, err
 }
 
 // SetCurrentAssociationForApp sets the current droplet for an app. The current droplet is the droplet that the app will use when running
-func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string) (*resource.CurrentDropletResponse, error) {
-	var d resource.CurrentDropletResponse
+func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string) (*resource.DropletCurrent, error) {
+	var d resource.DropletCurrent
 	r := resource.ToOneRelationship{Data: resource.Relationship{GUID: dropletGUID}}
 	err := c.client.patch(path("/v3/apps/%s/relationships/current_droplet", appGUID), r, &d)
 	if err != nil {
