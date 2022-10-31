@@ -67,7 +67,7 @@ func NewDropletCreate(appGUID string) *DropletCreate {
 	return &DropletCreate{
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},
@@ -80,7 +80,7 @@ func NewDropletCopy(appGUID string) *DropletCopy {
 	return &DropletCopy{
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},

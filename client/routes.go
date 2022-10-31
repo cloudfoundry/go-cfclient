@@ -63,8 +63,8 @@ func (c *RouteClient) Create(
 	opt *resource.CreateRouteOptionalParameters,
 ) (*resource.Route, error) {
 
-	spaceRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: spaceGUID}}
-	domainRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: domainGUID}}
+	spaceRel := resource.ToOneRelationship{Data: &resource.Relationship{GUID: spaceGUID}}
+	domainRel := resource.ToOneRelationship{Data: &resource.Relationship{GUID: domainGUID}}
 
 	req := c.client.NewRequest("POST", "/v3/routes")
 	req.obj = resource.CreateRouteRequest{
