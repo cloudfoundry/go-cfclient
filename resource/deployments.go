@@ -3,35 +3,35 @@ package resource
 import "time"
 
 type Deployment struct {
-	GUID            string                       `json:"guid"`
-	Status          DeploymentStatus             `json:"status"`
-	Strategy        string                       `json:"strategy"`
-	Droplet         Relationship                 `json:"droplet"`
-	PreviousDroplet Relationship                 `json:"previous_droplet"`
-	NewProcesses    []ProcessReference           `json:"new_processes"`
-	Revision        DeploymentRevision           `json:"revision"`
-	CreatedAt       time.Time                    `json:"created_at"`
-	UpdatedAt       time.Time                    `json:"updated_at"`
-	Links           map[string]Link              `json:"links"`
-	Metadata        Metadata                     `json:"metadata"`
-	Relationships   map[string]ToOneRelationship `json:"relationships"`
+	GUID            string             `json:"guid"`
+	Status          DeploymentStatus   `json:"status"`
+	Strategy        string             `json:"strategy"`
+	Droplet         Relationship       `json:"droplet"`
+	PreviousDroplet Relationship       `json:"previous_droplet"`
+	NewProcesses    []ProcessReference `json:"new_processes"`
+	Revision        DeploymentRevision `json:"revision"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
+	Links           map[string]Link    `json:"links"`
+	Metadata        Metadata           `json:"metadata"`
+	Relationships   AppRelationship    `json:"relationships"`
 }
 
 type DeploymentCreate struct {
-	Relationships map[string]ToOneRelationship `json:"relationships"`
-	Droplet       *Relationship                `json:"droplet,omitempty"`
-	Revision      *DeploymentRevision          `json:"revision,omitempty"`
-	Strategy      string                       `json:"strategy,omitempty"`
-	Metadata      *Metadata                    `json:"metadata,omitempty"`
+	Relationships AppRelationship     `json:"relationships"`
+	Droplet       *Relationship       `json:"droplet,omitempty"`
+	Revision      *DeploymentRevision `json:"revision,omitempty"`
+	Strategy      string              `json:"strategy,omitempty"`
+	Metadata      *Metadata           `json:"metadata,omitempty"`
+}
+
+type DeploymentUpdate struct {
+	Metadata *Metadata `json:"metadata"`
 }
 
 type DeploymentList struct {
 	Pagination Pagination    `json:"pagination"`
 	Resources  []*Deployment `json:"resources"`
-}
-
-type DeploymentUpdate struct {
-	Metadata *Metadata `json:"metadata"`
 }
 
 type DeploymentRevision struct {
@@ -52,8 +52,8 @@ type DeploymentStatus struct {
 
 func NewDeploymentCreate(appGUID string) *DeploymentCreate {
 	return &DeploymentCreate{
-		Relationships: map[string]ToOneRelationship{
-			"app": {
+		Relationships: AppRelationship{
+			App: ToOneRelationship{
 				Data: Relationship{
 					GUID: appGUID,
 				},

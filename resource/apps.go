@@ -17,53 +17,23 @@ type App struct {
 	Metadata      Metadata                     `json:"metadata"`
 }
 
-type Lifecycle struct {
-	Type          string             `json:"type,omitempty"`
-	BuildpackData BuildpackLifecycle `json:"data,omitempty"` // TODO: support other lifecycles
-}
-
-type BuildpackLifecycle struct {
-	Buildpacks []string `json:"buildpacks,omitempty"`
-	Stack      string   `json:"stack,omitempty"`
-}
-
 type AppCreate struct {
-	Name                 string                 `json:"name"`
-	Relationships        AppCreateRelationships `json:"relationships"`
-	EnvironmentVariables map[string]string      `json:"environment_variables,omitempty"`
-	Lifecycle            *Lifecycle             `json:"lifecycle,omitempty"`
-	Metadata             *Metadata              `json:"metadata,omitempty"`
-}
-
-type AppCreateRelationships struct {
-	Space AppCreateSpace `json:"space"`
-}
-
-type AppCreateSpace struct {
-	Data AppCreateData `json:"data"`
-}
-
-type AppCreateData struct {
-	GUID string `json:"guid"`
-}
-
-func NewAppCreate(name, spaceGUID string) *AppCreate {
-	return &AppCreate{
-		Name: name,
-		Relationships: AppCreateRelationships{
-			Space: AppCreateSpace{
-				Data: AppCreateData{
-					GUID: spaceGUID,
-				},
-			},
-		},
-	}
+	Name                 string            `json:"name"`
+	Relationships        SpaceRelationship `json:"relationships"`
+	EnvironmentVariables map[string]string `json:"environment_variables,omitempty"`
+	Lifecycle            *Lifecycle        `json:"lifecycle,omitempty"`
+	Metadata             *Metadata         `json:"metadata,omitempty"`
 }
 
 type AppUpdate struct {
 	Name      string     `json:"name"`
 	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
 	Metadata  *Metadata  `json:"metadata,omitempty"`
+}
+
+type AppList struct {
+	Pagination Pagination `json:"pagination"`
+	Resources  []*App     `json:"resources"`
 }
 
 type AppSSHEnabled struct {
@@ -93,7 +63,25 @@ type EnvVarResponse struct {
 	Links map[string]Link `json:"links"`
 }
 
-type AppList struct {
-	Pagination Pagination `json:"pagination"`
-	Resources  []*App     `json:"resources"`
+type Lifecycle struct {
+	Type          string             `json:"type,omitempty"`
+	BuildpackData BuildpackLifecycle `json:"data,omitempty"` // TODO: support other lifecycles
+}
+
+type BuildpackLifecycle struct {
+	Buildpacks []string `json:"buildpacks,omitempty"`
+	Stack      string   `json:"stack,omitempty"`
+}
+
+func NewAppCreate(name, spaceGUID string) *AppCreate {
+	return &AppCreate{
+		Name: name,
+		Relationships: SpaceRelationship{
+			Space: ToOneRelationship{
+				Data: Relationship{
+					GUID: spaceGUID,
+				},
+			},
+		},
+	}
 }

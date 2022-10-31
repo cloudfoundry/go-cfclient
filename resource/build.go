@@ -2,6 +2,13 @@ package resource
 
 import "time"
 
+// The 3 lifecycle states
+const (
+	BuildStateStaging = "STAGING"
+	BuildStateStaged  = "STAGED"
+	BuildStateFailed  = "FAILED"
+)
+
 type Build struct {
 	GUID      string    `json:"guid"`
 	CreatedAt time.Time `json:"created_at"`
@@ -13,26 +20,13 @@ type Build struct {
 	StagingDiskInMB                   int `json:"staging_disk_in_mb"`
 	StagingLogRateLimitBytesPerSecond int `json:"staging_log_rate_limit_bytes_per_second"`
 
-	Lifecycle     Lifecycle                    `json:"lifecycle"`
-	Package       Relationship                 `json:"package"`
-	Droplet       *Relationship                `json:"droplet"`
-	CreatedBy     CreatedBy                    `json:"created_by"`
-	Links         map[string]Link              `json:"links"`
-	Relationships map[string]ToOneRelationship `json:"relationships"`
-	Metadata      Metadata                     `json:"metadata"`
-}
-
-// The 3 lifecycle states
-const (
-	BuildStateStaging = "STAGING"
-	BuildStateStaged  = "STAGED"
-	BuildStateFailed  = "FAILED"
-)
-
-type CreatedBy struct {
-	GUID  string `json:"guid"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Lifecycle     Lifecycle       `json:"lifecycle"`
+	Package       Relationship    `json:"package"`
+	Droplet       *Relationship   `json:"droplet"`
+	CreatedBy     CreatedBy       `json:"created_by"`
+	Links         map[string]Link `json:"links"`
+	Relationships AppRelationship `json:"relationships"`
+	Metadata      Metadata        `json:"metadata"`
 }
 
 type BuildCreate struct {
@@ -44,16 +38,27 @@ type BuildCreate struct {
 	Metadata                          *Metadata    `json:"metadata,omitempty"`
 }
 
+type BuildUpdate struct {
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
+
+type BuildList struct {
+	Pagination Pagination `json:"pagination"`
+	Resources  []*Build   `json:"resources"`
+}
+
+type CreatedBy struct {
+	GUID  string `json:"guid"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 func NewBuildCreate(packageGUID string) *BuildCreate {
 	return &BuildCreate{
 		Package: Relationship{
 			GUID: packageGUID,
 		},
 	}
-}
-
-type BuildUpdate struct {
-	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
 func NewBuildUpdate() *BuildUpdate {
@@ -63,9 +68,4 @@ func NewBuildUpdate() *BuildUpdate {
 			Annotations: map[string]string{},
 		},
 	}
-}
-
-type BuildList struct {
-	Pagination Pagination `json:"pagination"`
-	Resources  []*Build   `json:"resources"`
 }

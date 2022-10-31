@@ -25,6 +25,18 @@ type Link struct {
 	Method string `json:"method,omitempty"`
 }
 
+type OrganizationRelationship struct {
+	Organization ToOneRelationship `json:"organization"`
+}
+
+type SpaceRelationship struct {
+	Space ToOneRelationship `json:"space"`
+}
+
+type AppRelationship struct {
+	App ToOneRelationship `json:"app"`
+}
+
 // ToOneRelationship is a relationship to a single object
 type ToOneRelationship struct {
 	Data Relationship `json:"data,omitempty"`
