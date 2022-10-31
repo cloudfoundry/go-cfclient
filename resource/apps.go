@@ -78,7 +78,7 @@ func NewAppCreate(name, spaceGUID string) *AppCreate {
 		Name: name,
 		Relationships: SpaceRelationship{
 			Space: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: spaceGUID,
 				},
 			},

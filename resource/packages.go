@@ -82,7 +82,7 @@ func NewPackageCreate(appGUID string) *PackageCreate {
 		Type: "bits",
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},
@@ -95,7 +95,7 @@ func NewDockerPackageCreate(appGUID, image, username, password string) *PackageC
 		Type: "docker",
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},
@@ -114,7 +114,7 @@ func NewPackageCopy(appGUID string) *PackageCopy {
 	return &PackageCopy{
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},

@@ -39,7 +39,7 @@ type AppRelationship struct {
 
 // ToOneRelationship is a relationship to a single object
 type ToOneRelationship struct {
-	Data Relationship `json:"data,omitempty"`
+	Data *Relationship `json:"data"`
 }
 
 // ToManyRelationships is a relationship to multiple objects

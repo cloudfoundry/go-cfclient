@@ -1,10 +1,6 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/resource"
@@ -12,235 +8,230 @@ import (
 
 type RoleClient commonClient
 
-func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID, roleType string) (*resource.Role, error) {
-	spaceRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: spaceGUID}}
-	userRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: userGUID}}
-	req := c.client.NewRequest("POST", "/v3/roles")
-	req.obj = resource.CreateSpaceRoleRequest{
-		RoleType:      roleType,
-		Relationships: resource.SpaceUserRelationships{Space: spaceRel, User: userRel},
-	}
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while creating  role: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
+// RoleIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
+type RoleIncludeType int
 
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating  role, response code: %d", resp.StatusCode)
-	}
+const (
+	RoleIncludeNone RoleIncludeType = iota
+	RoleIncludeUser
+	RoleIncludeSpace
+	RoleIncludeOrganization
+)
 
-	var role resource.Role
-	if err := json.NewDecoder(resp.Body).Decode(&role); err != nil {
-		return nil, fmt.Errorf("error reading  role: %w", err)
+func (r RoleIncludeType) String() string {
+	switch r {
+	case RoleIncludeUser:
+		return "user"
+	case RoleIncludeSpace:
+		return "space"
+	case RoleIncludeOrganization:
+		return "organization"
 	}
-
-	return &role, nil
+	return ""
 }
 
-func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID, roleType string) (*resource.Role, error) {
-	orgRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: orgGUID}}
-	userRel := resource.ToOneRelationship{Data: resource.Relationship{GUID: userGUID}}
-	req := c.client.NewRequest("POST", "/v3/roles")
-	req.obj = resource.CreateOrganizationRoleRequest{
-		RoleType:      roleType,
-		Relationships: resource.OrgUserRelationships{Org: orgRel, User: userRel},
+func (r RoleIncludeType) ToQueryString() url.Values {
+	v := url.Values{}
+	if r != RoleIncludeNone {
+		v.Set("include", r.String())
 	}
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error while creating  role: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error creating  role, response code: %d", resp.StatusCode)
-	}
-
-	var role resource.Role
-	if err := json.NewDecoder(resp.Body).Decode(&role); err != nil {
-		return nil, fmt.Errorf("error reading  role: %w", err)
-	}
-
-	return &role, nil
+	return v
 }
 
-// ListRolesByQuery retrieves roles based on query
-func (c *RoleClient) ListRolesByQuery(query url.Values) ([]resource.Role, error) {
-	var roles []resource.Role
-	requestURL, err := url.Parse("/v3/roles")
+// RoleListOptions list filters
+type RoleListOptions struct {
+	*ListOptions
+
+	GUIDs             Filter `filter:"guids,omitempty"`              // list of role guids to filter by
+	Types             Filter `filter:"types,omitempty"`              //  list of role types to filter by
+	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"` // list of org guids to filter by
+	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`        // list of space guids to filter by
+	UserGUIDs         Filter `filter:"user_guids,omitempty"`         // list of user guids to filter by
+}
+
+// NewRoleListOptions creates new options to pass to list
+func NewRoleListOptions() *RoleListOptions {
+	return &RoleListOptions{
+		ListOptions: NewListOptions(),
+	}
+}
+
+func (o RoleListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
+// User returns only the specified user's roles
+func (o *RoleListOptions) User(userGUID string) *RoleListOptions {
+	o.UserGUIDs = Filter{
+		Values: []string{userGUID},
+	}
+	return o
+}
+
+// Space returns only the specified space's roles
+func (o *RoleListOptions) Space(spaceGUID string) *RoleListOptions {
+	o.SpaceGUIDs = Filter{
+		Values: []string{spaceGUID},
+	}
+	return o
+}
+
+// Organization returns only the specified organization's roles
+func (o *RoleListOptions) Organization(orgGUID string) *RoleListOptions {
+	o.OrganizationGUIDs = Filter{
+		Values: []string{orgGUID},
+	}
+	return o
+}
+
+// OrganizationRoleType returns only roles with the specified org role type
+func (o *RoleListOptions) OrganizationRoleType(roleType resource.OrganizationRoleType) *RoleListOptions {
+	o.Types = Filter{
+		Values: []string{roleType.String()},
+	}
+	return o
+}
+
+// SpaceRoleType returns only roles with the specified space role type
+func (o *RoleListOptions) SpaceRoleType(roleType resource.SpaceRoleType) *RoleListOptions {
+	o.Types = Filter{
+		Values: []string{roleType.String()},
+	}
+	return o
+}
+
+// RoleListOptionsInclude list filters
+type RoleListOptionsInclude struct {
+	*RoleListOptions
+
+	Include RoleIncludeType `filter:"include,omitempty"`
+}
+
+// NewRoleListOptionsInclude creates new options to pass to list
+func NewRoleListOptionsInclude(include RoleIncludeType) *RoleListOptionsInclude {
+	return &RoleListOptionsInclude{
+		Include:         include,
+		RoleListOptions: NewRoleListOptions(),
+	}
+}
+
+func (o RoleListOptionsInclude) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
+// CreateSpaceRole creates a new role for a user in the space
+//
+// To create a space role you must be an admin, an organization manager
+// in the parent organization of the space associated with the role,
+// or a space manager in the space associated with the role.
+//
+// For a user to be assigned a space role, the user must already
+// have an organization role in the parent organization.
+func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID string, roleType resource.SpaceRoleType) (*resource.Role, error) {
+	req := resource.NewRoleSpaceCreate(spaceGUID, userGUID, roleType)
+	var r resource.Role
+	err := c.client.post(req.RoleType, "/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}
-	requestURL.RawQuery = query.Encode()
-
-	for {
-		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.client.DoRequest(r)
-		if err != nil {
-			return nil, fmt.Errorf("error requesting  space roles: %w", err)
-		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing  space roles, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListRolesResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list  space roles: %w", err)
-		}
-
-		roles = append(roles, data.Resources...)
-
-		requestURL, err = url.Parse(data.Pagination.Next.Href)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing next page URL: %w", err)
-		}
-		if requestURL.String() == "" {
-			break
-		}
-	}
-
-	return roles, nil
+	return &r, nil
 }
 
-func (c *RoleClient) ListRoleUsersByQuery(query url.Values) ([]resource.User, error) {
-	var users []resource.User
-	requestURL, err := url.Parse("/v3/roles")
+// CreateOrganizationRole creates a new role for a user in the organization
+//
+// To create an organization role you must be an admin or organization
+// manager in the organization associated with the role.
+func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
+	req := resource.NewRoleOrganizationCreate(orgGUID, userGUID, roleType)
+	var r resource.Role
+	err := c.client.post(req.RoleType, "/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}
-	requestURL.RawQuery = query.Encode()
-
-	for {
-		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.client.DoRequest(r)
-		if err != nil {
-			return nil, fmt.Errorf("error requesting  roles: %w", err)
-		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing  roles, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListRolesResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list  roles: %w", err)
-		}
-
-		users = append(users, data.Included.Users...)
-
-		requestURL, err = url.Parse(data.Pagination.Next.Href)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing next page URL: %w", err)
-		}
-		if requestURL.String() == "" {
-			break
-		}
-	}
-
-	return users, nil
+	return &r, nil
 }
 
-func (c *RoleClient) ListRoleAndUsersByQuery(query url.Values) ([]resource.Role, []resource.User, error) {
-	var roles []resource.Role
-	var users []resource.User
-	requestURL, err := url.Parse("/v3/roles")
+// Delete the specified role
+func (c *RoleClient) Delete(guid string) error {
+	return c.client.delete(path("/v3/roles/%s", guid))
+}
+
+// Get the specified role
+func (c *RoleClient) Get(guid string) (*resource.Role, error) {
+	var r resource.Role
+	err := c.client.get(path("/v3/roles/%s", guid), &r)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+// List all roles the user has access to in paged results
+func (c *RoleClient) List(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
+	if opts == nil {
+		opts = NewRoleListOptions()
+	}
+	var res resource.RoleList
+	err := c.client.get(path("/v3/roles?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
-	requestURL.RawQuery = query.Encode()
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
 
+// ListAll retrieves all roles the user has access to
+func (c *RoleClient) ListAll(opts *RoleListOptions) ([]*resource.Role, error) {
+	if opts == nil {
+		opts = NewRoleListOptions()
+	}
+	return AutoPage[*RoleListOptions, *resource.Role](opts, func(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
+		return c.List(opts)
+	})
+}
+
+// ListInclude pages all roles and specified included parent types the user has access to
+func (c *RoleClient) ListInclude(opts *RoleListOptionsInclude) ([]*resource.Role, *resource.RoleIncluded, *Pager, error) {
+	if opts == nil {
+		opts = NewRoleListOptionsInclude(RoleIncludeNone)
+	}
+	var res resource.RoleList
+	err := c.client.get(path("/v3/roles?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included, pager, nil
+}
+
+// ListIncludeAll retrieves all roles and specified included parent types the user has access to
+func (c *RoleClient) ListIncludeAll(opts *RoleListOptionsInclude) ([]*resource.Role, *resource.RoleIncluded, error) {
+	if opts == nil {
+		opts = NewRoleListOptionsInclude(RoleIncludeNone)
+	}
+	return roleAutoPageInclude[*RoleListOptionsInclude, *resource.Role](opts, func(opts *RoleListOptionsInclude) ([]*resource.Role, *resource.RoleIncluded, *Pager, error) {
+		return c.ListInclude(opts)
+	})
+}
+
+type roleListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.RoleIncluded, *Pager, error)
+
+func roleAutoPageInclude[T ListOptioner, R any](opts T, list roleListIncludeFunc[T, R]) ([]R, *resource.RoleIncluded, error) {
+	var all []R
+	var allIncluded *resource.RoleIncluded
 	for {
-		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.client.DoRequest(r)
+		page, included, pager, err := list(opts)
 		if err != nil {
-			return nil, nil, fmt.Errorf("error requesting  roles: %w", err)
+			return nil, nil, err
 		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, nil, fmt.Errorf("error listing  roles, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListRolesResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, nil, fmt.Errorf("error parsing JSON from list  roles: %w", err)
-		}
-
-		roles = append(roles, data.Resources...)
-		users = append(users, data.Included.Users...)
-
-		requestURL, err = url.Parse(data.Pagination.Next.Href)
-		if err != nil {
-			return nil, nil, fmt.Errorf("error parsing next page URL: %w", err)
-		}
-		if requestURL.String() == "" {
+		all = append(all, page...)
+		allIncluded.Organizations = append(allIncluded.Organizations, included.Organizations...)
+		allIncluded.Spaces = append(allIncluded.Spaces, included.Spaces...)
+		allIncluded.Users = append(allIncluded.Users, included.Users...)
+		if !pager.HasNextPage() {
 			break
 		}
+		pager.NextPage(opts)
 	}
-
-	return roles, users, nil
-}
-
-// ListSpaceRolesByGUID retrieves roles based on query
-func (c *RoleClient) ListSpaceRolesByGUID(spaceGUID string) ([]resource.Role, []resource.User, error) {
-	query := url.Values{}
-	query["space_guids"] = []string{spaceGUID}
-	query["include"] = []string{"user"}
-	return c.ListRoleAndUsersByQuery(query)
-}
-
-// ListSpaceRolesByGUIDAndType retrieves roles based on query
-func (c *RoleClient) ListSpaceRolesByGUIDAndType(spaceGUID string, roleType string) ([]resource.User, error) {
-	query := url.Values{}
-	query["space_guids"] = []string{spaceGUID}
-	query["types"] = []string{roleType}
-	query["include"] = []string{"user"}
-	return c.ListRoleUsersByQuery(query)
-}
-
-// ListOrganizationRolesByGUIDAndType retrieves roles based on query
-func (c *RoleClient) ListOrganizationRolesByGUIDAndType(orgGUID string, roleType string) ([]resource.User, error) {
-	query := url.Values{}
-	query["organization_guids"] = []string{orgGUID}
-	query["types"] = []string{roleType}
-	query["include"] = []string{"user"}
-	return c.ListRoleUsersByQuery(query)
-}
-
-// ListOrganizationRolesByGUID retrieves roles based on query
-func (c *RoleClient) ListOrganizationRolesByGUID(orgGUID string) ([]resource.Role, []resource.User, error) {
-	query := url.Values{}
-	query["organization_guids"] = []string{orgGUID}
-	query["include"] = []string{"user"}
-	return c.ListRoleAndUsersByQuery(query)
-}
-
-func (c *RoleClient) Delete(roleGUID string) error {
-	req := c.client.NewRequest("DELETE", "/v3/roles/"+roleGUID)
-	resp, err := c.client.DoRequest(req)
-	if err != nil {
-		return fmt.Errorf("error while deleting role: %w", err)
-	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("error deleting role with GUID [%s], response code: %d", roleGUID, resp.StatusCode)
-	}
-
-	return nil
+	return all, allIncluded, nil
 }

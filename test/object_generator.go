@@ -125,6 +125,13 @@ func (o *ObjectJSONGenerator) PackageDocker() string {
 	return o.template(r, "package_docker.json")
 }
 
+func (o *ObjectJSONGenerator) Role() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "role.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0

@@ -54,7 +54,7 @@ func NewDeploymentCreate(appGUID string) *DeploymentCreate {
 	return &DeploymentCreate{
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
-				Data: Relationship{
+				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},
