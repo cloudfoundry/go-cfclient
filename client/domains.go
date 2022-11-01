@@ -63,7 +63,7 @@ func (c *DomainClient) List(opts *DomainListOptions) ([]*resource.Domain, *Pager
 	return res.Resources, pager, nil
 }
 
-// ListAll retrieves all Domains the user has access to
+// ListAll retrieves all domains the user has access to
 func (c *DomainClient) ListAll(opts *DomainListOptions) ([]*resource.Domain, error) {
 	if opts == nil {
 		opts = NewDomainListOptions()
@@ -121,7 +121,7 @@ func (c *DomainClient) Unshare(domainGUID, orgGUID string) error {
 	return c.client.delete(path("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
 }
 
-// Update the specified attributes of the app
+// Update the specified attributes of the domain
 func (c *DomainClient) Update(guid string, r *resource.DomainUpdate) (*resource.Domain, error) {
 	var d resource.Domain
 	err := c.client.patch(path("/v3/domains/%s", guid), r, &d)
