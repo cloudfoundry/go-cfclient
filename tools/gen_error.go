@@ -115,8 +115,8 @@ import (
 func {{ $newMethod }}() CloudFoundryError {
 	return CloudFoundryError{
 		Code: {{ .CFCode }},
-		ErrorCode: "CF-{{ .Name }}",
-		Description: "{{ .Message | cleanMessage }}",
+		Title: "CF-{{ .Name }}",
+		Detail: "{{ .Message | cleanMessage }}",
 	}
 }
 

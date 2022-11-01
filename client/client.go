@@ -336,7 +336,6 @@ func (c *Client) GetSSHCode() (string, error) {
 
 func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 	body, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return resp, CloudFoundryHTTPError{
 			StatusCode: resp.StatusCode,
@@ -348,29 +347,27 @@ func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 		_ = b.Close()
 	}(resp.Body)
 
-	// Unmarshal V2 error response
-	if strings.HasPrefix(resp.Request.URL.Path, "/v2/") {
-		var cfErr CloudFoundryError
-		if err := json.Unmarshal(body, &cfErr); err != nil {
-			return resp, CloudFoundryHTTPError{
-				StatusCode: resp.StatusCode,
-				Status:     resp.Status,
-				Body:       body,
-			}
-		}
-		return nil, cfErr
-	}
-
-	// Unmarshal a  error response and convert it into a V2 model
-	var cfErrors CloudFoundryErrorsV3
-	if err := json.Unmarshal(body, &cfErrors); err != nil {
+	// Unmarshal v3 error response
+	var errs CloudFoundryErrors
+	if err := json.Unmarshal(body, &errs); err != nil {
 		return resp, CloudFoundryHTTPError{
 			StatusCode: resp.StatusCode,
 			Status:     resp.Status,
 			Body:       body,
 		}
 	}
-	return nil, NewCloudFoundryErrorFromV3Errors(cfErrors)
+
+	// ensure we got an error back
+	if len(errs.Errors) == 0 {
+		return resp, CloudFoundryHTTPError{
+			StatusCode: resp.StatusCode,
+			Status:     resp.Status,
+			Body:       body,
+		}
+	}
+
+	// TODO handle 2+ errors
+	return nil, errs.Errors[0]
 }
 
 func (c *Client) refreshEndpoint() error {
