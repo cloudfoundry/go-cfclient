@@ -8,63 +8,17 @@ import (
 
 type AppClient commonClient
 
-// LifecycleType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#list-apps
-type LifecycleType int
-
-const (
-	LifecycleNone LifecycleType = iota
-	LifecycleBuildpack
-	LifecycleDocker
-)
-
-func (l LifecycleType) String() string {
-	switch l {
-	case LifecycleBuildpack:
-		return "buildpack"
-	case LifecycleDocker:
-		return "docker"
-	}
-	return ""
-}
-
-// AppIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
-type AppIncludeType int
-
-const (
-	AppIncludeNone AppIncludeType = iota
-	AppIncludeSpace
-	AppIncludeSpaceOrganization
-)
-
-func (a AppIncludeType) String() string {
-	switch a {
-	case AppIncludeSpace:
-		return "space"
-	case AppIncludeSpaceOrganization:
-		return "space.organization"
-	}
-	return ""
-}
-
-func (a AppIncludeType) ToQueryString() url.Values {
-	v := url.Values{}
-	if a != AppIncludeNone {
-		v.Set("include", a.String())
-	}
-	return v
-}
-
 // AppListOptions list filters
 type AppListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter         `filter:"guids,omitempty"`
-	Names             Filter         `filter:"names,omitempty"`
-	OrganizationGUIDs Filter         `filter:"organization_guids,omitempty"`
-	SpaceGUIDs        Filter         `filter:"space_guids,omitempty"`
-	Stacks            Filter         `filter:"stacks,omitempty"`
-	LifecycleType     LifecycleType  `filter:"lifecycle_type,omitempty"`
-	Include           AppIncludeType `filter:"include,omitempty"`
+	GUIDs             Filter `filter:"guids,omitempty"`
+	Names             Filter `filter:"names,omitempty"`
+	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
+	Stacks            Filter `filter:"stacks,omitempty"`
+
+	LifecycleType resource.LifecycleType `filter:"lifecycle_type,omitempty"`
 }
 
 // NewAppListOptions creates new options to pass to list
@@ -76,6 +30,29 @@ func NewAppListOptions() *AppListOptions {
 
 func (o AppListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
+}
+
+// AppListIncludeOptions list filters
+type AppListIncludeOptions struct {
+	*AppListOptions
+
+	Include resource.AppIncludeType `filter:"include,omitempty"`
+}
+
+// NewAppListIncludeOptions creates new options to pass to list
+func NewAppListIncludeOptions(include resource.AppIncludeType) *AppListIncludeOptions {
+	return &AppListIncludeOptions{
+		Include:        include,
+		AppListOptions: NewAppListOptions(),
+	}
+}
+
+func (o AppListIncludeOptions) ToQueryString() url.Values {
+	u := o.AppListOptions.ToQueryString()
+	if o.Include != resource.AppIncludeNone {
+		u.Set("include", o.Include.String())
+	}
+	return u
 }
 
 // Create a new app
@@ -114,15 +91,14 @@ func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, er
 	return &appEnv, nil
 }
 
-// GetAndInclude allows callers to fetch an app and include information of parent objects in the response
-func (c *AppClient) GetAndInclude(guid string, include AppIncludeType) (*resource.App, error) {
-	var app resource.App
-
-	err := c.client.get(path("/v3/apps/%s?%s", guid, include.ToQueryString()), &app)
+// GetInclude allows callers to fetch an app and include information of parent objects in the response
+func (c *AppClient) GetInclude(guid string, include resource.AppIncludeType) (*resource.App, *resource.AppIncluded, error) {
+	var app resource.AppWithIncluded
+	err := c.client.get(path("/v3/apps/%s?include=%s", guid, include), &app)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &app, nil
+	return &app.App, app.Included, nil
 }
 
 // List all apps the user has access to in paged results
@@ -146,6 +122,30 @@ func (c *AppClient) ListAll(opts *AppListOptions) ([]*resource.App, error) {
 	}
 	return AutoPage[*AppListOptions, *resource.App](opts, func(opts *AppListOptions) ([]*resource.App, *Pager, error) {
 		return c.List(opts)
+	})
+}
+
+// ListInclude page all apps the user has access to and include the specified parent resources
+func (c *AppClient) ListInclude(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, *Pager, error) {
+	if opts == nil {
+		opts = NewAppListIncludeOptions(resource.AppIncludeNone)
+	}
+	var res resource.AppList
+	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included, pager, nil
+}
+
+// ListIncludeAll retrieves all apps the user has access to and include the specified parent resources
+func (c *AppClient) ListIncludeAll(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, error) {
+	if opts == nil {
+		opts = NewAppListIncludeOptions(resource.AppIncludeNone)
+	}
+	return appAutoPageInclude[*AppListIncludeOptions, *resource.App](opts, func(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, *Pager, error) {
+		return c.ListInclude(opts)
 	})
 }
 
@@ -228,4 +228,25 @@ func (c *AppClient) SSHEnabled(guid string) (*resource.AppSSHEnabled, error) {
 		return nil, err
 	}
 	return &appSSH, nil
+}
+
+type appListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.AppIncluded, *Pager, error)
+
+func appAutoPageInclude[T ListOptioner, R any](opts T, list appListIncludeFunc[T, R]) ([]R, *resource.AppIncluded, error) {
+	var all []R
+	var allIncluded *resource.AppIncluded
+	for {
+		page, included, pager, err := list(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allIncluded.Organizations = append(allIncluded.Organizations, included.Organizations...)
+		allIncluded.Spaces = append(allIncluded.Spaces, included.Spaces...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allIncluded, nil
 }

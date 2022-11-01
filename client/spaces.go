@@ -8,37 +8,13 @@ import (
 
 type SpaceClient commonClient
 
-type SpaceIncludeType int
-
-const (
-	SpaceIncludeNone SpaceIncludeType = iota
-	SpaceIncludeOrganization
-)
-
-func (s SpaceIncludeType) String() string {
-	switch s {
-	case SpaceIncludeOrganization:
-		return "organization"
-	}
-	return ""
-}
-
-func (s SpaceIncludeType) ToQueryString() url.Values {
-	v := url.Values{}
-	if s != SpaceIncludeNone {
-		v.Set("include", s.String())
-	}
-	return v
-}
-
 // SpaceListOptions list filters
 type SpaceListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter           // list of space guids to filter by
-	Names             Filter           // list of space names to filter by
-	OrganizationGUIDs Filter           // list of organization guids to filter by
-	Include           SpaceIncludeType // include parent objects if any
+	GUIDs             Filter // list of space guids to filter by
+	Names             Filter // list of space names to filter by
+	OrganizationGUIDs Filter // list of organization guids to filter by
 }
 
 // NewSpaceListOptions creates new options to pass to list
@@ -50,6 +26,29 @@ func NewSpaceListOptions() *SpaceListOptions {
 
 func (o SpaceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
+}
+
+// SpaceListIncludeOptions list filters
+type SpaceListIncludeOptions struct {
+	*SpaceListOptions
+
+	Include resource.SpaceIncludeType // include parent objects if any
+}
+
+// NewSpaceListIncludeOptions creates new options to pass to list
+func NewSpaceListIncludeOptions(include resource.SpaceIncludeType) *SpaceListIncludeOptions {
+	return &SpaceListIncludeOptions{
+		Include:          include,
+		SpaceListOptions: NewSpaceListOptions(),
+	}
+}
+
+func (o SpaceListIncludeOptions) ToQueryString() url.Values {
+	u := o.SpaceListOptions.ToQueryString()
+	if o.Include != resource.SpaceIncludeNone {
+		u.Set("include", o.Include.String())
+	}
+	return u
 }
 
 // Create a new space
@@ -77,14 +76,14 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	return &space, nil
 }
 
-// GetAndInclude allows callers to fetch an space and include information of parent objects in the response
-func (c *SpaceClient) GetAndInclude(guid string, include SpaceIncludeType) (*resource.Space, error) {
-	var space resource.Space
-	err := c.client.get(path("/v3/spaces/%s?%s", guid, include.ToQueryString()), &space)
+// GetInclude allows callers to fetch an space and include information of parent objects in the response
+func (c *SpaceClient) GetInclude(guid string, include resource.SpaceIncludeType) (*resource.Space, *resource.SpaceIncluded, error) {
+	var space resource.SpaceWithIncluded
+	err := c.client.get(path("/v3/spaces/%s?include=%s", guid, include), &space)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &space, nil
+	return &space.Space, space.Included, nil
 }
 
 // List pages all spaces the user has access to
@@ -108,6 +107,30 @@ func (c *SpaceClient) ListAll(opts *SpaceListOptions) ([]*resource.Space, error)
 	}
 	return AutoPage[*SpaceListOptions, *resource.Space](opts, func(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
 		return c.List(opts)
+	})
+}
+
+// ListInclude page all spaces the user has access to and include the specified parent resources
+func (c *SpaceClient) ListInclude(opts *SpaceListIncludeOptions) ([]*resource.Space, *resource.SpaceIncluded, *Pager, error) {
+	if opts == nil {
+		opts = NewSpaceListIncludeOptions(resource.SpaceIncludeNone)
+	}
+	var res resource.SpaceList
+	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included, pager, nil
+}
+
+// ListIncludeAll retrieves all spaces the user has access to and include the specified parent resources
+func (c *SpaceClient) ListIncludeAll(opts *SpaceListIncludeOptions) ([]*resource.Space, *resource.SpaceIncluded, error) {
+	if opts == nil {
+		opts = NewSpaceListIncludeOptions(resource.SpaceIncludeNone)
+	}
+	return spaceAutoPageInclude[*SpaceListIncludeOptions, *resource.Space](opts, func(opts *SpaceListIncludeOptions) ([]*resource.Space, *resource.SpaceIncluded, *Pager, error) {
+		return c.ListInclude(opts)
 	})
 }
 
@@ -138,4 +161,24 @@ func (c *SpaceClient) Update(guid string, r *resource.SpaceUpdate) (*resource.Sp
 		return nil, err
 	}
 	return &space, nil
+}
+
+type spaceListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.SpaceIncluded, *Pager, error)
+
+func spaceAutoPageInclude[T ListOptioner, R any](opts T, list spaceListIncludeFunc[T, R]) ([]R, *resource.SpaceIncluded, error) {
+	var all []R
+	var allIncluded *resource.SpaceIncluded
+	for {
+		page, included, pager, err := list(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allIncluded.Organizations = append(allIncluded.Organizations, included.Organizations...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allIncluded, nil
 }

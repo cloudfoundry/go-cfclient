@@ -1,6 +1,8 @@
 package resource
 
-import "time"
+import (
+	"time"
+)
 
 type Space struct {
 	GUID          string                       `json:"guid"`
@@ -46,8 +48,9 @@ type SpaceUpdate struct {
 }
 
 type SpaceList struct {
-	Pagination Pagination `json:"pagination"`
-	Resources  []*Space   `json:"resources"`
+	Pagination Pagination     `json:"pagination"`
+	Resources  []*Space       `json:"resources"`
+	Included   *SpaceIncluded `json:"included"`
 }
 
 type SpaceUser struct {
@@ -63,4 +66,28 @@ type SpaceUser struct {
 type SpaceUserList struct {
 	Pagination Pagination `json:"pagination"`
 	Resources  []*User    `json:"resources"`
+}
+
+type SpaceWithIncluded struct {
+	Space
+	Included *SpaceIncluded `json:"included"`
+}
+
+type SpaceIncluded struct {
+	Organizations []*Organization `json:"organizations"`
+}
+
+const (
+	SpaceIncludeNone SpaceIncludeType = iota
+	SpaceIncludeOrganization
+)
+
+type SpaceIncludeType int
+
+func (s SpaceIncludeType) String() string {
+	switch s {
+	case SpaceIncludeOrganization:
+		return "organization"
+	}
+	return ""
 }

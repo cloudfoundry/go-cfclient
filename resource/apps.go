@@ -32,8 +32,9 @@ type AppUpdate struct {
 }
 
 type AppList struct {
-	Pagination Pagination `json:"pagination"`
-	Resources  []*App     `json:"resources"`
+	Pagination Pagination   `json:"pagination"`
+	Resources  []*App       `json:"resources"`
+	Included   *AppIncluded `json:"included"`
 }
 
 type AppSSHEnabled struct {
@@ -71,6 +72,54 @@ type Lifecycle struct {
 type BuildpackLifecycle struct {
 	Buildpacks []string `json:"buildpacks,omitempty"`
 	Stack      string   `json:"stack,omitempty"`
+}
+
+type AppWithIncluded struct {
+	App
+	Included *AppIncluded `json:"included"`
+}
+
+type AppIncluded struct {
+	Organizations []*Organization `json:"organizations"`
+	Spaces        []*Space        `json:"spaces"`
+}
+
+// LifecycleType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#list-apps
+type LifecycleType int
+
+const (
+	LifecycleNone LifecycleType = iota
+	LifecycleBuildpack
+	LifecycleDocker
+)
+
+func (l LifecycleType) String() string {
+	switch l {
+	case LifecycleBuildpack:
+		return "buildpack"
+	case LifecycleDocker:
+		return "docker"
+	}
+	return ""
+}
+
+// AppIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
+type AppIncludeType int
+
+const (
+	AppIncludeNone AppIncludeType = iota
+	AppIncludeSpace
+	AppIncludeSpaceOrganization
+)
+
+func (a AppIncludeType) String() string {
+	switch a {
+	case AppIncludeSpace:
+		return "space"
+	case AppIncludeSpaceOrganization:
+		return "space.organization"
+	}
+	return ""
 }
 
 func NewAppCreate(name, spaceGUID string) *AppCreate {
