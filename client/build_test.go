@@ -1,11 +1,8 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"github.com/cloudfoundry-community/go-cfclient/test"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
@@ -119,26 +116,5 @@ func TestBuilds(t *testing.T) {
 			},
 		},
 	}
-	for _, tt := range tests {
-		func() {
-			setup(tt.Route, t)
-			defer teardown()
-			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
-			if tt.Description != "" {
-				details = tt.Description + ": " + details
-			}
-
-			c, _ := NewTokenConfig(server.URL, "foobar")
-			cl, err := New(c)
-			require.NoError(t, err, details)
-
-			obj, err := tt.Action(cl, t)
-			require.NoError(t, err, details)
-			if tt.Expected != "" {
-				actual, err := json.Marshal(obj)
-				require.NoError(t, err, details)
-				require.JSONEq(t, tt.Expected, string(actual), details)
-			}
-		}()
-	}
+	executeTests(tests, t)
 }
