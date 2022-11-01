@@ -8,36 +8,6 @@ import (
 
 type RoleClient commonClient
 
-// RoleIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
-type RoleIncludeType int
-
-const (
-	RoleIncludeNone RoleIncludeType = iota
-	RoleIncludeUser
-	RoleIncludeSpace
-	RoleIncludeOrganization
-)
-
-func (r RoleIncludeType) String() string {
-	switch r {
-	case RoleIncludeUser:
-		return "user"
-	case RoleIncludeSpace:
-		return "space"
-	case RoleIncludeOrganization:
-		return "organization"
-	}
-	return ""
-}
-
-func (r RoleIncludeType) ToQueryString() url.Values {
-	v := url.Values{}
-	if r != RoleIncludeNone {
-		v.Set("include", r.String())
-	}
-	return v
-}
-
 // RoleListOptions list filters
 type RoleListOptions struct {
 	*ListOptions
@@ -104,11 +74,11 @@ func (o *RoleListOptions) SpaceRoleType(roleType resource.SpaceRoleType) *RoleLi
 type RoleListIncludeOptions struct {
 	*RoleListOptions
 
-	Include RoleIncludeType `filter:"include,omitempty"`
+	Include resource.RoleIncludeType `filter:"include,omitempty"`
 }
 
 // NewRoleListIncludeOptions creates new options to pass to list
-func NewRoleListIncludeOptions(include RoleIncludeType) *RoleListIncludeOptions {
+func NewRoleListIncludeOptions(include resource.RoleIncludeType) *RoleListIncludeOptions {
 	return &RoleListIncludeOptions{
 		Include:         include,
 		RoleListOptions: NewRoleListOptions(),
@@ -117,7 +87,7 @@ func NewRoleListIncludeOptions(include RoleIncludeType) *RoleListIncludeOptions 
 
 func (o RoleListIncludeOptions) ToQueryString() url.Values {
 	u := o.RoleListOptions.ToQueryString()
-	if o.Include != RoleIncludeNone {
+	if o.Include != resource.RoleIncludeNone {
 		u.Set("include", o.Include.String())
 	}
 	return u
@@ -197,7 +167,7 @@ func (c *RoleClient) ListAll(opts *RoleListOptions) ([]*resource.Role, error) {
 // ListInclude pages all roles and specified included parent types the user has access to
 func (c *RoleClient) ListInclude(opts *RoleListIncludeOptions) ([]*resource.Role, *resource.RoleIncluded, *Pager, error) {
 	if opts == nil {
-		opts = NewRoleListIncludeOptions(RoleIncludeNone)
+		opts = NewRoleListIncludeOptions(resource.RoleIncludeNone)
 	}
 	var res resource.RoleList
 	err := c.client.get(path("/v3/roles?%s", opts.ToQueryString()), &res)
@@ -211,7 +181,7 @@ func (c *RoleClient) ListInclude(opts *RoleListIncludeOptions) ([]*resource.Role
 // ListIncludeAll retrieves all roles and specified included parent types the user has access to
 func (c *RoleClient) ListIncludeAll(opts *RoleListIncludeOptions) ([]*resource.Role, *resource.RoleIncluded, error) {
 	if opts == nil {
-		opts = NewRoleListIncludeOptions(RoleIncludeNone)
+		opts = NewRoleListIncludeOptions(resource.RoleIncludeNone)
 	}
 	return roleAutoPageInclude[*RoleListIncludeOptions, *resource.Role](opts, func(opts *RoleListIncludeOptions) ([]*resource.Role, *resource.RoleIncluded, *Pager, error) {
 		return c.ListInclude(opts)

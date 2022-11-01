@@ -100,6 +100,28 @@ func (or OrganizationRoleType) String() string {
 	return ""
 }
 
+// RoleIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
+type RoleIncludeType int
+
+const (
+	RoleIncludeNone RoleIncludeType = iota
+	RoleIncludeUser
+	RoleIncludeSpace
+	RoleIncludeOrganization
+)
+
+func (r RoleIncludeType) String() string {
+	switch r {
+	case RoleIncludeUser:
+		return "user"
+	case RoleIncludeSpace:
+		return "space"
+	case RoleIncludeOrganization:
+		return "organization"
+	}
+	return ""
+}
+
 func NewRoleSpaceCreate(spaceGUID, userGUID string, roleType SpaceRoleType) *RoleSpaceCreate {
 	return &RoleSpaceCreate{
 		RoleType: roleType.String(),
