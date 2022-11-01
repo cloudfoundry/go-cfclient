@@ -1,56 +1,145 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/test"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
-func TestListRoutes(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/routes", []string{listRoutesPayload}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
+func TestRoutes(t *testing.T) {
+	g := test.NewObjectJSONGenerator(123)
+	route := g.Route()
+	route2 := g.Route()
 
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
+	tests := []RouteTest{
+		{
+			Description: "Create route",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/routes",
+				Output:   []string{route},
+				Status:   http.StatusCreated,
+				PostForm: `{
+					"host": "a-hostname",
+					"path": "/some_path",
+					"port": 6666,
+					"relationships": {
+					  "domain": {
+						"data": { "guid": "a99f869d-151a-4a80-95b7-653ada640824" }
+					  },
+					  "space": {
+						"data": { "guid": "33d27af8-788d-4de5-8f37-fb80d517f2ed" }
+					  }
+					}
+				  }`,
+			},
+			Expected: route,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewRouteCreateWithHost("a99f869d-151a-4a80-95b7-653ada640824",
+					"33d27af8-788d-4de5-8f37-fb80d517f2ed",
+					"a-hostname",
+					"/some_path",
+					6666)
+				return c.Routes.Create(r)
+			},
+		},
+		{
+			Description: "Delete route",
+			Route: MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Status:   http.StatusAccepted,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Routes.Delete("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get route",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Output:   []string{route},
+				Status:   http.StatusOK},
+			Expected: route,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.Get("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "List all routes",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes",
+				Output:   g.Paged([]string{route}, []string{route2}),
+				Status:   http.StatusOK},
+			Expected: g.Array(route, route2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.ListAll(nil)
+			},
+		},
+		{
+			Description: "List all routes for an app",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/758c78dc-60bc-4f84-999b-247bdc2c37fe/routes",
+				Output:   g.Paged([]string{route}, []string{route2}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(route, route2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.ListForAppAll("758c78dc-60bc-4f84-999b-247bdc2c37fe", nil)
+			},
+		},
+		{
+			Description: "Update route",
+			Route: MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Output:   []string{route},
+				Status:   http.StatusOK,
+				PostForm: `{ "metadata": { "labels": {"key": "value"}, "annotations": {"note": "detailed information"}}}`,
+			},
+			Expected: route,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := &resource.RouteUpdate{
+					Metadata: &resource.Metadata{
+						Labels: map[string]string{
+							"key": "value",
+						},
+						Annotations: map[string]string{
+							"note": "detailed information",
+						},
+					},
+				}
+				return c.Routes.Update("5a85c020-3e3d-42a5-a475-5084c5357e82", r)
+			},
+		},
+	}
+	for _, tt := range tests {
+		func() {
+			setup(tt.Route, t)
+			defer teardown()
+			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
+			if tt.Description != "" {
+				details = tt.Description + ": " + details
+			}
 
-	routes, err := client.Routes.List()
-	require.NoError(t, err)
-	require.Len(t, routes, 1)
+			c, _ := NewTokenConfig(server.URL, "foobar")
+			cl, err := New(c)
+			require.NoError(t, err, details)
 
-	require.Equal(t, "a-hostname", routes[0].Host)
-	require.Equal(t, "/some_path", routes[0].Path)
-	require.Equal(t, "a-hostname.a-domain.com/some_path", routes[0].Url)
-
-	require.Equal(t, "885a8cb3-c07b-4856-b448-eeb10bf36236", routes[0].Relationships["space"].Data.GUID)
-	require.Equal(t, "0b5f3633-194c-42d2-9408-972366617e0e", routes[0].Relationships["domain"].Data.GUID)
-
-	require.Equal(t, "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31", routes[0].Links["self"].Href)
-	require.Equal(t, "https://api.example.org/v3/spaces/885a8cb3-c07b-4856-b448-eeb10bf36236", routes[0].Links["space"].Href)
-	require.Equal(t, "https://api.example.org/v3/domains/0b5f3633-194c-42d2-9408-972366617e0e", routes[0].Links["domain"].Href)
-	require.Equal(t, "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31/destinations", routes[0].Links["destinations"].Href)
-}
-
-func TestCreateRoutes(t *testing.T) {
-	setup(MockRoute{"POST", "/v3/routes", []string{createRoutePayload}, "", http.StatusCreated, "", ""}, t)
-	defer teardown()
-
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
-
-	route, err := client.Routes.Create(
-		"885a8cb3-c07b-4856-b448-eeb10bf36236",
-		"0b5f3633-194c-42d2-9408-972366617e0e",
-		nil,
-	)
-	require.NoError(t, err)
-	require.Equal(t, "a-hostname", route.Host)
-	require.Equal(t, "/some_path", route.Path)
-	require.Equal(t, "885a8cb3-c07b-4856-b448-eeb10bf36236", route.Relationships["space"].Data.GUID)
-	require.Equal(t, "0b5f3633-194c-42d2-9408-972366617e0e", route.Relationships["domain"].Data.GUID)
-	require.Equal(t, "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31", route.Links["self"].Href)
-	require.Equal(t, "https://api.example.org/v3/spaces/885a8cb3-c07b-4856-b448-eeb10bf36236", route.Links["space"].Href)
-	require.Equal(t, "https://api.example.org/v3/domains/0b5f3633-194c-42d2-9408-972366617e0e", route.Links["domain"].Href)
-	require.Equal(t, "https://api.example.org/v3/routes/cbad697f-cac1-48f4-9017-ac08f39dfb31/destinations", route.Links["destinations"].Href)
+			obj, err := tt.Action(cl, t)
+			require.NoError(t, err, details)
+			if tt.Expected != "" {
+				actual, err := json.Marshal(obj)
+				require.NoError(t, err, details)
+				require.JSONEq(t, tt.Expected, string(actual), details)
+			}
+		}()
+	}
 }
