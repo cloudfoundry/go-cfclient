@@ -51,6 +51,37 @@ func (o SpaceListIncludeOptions) ToQueryString() url.Values {
 	return u
 }
 
+// SpaceUserListOptions list filters
+type SpaceUserListOptions struct {
+	*ListOptions
+
+	// list of user guids to filter by
+	GUIDs Filter `filter:"guids,omitempty"`
+
+	// list of usernames to filter by. Mutually exclusive with partial_usernames
+	UserNames Filter `filter:"usernames,omitempty"`
+
+	// list of strings to search by. When using this query parameter, all the users that
+	// contain the string provided in their username will be returned. Mutually exclusive with usernames
+	PartialUsernames Filter `filter:"partial_usernames,omitempty"`
+
+	// list of user origins (user stores) to filter by, for example, users authenticated by
+	// UAA have the origin “uaa”; users authenticated by an LDAP provider have the
+	// origin ldap when filtering by origins, usernames must be included
+	Origins Filter `filter:"origins,omitempty"`
+}
+
+// NewSpaceUserListOptions creates new options to pass to list
+func NewSpaceUserListOptions() *SpaceUserListOptions {
+	return &SpaceUserListOptions{
+		ListOptions: NewListOptions(),
+	}
+}
+
+func (o SpaceUserListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
 // Create a new space
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	var space resource.Space
@@ -135,9 +166,12 @@ func (c *SpaceClient) ListIncludeAll(opts *SpaceListIncludeOptions) ([]*resource
 }
 
 // ListUsers pages users by space GUID
-func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, error) {
+func (c *SpaceClient) ListUsers(spaceGUID string, opts *SpaceUserListOptions) ([]*resource.User, *Pager, error) {
+	if opts == nil {
+		opts = NewSpaceUserListOptions()
+	}
 	var res resource.SpaceUserList
-	err := c.client.get(path("/v3/spaces/%s/users", spaceGUID), &res)
+	err := c.client.get(path("/v3/spaces/%s/users?%s", spaceGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -146,10 +180,12 @@ func (c *SpaceClient) ListUsers(spaceGUID string) ([]*resource.User, *Pager, err
 }
 
 // ListUsersAll retrieves all users by space GUID
-func (c *SpaceClient) ListUsersAll(spaceGUID string) ([]*resource.User, error) {
-	opts := NewSpaceListOptions()
-	return AutoPage[*SpaceListOptions, *resource.User](opts, func(opts *SpaceListOptions) ([]*resource.User, *Pager, error) {
-		return c.ListUsers(spaceGUID)
+func (c *SpaceClient) ListUsersAll(spaceGUID string, opts *SpaceUserListOptions) ([]*resource.User, error) {
+	if opts == nil {
+		opts = NewSpaceUserListOptions()
+	}
+	return AutoPage[*SpaceUserListOptions, *resource.User](opts, func(opts *SpaceUserListOptions) ([]*resource.User, *Pager, error) {
+		return c.ListUsers(spaceGUID, opts)
 	})
 }
 

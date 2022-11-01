@@ -163,6 +163,22 @@ func (o *ObjectJSONGenerator) ServiceInstance() string {
 	return o.template(r, "service_instance.json")
 }
 
+func (o *ObjectJSONGenerator) Space() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "space.json")
+}
+
+func (o *ObjectJSONGenerator) User() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "user.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
