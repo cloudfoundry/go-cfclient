@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"github.com/stretchr/testify/require"
 	"net/url"
 	"testing"
@@ -104,13 +105,15 @@ func TestListOptions(t *testing.T) {
 
 	// lifecycle type
 	opts = newEmptyOpts()
-	opts.LifecycleType = LifecycleBuildpack
+	opts.LifecycleType = resource.LifecycleBuildpack
 	qs = opts.ToQueryString()
 	require.Equal(t, "lifecycle_type="+url.QueryEscape("buildpack"), qs.Encode())
 
 	// app include type
-	opts = newEmptyOpts()
-	opts.Include = AppIncludeSpaceOrganization
-	qs = opts.ToQueryString()
+	optsInc := NewAppListIncludeOptions(resource.AppIncludeSpaceOrganization)
+	optsInc.Include = resource.AppIncludeSpaceOrganization
+	optsInc.Page = 0
+	optsInc.PerPage = 0
+	qs = optsInc.ToQueryString()
 	require.Equal(t, "include="+url.QueryEscape("space.organization"), qs.Encode())
 }
