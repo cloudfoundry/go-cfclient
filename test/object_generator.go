@@ -179,6 +179,14 @@ func (o *ObjectJSONGenerator) User() string {
 	return o.template(r, "user.json")
 }
 
+func (o *ObjectJSONGenerator) Stack() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "stack.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0

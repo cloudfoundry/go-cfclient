@@ -1,55 +1,85 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type StackClient commonClient
 
-// ListByQuery retrieves stacks based on query
-func (c *StackClient) ListByQuery(query url.Values) ([]resource.Stack, error) {
-	var stacks []resource.Stack
-	requestURL, err := url.Parse("/v3/stacks")
+// StackListOptions list filters
+type StackListOptions struct {
+	*ListOptions
+
+	Names Filter `filter:"names,omitempty"` // list of stack names to filter by
+}
+
+// NewStackListOptions creates new options to pass to list
+func NewStackListOptions() *StackListOptions {
+	return &StackListOptions{
+		ListOptions: NewListOptions(),
+	}
+}
+
+func (o StackListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
+
+// Create a new space
+func (c *StackClient) Create(r *resource.StackCreate) (*resource.Stack, error) {
+	var space resource.Stack
+	err := c.client.post(r.Name, "/v3/stacks", r, &space)
 	if err != nil {
 		return nil, err
 	}
-	requestURL.RawQuery = query.Encode()
+	return &space, nil
+}
 
-	for {
-		r := c.client.NewRequest("GET", fmt.Sprintf("%s?%s", requestURL.Path, requestURL.RawQuery))
-		resp, err := c.client.DoRequest(r)
-		if err != nil {
-			return nil, fmt.Errorf("error requesting stacks: %w", err)
-		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
+// Delete the specified space
+func (c *StackClient) Delete(guid string) error {
+	return c.client.delete(path("/v3/stacks/%s", guid))
+}
 
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing stacks, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListStacksResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list stacks: %w", err)
-		}
-
-		stacks = append(stacks, data.Resources...)
-
-		requestURL, err = url.Parse(data.Pagination.Next.Href)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing next page URL: %w", err)
-		}
-		if requestURL.String() == "" {
-			break
-		}
+// Get the specified space
+func (c *StackClient) Get(guid string) (*resource.Stack, error) {
+	var space resource.Stack
+	err := c.client.get(path("/v3/stacks/%s", guid), &space)
+	if err != nil {
+		return nil, err
 	}
+	return &space, nil
+}
 
-	return stacks, nil
+// List pages all spaces the user has access to
+func (c *StackClient) List(opts *StackListOptions) ([]*resource.Stack, *Pager, error) {
+	if opts == nil {
+		opts = NewStackListOptions()
+	}
+	var res resource.StackList
+	err := c.client.get(path("/v3/stacks?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
+
+// ListAll retrieves all spaces the user has access to
+func (c *StackClient) ListAll(opts *StackListOptions) ([]*resource.Stack, error) {
+	if opts == nil {
+		opts = NewStackListOptions()
+	}
+	return AutoPage[*StackListOptions, *resource.Stack](opts, func(opts *StackListOptions) ([]*resource.Stack, *Pager, error) {
+		return c.List(opts)
+	})
+}
+
+// Update the specified attributes of a space
+func (c *StackClient) Update(guid string, r *resource.StackUpdate) (*resource.Stack, error) {
+	var space resource.Stack
+	err := c.client.patch(path("/v3/stacks/%s", guid), r, &space)
+	if err != nil {
+		return nil, err
+	}
+	return &space, nil
 }
