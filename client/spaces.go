@@ -12,9 +12,9 @@ type SpaceClient commonClient
 type SpaceListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter // list of space guids to filter by
-	Names             Filter // list of space names to filter by
-	OrganizationGUIDs Filter // list of organization guids to filter by
+	GUIDs             Filter `filter:"guids,omitempty"`              // list of space guids to filter by
+	Names             Filter `filter:"names,omitempty"`              // list of space names to filter by
+	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"` // list of organization guids to filter by
 }
 
 // NewSpaceListOptions creates new options to pass to list
