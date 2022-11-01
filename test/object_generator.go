@@ -155,6 +155,14 @@ func (o *ObjectJSONGenerator) ServiceCredentialBinding() string {
 	return o.template(r, "service_credential_binding.json")
 }
 
+func (o *ObjectJSONGenerator) ServiceInstance() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "service_instance.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0

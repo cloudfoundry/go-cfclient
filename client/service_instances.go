@@ -1,58 +1,81 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"net/url"
 )
 
 type ServiceInstanceClient commonClient
 
-func (c *ServiceInstanceClient) List() ([]resource.ServiceInstance, error) {
-	return c.ListByQuery(nil)
+// ServiceInstanceListOptions list filters
+type ServiceInstanceListOptions struct {
+	*ListOptions
+
+	Names             Filter `filter:"names,omitempty"` // list of service instance names to filter by
+	GUIDs             Filter `filter:"guids,omitempty"` // list of service instance guids to filter by
+	Type              string `filter:"type,omitempty"`  // Filter by type; valid values are managed and user-provided
+	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
+	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	ServicePlanGUIDs  Filter `filter:"service_plan_guids,omitempty"`
+	ServicePlanNames  Filter `filter:"service_plan_names,omitempty"`
 }
 
-func (c *ServiceInstanceClient) ListByQuery(query url.Values) ([]resource.ServiceInstance, error) {
-	var svcInstances []resource.ServiceInstance
-	requestURL := "/v3/service_instances"
-	if e := query.Encode(); len(e) > 0 {
-		requestURL += "?" + e
+// NewServiceInstanceListOptions creates new options to pass to list
+func NewServiceInstanceListOptions() *ServiceInstanceListOptions {
+	return &ServiceInstanceListOptions{
+		ListOptions: NewListOptions(),
 	}
+}
 
-	for {
-		r := c.client.NewRequest("GET", requestURL)
-		resp, err := c.client.DoRequest(r)
-		if err != nil {
-			return nil, fmt.Errorf("error requesting service instances: %w", err)
-		}
-		defer func(b io.ReadCloser) {
-			_ = b.Close()
-		}(resp.Body)
+func (o ServiceInstanceListOptions) ToQueryString() url.Values {
+	return o.ListOptions.ToQueryString(o)
+}
 
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("error listing service instances, response code: %d", resp.StatusCode)
-		}
-
-		var data resource.ListServiceInstancesResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-			return nil, fmt.Errorf("error parsing JSON from list service instances: %w", err)
-		}
-
-		svcInstances = append(svcInstances, data.Resources...)
-
-		requestURL = data.Pagination.Next.Href
-		if requestURL == "" || query.Get("page") != "" {
-			break
-		}
-		requestURL, err = extractPathFromURL(requestURL)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing the next page request url for service instances: %w", err)
-		}
+// Create a new service instance
+func (c *ServiceInstanceClient) Create(r *resource.ServiceInstanceCreate) (*resource.ServiceInstance, error) {
+	var si resource.ServiceInstance
+	err := c.client.post(r.Name, "/v3/service_instances", r, &si)
+	if err != nil {
+		return nil, err
 	}
+	return &si, nil
+}
 
-	return svcInstances, nil
+// Delete the specified service instance
+func (c *ServiceInstanceClient) Delete(guid string) error {
+	return c.client.delete(path("/v3/service_instances/%s", guid))
+}
+
+// Get the specified service instance
+func (c *ServiceInstanceClient) Get(guid string) (*resource.ServiceInstance, error) {
+	var si resource.ServiceInstance
+	err := c.client.get(path("/v3/service_instances/%s", guid), &si)
+	if err != nil {
+		return nil, err
+	}
+	return &si, nil
+}
+
+// List pages all service instances the user has access to
+func (c *ServiceInstanceClient) List(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
+	if opts == nil {
+		opts = NewServiceInstanceListOptions()
+	}
+	var res resource.ServiceInstanceList
+	err := c.client.get(path("/v3/service_instances?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, pager, nil
+}
+
+// ListAll retrieves all service instances the user has access to
+func (c *ServiceInstanceClient) ListAll(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, error) {
+	if opts == nil {
+		opts = NewServiceInstanceListOptions()
+	}
+	return AutoPage[*ServiceInstanceListOptions, *resource.ServiceInstance](opts, func(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
+		return c.List(opts)
+	})
 }
