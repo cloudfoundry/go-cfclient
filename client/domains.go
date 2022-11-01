@@ -115,7 +115,7 @@ func (c *DomainClient) ShareMany(guid string, r *resource.ToManyRelationships) (
 	return &d, nil
 }
 
-// Share an organization-scoped domain to other organizations specified by a list of organization guids
+// Unshare an organization-scoped domain to other organizations specified by a list of organization guids
 // This will allow any of the other organizations to use the organization-scoped domain.
 func (c *DomainClient) Unshare(domainGUID, orgGUID string) error {
 	return c.client.delete(path("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
