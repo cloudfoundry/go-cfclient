@@ -44,7 +44,7 @@ type ToOneRelationship struct {
 
 // ToManyRelationships is a relationship to multiple objects
 type ToManyRelationships struct {
-	Data []Relationship `json:"data,omitempty"`
+	Data []Relationship `json:"data"`
 }
 
 type Relationship struct {
