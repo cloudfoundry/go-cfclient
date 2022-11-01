@@ -6,18 +6,6 @@ import (
 	"strings"
 )
 
-func extractPathFromURL(requestURL string) (string, error) {
-	u, err := url.Parse(requestURL)
-	if err != nil {
-		return "", err
-	}
-	result := u.Path
-	if q := u.Query().Encode(); q != "" {
-		result = result + "?" + q
-	}
-	return result, nil
-}
-
 func path(urlFormat string, params ...any) string {
 	// url encode any querystring params
 	p := make([]any, len(params))
