@@ -132,6 +132,13 @@ func (o *ObjectJSONGenerator) Role() string {
 	return o.template(r, "role.json")
 }
 
+func (o *ObjectJSONGenerator) Route() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "route.json")
+}
+
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
