@@ -1,25 +1,110 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/test"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
-func TestListServiceInstancesByQuery(t *testing.T) {
-	setup(MockRoute{"GET", "/v3/service_instances", []string{listServiceInstancesPayload}, "", http.StatusOK, "", ""}, t)
-	defer teardown()
+func TestServiceInstances(t *testing.T) {
+	g := test.NewObjectJSONGenerator(156)
+	si := g.ServiceInstance()
+	si2 := g.ServiceInstance()
 
-	c, _ := NewTokenConfig(server.URL, "foobar")
-	client, err := New(c)
-	require.NoError(t, err)
+	tests := []RouteTest{
+		{
+			Description: "Create service instance",
+			Route: MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/service_instances",
+				Output:   []string{si},
+				Status:   http.StatusCreated,
+				PostForm: `{
+					"type": "managed",
+					"name": "my_service_instance",
+					"tags": ["foo", "bar", "baz"],
+					"relationships": {
+						"space": {
+							"data": {
+								"guid": "7304bc3c-7010-11ea-8840-48bf6bec2d78"
+							}
+						},
+						"service_plan": {
+							"data": {
+								"guid": "e0e4417c-74ee-11ea-a604-48bf6bec2d78"
+							}
+						}
+					}
+				}`,
+			},
+			Expected: si,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewServiceInstanceCreateManaged("my_service_instance",
+					"7304bc3c-7010-11ea-8840-48bf6bec2d78", "e0e4417c-74ee-11ea-a604-48bf6bec2d78")
+				r.Tags = []string{"foo", "bar", "baz"}
+				return c.ServiceInstances.Create(r)
+			},
+		},
+		{
+			Description: "Delete service instance",
+			Route: MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
+				Status:   http.StatusAccepted,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.ServiceInstances.Delete("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+			},
+		},
+		{
+			Description: "Get service instance",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
+				Output:   []string{si},
+				Status:   http.StatusOK},
+			Expected: si,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceInstances.Get("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+			},
+		},
+		{
+			Description: "List all service instances",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/service_instances",
+				Output:   g.Paged([]string{si}, []string{si2}),
+				Status:   http.StatusOK},
+			Expected: g.Array(si, si2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceInstances.ListAll(nil)
+			},
+		},
+	}
+	for _, tt := range tests {
+		func() {
+			setup(tt.Route, t)
+			defer teardown()
+			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
+			if tt.Description != "" {
+				details = tt.Description + ": " + details
+			}
 
-	services, err := client.ServiceInstances.List()
-	require.NoError(t, err)
-	require.Len(t, services, 1)
+			c, _ := NewTokenConfig(server.URL, "foobar")
+			cl, err := New(c)
+			require.NoError(t, err, details)
 
-	require.Equal(t, "my_service_instance", services[0].Name)
-
-	require.Equal(t, "ae0031f9-dd49-461c-a945-df40e77c39cb", services[0].Relationships["space"].Data.GUID)
-	require.Equal(t, "https://api.example.org/v3/spaces/ae0031f9-dd49-461c-a945-df40e77c39cb", services[0].Links["space"].Href)
+			obj, err := tt.Action(cl, t)
+			require.NoError(t, err, details)
+			if tt.Expected != "" {
+				actual, err := json.Marshal(obj)
+				require.NoError(t, err, details)
+				require.JSONEq(t, tt.Expected, string(actual), details)
+			}
+		}()
+	}
 }

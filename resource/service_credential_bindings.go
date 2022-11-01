@@ -39,14 +39,6 @@ type ServiceCredentialBindingList struct {
 	Included   *ServiceCredentialBindingIncluded `json:"included"`
 }
 
-type LastOperation struct {
-	Type        string    `json:"type"`
-	State       string    `json:"state"`
-	Description string    `json:"description,omitempty"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
 type ServiceCredentialBindingRelationships struct {
 	App             ToOneRelationship `json:"app"`
 	ServiceInstance ToOneRelationship `json:"service_instance"`

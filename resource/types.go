@@ -55,3 +55,11 @@ type Metadata struct {
 	Labels      map[string]string `json:"labels"`
 	Annotations map[string]string `json:"annotations"`
 }
+
+type LastOperation struct {
+	Type        string    `json:"type"`
+	State       string    `json:"state"`
+	Description string    `json:"description,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
+}
