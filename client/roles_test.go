@@ -13,6 +13,14 @@ func TestRoles(t *testing.T) {
 	role2 := g.Role()
 	role3 := g.Role()
 	role4 := g.Role()
+	org := g.Organization()
+	org2 := g.Organization()
+	space := g.Space()
+	space2 := g.Space()
+	space3 := g.Space()
+	user := g.User()
+	user2 := g.User()
+	user3 := g.User()
 
 	tests := []RouteTest{
 		{
@@ -86,6 +94,54 @@ func TestRoles(t *testing.T) {
 			},
 		},
 		{
+			Description: "Get role with orgs",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource:      role,
+					Organizations: []string{org, org2},
+				}),
+				Status: http.StatusOK},
+			Expected:  role,
+			Expected2: g.Array(org, org2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.GetIncludeOrgs("211cc662-f86d-4559-a85d-fbfb010c480c")
+			},
+		},
+		{
+			Description: "Get role with spaces",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource: role,
+					Spaces:   []string{space, space2},
+				}),
+				Status: http.StatusOK},
+			Expected:  role,
+			Expected2: g.Array(space, space2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.GetIncludeSpaces("211cc662-f86d-4559-a85d-fbfb010c480c")
+			},
+		},
+		{
+			Description: "Get role with users",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource: role,
+					Users:    []string{user, user2, user3},
+				}),
+				Status: http.StatusOK},
+			Expected:  role,
+			Expected2: g.Array(user, user2, user3),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.GetIncludeUsers("211cc662-f86d-4559-a85d-fbfb010c480c")
+			},
+		},
+		{
 			Description: "Delete role",
 			Route: MockRoute{
 				Method:   "DELETE",
@@ -94,20 +150,6 @@ func TestRoles(t *testing.T) {
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return nil, c.Roles.Delete("211cc662-f86d-4559-a85d-fbfb010c480c")
-			},
-		},
-		{
-			Description: "List paged roles",
-			Route: MockRoute{
-				Method:   "GET",
-				Endpoint: "/v3/roles",
-				Output:   g.Paged([]string{role, role2}),
-				Status:   http.StatusOK,
-			},
-			Expected: g.Array(role, role2),
-			Action: func(c *Client, t *testing.T) (any, error) {
-				roles, _, err := c.Roles.List(nil)
-				return roles, err
 			},
 		},
 		{
@@ -120,6 +162,69 @@ func TestRoles(t *testing.T) {
 			Expected: g.Array(role, role2, role3, role4),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Roles.ListAll(nil)
+			},
+		},
+		{
+			Description: "List all roles include orgs",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources:     []string{role, role2},
+						Organizations: []string{org, org2},
+					},
+					test.PagedResult{
+						Resources:     []string{role3, role4},
+						Organizations: []string{},
+					}),
+				Status: http.StatusOK},
+			Expected:  g.Array(role, role2, role3, role4),
+			Expected2: g.Array(org, org2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.ListIncludeOrgsAll(nil)
+			},
+		},
+		{
+			Description: "List all roles include spaces",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources: []string{role, role2},
+						Spaces:    []string{space, space2},
+					},
+					test.PagedResult{
+						Resources: []string{role3, role4},
+						Spaces:    []string{space3},
+					}),
+				Status: http.StatusOK},
+			Expected:  g.Array(role, role2, role3, role4),
+			Expected2: g.Array(space, space2, space3),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.ListIncludeSpacesAll(nil)
+			},
+		},
+		{
+			Description: "List all roles include users",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/roles",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources: []string{role, role2},
+						Users:     []string{user, user2},
+					},
+					test.PagedResult{
+						Resources: []string{role3, role4},
+						Users:     []string{user3},
+					}),
+				Status: http.StatusOK},
+			Expected:  g.Array(role, role2, role3, role4),
+			Expected2: g.Array(user, user2, user3),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Roles.ListIncludeUsersAll(nil)
 			},
 		},
 	}

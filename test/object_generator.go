@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -11,6 +12,20 @@ import (
 )
 
 const defaultAPIResourcePath = "https://api.example.org/v3/somepagedresource"
+
+type ResourceResult struct {
+	Resource string
+
+	// extra included resources
+	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#resources-with-includes
+	Spaces           []string
+	Organizations    []string
+	Domains          []string
+	Users            []string
+	ServiceOfferings []string
+	ServiceInstances []string
+	Routes           []string
+}
 
 type PagedResult struct {
 	Resources []string
@@ -31,7 +46,7 @@ type resourceTemplate struct {
 	Name string
 }
 
-type paginationTemplate struct {
+type resultTemplate struct {
 	TotalResults int
 	TotalPages   int
 	FirstPage    string
@@ -210,6 +225,45 @@ func (o *ObjectJSONGenerator) Stack() string {
 	return o.template(r, "stack.json")
 }
 
+// ResourceWithInclude merges the included resources under the primary resource's included key
+func (o ObjectJSONGenerator) ResourceWithInclude(rr ResourceResult) []string {
+	j := map[string]any{}
+	err := json.Unmarshal([]byte(rr.Resource), &j)
+	if err != nil {
+		panic(err)
+	}
+
+	t, err := template.New("res").Parse(singleTemplate)
+	if err != nil {
+		panic(err)
+	}
+	p := resultTemplate{
+		Spaces:           strings.Join(rr.Spaces, ","),
+		Organizations:    strings.Join(rr.Organizations, ","),
+		Domains:          strings.Join(rr.Domains, ","),
+		Users:            strings.Join(rr.Users, ","),
+		Routes:           strings.Join(rr.Routes, ","),
+		ServiceOfferings: strings.Join(rr.ServiceOfferings, ","),
+		ServiceInstances: strings.Join(rr.ServiceInstances, ","),
+	}
+
+	var h bytes.Buffer
+	err = t.Execute(&h, p)
+	if err != nil {
+		panic(err)
+	}
+	s := h.String()
+	j["included"] = json.RawMessage(s)
+
+	b, err := json.Marshal(&j)
+	if err != nil {
+		panic(err)
+	}
+	s = string(b)
+	return []string{s}
+}
+
+// PagedWithInclude takes the list of resources and inserts them into a paged API response
 func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResult) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
@@ -223,7 +277,7 @@ func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResul
 		pageIndex := i + 1
 		resourcesPerPage := len(pageOfResourcesJSON.Resources)
 
-		p := paginationTemplate{
+		p := resultTemplate{
 			TotalResults:     totalResults,
 			TotalPages:       totalPages,
 			FirstPage:        fmt.Sprintf("%s?page=1&per_page=%d", defaultAPIResourcePath, resourcesPerPage),
@@ -244,7 +298,7 @@ func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResul
 			p.PreviousPage = fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, pageIndex-1, resourcesPerPage)
 		}
 
-		t, err := template.New("page").Parse(responseTemplate)
+		t, err := template.New("page").Parse(listTemplate)
 		if err != nil {
 			panic(err)
 		}
@@ -294,7 +348,7 @@ func (o *ObjectJSONGenerator) template(rt resourceTemplate, fileName string) str
 	return b.String()
 }
 
-const responseTemplate = `
+const listTemplate = `
 {
   "pagination": {
     "total_results": {{.TotalResults}},
@@ -330,5 +384,31 @@ const responseTemplate = `
       {{.Organizations}}
     ]
   }
+}
+`
+
+const singleTemplate = `
+{
+    "spaces": [
+      {{.Spaces}}
+    ],
+    "domains": [
+      {{.Domains}}
+    ],
+    "users": [
+      {{.Users}}
+    ],
+    "routes": [
+      {{.Routes}}
+    ],
+    "service_offerings": [
+      {{.ServiceOfferings}}
+    ],
+    "service_instances": [
+      {{.ServiceInstances}}
+    ],
+    "organizations": [
+      {{.Organizations}}
+    ]
 }
 `
