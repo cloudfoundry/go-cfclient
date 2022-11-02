@@ -18,6 +18,7 @@ type ResourceResult struct {
 
 	// extra included resources
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#resources-with-includes
+	Apps             []string
 	Spaces           []string
 	Organizations    []string
 	Domains          []string
@@ -32,6 +33,7 @@ type PagedResult struct {
 
 	// extra included resources
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#resources-with-includes
+	Apps             []string
 	Spaces           []string
 	Organizations    []string
 	Domains          []string
@@ -55,6 +57,7 @@ type resultTemplate struct {
 	PreviousPage string
 
 	Resources        string
+	Apps             string
 	Spaces           string
 	Organizations    string
 	Domains          string
@@ -238,6 +241,7 @@ func (o ObjectJSONGenerator) ResourceWithInclude(rr ResourceResult) []string {
 		panic(err)
 	}
 	p := resultTemplate{
+		Apps:             strings.Join(rr.Apps, ","),
 		Spaces:           strings.Join(rr.Spaces, ","),
 		Organizations:    strings.Join(rr.Organizations, ","),
 		Domains:          strings.Join(rr.Domains, ","),
@@ -283,6 +287,7 @@ func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResul
 			FirstPage:        fmt.Sprintf("%s?page=1&per_page=%d", defaultAPIResourcePath, resourcesPerPage),
 			LastPage:         fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, totalPages, resourcesPerPage),
 			Resources:        strings.Join(pageOfResourcesJSON.Resources, ","),
+			Apps:             strings.Join(pageOfResourcesJSON.Apps, ","),
 			Spaces:           strings.Join(pageOfResourcesJSON.Spaces, ","),
 			Organizations:    strings.Join(pageOfResourcesJSON.Organizations, ","),
 			Domains:          strings.Join(pageOfResourcesJSON.Domains, ","),
@@ -362,6 +367,9 @@ const listTemplate = `
     {{.Resources}}
   ],
   "included": {
+    "apps": [
+      {{.Apps}}
+    ],
     "spaces": [
       {{.Spaces}}
     ],
@@ -389,6 +397,9 @@ const listTemplate = `
 
 const singleTemplate = `
 {
+    "apps": [
+      {{.Apps}}
+    ],
     "spaces": [
       {{.Spaces}}
     ],
