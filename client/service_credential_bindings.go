@@ -22,6 +22,8 @@ type ServiceCredentialBindingListOptions struct {
 	ServiceOfferingNames Filter `filter:"service_offering_names,omitempty"` // list of service offering names to filter by
 	Type                 Filter `filter:"type,omitempty"`                   // list of service credential binding types to filter by, app or key
 	GUIDs                Filter `filter:"guids,omitempty"`                  // list of service route binding guids to filter by
+
+	Include resource.ServiceCredentialBindingIncludeType `filter:"include,omitempty"`
 }
 
 // NewServiceCredentialBindingListOptions creates new options to pass to list
@@ -33,29 +35,6 @@ func NewServiceCredentialBindingListOptions() *ServiceCredentialBindingListOptio
 
 func (o ServiceCredentialBindingListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
-}
-
-// ServiceCredentialBindingListIncludeOptions list filters
-type ServiceCredentialBindingListIncludeOptions struct {
-	*ServiceCredentialBindingListOptions
-
-	Include resource.ServiceCredentialBindingIncludeType `filter:"include,omitempty"`
-}
-
-// NewServiceCredentialBindingListIncludeOptions creates new options to pass to list
-func NewServiceCredentialBindingListIncludeOptions(include resource.ServiceCredentialBindingIncludeType) *ServiceCredentialBindingListIncludeOptions {
-	return &ServiceCredentialBindingListIncludeOptions{
-		Include:                             include,
-		ServiceCredentialBindingListOptions: NewServiceCredentialBindingListOptions(),
-	}
-}
-
-func (o ServiceCredentialBindingListIncludeOptions) ToQueryString() url.Values {
-	u := o.ServiceCredentialBindingListOptions.ToQueryString()
-	if o.Include != resource.ServiceCredentialBindingIncludeNone {
-		u.Set("include", o.Include.String())
-	}
-	return u
 }
 
 // Create a new service credential binding
@@ -83,14 +62,24 @@ func (c *ServiceCredentialBindingClient) Get(guid string) (*resource.ServiceCred
 	return &d, nil
 }
 
-// GetInclude allows callers to fetch a service credential binding and include information of parent objects in the response
-func (c *ServiceCredentialBindingClient) GetInclude(guid string, include resource.ServiceCredentialBindingIncludeType) (*resource.ServiceCredentialBinding, *resource.ServiceCredentialBindingIncluded, error) {
+// GetIncludeApp allows callers to fetch a service credential binding and include the associated app
+func (c *ServiceCredentialBindingClient) GetIncludeApp(guid string) (*resource.ServiceCredentialBinding, *resource.App, error) {
 	var r resource.ServiceCredentialBindingWithIncluded
-	err := c.client.get(path("/v3/service_credential_bindings/%s?include=%s", guid, include), &r)
+	err := c.client.get(path("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeApp), &r)
 	if err != nil {
 		return nil, nil, err
 	}
-	return &r.ServiceCredentialBinding, r.Included, nil
+	return &r.ServiceCredentialBinding, r.Included.Apps[0], nil
+}
+
+// GetIncludeServiceInstance allows callers to fetch a service credential binding and include the associated service instance
+func (c *ServiceCredentialBindingClient) GetIncludeServiceInstance(guid string) (*resource.ServiceCredentialBinding, *resource.ServiceInstance, error) {
+	var r resource.ServiceCredentialBindingWithIncluded
+	err := c.client.get(path("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeServiceInstance), &r)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &r.ServiceCredentialBinding, r.Included.ServiceInstances[0], nil
 }
 
 // List pages ServiceCredentialBindings the user has access to
@@ -114,29 +103,82 @@ func (c *ServiceCredentialBindingClient) ListAll(opts *ServiceCredentialBindingL
 	})
 }
 
-// ListInclude page all service credential bindings the user has access to and include the specified parent resources
-func (c *ServiceCredentialBindingClient) ListInclude(opts *ServiceCredentialBindingListIncludeOptions) ([]*resource.ServiceCredentialBinding, *resource.ServiceCredentialBindingIncluded, *Pager, error) {
+// ListIncludeApps pages all service credential bindings the user has access to and include the associated apps
+func (c *ServiceCredentialBindingClient) ListIncludeApps(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, []*resource.App, *Pager, error) {
 	if opts == nil {
-		opts = NewServiceCredentialBindingListIncludeOptions(resource.ServiceCredentialBindingIncludeNone)
+		opts = NewServiceCredentialBindingListOptions()
 	}
+	opts.Include = resource.ServiceCredentialBindingIncludeApp
+
 	var res resource.ServiceCredentialBindingList
 	err := c.client.get(path("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
-	return res.Resources, res.Included, pager, nil
+	return res.Resources, res.Included.Apps, pager, nil
 }
 
-// ListIncludeAll retrieves all service credential bindings the user has access to and include the specified parent resources
-func (c *ServiceCredentialBindingClient) ListIncludeAll(opts *ServiceCredentialBindingListIncludeOptions) ([]*resource.ServiceCredentialBinding, *resource.ServiceCredentialBindingIncluded, error) {
+// ListIncludeAppsAll retrieves all service credential bindings the user has access to and include the associated apps
+func (c *ServiceCredentialBindingClient) ListIncludeAppsAll(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, []*resource.App, error) {
 	if opts == nil {
-		opts = NewServiceCredentialBindingListIncludeOptions(resource.ServiceCredentialBindingIncludeNone)
+		opts = NewServiceCredentialBindingListOptions()
 	}
-	return serviceCredentialBindingAutoPageInclude[*ServiceCredentialBindingListIncludeOptions, *resource.ServiceCredentialBinding](opts,
-		func(opts *ServiceCredentialBindingListIncludeOptions) ([]*resource.ServiceCredentialBinding, *resource.ServiceCredentialBindingIncluded, *Pager, error) {
-			return c.ListInclude(opts)
-		})
+
+	var all []*resource.ServiceCredentialBinding
+	var allApps []*resource.App
+	for {
+		page, apps, pager, err := c.ListIncludeApps(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allApps = append(allApps, apps...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allApps, nil
+}
+
+// ListIncludeServiceInstances pages all service credential bindings the user has access to and include the associated SIs
+func (c *ServiceCredentialBindingClient) ListIncludeServiceInstances(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, []*resource.ServiceInstance, *Pager, error) {
+	if opts == nil {
+		opts = NewServiceCredentialBindingListOptions()
+	}
+	opts.Include = resource.ServiceCredentialBindingIncludeServiceInstance
+
+	var res resource.ServiceCredentialBindingList
+	err := c.client.get(path("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included.ServiceInstances, pager, nil
+}
+
+// ListIncludeServiceInstancesAll retrieves all service credential bindings the user has access to and include the associated SIs
+func (c *ServiceCredentialBindingClient) ListIncludeServiceInstancesAll(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, []*resource.ServiceInstance, error) {
+	if opts == nil {
+		opts = NewServiceCredentialBindingListOptions()
+	}
+
+	var all []*resource.ServiceCredentialBinding
+	var allServiceInstances []*resource.ServiceInstance
+	for {
+		page, serviceInstances, pager, err := c.ListIncludeServiceInstances(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allServiceInstances = append(allServiceInstances, serviceInstances...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allServiceInstances, nil
 }
 
 // Update the specified attributes of the app
