@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAppFeaturess(t *testing.T) {
+func TestAppFeatures(t *testing.T) {
 	g := test.NewObjectJSONGenerator(163)
 	appFeature := g.AppFeature()
 

@@ -1,28 +1,10 @@
 package client
 
 import (
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/resource"
 )
 
 type AppFeatureClient commonClient
-
-// AppFeatureListOptions list filters
-type AppFeatureListOptions struct {
-	*ListOptions
-}
-
-// NewAppFeatureListOptions creates new options to pass to list
-func NewAppFeatureListOptions() *AppFeatureListOptions {
-	return &AppFeatureListOptions{
-		ListOptions: NewListOptions(),
-	}
-}
-
-func (o AppFeatureListOptions) ToQueryString() url.Values {
-	return o.ListOptions.ToQueryString(o)
-}
 
 // Get retrieves the named app feature
 func (c *AppFeatureClient) Get(appGUID, featureName string) (*resource.AppFeature, error) {
