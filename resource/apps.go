@@ -6,15 +6,15 @@ import (
 )
 
 type App struct {
-	GUID          string                       `json:"guid"`
-	CreatedAt     time.Time                    `json:"created_at"`
-	UpdatedAt     time.Time                    `json:"updated_at"`
-	Name          string                       `json:"name"`
-	State         string                       `json:"state,omitempty"`
-	Lifecycle     Lifecycle                    `json:"lifecycle,omitempty"`
-	Relationships map[string]ToOneRelationship `json:"relationships,omitempty"`
-	Links         map[string]Link              `json:"links,omitempty"`
-	Metadata      Metadata                     `json:"metadata"`
+	GUID          string            `json:"guid"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	Name          string            `json:"name"`
+	State         string            `json:"state"`
+	Lifecycle     Lifecycle         `json:"lifecycle"`
+	Relationships SpaceRelationship `json:"relationships"`
+	Links         map[string]Link   `json:"links"`
+	Metadata      Metadata          `json:"metadata"`
 }
 
 type AppCreate struct {
