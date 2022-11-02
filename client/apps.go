@@ -18,7 +18,8 @@ type AppListOptions struct {
 	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
 	Stacks            Filter `filter:"stacks,omitempty"`
 
-	LifecycleType resource.LifecycleType `filter:"lifecycle_type,omitempty"`
+	LifecycleType resource.LifecycleType  `filter:"lifecycle_type,omitempty"`
+	Include       resource.AppIncludeType `filter:"include,omitempty"`
 }
 
 // NewAppListOptions creates new options to pass to list
@@ -30,29 +31,6 @@ func NewAppListOptions() *AppListOptions {
 
 func (o AppListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
-}
-
-// AppListIncludeOptions list filters
-type AppListIncludeOptions struct {
-	*AppListOptions
-
-	Include resource.AppIncludeType `filter:"include,omitempty"`
-}
-
-// NewAppListIncludeOptions creates new options to pass to list
-func NewAppListIncludeOptions(include resource.AppIncludeType) *AppListIncludeOptions {
-	return &AppListIncludeOptions{
-		Include:        include,
-		AppListOptions: NewAppListOptions(),
-	}
-}
-
-func (o AppListIncludeOptions) ToQueryString() url.Values {
-	u := o.AppListOptions.ToQueryString()
-	if o.Include != resource.AppIncludeNone {
-		u.Set("include", o.Include.String())
-	}
-	return u
 }
 
 // Create a new app
@@ -80,6 +58,26 @@ func (c *AppClient) Get(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
+// GetIncludeSpace allows callers to fetch an app and include the parent space
+func (c *AppClient) GetIncludeSpace(guid string) (*resource.App, *resource.Space, error) {
+	var app resource.AppWithIncluded
+	err := c.client.get(path("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpace), &app)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &app.App, app.Included.Spaces[0], nil
+}
+
+// GetIncludeSpaceAndOrg allows callers to fetch an app and include the parent space and org
+func (c *AppClient) GetIncludeSpaceAndOrg(guid string) (*resource.App, *resource.Space, *resource.Organization, error) {
+	var app resource.AppWithIncluded
+	err := c.client.get(path("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpaceOrganization), &app)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return &app.App, app.Included.Spaces[0], app.Included.Organizations[0], nil
+}
+
 // GetEnvironment retrieves the environment variables that will be provided to an app at runtime.
 // It will include environment variables for Environment Variable Groups and Service Bindings.
 func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, error) {
@@ -89,16 +87,6 @@ func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, er
 		return nil, err
 	}
 	return &appEnv, nil
-}
-
-// GetInclude allows callers to fetch an app and include information of parent objects in the response
-func (c *AppClient) GetInclude(guid string, include resource.AppIncludeType) (*resource.App, *resource.AppIncluded, error) {
-	var app resource.AppWithIncluded
-	err := c.client.get(path("/v3/apps/%s?include=%s", guid, include), &app)
-	if err != nil {
-		return nil, nil, err
-	}
-	return &app.App, app.Included, nil
 }
 
 // List all apps the user has access to in paged results
@@ -125,28 +113,86 @@ func (c *AppClient) ListAll(opts *AppListOptions) ([]*resource.App, error) {
 	})
 }
 
-// ListInclude page all apps the user has access to and include the specified parent resources
-func (c *AppClient) ListInclude(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, *Pager, error) {
+// ListIncludeSpaces page all apps the user has access to and include the associated spaces
+func (c *AppClient) ListIncludeSpaces(opts *AppListOptions) ([]*resource.App, []*resource.Space, *Pager, error) {
 	if opts == nil {
-		opts = NewAppListIncludeOptions(resource.AppIncludeNone)
+		opts = NewAppListOptions()
 	}
+	opts.Include = resource.AppIncludeSpace
+
 	var res resource.AppList
 	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
-	return res.Resources, res.Included, pager, nil
+	return res.Resources, res.Included.Spaces, pager, nil
 }
 
-// ListIncludeAll retrieves all apps the user has access to and include the specified parent resources
-func (c *AppClient) ListIncludeAll(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, error) {
+// ListIncludeSpacesAll retrieves all apps the user has access to and include the associated spaces
+func (c *AppClient) ListIncludeSpacesAll(opts *AppListOptions) ([]*resource.App, []*resource.Space, error) {
 	if opts == nil {
-		opts = NewAppListIncludeOptions(resource.AppIncludeNone)
+		opts = NewAppListOptions()
 	}
-	return appAutoPageInclude[*AppListIncludeOptions, *resource.App](opts, func(opts *AppListIncludeOptions) ([]*resource.App, *resource.AppIncluded, *Pager, error) {
-		return c.ListInclude(opts)
-	})
+	opts.Include = resource.AppIncludeSpace
+
+	var all []*resource.App
+	var allSpaces []*resource.Space
+	for {
+		page, spaces, pager, err := c.ListIncludeSpaces(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allSpaces = append(allSpaces, spaces...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allSpaces, nil
+}
+
+// ListIncludeSpacesAndOrgs page all apps the user has access to and include the associated spaces and orgs
+func (c *AppClient) ListIncludeSpacesAndOrgs(opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, *Pager, error) {
+	if opts == nil {
+		opts = NewAppListOptions()
+	}
+	opts.Include = resource.AppIncludeSpaceOrganization
+
+	var res resource.AppList
+	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included.Spaces, res.Included.Organizations, pager, nil
+}
+
+// ListIncludeSpacesAndOrgsAll retrieves all apps the user has access to and include the associated spaces and orgs
+func (c *AppClient) ListIncludeSpacesAndOrgsAll(opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, error) {
+	if opts == nil {
+		opts = NewAppListOptions()
+	}
+	opts.Include = resource.AppIncludeSpaceOrganization
+
+	var all []*resource.App
+	var allSpaces []*resource.Space
+	var allOrgs []*resource.Organization
+	for {
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(opts)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		all = append(all, page...)
+		allSpaces = append(allSpaces, spaces...)
+		allOrgs = append(allOrgs, orgs...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allSpaces, allOrgs, nil
 }
 
 // Permissions gets the current user’s permissions for the given app.
@@ -228,25 +274,4 @@ func (c *AppClient) SSHEnabled(guid string) (*resource.AppSSHEnabled, error) {
 		return nil, err
 	}
 	return &appSSH, nil
-}
-
-type appListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.AppIncluded, *Pager, error)
-
-func appAutoPageInclude[T ListOptioner, R any](opts T, list appListIncludeFunc[T, R]) ([]R, *resource.AppIncluded, error) {
-	var all []R
-	var allIncluded *resource.AppIncluded
-	for {
-		page, included, pager, err := list(opts)
-		if err != nil {
-			return nil, nil, err
-		}
-		all = append(all, page...)
-		allIncluded.Organizations = append(allIncluded.Organizations, included.Organizations...)
-		allIncluded.Spaces = append(allIncluded.Spaces, included.Spaces...)
-		if !pager.HasNextPage() {
-			break
-		}
-		pager.NextPage(opts)
-	}
-	return all, allIncluded, nil
 }

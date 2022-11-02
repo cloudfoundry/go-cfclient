@@ -26,7 +26,11 @@ type RouteTest struct {
 	Description string
 	Route       MockRoute
 	Expected    string
+	Expected2   string
+	Expected3   string
 	Action      func(c *Client, t *testing.T) (any, error)
+	Action2     func(c *Client, t *testing.T) (any, any, error)
+	Action3     func(c *Client, t *testing.T) (any, any, any, error)
 }
 
 type MockRoute struct {
@@ -246,12 +250,29 @@ func executeTests(tests []RouteTest, t *testing.T) {
 			cl, err := New(c)
 			require.NoError(t, err, details)
 
-			obj, err := tt.Action(cl, t)
-			require.NoError(t, err, details)
-			if tt.Expected != "" {
-				actual, err := json.Marshal(obj)
+			assertJSONEq := func(t *testing.T, expected string, obj any) {
+				if expected != "" {
+					actualJSON, err := json.Marshal(obj)
+					require.NoError(t, err, details)
+					require.JSONEq(t, expected, string(actualJSON), details)
+				}
+			}
+
+			if tt.Action != nil {
+				obj1, err := tt.Action(cl, t)
 				require.NoError(t, err, details)
-				require.JSONEq(t, tt.Expected, string(actual), details)
+				assertJSONEq(t, tt.Expected, obj1)
+			} else if tt.Action2 != nil {
+				obj1, obj2, err := tt.Action2(cl, t)
+				require.NoError(t, err, details)
+				assertJSONEq(t, tt.Expected, obj1)
+				assertJSONEq(t, tt.Expected2, obj2)
+			} else if tt.Action3 != nil {
+				obj1, obj2, obj3, err := tt.Action3(cl, t)
+				require.NoError(t, err, details)
+				assertJSONEq(t, tt.Expected, obj1)
+				assertJSONEq(t, tt.Expected2, obj2)
+				assertJSONEq(t, tt.Expected3, obj3)
 			}
 		}()
 	}

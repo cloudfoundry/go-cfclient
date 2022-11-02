@@ -110,7 +110,7 @@ func TestListOptions(t *testing.T) {
 	require.Equal(t, "lifecycle_type="+url.QueryEscape("buildpack"), qs.Encode())
 
 	// app include type
-	optsInc := NewAppListIncludeOptions(resource.AppIncludeSpaceOrganization)
+	optsInc := NewAppListOptions()
 	optsInc.Include = resource.AppIncludeSpaceOrganization
 	optsInc.Page = 0
 	optsInc.PerPage = 0
