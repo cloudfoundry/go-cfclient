@@ -94,6 +94,8 @@ func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) 
 	if opts == nil {
 		opts = NewAppListOptions()
 	}
+	opts.Include = resource.AppIncludeNone
+
 	var res resource.AppList
 	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
@@ -134,7 +136,6 @@ func (c *AppClient) ListIncludeSpacesAll(opts *AppListOptions) ([]*resource.App,
 	if opts == nil {
 		opts = NewAppListOptions()
 	}
-	opts.Include = resource.AppIncludeSpace
 
 	var all []*resource.App
 	var allSpaces []*resource.Space
@@ -174,7 +175,6 @@ func (c *AppClient) ListIncludeSpacesAndOrgsAll(opts *AppListOptions) ([]*resour
 	if opts == nil {
 		opts = NewAppListOptions()
 	}
-	opts.Include = resource.AppIncludeSpaceOrganization
 
 	var all []*resource.App
 	var allSpaces []*resource.Space
