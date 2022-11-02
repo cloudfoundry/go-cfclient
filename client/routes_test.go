@@ -11,6 +11,10 @@ func TestRoutes(t *testing.T) {
 	g := test.NewObjectJSONGenerator(123)
 	route := g.Route()
 	route2 := g.Route()
+	domain := g.Domain()
+	space := g.Space()
+	space2 := g.Space()
+	org := g.Organization()
 
 	tests := []RouteTest{
 		{
@@ -61,10 +65,64 @@ func TestRoutes(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output:   []string{route},
-				Status:   http.StatusOK},
+				Status:   http.StatusOK,
+			},
 			Expected: route,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Routes.Get("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get route include domain",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource: route,
+					Domains:  []string{domain},
+				}),
+				Status: http.StatusOK,
+			},
+			Expected:  route,
+			Expected2: domain,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Routes.GetIncludeDomain("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get route include space",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource: route,
+					Spaces:   []string{space},
+				}),
+				Status: http.StatusOK,
+			},
+			Expected:  route,
+			Expected2: space,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Routes.GetIncludeSpace("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get route include space and org",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource:      route,
+					Spaces:        []string{space},
+					Organizations: []string{org},
+				}),
+				Status: http.StatusOK,
+			},
+			Expected:  route,
+			Expected2: space,
+			Expected3: org,
+			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
+				return c.Routes.GetIncludeSpaceAndOrg("5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -73,7 +131,8 @@ func TestRoutes(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output:   g.Paged([]string{route}, []string{route2}),
-				Status:   http.StatusOK},
+				Status:   http.StatusOK,
+			},
 			Expected: g.Array(route, route2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Routes.ListAll(nil)
@@ -90,6 +149,73 @@ func TestRoutes(t *testing.T) {
 			Expected: g.Array(route, route2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Routes.ListForAppAll("758c78dc-60bc-4f84-999b-247bdc2c37fe", nil)
+			},
+		},
+		{
+			Description: "List all routes and include domains",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources: []string{route},
+						Domains:   []string{domain},
+					},
+					test.PagedResult{
+						Resources: []string{route2},
+					}),
+				Status: http.StatusOK,
+			},
+			Expected:  g.Array(route, route2),
+			Expected2: g.Array(domain),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Routes.ListIncludeDomainsAll(nil)
+			},
+		},
+		{
+			Description: "List all routes and include spaces",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources: []string{route},
+						Spaces:    []string{space},
+					},
+					test.PagedResult{
+						Resources: []string{route2},
+						Spaces:    []string{space2},
+					}),
+				Status: http.StatusOK,
+			},
+			Expected:  g.Array(route, route2),
+			Expected2: g.Array(space, space2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Routes.ListIncludeSpacesAll(nil)
+			},
+		},
+		{
+			Description: "List all routes and include spaces and orgs",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources:     []string{route},
+						Spaces:        []string{space},
+						Organizations: []string{org},
+					},
+					test.PagedResult{
+						Resources: []string{route2},
+						Spaces:    []string{space2},
+					}),
+				Status: http.StatusOK,
+			},
+			Expected:  g.Array(route, route2),
+			Expected2: g.Array(space, space2),
+			Expected3: g.Array(org),
+			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
+				return c.Routes.ListIncludeSpacesAndOrgsAll(nil)
 			},
 		},
 		{

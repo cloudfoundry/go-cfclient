@@ -21,6 +21,8 @@ type RouteListOptions struct {
 	Hosts Filter `filter:"hosts,omitempty"`
 	Paths Filter `filter:"paths,omitempty"`
 	Ports Filter `filter:"ports,omitempty"`
+
+	Include resource.RouteIncludeType `filter:"include,omitempty"`
 }
 
 // NewRouteListOptions creates new options to pass to list
@@ -32,29 +34,6 @@ func NewRouteListOptions() *RouteListOptions {
 
 func (o RouteListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
-}
-
-// RouteListIncludeOptions list filters
-type RouteListIncludeOptions struct {
-	*RouteListOptions
-
-	Include resource.RouteIncludeType `filter:"include,omitempty"`
-}
-
-// NewRouteListIncludeOptions creates new options to pass to list
-func NewRouteListIncludeOptions(include resource.RouteIncludeType) *RouteListIncludeOptions {
-	return &RouteListIncludeOptions{
-		Include:          include,
-		RouteListOptions: NewRouteListOptions(),
-	}
-}
-
-func (o RouteListIncludeOptions) ToQueryString() url.Values {
-	u := o.RouteListOptions.ToQueryString()
-	if o.Include != resource.RouteIncludeNone {
-		u.Set("include", o.Include.String())
-	}
-	return u
 }
 
 // Create a new route
@@ -82,14 +61,34 @@ func (c *RouteClient) Get(guid string) (*resource.Route, error) {
 	return &Route, nil
 }
 
-// GetInclude allows callers to fetch a route and include information of parent objects in the response
-func (c *RouteClient) GetInclude(guid string, include resource.RouteIncludeType) (*resource.Route, *resource.RouteIncluded, error) {
+// GetIncludeDomain allows callers to fetch a route and include the parent domain
+func (c *RouteClient) GetIncludeDomain(guid string) (*resource.Route, *resource.Domain, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path("/v3/routes/%s?include=%s", guid, include), &r)
+	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeDomain), &r)
 	if err != nil {
 		return nil, nil, err
 	}
-	return &r.Route, r.Included, nil
+	return &r.Route, r.Included.Domains[0], nil
+}
+
+// GetIncludeSpace allows callers to fetch a route and include the parent space
+func (c *RouteClient) GetIncludeSpace(guid string) (*resource.Route, *resource.Space, error) {
+	var r resource.RouteWithIncluded
+	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &r.Route, r.Included.Spaces[0], nil
+}
+
+// GetIncludeSpaceAndOrg allows callers to fetch a route and include the parent space and org
+func (c *RouteClient) GetIncludeSpaceAndOrg(guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
+	var r resource.RouteWithIncluded
+	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return &r.Route, r.Included.Spaces[0], r.Included.Organizations[0], nil
 }
 
 // List pages routes the user has access to
@@ -97,6 +96,8 @@ func (c *RouteClient) List(opts *RouteListOptions) ([]*resource.Route, *Pager, e
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
+	opts.Include = resource.RouteIncludeNone
+
 	var res resource.RouteList
 	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
@@ -121,6 +122,8 @@ func (c *RouteClient) ListForApp(appGUID string, opts *RouteListOptions) ([]*res
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
+	opts.Include = resource.RouteIncludeNone
+
 	var res resource.RouteList
 	err := c.client.get(path("/v3/apps/%s/routes?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
@@ -140,28 +143,123 @@ func (c *RouteClient) ListForAppAll(appGUID string, opts *RouteListOptions) ([]*
 	})
 }
 
-// ListInclude page all routes the user has access to and include the specified parent resources
-func (c *RouteClient) ListInclude(opts *RouteListIncludeOptions) ([]*resource.Route, *resource.RouteIncluded, *Pager, error) {
+// ListIncludeDomains page all routes the user has access to and include the parent domains
+func (c *RouteClient) ListIncludeDomains(opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, *Pager, error) {
 	if opts == nil {
-		opts = NewRouteListIncludeOptions(resource.RouteIncludeNone)
+		opts = NewRouteListOptions()
 	}
+	opts.Include = resource.RouteIncludeDomain
+
 	var res resource.RouteList
 	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	pager := NewPager(res.Pagination)
-	return res.Resources, res.Included, pager, nil
+	return res.Resources, res.Included.Domains, pager, nil
 }
 
-// ListIncludeAll retrieves all routes the user has access to and include the specified parent resources
-func (c *RouteClient) ListIncludeAll(opts *RouteListIncludeOptions) ([]*resource.Route, *resource.RouteIncluded, error) {
+// ListIncludeDomainsAll retrieves all routes the user has access to and includes the parent domains
+func (c *RouteClient) ListIncludeDomainsAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, error) {
 	if opts == nil {
-		opts = NewRouteListIncludeOptions(resource.RouteIncludeNone)
+		opts = NewRouteListOptions()
 	}
-	return routeAutoPageInclude[*RouteListIncludeOptions, *resource.Route](opts, func(opts *RouteListIncludeOptions) ([]*resource.Route, *resource.RouteIncluded, *Pager, error) {
-		return c.ListInclude(opts)
-	})
+
+	var all []*resource.Route
+	var allDomains []*resource.Domain
+	for {
+		page, domains, pager, err := c.ListIncludeDomains(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allDomains = append(allDomains, domains...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allDomains, nil
+}
+
+// ListIncludeSpaces page all routes the user has access to and include the parent spaces
+func (c *RouteClient) ListIncludeSpaces(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, *Pager, error) {
+	if opts == nil {
+		opts = NewRouteListOptions()
+	}
+	opts.Include = resource.RouteIncludeSpace
+
+	var res resource.RouteList
+	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included.Spaces, pager, nil
+}
+
+// ListIncludeSpacesAll retrieves all routes the user has access to and includes the parent spaces
+func (c *RouteClient) ListIncludeSpacesAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, error) {
+	if opts == nil {
+		opts = NewRouteListOptions()
+	}
+
+	var all []*resource.Route
+	var allSpaces []*resource.Space
+	for {
+		page, spaces, pager, err := c.ListIncludeSpaces(opts)
+		if err != nil {
+			return nil, nil, err
+		}
+		all = append(all, page...)
+		allSpaces = append(allSpaces, spaces...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allSpaces, nil
+}
+
+// ListIncludeSpacesAndOrgs page all routes the user has access to and include the parent spaces and orgs
+func (c *RouteClient) ListIncludeSpacesAndOrgs(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, *Pager, error) {
+	if opts == nil {
+		opts = NewRouteListOptions()
+	}
+	opts.Include = resource.RouteIncludeSpaceOrganization
+
+	var res resource.RouteList
+	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	pager := NewPager(res.Pagination)
+	return res.Resources, res.Included.Spaces, res.Included.Organizations, pager, nil
+}
+
+// ListIncludeSpacesAndOrgsAll retrieves all routes the user has access to and includes the parent spaces and org
+func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, error) {
+	if opts == nil {
+		opts = NewRouteListOptions()
+	}
+
+	var all []*resource.Route
+	var allSpaces []*resource.Space
+	var allOrgs []*resource.Organization
+	for {
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(opts)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		all = append(all, page...)
+		allSpaces = append(allSpaces, spaces...)
+		allOrgs = append(allOrgs, orgs...)
+		if !pager.HasNextPage() {
+			break
+		}
+		pager.NextPage(opts)
+	}
+	return all, allSpaces, allOrgs, nil
 }
 
 // Update the specified attributes of the app
@@ -172,26 +270,4 @@ func (c *RouteClient) Update(guid string, r *resource.RouteUpdate) (*resource.Ro
 		return nil, err
 	}
 	return &res, nil
-}
-
-type routeListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.RouteIncluded, *Pager, error)
-
-func routeAutoPageInclude[T ListOptioner, R any](opts T, list routeListIncludeFunc[T, R]) ([]R, *resource.RouteIncluded, error) {
-	var all []R
-	var allIncluded *resource.RouteIncluded
-	for {
-		page, included, pager, err := list(opts)
-		if err != nil {
-			return nil, nil, err
-		}
-		all = append(all, page...)
-		allIncluded.Organizations = append(allIncluded.Organizations, included.Organizations...)
-		allIncluded.Spaces = append(allIncluded.Spaces, included.Spaces...)
-		allIncluded.Domains = append(allIncluded.Domains, included.Domains...)
-		if !pager.HasNextPage() {
-			break
-		}
-		pager.NextPage(opts)
-	}
-	return all, allIncluded, nil
 }
