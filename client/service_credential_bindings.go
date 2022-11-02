@@ -190,24 +190,3 @@ func (c *ServiceCredentialBindingClient) Update(guid string, r *resource.Service
 	}
 	return &d, nil
 }
-
-type serviceCredentialBindingListIncludeFunc[T ListOptioner, R any] func(opts T) ([]R, *resource.ServiceCredentialBindingIncluded, *Pager, error)
-
-func serviceCredentialBindingAutoPageInclude[T ListOptioner, R any](opts T, list serviceCredentialBindingListIncludeFunc[T, R]) ([]R, *resource.ServiceCredentialBindingIncluded, error) {
-	var all []R
-	var allIncluded *resource.ServiceCredentialBindingIncluded
-	for {
-		page, included, pager, err := list(opts)
-		if err != nil {
-			return nil, nil, err
-		}
-		all = append(all, page...)
-		allIncluded.ServiceInstances = append(allIncluded.ServiceInstances, included.ServiceInstances...)
-		allIncluded.Apps = append(allIncluded.Apps, included.Apps...)
-		if !pager.HasNextPage() {
-			break
-		}
-		pager.NextPage(opts)
-	}
-	return all, allIncluded, nil
-}
