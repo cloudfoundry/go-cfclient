@@ -13,6 +13,9 @@ func TestApps(t *testing.T) {
 	app2 := g.Application()
 	app3 := g.Application()
 	app4 := g.Application()
+	space1 := g.Space()
+	space2 := g.Space()
+	org := g.Organization()
 	appEnvVars := g.AppEnvVars()
 	appSSH := g.AppSSH()
 	appPermission := g.AppPermission()
@@ -178,20 +181,6 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
-			Description: "List paged apps",
-			Route: MockRoute{
-				Method:   "GET",
-				Endpoint: "/v3/apps",
-				Output:   g.Paged([]string{app1, app2}),
-				Status:   http.StatusOK,
-			},
-			Expected: g.Array(app1, app2),
-			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Applications.List(nil)
-				return apps, err
-			},
-		},
-		{
 			Description: "List all apps",
 			Route: MockRoute{
 				Method:   "GET",
@@ -201,6 +190,50 @@ func TestApps(t *testing.T) {
 			Expected: g.Array(app1, app2, app3, app4),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Applications.ListAll(nil)
+			},
+		},
+		{
+			Description: "List all apps include spaces",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources: []string{app1, app2},
+						Spaces:    []string{space1},
+					},
+					test.PagedResult{
+						Resources: []string{app3, app4},
+						Spaces:    []string{space2},
+					}),
+				Status: http.StatusOK},
+			Expected:  g.Array(app1, app2, app3, app4),
+			Expected2: g.Array(space1, space2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Applications.ListIncludeSpacesAll(nil)
+			},
+		},
+		{
+			Description: "List all apps include spaces and orgs",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources:     []string{app1, app2},
+						Spaces:        []string{space1},
+						Organizations: []string{org},
+					},
+					test.PagedResult{
+						Resources: []string{app3, app4},
+						Spaces:    []string{space2},
+					}),
+				Status: http.StatusOK},
+			Expected:  g.Array(app1, app2, app3, app4),
+			Expected2: g.Array(space1, space2),
+			Expected3: g.Array(org),
+			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
+				return c.Applications.ListIncludeSpacesAndOrgsAll(nil)
 			},
 		},
 	}

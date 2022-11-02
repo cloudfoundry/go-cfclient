@@ -12,6 +12,20 @@ import (
 
 const defaultAPIResourcePath = "https://api.example.org/v3/somepagedresource"
 
+type PagedResult struct {
+	Resources []string
+
+	// extra included resources
+	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#resources-with-includes
+	Spaces           []string
+	Organizations    []string
+	Domains          []string
+	Users            []string
+	ServiceOfferings []string
+	ServiceInstances []string
+	Routes           []string
+}
+
 type resourceTemplate struct {
 	GUID string
 	Name string
@@ -24,6 +38,15 @@ type paginationTemplate struct {
 	LastPage     string
 	NextPage     string
 	PreviousPage string
+
+	Resources        string
+	Spaces           string
+	Organizations    string
+	Domains          string
+	Users            string
+	ServiceOfferings string
+	ServiceInstances string
+	Routes           string
 }
 
 type ObjectJSONGenerator struct {
@@ -187,24 +210,32 @@ func (o *ObjectJSONGenerator) Stack() string {
 	return o.template(r, "stack.json")
 }
 
-func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
+func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResult) []string {
 	totalPages := len(pagesOfResourcesJSON)
 	totalResults := 0
 	for _, pageOfResourcesJSON := range pagesOfResourcesJSON {
-		totalResults += len(pageOfResourcesJSON)
+		totalResults += len(pageOfResourcesJSON.Resources)
 	}
 
 	// iterate through each page of resources and build a list of paginated responses
 	var resultPages []string
 	for i, pageOfResourcesJSON := range pagesOfResourcesJSON {
 		pageIndex := i + 1
-		resourcesPerPage := len(pageOfResourcesJSON)
+		resourcesPerPage := len(pageOfResourcesJSON.Resources)
 
 		p := paginationTemplate{
-			TotalResults: totalResults,
-			TotalPages:   totalPages,
-			FirstPage:    fmt.Sprintf("%s?page=1&per_page=%d", defaultAPIResourcePath, resourcesPerPage),
-			LastPage:     fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, totalPages, resourcesPerPage),
+			TotalResults:     totalResults,
+			TotalPages:       totalPages,
+			FirstPage:        fmt.Sprintf("%s?page=1&per_page=%d", defaultAPIResourcePath, resourcesPerPage),
+			LastPage:         fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, totalPages, resourcesPerPage),
+			Resources:        strings.Join(pageOfResourcesJSON.Resources, ","),
+			Spaces:           strings.Join(pageOfResourcesJSON.Spaces, ","),
+			Organizations:    strings.Join(pageOfResourcesJSON.Organizations, ","),
+			Domains:          strings.Join(pageOfResourcesJSON.Domains, ","),
+			Users:            strings.Join(pageOfResourcesJSON.Users, ","),
+			Routes:           strings.Join(pageOfResourcesJSON.Routes, ","),
+			ServiceOfferings: strings.Join(pageOfResourcesJSON.ServiceOfferings, ","),
+			ServiceInstances: strings.Join(pageOfResourcesJSON.ServiceInstances, ","),
 		}
 		if pageIndex < totalPages {
 			p.NextPage = fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, pageIndex+1, resourcesPerPage)
@@ -213,7 +244,7 @@ func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 			p.PreviousPage = fmt.Sprintf("%s?page=%d&per_page=%d", defaultAPIResourcePath, pageIndex-1, resourcesPerPage)
 		}
 
-		t, err := template.New("page").Parse(responseListHeader)
+		t, err := template.New("page").Parse(responseTemplate)
 		if err != nil {
 			panic(err)
 		}
@@ -222,12 +253,22 @@ func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
 		if err != nil {
 			panic(err)
 		}
-
-		s := h.String() + strings.Join(pageOfResourcesJSON, ",") + responseListFooter
+		s := h.String()
 		resultPages = append(resultPages, s)
 
 	}
 	return resultPages
+}
+
+func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
+	var pagedResults []PagedResult
+	for _, pageOfResourcesJSON := range pagesOfResourcesJSON {
+		p := PagedResult{
+			Resources: pageOfResourcesJSON,
+		}
+		pagedResults = append(pagedResults, p)
+	}
+	return o.PagedWithInclude(pagedResults...)
 }
 
 func (o ObjectJSONGenerator) Array(resourcesJSON ...string) string {
@@ -253,7 +294,8 @@ func (o *ObjectJSONGenerator) template(rt resourceTemplate, fileName string) str
 	return b.String()
 }
 
-const responseListHeader = `{
+const responseTemplate = `
+{
   "pagination": {
     "total_results": {{.TotalResults}},
     "total_pages": {{.TotalPages}},
@@ -262,6 +304,31 @@ const responseListHeader = `{
     {{if .NextPage}}"next": { "href": "{{.NextPage}}" },{{else}}"next": null,{{end}}
     {{if .PreviousPage}}"previous": { "href": "{{.PreviousPage}}" }{{else}}"previous": null{{end}}
   },
-  "resources": [`
-
-const responseListFooter = `]}`
+  "resources": [
+    {{.Resources}}
+  ],
+  "included": {
+    "spaces": [
+      {{.Spaces}}
+    ],
+    "domains": [
+      {{.Domains}}
+    ],
+    "users": [
+      {{.Users}}
+    ],
+    "routes": [
+      {{.Routes}}
+    ],
+    "service_offerings": [
+      {{.ServiceOfferings}}
+    ],
+    "service_instances": [
+      {{.ServiceInstances}}
+    ],
+    "organizations": [
+      {{.Organizations}}
+    ]
+  }
+}
+`
