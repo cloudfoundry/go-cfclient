@@ -88,6 +88,13 @@ func (o *ObjectJSONGenerator) AppFeature() string {
 	return o.template(r, "app_feature.json")
 }
 
+func (o *ObjectJSONGenerator) AppUsage() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "app_usage.json")
+}
+
 func (o *ObjectJSONGenerator) AppUpdateEnvVars() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
