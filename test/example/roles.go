@@ -43,17 +43,17 @@ func listSpaceDevsInSpace(cf *client.Client) error {
 	space := spaces[0]
 
 	// list space developer roles and users in the space
-	opts := client.NewRoleListIncludeOptions(resource.RoleIncludeUser)
+	opts := client.NewRoleListOptions()
 	opts.Space(space.GUID)
 	opts.SpaceRoleType(resource.SpaceRoleDeveloper)
-	roles, include, err := cf.Roles.ListIncludeAll(opts)
+	roles, users, err := cf.Roles.ListIncludeUsersAll(opts)
 	if err != nil {
 		return err
 	}
 	for _, r := range roles {
 		fmt.Printf("%s - %s\n", r.Type, r.GUID)
 	}
-	for _, u := range include.Users {
+	for _, u := range users {
 		fmt.Printf("%s - %s\n", u.Username, u.GUID)
 	}
 
@@ -61,13 +61,13 @@ func listSpaceDevsInSpace(cf *client.Client) error {
 }
 
 func listAllSpaceDevelopers(cf *client.Client) error {
-	opts := client.NewRoleListIncludeOptions(resource.RoleIncludeUser)
+	opts := client.NewRoleListOptions()
 	opts.SpaceRoleType(resource.SpaceRoleDeveloper)
-	_, include, err := cf.Roles.ListIncludeAll(opts)
+	_, users, err := cf.Roles.ListIncludeUsersAll(opts)
 	if err != nil {
 		return err
 	}
-	for _, u := range include.Users {
+	for _, u := range users {
 		fmt.Printf("%s - %s\n", u.Username, u.GUID)
 	}
 

@@ -44,6 +44,11 @@ type RoleSpaceUserOrganizationRelationships struct {
 	Org   ToOneRelationship `json:"organization"`
 }
 
+type RoleWithIncluded struct {
+	Role
+	Included *RoleIncluded `json:"included"`
+}
+
 type RoleIncluded struct {
 	Users         []*User         `json:"users"`
 	Organizations []*Organization `json:"organizations"`
