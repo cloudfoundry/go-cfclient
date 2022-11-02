@@ -11,8 +11,12 @@ func TestSpaces(t *testing.T) {
 	g := test.NewObjectJSONGenerator(1)
 	space := g.Space()
 	space2 := g.Space()
+	space3 := g.Space()
+	space4 := g.Space()
 	user := g.User()
 	user2 := g.User()
+	org := g.Organization()
+	org2 := g.Organization()
 
 	tests := []RouteTest{
 		{
@@ -63,6 +67,23 @@ func TestSpaces(t *testing.T) {
 			},
 		},
 		{
+			Description: "Get space and org",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
+				Output: g.ResourceWithInclude(test.ResourceResult{
+					Resource:      space,
+					Organizations: []string{org},
+				}),
+				Status: http.StatusOK,
+			},
+			Expected:  space,
+			Expected2: org,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Spaces.GetIncludeOrg("000d1e0c-218e-470b-b5db-84481b89fa92")
+			},
+		},
+		{
 			Description: "List all spaces",
 			Route: MockRoute{
 				Method:   "GET",
@@ -72,6 +93,28 @@ func TestSpaces(t *testing.T) {
 			Expected: g.Array(space, space2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Spaces.ListAll(nil)
+			},
+		},
+		{
+			Description: "List all spaces and include parent orgs",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces",
+				Output: g.PagedWithInclude(
+					test.PagedResult{
+						Resources:     []string{space, space2},
+						Organizations: []string{org},
+					},
+					test.PagedResult{
+						Resources:     []string{space3, space4},
+						Organizations: []string{org2},
+					}),
+				Status: http.StatusOK,
+			},
+			Expected:  g.Array(space, space2, space3, space4),
+			Expected2: g.Array(org, org2),
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				return c.Spaces.ListIncludeOrgsAll(nil)
 			},
 		},
 		{
