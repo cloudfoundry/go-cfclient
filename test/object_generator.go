@@ -226,6 +226,13 @@ func (o *ObjectJSONGenerator) OrganizationUsageSummary() string {
 	return o.template(r, "org_usage_summary.json")
 }
 
+func (o *ObjectJSONGenerator) OrganizationQuota() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "org_quota.json")
+}
+
 func (o *ObjectJSONGenerator) Package() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
