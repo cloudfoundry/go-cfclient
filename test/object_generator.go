@@ -95,6 +95,13 @@ func (o *ObjectJSONGenerator) AppUsage() string {
 	return o.template(r, "app_usage.json")
 }
 
+func (o *ObjectJSONGenerator) AuditEvent() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "audit_event.json")
+}
+
 func (o *ObjectJSONGenerator) AppUpdateEnvVars() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
