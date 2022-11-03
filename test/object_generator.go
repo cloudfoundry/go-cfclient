@@ -182,6 +182,20 @@ func (o *ObjectJSONGenerator) FeatureFlag() string {
 	return o.template(r, "feature_flag.json")
 }
 
+func (o *ObjectJSONGenerator) IsolationSegment() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "isolation_segment.json")
+}
+
+func (o *ObjectJSONGenerator) IsolationSegmentRelationships() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "isolation_segment_relationships.json")
+}
+
 func (o *ObjectJSONGenerator) Organization() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
