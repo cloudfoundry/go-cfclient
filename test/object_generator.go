@@ -124,6 +124,13 @@ func (o *ObjectJSONGenerator) AppPermission() string {
 	return o.template(resourceTemplate{}, "app_permissions.json")
 }
 
+func (o *ObjectJSONGenerator) Build() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "build.json")
+}
+
 func (o *ObjectJSONGenerator) Buildpack() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
@@ -146,13 +153,6 @@ func (o *ObjectJSONGenerator) DropletAssociation() string {
 	return o.template(r, "droplet_association.json")
 }
 
-func (o *ObjectJSONGenerator) Build() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "build.json")
-}
-
 func (o *ObjectJSONGenerator) Deployment() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
@@ -169,6 +169,10 @@ func (o *ObjectJSONGenerator) Domain() string {
 
 func (o *ObjectJSONGenerator) DomainShared() string {
 	return o.template(resourceTemplate{}, "domain_shared.json")
+}
+
+func (o *ObjectJSONGenerator) EnvVarGroup() string {
+	return o.template(resourceTemplate{}, "environment_variable_group.json")
 }
 
 func (o *ObjectJSONGenerator) Organization() string {
