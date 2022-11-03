@@ -135,7 +135,7 @@ func (c *SpaceClient) ListUsers(spaceGUID string, opts *UserListOptions) ([]*res
 	if opts == nil {
 		opts = NewUserListOptions()
 	}
-	var res resource.SpaceUserList
+	var res resource.UserList
 	err := c.client.get(path("/v3/spaces/%s/users?%s", spaceGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err

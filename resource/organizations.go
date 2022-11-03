@@ -25,9 +25,19 @@ type OrganizationUpdate struct {
 	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
+type OrganizationUsageSummary struct {
+	UsageSummary UsageSummary    `json:"usage_summary"`
+	Links        map[string]Link `json:"links,omitempty"`
+}
+
 type OrganizationList struct {
 	Pagination Pagination      `json:"pagination,omitempty"`
 	Resources  []*Organization `json:"resources,omitempty"`
+}
+
+type UsageSummary struct {
+	StartedInstances int `json:"started_instances"`
+	MemoryInMb       int `json:"memory_in_mb"`
 }
 
 type QuotaRelationship struct {
