@@ -124,6 +124,14 @@ func (o *ObjectJSONGenerator) AppPermission() string {
 	return o.template(resourceTemplate{}, "app_permissions.json")
 }
 
+func (o *ObjectJSONGenerator) Buildpack() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "buildpack.json")
+}
+
 func (o *ObjectJSONGenerator) Droplet() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
