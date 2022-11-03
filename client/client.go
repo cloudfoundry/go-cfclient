@@ -36,6 +36,7 @@ type Client struct {
 	Domains                   *DomainClient
 	Droplets                  *DropletClient
 	EnvVarGroups              *EnvVarGroupClient
+	FeatureFlags              *FeatureFlagClient
 	Packages                  *PackageClient
 	Roles                     *RoleClient
 	Routes                    *RouteClient
@@ -105,6 +106,7 @@ func New(config *Config) (*Client, error) {
 	client.Domains = (*DomainClient)(&client.common)
 	client.Droplets = (*DropletClient)(&client.common)
 	client.EnvVarGroups = (*EnvVarGroupClient)(&client.common)
+	client.FeatureFlags = (*FeatureFlagClient)(&client.common)
 	client.Packages = (*PackageClient)(&client.common)
 	client.Roles = (*RoleClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
