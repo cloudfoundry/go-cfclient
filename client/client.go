@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/resource"
 	"io"
 	"net/http"
 	"net/url"
@@ -362,7 +363,7 @@ func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 	}(resp.Body)
 
 	// Unmarshal v3 error response
-	var errs CloudFoundryErrors
+	var errs resource.CloudFoundryErrors
 	if err := json.Unmarshal(body, &errs); err != nil {
 		return resp, CloudFoundryHTTPError{
 			StatusCode: resp.StatusCode,
