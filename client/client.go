@@ -30,6 +30,7 @@ type Client struct {
 	AppFeatures               *AppFeatureClient
 	AppUsageEvents            *AppUsageClient
 	AuditEvents               *AuditEventClient
+	Buildpacks                *BuildpackClient
 	Builds                    *BuildClient
 	Deployments               *DeploymentClient
 	Domains                   *DomainClient
@@ -97,6 +98,7 @@ func New(config *Config) (*Client, error) {
 	client.AppFeatures = (*AppFeatureClient)(&client.common)
 	client.AppUsageEvents = (*AppUsageClient)(&client.common)
 	client.AuditEvents = (*AuditEventClient)(&client.common)
+	client.Buildpacks = (*BuildpackClient)(&client.common)
 	client.Builds = (*BuildClient)(&client.common)
 	client.Deployments = (*DeploymentClient)(&client.common)
 	client.Domains = (*DomainClient)(&client.common)
