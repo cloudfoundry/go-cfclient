@@ -10,7 +10,7 @@ type AppUsage struct {
 	App          AppUsageGUIDNamePair `json:"app"`
 	Process      AppUsageGUIDTypePair `json:"process"`
 	Space        AppUsageGUIDNamePair `json:"space"`
-	Organization AppUsageGUID         `json:"organization"`
+	Organization Relationship         `json:"organization"`
 	Buildpack    AppUsageGUIDNamePair `json:"buildpack"`
 	Task         AppUsageGUIDNamePair `json:"task"`
 
@@ -44,8 +44,4 @@ type AppUsageGUIDNamePair struct {
 type AppUsageGUIDTypePair struct {
 	GUID string `json:"guid"`
 	Type string `json:"type"`
-}
-
-type AppUsageGUID struct {
-	GUID string `json:"guid"`
 }
