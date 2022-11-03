@@ -40,6 +40,7 @@ type Client struct {
 	FeatureFlags              *FeatureFlagClient
 	IsolationSegments         *IsolationSegmentClient
 	Jobs                      *JobClient
+	Manifests                 *ManifestClient
 	Packages                  *PackageClient
 	Roles                     *RoleClient
 	Routes                    *RouteClient
@@ -112,6 +113,7 @@ func New(config *Config) (*Client, error) {
 	client.FeatureFlags = (*FeatureFlagClient)(&client.common)
 	client.IsolationSegments = (*IsolationSegmentClient)(&client.common)
 	client.Jobs = (*JobClient)(&client.common)
+	client.Manifests = (*ManifestClient)(&client.common)
 	client.Packages = (*PackageClient)(&client.common)
 	client.Roles = (*RoleClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
