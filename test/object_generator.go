@@ -203,6 +203,16 @@ func (o *ObjectJSONGenerator) Job() string {
 	return o.template(r, "job.json")
 }
 
+func (o *ObjectJSONGenerator) Manifest() string {
+	r := resourceTemplate{}
+	return o.template(r, "manifest.yml")
+}
+
+func (o *ObjectJSONGenerator) ManifestDiff() string {
+	r := resourceTemplate{}
+	return o.template(r, "manifest_diff.yml")
+}
+
 func (o *ObjectJSONGenerator) Organization() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
