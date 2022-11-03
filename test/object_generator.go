@@ -196,6 +196,13 @@ func (o *ObjectJSONGenerator) IsolationSegmentRelationships() string {
 	return o.template(r, "isolation_segment_relationships.json")
 }
 
+func (o *ObjectJSONGenerator) Job() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "job.json")
+}
+
 func (o *ObjectJSONGenerator) Organization() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
