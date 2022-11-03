@@ -1,0 +1,11 @@
+{
+  "name": "{{.Name}}_flag",
+  "enabled": true,
+  "updated_at": "2016-10-17T20:00:42Z",
+  "custom_error_message": "error message the user sees",
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/feature_flags/my_feature_flag"
+    }
+  }
+}

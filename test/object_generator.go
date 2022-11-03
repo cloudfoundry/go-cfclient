@@ -175,6 +175,13 @@ func (o *ObjectJSONGenerator) EnvVarGroup() string {
 	return o.template(resourceTemplate{}, "environment_variable_group.json")
 }
 
+func (o *ObjectJSONGenerator) FeatureFlag() string {
+	r := resourceTemplate{
+		Name: RandomName(),
+	}
+	return o.template(r, "feature_flag.json")
+}
+
 func (o *ObjectJSONGenerator) Organization() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
