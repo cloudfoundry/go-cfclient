@@ -1,0 +1,18 @@
+{
+  "guid": "{{.GUID}}",
+  "name": "an_isolation_segment",
+  "created_at": "2016-10-19T20:25:04Z",
+  "updated_at": "2016-11-08T16:41:26Z",
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/isolation_segments/{{.GUID}}"
+    },
+    "organizations": {
+      "href": "https://api.example.org/v3/isolation_segments/{{.GUID}}/organizations"
+    }
+  },
+  "metadata": {
+    "annotations": {},
+    "labels": {}
+  }
+}
