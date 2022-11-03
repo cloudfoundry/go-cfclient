@@ -78,7 +78,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := ioutil.WriteFile("../resource/errors_cf.go", dst, 0600); err != nil {
+	if err := ioutil.WriteFile("../resource/error_cf.go", dst, 0600); err != nil {
 		log.Fatal(err)
 	}
 }
