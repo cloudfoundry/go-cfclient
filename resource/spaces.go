@@ -63,11 +63,6 @@ type SpaceUser struct {
 	Metadata      Metadata                     `json:"metadata"`
 }
 
-type SpaceUserList struct {
-	Pagination Pagination `json:"pagination"`
-	Resources  []*User    `json:"resources"`
-}
-
 type SpaceWithIncluded struct {
 	Space
 	Included *SpaceIncluded `json:"included"`
