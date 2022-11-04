@@ -247,6 +247,18 @@ func (o *ObjectJSONGenerator) PackageDocker() string {
 	return o.template(r, "package_docker.json")
 }
 
+func (o *ObjectJSONGenerator) Process() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "process.json")
+}
+
+func (o *ObjectJSONGenerator) ProcessStats() string {
+	r := resourceTemplate{}
+	return o.template(r, "process_stats.json")
+}
+
 func (o *ObjectJSONGenerator) Role() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),

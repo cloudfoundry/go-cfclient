@@ -43,6 +43,7 @@ type Client struct {
 	Organizations             *OrgClient
 	OrganizationQuotas        *OrgQuotaClient
 	Packages                  *PackageClient
+	Processes                 *ProcessClient
 	Roles                     *RoleClient
 	Routes                    *RouteClient
 	SecurityGroups            *SecurityGroupClient
@@ -117,6 +118,7 @@ func New(config *Config) (*Client, error) {
 	client.Organizations = (*OrgClient)(&client.common)
 	client.OrganizationQuotas = (*OrgQuotaClient)(&client.common)
 	client.Packages = (*PackageClient)(&client.common)
+	client.Processes = (*ProcessClient)(&client.common)
 	client.Roles = (*RoleClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
 	client.SecurityGroups = (*SecurityGroupClient)(&client.common)
