@@ -49,7 +49,7 @@ func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deplo
 	return &d, nil
 }
 
-// Get the specified app
+// Get the specified deployment
 func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
 	var d resource.Deployment
 	err := c.client.get(path("/v3/deployments/%s", guid), &d)

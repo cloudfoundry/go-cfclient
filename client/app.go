@@ -80,16 +80,26 @@ func (c *AppClient) GetIncludeSpaceAndOrg(guid string) (*resource.App, *resource
 
 // GetEnvironment retrieves the environment variables that will be provided to an app at runtime.
 // It will include environment variables for Environment Variable Groups and Service Bindings.
-func (c *AppClient) GetEnvironment(appGUID string) (*resource.AppEnvironment, error) {
+func (c *AppClient) GetEnvironment(guid string) (*resource.AppEnvironment, error) {
 	var appEnv resource.AppEnvironment
-	err := c.client.get(path("/v3/apps/%s/env", appGUID), &appEnv)
+	err := c.client.get(path("/v3/apps/%s/env", guid), &appEnv)
 	if err != nil {
 		return nil, err
 	}
 	return &appEnv, nil
 }
 
-// List all apps the user has access to in paged results
+// GetEnvironmentVariables retrieves the environment variables that are associated with the given app
+func (c *AppClient) GetEnvironmentVariables(guid string) (map[string]*string, error) {
+	var appEnv resource.EnvVarResponse
+	err := c.client.get(path("/v3/apps/%s/environment_variables", guid), &appEnv)
+	if err != nil {
+		return nil, err
+	}
+	return appEnv.Var, nil
+}
+
+// List pages all the apps the user has access to
 func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) {
 	if opts == nil {
 		opts = NewAppListOptions()
@@ -219,19 +229,22 @@ func (c *AppClient) Restart(guid string) (*resource.App, error) {
 	return &app, nil
 }
 
-// SetEnvVariables updates the environment variables associated with the given app.
+// SetEnvironmentVariables updates the environment variables associated with the given app.
 // The variables given in the request will be merged with the existing app environment variables.
 // Any requested variables with a value of null will be removed from the app.
 //
 // Environment variable names may not start with VCAP_
 // PORT is not a valid environment variable.
-func (c *AppClient) SetEnvVariables(appGUID string, envRequest resource.EnvVar) (*resource.EnvVar, error) {
-	var envVarResponse resource.EnvVarResponse
-	err := c.client.patch(path("/v3/apps/%s/environment_variables", appGUID), envRequest, &envVarResponse)
+func (c *AppClient) SetEnvironmentVariables(guid string, envRequest map[string]*string) (map[string]*string, error) {
+	req := &resource.EnvVar{
+		Var: envRequest,
+	}
+	var res resource.EnvVarResponse
+	err := c.client.patch(path("/v3/apps/%s/environment_variables", guid), req, &res)
 	if err != nil {
 		return nil, err
 	}
-	return &envVarResponse.EnvVar, nil
+	return res.Var, nil
 }
 
 // Start the app if not already started
