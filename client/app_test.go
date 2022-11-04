@@ -16,7 +16,8 @@ func TestApps(t *testing.T) {
 	space1 := g.Space()
 	space2 := g.Space()
 	org := g.Organization()
-	appEnvVars := g.AppEnvVars()
+	appEnvironment := g.AppEnvironment()
+	appEnvVar := g.AppEnvVar()
 	appSSH := g.AppSSH()
 	appPermission := g.AppPermission()
 
@@ -50,35 +51,48 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
-			Description: "Get app env vars",
+			Description: "Get app environment",
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env",
-				Output:   []string{appEnvVars},
+				Output:   []string{appEnvironment},
 				Status:   http.StatusOK,
 			},
-			Expected: appEnvVars,
+			Expected: appEnvironment,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Applications.GetEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
-			Description: "Update app env vars",
+			Description: "Update app environment variables",
 			Route: MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
 				Output:   []string{g.AppUpdateEnvVars()},
 				Status:   http.StatusOK,
 			},
-			Expected: `{"var": { "RAILS_ENV": "production", "DEBUG": "false" }}`,
+			Expected: `{ "RAILS_ENV": "production", "DEBUG": "false" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				falseVar := "false"
-				return c.Applications.SetEnvVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
-					resource.EnvVar{Var: map[string]*string{
+				return c.Applications.SetEnvironmentVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
+					map[string]*string{
 						"DEBUG": &falseVar,
 						"USER":  nil,
-					}},
+					},
 				)
+			},
+		},
+		{
+			Description: "Get app environment variables",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
+				Output:   []string{appEnvVar},
+				Status:   http.StatusOK,
+			},
+			Expected: `{ "RAILS_ENV": "production" }`,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.GetEnvironmentVariables("1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{

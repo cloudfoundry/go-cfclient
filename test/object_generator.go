@@ -109,10 +109,15 @@ func (o *ObjectJSONGenerator) AppUpdateEnvVars() string {
 	return o.template(r, "app_update_envvar.json")
 }
 
-func (o *ObjectJSONGenerator) AppEnvVars() string {
+func (o *ObjectJSONGenerator) AppEnvironment() string {
 	r := resourceTemplate{
 		Name: RandomName(),
 	}
+	return o.template(r, "app_environment.json")
+}
+
+func (o *ObjectJSONGenerator) AppEnvVar() string {
+	r := resourceTemplate{}
 	return o.template(r, "app_envvar.json")
 }
 
@@ -262,6 +267,13 @@ func (o *ObjectJSONGenerator) ProcessStats() string {
 func (o *ObjectJSONGenerator) ResourceMatch() string {
 	r := resourceTemplate{}
 	return o.template(r, "resource_match.json")
+}
+
+func (o *ObjectJSONGenerator) Revision() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "revision.json")
 }
 
 func (o *ObjectJSONGenerator) Role() string {
