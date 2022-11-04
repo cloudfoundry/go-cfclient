@@ -63,3 +63,15 @@ type LastOperation struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 	CreatedAt   time.Time `json:"created_at"`
 }
+
+func NewToManyRelationships(guids []string) *ToManyRelationships {
+	r := &ToManyRelationships{
+		Data: make([]Relationship, len(guids)),
+	}
+	for i, g := range guids {
+		r.Data[i] = Relationship{
+			GUID: g,
+		}
+	}
+	return r
+}

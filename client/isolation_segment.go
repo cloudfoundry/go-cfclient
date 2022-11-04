@@ -60,7 +60,7 @@ func (c *IsolationSegmentClient) EntitleOrg(guid string, orgGUID string) (*resou
 // and if an organization is not already entitled for any other isolation segment, then
 // the shared isolation segment automatically gets assigned as the default for that organization.
 func (c *IsolationSegmentClient) EntitleOrgs(guid string, orgGUIDs []string) (*resource.IsolationSegmentRelationship, error) {
-	req := resource.NewIsolationSegmentEntitlementCreate(orgGUIDs)
+	req := resource.NewToManyRelationships(orgGUIDs)
 	var iso resource.IsolationSegmentRelationship
 	err := c.client.post(guid, path("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
 	if err != nil {
