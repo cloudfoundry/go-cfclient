@@ -259,6 +259,11 @@ func (o *ObjectJSONGenerator) ProcessStats() string {
 	return o.template(r, "process_stats.json")
 }
 
+func (o *ObjectJSONGenerator) ResourceMatch() string {
+	r := resourceTemplate{}
+	return o.template(r, "resource_match.json")
+}
+
 func (o *ObjectJSONGenerator) Role() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
