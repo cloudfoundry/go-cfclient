@@ -26,25 +26,9 @@ type IsolationSegmentRelationship struct {
 	Links map[string]Link `json:"links"`
 }
 
-type IsolationSegmentEntitlementCreate struct {
-	Data []Relationship `json:"data"`
-}
-
 type IsolationSegmentList struct {
 	Pagination Pagination          `json:"pagination"`
 	Resources  []*IsolationSegment `json:"resources"`
-}
-
-func NewIsolationSegmentEntitlementCreate(orgGUIDs []string) *IsolationSegmentEntitlementCreate {
-	c := &IsolationSegmentEntitlementCreate{
-		Data: make([]Relationship, len(orgGUIDs)),
-	}
-	for i, orgGUID := range orgGUIDs {
-		c.Data[i] = Relationship{
-			GUID: orgGUID,
-		}
-	}
-	return c
 }
 
 func NewIsolationSegmentCreate(name string) *IsolationSegmentCreate {
