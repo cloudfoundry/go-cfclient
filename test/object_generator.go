@@ -290,6 +290,14 @@ func (o *ObjectJSONGenerator) Route() string {
 	return o.template(r, "route.json")
 }
 
+func (o *ObjectJSONGenerator) ServiceBroker() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "service_broker.json")
+}
+
 func (o *ObjectJSONGenerator) SecurityGroup() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
