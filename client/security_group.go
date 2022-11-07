@@ -34,7 +34,7 @@ func (o SecurityGroupListOptions) ToQueryString() url.Values {
 // Create a new domain
 func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	err := c.client.post(r.Name, "/v3/security_groups", r, &d)
+	_, err := c.client.post("/v3/security_groups", r, &d)
 	if err != nil {
 		return nil, err
 	}

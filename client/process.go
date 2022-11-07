@@ -101,7 +101,7 @@ func (c *ProcessClient) ListForAppAll(appGUID string, opts *ProcessOptions) ([]*
 // Scale the process using the specified scaling requirements
 func (c *ProcessClient) Scale(guid string, scale *resource.ProcessScale) (*resource.Process, error) {
 	var process resource.Process
-	err := c.client.post(guid, path("/v3/processes/%s/actions/scale", guid), scale, &process)
+	_, err := c.client.post(path("/v3/processes/%s/actions/scale", guid), scale, &process)
 	if err != nil {
 		return nil, err
 	}

@@ -83,7 +83,7 @@ func (o *RoleListOptions) SpaceRoleType(roleType resource.SpaceRoleType) *RoleLi
 func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID string, roleType resource.SpaceRoleType) (*resource.Role, error) {
 	req := resource.NewRoleSpaceCreate(spaceGUID, userGUID, roleType)
 	var r resource.Role
-	err := c.client.post(req.RoleType, "/v3/roles", req, &r)
+	_, err := c.client.post("/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID string, roleType resour
 func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
 	req := resource.NewRoleOrganizationCreate(orgGUID, userGUID, roleType)
 	var r resource.Role
-	err := c.client.post(req.RoleType, "/v3/roles", req, &r)
+	_, err := c.client.post("/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}

@@ -48,7 +48,7 @@ func (o BuildAppListOptions) ToQueryString() url.Values {
 // Create a new build
 func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.post(r.Package.GUID, "/v3/builds", r, &build)
+	_, err := c.client.post("/v3/builds", r, &build)
 	if err != nil {
 		return nil, err
 	}

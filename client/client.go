@@ -523,26 +523,40 @@ func (c *Client) patch(path string, params any, result any) error {
 	return nil
 }
 
-func (c *Client) post(id, path string, params any, result any) error {
+// post does an HTTP POST to the specified endpoint and automatically handles the result
+// whether that's a JSON body or job ID.
+//
+// This function takes the relative API resource path, any parameters to POST and an optional
+// struct to unmarshall the result body. If the resource returns an async job ID instead of a
+// response body, then the body won't be unmarshalled and the function returns the job GUID
+// which the caller can reference via the job endpoint.
+func (c *Client) post(path string, params, result any) (string, error) {
 	req := c.NewRequest("POST", path)
 	req.obj = params
 	resp, err := c.DoRequest(req)
 	if err != nil {
-		return fmt.Errorf("error creating %s/%s: %w", path, id, err)
+		return "", fmt.Errorf("error creating %s: %w", path, err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
 
-	// This should always be created but some resources return OK on POST like starting an app
-	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error creating %s/%s, response code: %d", path, id, resp.StatusCode)
+	// Endpoints return different status codes for posts
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+		return "", fmt.Errorf("error creating %s, response code: %d", path, resp.StatusCode)
 	}
-	if result != nil {
+
+	// if there's a job location header, go ahead and return that otherwise try and unmarshall a body
+	var jobID string
+	location, err := resp.Location()
+	if err == nil && strings.Contains(location.Path, "jobs") {
+		p := strings.Split(location.Path, "/")
+		jobID = p[len(p)-1]
+	} else if result != nil {
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
-			return fmt.Errorf("error decoding %s/%s post response JSON: %w", path, id, err)
+			return "", fmt.Errorf("error decoding %s post response JSON: %w", path, err)
 		}
 	}
-	return nil
+	return jobID, nil
 }

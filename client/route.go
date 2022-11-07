@@ -39,7 +39,7 @@ func (o RouteListOptions) ToQueryString() url.Values {
 // Create a new route
 func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
 	var Route resource.Route
-	err := c.client.post("", "/v3/routes", r, &Route)
+	_, err := c.client.post("/v3/routes", r, &Route)
 	if err != nil {
 		return nil, err
 	}

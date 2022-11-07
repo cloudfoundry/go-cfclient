@@ -33,7 +33,7 @@ func (o SpaceListOptions) ToQueryString() url.Values {
 // Create a new space
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.post(r.Name, "/v3/spaces", r, &space)
+	_, err := c.client.post("/v3/spaces", r, &space)
 	if err != nil {
 		return nil, err
 	}

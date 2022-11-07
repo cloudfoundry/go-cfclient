@@ -32,7 +32,7 @@ func (o OrgQuotaListOptions) ToQueryString() url.Values {
 func (c *OrgQuotaClient) Apply(guid string, orgGUIDs []string) ([]string, error) {
 	req := resource.NewToManyRelationships(orgGUIDs)
 	var relation resource.ToManyRelationships
-	err := c.client.post(guid, path("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
+	_, err := c.client.post(path("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *OrgQuotaClient) Apply(guid string, orgGUIDs []string) ([]string, error)
 // Create a new org quota
 func (c *OrgQuotaClient) Create(r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota
-	err := c.client.post(*r.Name, "/v3/organization_quotas", r, &q)
+	_, err := c.client.post("/v3/organization_quotas", r, &q)
 	if err != nil {
 		return nil, err
 	}

@@ -29,7 +29,7 @@ func (o BuildpackListOptions) ToQueryString() url.Values {
 // Create a new buildpack
 func (c *BuildpackClient) Create(r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	err := c.client.post(*r.Name, "/v3/buildpacks", r, &bp)
+	_, err := c.client.post("/v3/buildpacks", r, &bp)
 	if err != nil {
 		return nil, err
 	}

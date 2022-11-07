@@ -36,7 +36,7 @@ func (o AppListOptions) ToQueryString() url.Values {
 // Create a new app
 func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(r.Name, "/v3/apps", r, &app)
+	_, err := c.client.post("/v3/apps", r, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func (c *AppClient) Permissions(guid string) (*resource.AppPermissions, error) {
 // For restarting applications without downtime, see the Deployments resource.
 func (c *AppClient) Restart(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(guid, path("/v3/apps/%s/actions/restart", guid), nil, &app)
+	_, err := c.client.post(path("/v3/apps/%s/actions/restart", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func (c *AppClient) SetEnvironmentVariables(guid string, envRequest map[string]*
 // Start the app if not already started
 func (c *AppClient) Start(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(guid, path("/v3/apps/%s/actions/start", guid), nil, &app)
+	_, err := c.client.post(path("/v3/apps/%s/actions/start", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +260,7 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 // Stop the app if not already stopped
 func (c *AppClient) Stop(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.post(guid, path("/v3/apps/%s/actions/stop", guid), nil, &app)
+	_, err := c.client.post(path("/v3/apps/%s/actions/stop", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
