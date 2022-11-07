@@ -41,7 +41,7 @@ func (o UserListOptions) ToQueryString() url.Values {
 // Create a new user
 func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 	var user resource.User
-	err := c.client.post(r.GUID, "/v3/users", r, &user)
+	_, err := c.client.post("/v3/users", r, &user)
 	if err != nil {
 		return nil, err
 	}

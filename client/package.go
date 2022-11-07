@@ -35,7 +35,7 @@ func (o PackageListOptions) ToQueryString() url.Values {
 func (c *PackageClient) Copy(srcPackageGUID string, destAppGUID string) (*resource.Package, error) {
 	var d resource.Package
 	r := resource.NewPackageCopy(destAppGUID)
-	err := c.client.post(srcPackageGUID, path("/v3/packages?source_guid=%s", srcPackageGUID), r, &d)
+	_, err := c.client.post(path("/v3/packages?source_guid=%s", srcPackageGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *PackageClient) Copy(srcPackageGUID string, destAppGUID string) (*resour
 // Create a new package
 func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, error) {
 	var p resource.Package
-	err := c.client.post("", "/v3/packages", r, &p)
+	_, err := c.client.post("/v3/packages", r, &p)
 	if err != nil {
 		return nil, err
 	}

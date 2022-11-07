@@ -40,7 +40,7 @@ func (c *OrgClient) AssignDefaultIsoSegment(guid, isoSegmentGUID string) error {
 // Create an organization
 func (c *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organization, error) {
 	var org resource.Organization
-	err := c.client.post(r.Name, "/v3/organizations", r, &org)
+	_, err := c.client.post("/v3/organizations", r, &org)
 	if err != nil {
 		return nil, err
 	}

@@ -34,17 +34,13 @@ type RouteTest struct {
 }
 
 type MockRoute struct {
-	Method      string
-	Endpoint    string
-	Output      []string
-	UserAgent   string
-	Status      int
-	QueryString string
-	PostForm    string
-}
-
-type MockRouteWithRedirect struct {
-	MockRoute
+	Method           string
+	Endpoint         string
+	Output           []string
+	UserAgent        string
+	Status           int
+	QueryString      string
+	PostForm         string
 	RedirectLocation string
 }
 
@@ -106,17 +102,6 @@ func testBodyContains(req *http.Request, expected string, t *testing.T) {
 }
 
 func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
-	mockEndpointsWithRedirect := make([]MockRouteWithRedirect, len(mockEndpoints))
-	for i, mock := range mockEndpoints {
-		mockEndpointsWithRedirect[i] = MockRouteWithRedirect{
-			MockRoute:        mock,
-			RedirectLocation: "",
-		}
-	}
-	setupMultipleWithRedirect(mockEndpointsWithRedirect, t)
-}
-
-func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 	fakeUAAServer = FakeUAAServer(3)
@@ -149,10 +134,13 @@ func setupMultipleWithRedirect(mockEndpoints []MockRouteWithRedirect, t *testing
 				return status, singleOutput
 			})
 		case "POST":
-			r.Post(endpoint, func(req *http.Request) (int, string) {
+			r.Post(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output[0]
 			})
 		case "DELETE":

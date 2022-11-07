@@ -31,7 +31,7 @@ func (o IsolationSegmentOptions) ToQueryString() url.Values {
 // Create a new isolation segment
 func (c *IsolationSegmentClient) Create(r *resource.IsolationSegmentCreate) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment
-	err := c.client.post(r.Name, "/v3/isolation_segments", r, &iso)
+	_, err := c.client.post("/v3/isolation_segments", r, &iso)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (c *IsolationSegmentClient) EntitleOrg(guid string, orgGUID string) (*resou
 func (c *IsolationSegmentClient) EntitleOrgs(guid string, orgGUIDs []string) (*resource.IsolationSegmentRelationship, error) {
 	req := resource.NewToManyRelationships(orgGUIDs)
 	var iso resource.IsolationSegmentRelationship
-	err := c.client.post(guid, path("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
+	_, err := c.client.post(path("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
 	if err != nil {
 		return nil, err
 	}

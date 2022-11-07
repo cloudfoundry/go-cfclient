@@ -28,7 +28,7 @@ func (o StackListOptions) ToQueryString() url.Values {
 // Create a new space
 func (c *StackClient) Create(r *resource.StackCreate) (*resource.Stack, error) {
 	var space resource.Stack
-	err := c.client.post(r.Name, "/v3/stacks", r, &space)
+	_, err := c.client.post("/v3/stacks", r, &space)
 	if err != nil {
 		return nil, err
 	}

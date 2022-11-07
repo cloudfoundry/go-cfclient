@@ -31,7 +31,8 @@ func (o DeploymentListOptions) ToQueryString() url.Values {
 
 // Cancel the ongoing deployment
 func (c *DeploymentClient) Cancel(guid string) error {
-	return c.client.post(guid, path("/v3/deployments/%s/actions/cancel", guid), nil, nil)
+	_, err := c.client.post(path("/v3/deployments/%s/actions/cancel", guid), nil, nil)
+	return err
 }
 
 // Create a new deployment
@@ -42,7 +43,7 @@ func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deplo
 	}
 
 	var d resource.Deployment
-	err := c.client.post("", "/v3/deployments", r, &d)
+	_, err := c.client.post("/v3/deployments", r, &d)
 	if err != nil {
 		return nil, err
 	}

@@ -30,7 +30,7 @@ func (o DomainListOptions) ToQueryString() url.Values {
 // Create a new domain
 func (c *DomainClient) Create(r *resource.DomainCreate) (*resource.Domain, error) {
 	var d resource.Domain
-	err := c.client.post(r.Name, "/v3/domains", r, &d)
+	_, err := c.client.post("/v3/domains", r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (c *DomainClient) Share(domainGUID, orgGUID string) (*resource.ToManyRelati
 // This will allow any of the other organizations to use the organization-scoped domain.
 func (c *DomainClient) ShareMany(guid string, r *resource.ToManyRelationships) (*resource.ToManyRelationships, error) {
 	var d resource.ToManyRelationships
-	err := c.client.post(guid, path("/v3/domains/%s/relationships/shared_organizations", guid), r, &d)
+	_, err := c.client.post(path("/v3/domains/%s/relationships/shared_organizations", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

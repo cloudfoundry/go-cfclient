@@ -74,5 +74,6 @@ func (c *AppUsageClient) ListAll(opts *AppUsageOptions) ([]*resource.AppUsage, e
 // There is the potential race condition if apps are currently being started, stopped, or scaled.
 // The seeded usage events will have the same guid as the app.
 func (c *AppUsageClient) Purge() error {
-	return c.client.post("", "/v3/app_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
+	_, err := c.client.post("/v3/app_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
+	return err
 }

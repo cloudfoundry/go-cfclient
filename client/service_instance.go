@@ -31,10 +31,22 @@ func (o ServiceInstanceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// Create a new service instance
-func (c *ServiceInstanceClient) Create(r *resource.ServiceInstanceCreate) (*resource.ServiceInstance, error) {
+// CreateManaged requests a new service instance asynchronously from a broker. The result
+// of this call is an error or the job GUID.
+func (c *ServiceInstanceClient) CreateManaged(r *resource.ServiceInstanceCreate) (string, error) {
 	var si resource.ServiceInstance
-	err := c.client.post(r.Name, "/v3/service_instances", r, &si)
+	jobGUID, err := c.client.post("/v3/service_instances", r, &si)
+	if err != nil {
+		return "", err
+	}
+	return jobGUID, nil
+}
+
+// CreateUserProvided creates a new user provided service instance. User provided service instances
+// do not require interactions with service brokers.
+func (c *ServiceInstanceClient) CreateUserProvided(r *resource.ServiceInstanceCreate) (*resource.ServiceInstance, error) {
+	var si resource.ServiceInstance
+	_, err := c.client.post("/v3/service_instances", r, &si)
 	if err != nil {
 		return nil, err
 	}

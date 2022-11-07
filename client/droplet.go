@@ -75,7 +75,7 @@ func (o DropletAppListOptions) ToQueryString() url.Values {
 func (c *DropletClient) Copy(srcDropletGUID string, destAppGUID string) (any, error) {
 	var d resource.Droplet
 	r := resource.NewDropletCopy(destAppGUID)
-	err := c.client.post(srcDropletGUID, path("/v3/droplets?source_guid=%s", srcDropletGUID), r, &d)
+	_, err := c.client.post(path("/v3/droplets?source_guid=%s", srcDropletGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *DropletClient) Copy(srcDropletGUID string, destAppGUID string) (any, er
 // Create a droplet without a package. To create a droplet based on a package, see Create a build
 func (c *DropletClient) Create(r *resource.DropletCreate) (*resource.Droplet, error) {
 	var d resource.Droplet
-	err := c.client.post(r.Relationships.App.Data.GUID, "/v3/droplets", r, &d)
+	_, err := c.client.post("/v3/droplets", r, &d)
 	if err != nil {
 		return nil, err
 	}
