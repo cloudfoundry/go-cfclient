@@ -49,6 +49,7 @@ type Client struct {
 	Roles                     *RoleClient
 	Routes                    *RouteClient
 	SecurityGroups            *SecurityGroupClient
+	ServiceBrokers            *ServiceBrokerClient
 	ServiceCredentialBindings *ServiceCredentialBindingClient
 	ServiceInstances          *ServiceInstanceClient
 	Spaces                    *SpaceClient
@@ -126,6 +127,7 @@ func New(config *Config) (*Client, error) {
 	client.Roles = (*RoleClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
 	client.SecurityGroups = (*SecurityGroupClient)(&client.common)
+	client.ServiceBrokers = (*ServiceBrokerClient)(&client.common)
 	client.ServiceCredentialBindings = (*ServiceCredentialBindingClient)(&client.common)
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
@@ -432,7 +434,6 @@ func (c *Client) refreshEndpoint() error {
 
 // toHTTP converts the request to an HTTP Request
 func (r *Request) toHTTP() (*http.Request, error) {
-
 	// Check if we should encode the body
 	if r.body == nil && r.obj != nil {
 		b, err := encodeBody(r.obj)
@@ -465,11 +466,15 @@ func encodeBody(obj interface{}) (io.Reader, error) {
 	return buf, nil
 }
 
-func (c *Client) delete(path string) error {
+// delete does an HTTP DELETE to the specified endpoint and returns the job ID if any
+//
+// This function takes the relative API resource path. If the resource returns an async job ID
+// then the function returns the job GUID which the caller can reference via the job endpoint.
+func (c *Client) delete(path string) (string, error) {
 	req := c.NewRequest("DELETE", path)
 	resp, err := c.DoRequest(req)
 	if err != nil {
-		return fmt.Errorf("error deleting %s: %w", path, err)
+		return "", fmt.Errorf("error deleting %s: %w", path, err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
@@ -477,11 +482,13 @@ func (c *Client) delete(path string) error {
 
 	// some endpoints return accepted and others return no content
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("error deleting %s, response code: %d", path, resp.StatusCode)
+		return "", fmt.Errorf("error deleting %s, response code: %d", path, resp.StatusCode)
 	}
-	return nil
+	return c.decodeBodyOrJobID(resp, nil)
 }
 
+// get does an HTTP GET to the specified endpoint and automatically handles unmarshalling
+// the result JSON body
 func (c *Client) get(path string, result any) error {
 	req := c.NewRequest("GET", path)
 
@@ -506,21 +513,28 @@ func (c *Client) get(path string, result any) error {
 	return nil
 }
 
-func (c *Client) patch(path string, params any, result any) error {
+// patch does an HTTP PATCH to the specified endpoint and automatically handles the result
+// whether that's a JSON body or job ID.
+//
+// This function takes the relative API resource path, any parameters to PATCH and an optional
+// struct to unmarshall the result body. If the resource returns an async job ID instead of a
+// response body, then the body won't be unmarshalled and the function returns the job GUID
+// which the caller can reference via the job endpoint.
+func (c *Client) patch(path string, params any, result any) (string, error) {
 	req := c.NewRequest("PATCH", path)
 	req.obj = params
 	resp, err := c.DoRequest(req)
 	if err != nil {
-		return fmt.Errorf("error updating %s: %w", path, err)
+		return "", fmt.Errorf("error updating %s: %w", path, err)
 	}
-
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return fmt.Errorf("error decoding %s patch response JSON: %w", path, err)
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+		return "", fmt.Errorf("error patching %s, response code: %d", path, resp.StatusCode)
 	}
-	return nil
+	return c.decodeBodyOrJobID(resp, &result)
 }
 
 // post does an HTTP POST to the specified endpoint and automatically handles the result
@@ -545,8 +559,12 @@ func (c *Client) post(path string, params, result any) (string, error) {
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		return "", fmt.Errorf("error creating %s, response code: %d", path, resp.StatusCode)
 	}
+	return c.decodeBodyOrJobID(resp, result)
+}
 
-	// if there's a job location header, go ahead and return that otherwise try and unmarshall a body
+// decodeBodyOrJobID returns the jobID if specified in the Location response header, otherwise it
+// unmarshalls the JSON response to result
+func (c *Client) decodeBodyOrJobID(resp *http.Response, result any) (string, error) {
 	var jobID string
 	location, err := resp.Location()
 	if err == nil && strings.Contains(location.Path, "jobs") {
@@ -555,7 +573,7 @@ func (c *Client) post(path string, params, result any) (string, error) {
 	} else if result != nil {
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
-			return "", fmt.Errorf("error decoding %s post response JSON: %w", path, err)
+			return "", fmt.Errorf("error decoding response JSON: %w", err)
 		}
 	}
 	return jobID, nil

@@ -60,7 +60,7 @@ func (c *FeatureFlagClient) ListAll(opts *FeatureFlagListOptions) ([]*resource.F
 // Update the specified attributes of the feature flag
 func (c *FeatureFlagClient) Update(featureFlag resource.FeatureFlagType, r *resource.FeatureFlagUpdate) (*resource.FeatureFlag, error) {
 	var d resource.FeatureFlag
-	err := c.client.patch(path("/v3/feature_flags/%s", featureFlag), r, &d)
+	_, err := c.client.patch(path("/v3/feature_flags/%s", featureFlag), r, &d)
 	if err != nil {
 		return nil, err
 	}

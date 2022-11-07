@@ -106,7 +106,8 @@ func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType r
 
 // Delete the specified role
 func (c *RoleClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/roles/%s", guid))
+	_, err := c.client.delete(path("/v3/roles/%s", guid))
+	return err
 }
 
 // Get the specified role

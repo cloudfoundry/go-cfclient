@@ -87,7 +87,7 @@ func (c *DeploymentClient) ListAll(opts *DeploymentListOptions) ([]*resource.Dep
 // Update the specified attributes of the deployment
 func (c *DeploymentClient) Update(guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
 	var d resource.Deployment
-	err := c.client.patch(path("/v3/deployments/%s", guid), r, &d)
+	_, err := c.client.patch(path("/v3/deployments/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

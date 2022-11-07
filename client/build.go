@@ -57,7 +57,8 @@ func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 
 // Delete the specified build
 func (c *BuildClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/builds/%s", guid))
+	_, err := c.client.delete(path("/v3/builds/%s", guid))
+	return err
 }
 
 // Get the specified build
@@ -121,7 +122,7 @@ func (c *BuildClient) ListForAppAll(appGUID string, opts *BuildAppListOptions) (
 // Update the specified attributes of the build
 func (c *BuildClient) Update(guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.patch(path("/v3/builds/%s", guid), r, &build)
+	_, err := c.client.patch(path("/v3/builds/%s", guid), r, &build)
 	if err != nil {
 		return nil, err
 	}

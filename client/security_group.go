@@ -43,7 +43,8 @@ func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource
 
 // Delete the specified security group
 func (c *SecurityGroupClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/security_groups/%s", guid))
+	_, err := c.client.delete(path("/v3/security_groups/%s", guid))
+	return err
 }
 
 // Get the specified security group
@@ -80,7 +81,7 @@ func (c *SecurityGroupClient) ListAll(opts *SecurityGroupListOptions) ([]*resour
 // Update the specified attributes of the app
 func (c *SecurityGroupClient) Update(guid string, r *resource.SecurityGroupUpdate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	err := c.client.patch(path("/v3/security_groups/%s", guid), r, &d)
+	_, err := c.client.patch(path("/v3/security_groups/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

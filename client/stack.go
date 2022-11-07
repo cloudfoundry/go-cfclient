@@ -37,7 +37,8 @@ func (c *StackClient) Create(r *resource.StackCreate) (*resource.Stack, error) {
 
 // Delete the specified space
 func (c *StackClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/stacks/%s", guid))
+	_, err := c.client.delete(path("/v3/stacks/%s", guid))
+	return err
 }
 
 // Get the specified space
@@ -77,7 +78,7 @@ func (c *StackClient) ListAll(opts *StackListOptions) ([]*resource.Stack, error)
 // Update the specified attributes of a space
 func (c *StackClient) Update(guid string, r *resource.StackUpdate) (*resource.Stack, error) {
 	var space resource.Stack
-	err := c.client.patch(path("/v3/stacks/%s", guid), r, &space)
+	_, err := c.client.patch(path("/v3/stacks/%s", guid), r, &space)
 	if err != nil {
 		return nil, err
 	}

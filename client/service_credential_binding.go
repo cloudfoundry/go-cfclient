@@ -49,7 +49,8 @@ func (c *ServiceCredentialBindingClient) Create(r *resource.ServiceCredentialBin
 
 // Delete the specified service credential binding
 func (c *ServiceCredentialBindingClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/service_credential_bindings/%s", guid))
+	_, err := c.client.delete(path("/v3/service_credential_bindings/%s", guid))
+	return err
 }
 
 // Get the specified service credential binding
@@ -184,7 +185,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeServiceInstancesAll(opts *Se
 // Update the specified attributes of the app
 func (c *ServiceCredentialBindingClient) Update(guid string, r *resource.ServiceCredentialBindingUpdate) (*resource.ServiceCredentialBinding, error) {
 	var d resource.ServiceCredentialBinding
-	err := c.client.patch(path("/v3/service_credential_bindings/%s", guid), r, &d)
+	_, err := c.client.patch(path("/v3/service_credential_bindings/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

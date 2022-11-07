@@ -111,7 +111,7 @@ func (c *ProcessClient) Scale(guid string, scale *resource.ProcessScale) (*resou
 // Update the specified attributes of the process
 func (c *ProcessClient) Update(guid string, r *resource.ProcessUpdate) (*resource.Process, error) {
 	var process resource.Process
-	err := c.client.patch(path("/v3/processes/%s", guid), r, &process)
+	_, err := c.client.patch(path("/v3/processes/%s", guid), r, &process)
 	if err != nil {
 		return nil, err
 	}
@@ -120,5 +120,6 @@ func (c *ProcessClient) Update(guid string, r *resource.ProcessUpdate) (*resourc
 
 // Terminate an instance of a specific process. Health management will eventually restart the instance.
 func (c *ProcessClient) Terminate(guid string, index int) error {
-	return c.client.delete(path("/v3/processes/%s/instances/%d", guid, index))
+	_, err := c.client.delete(path("/v3/processes/%s/instances/%d", guid, index))
+	return err
 }

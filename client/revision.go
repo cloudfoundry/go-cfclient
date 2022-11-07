@@ -96,7 +96,7 @@ func (c *RevisionClient) ListDeployedAll(appGUID string, opts *RevisionListOptio
 // Update the specified attributes of the deployment
 func (c *RevisionClient) Update(guid string, r *resource.RevisionUpdate) (*resource.Revision, error) {
 	var res resource.Revision
-	err := c.client.patch(path("/v3/revisions/%s", guid), r, &res)
+	_, err := c.client.patch(path("/v3/revisions/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

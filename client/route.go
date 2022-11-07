@@ -48,7 +48,8 @@ func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
 
 // Delete the specified route
 func (c *RouteClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/routes/%s", guid))
+	_, err := c.client.delete(path("/v3/routes/%s", guid))
+	return err
 }
 
 // Get the specified route
@@ -265,7 +266,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*re
 // Update the specified attributes of the app
 func (c *RouteClient) Update(guid string, r *resource.RouteUpdate) (*resource.Route, error) {
 	var res resource.Route
-	err := c.client.patch(path("/v3/routes/%s", guid), r, &res)
+	_, err := c.client.patch(path("/v3/routes/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}
