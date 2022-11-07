@@ -38,7 +38,8 @@ func (c *BuildpackClient) Create(r *resource.BuildpackCreateOrUpdate) (*resource
 
 // Delete the specified buildpack
 func (c *BuildpackClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/buildpacks/%s", guid))
+	_, err := c.client.delete(path("/v3/buildpacks/%s", guid))
+	return err
 }
 
 // Get retrieves the specified buildpack
@@ -89,7 +90,7 @@ func (c *BuildpackClient) ListAll(opts *BuildpackListOptions) ([]*resource.Build
 // Update the specified attributes of the buildpack
 func (c *BuildpackClient) Update(guid string, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	err := c.client.patch(path("/v3/buildpacks/%s", guid), r, &bp)
+	_, err := c.client.patch(path("/v3/buildpacks/%s", guid), r, &bp)
 	if err != nil {
 		return nil, err
 	}

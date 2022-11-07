@@ -29,7 +29,7 @@ func (c *EnvVarGroupClient) GetStaging() (*resource.EnvVarGroup, error) {
 // Update the specified attributes of the envar group
 func (c *EnvVarGroupClient) Update(name string, r *resource.EnvVarGroupUpdate) (*resource.EnvVarGroup, error) {
 	var e resource.EnvVarGroup
-	err := c.client.patch(path("/v3/environment_variable_groups/%s", name), r, &e)
+	_, err := c.client.patch(path("/v3/environment_variable_groups/%s", name), r, &e)
 	if err != nil {
 		return nil, err
 	}

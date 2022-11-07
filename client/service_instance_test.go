@@ -78,12 +78,14 @@ func TestServiceInstances(t *testing.T) {
 		{
 			Description: "Delete service instance",
 			Route: MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/v3/jobs/af5c57f6-8769-41fa-a499-2c84ed896788",
 			},
+			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.ServiceInstances.Delete("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.Delete("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{

@@ -55,7 +55,8 @@ func (c *OrgQuotaClient) Create(r *resource.OrganizationQuotaCreateOrUpdate) (*r
 
 // Delete the specified org quota
 func (c *OrgQuotaClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/organization_quotas/%s", guid))
+	_, err := c.client.delete(path("/v3/organization_quotas/%s", guid))
+	return err
 }
 
 // Get the specified org quota
@@ -96,7 +97,7 @@ func (c *OrgQuotaClient) ListAll(opts *OrgQuotaListOptions) ([]*resource.Organiz
 // Update the specified attributes of the org quota
 func (c *OrgQuotaClient) Update(guid string, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota
-	err := c.client.patch(path("/v3/organization_quotas/%s", guid), r, &q)
+	_, err := c.client.patch(path("/v3/organization_quotas/%s", guid), r, &q)
 	if err != nil {
 		return nil, err
 	}

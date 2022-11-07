@@ -42,7 +42,8 @@ func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 
 // Delete the specified space
 func (c *SpaceClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/spaces/%s", guid))
+	_, err := c.client.delete(path("/v3/spaces/%s", guid))
+	return err
 }
 
 // Get the specified space
@@ -157,7 +158,7 @@ func (c *SpaceClient) ListUsersAll(spaceGUID string, opts *UserListOptions) ([]*
 // Update the specified attributes of a space
 func (c *SpaceClient) Update(guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.patch(path("/v3/spaces/%s", guid), r, &space)
+	_, err := c.client.patch(path("/v3/spaces/%s", guid), r, &space)
 	if err != nil {
 		return nil, err
 	}

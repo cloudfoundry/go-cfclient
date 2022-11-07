@@ -34,7 +34,8 @@ func (c *OrgClient) AssignDefaultIsoSegment(guid, isoSegmentGUID string) error {
 			GUID: isoSegmentGUID,
 		},
 	}
-	return c.client.patch(path("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
+	_, err := c.client.patch(path("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
+	return err
 }
 
 // Create an organization
@@ -49,7 +50,8 @@ func (c *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organizati
 
 // Delete the specified organization
 func (c *OrgClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/organizations/%s", guid))
+	_, err := c.client.delete(path("/v3/organizations/%s", guid))
+	return err
 }
 
 // Get the specified organization
@@ -167,7 +169,7 @@ func (c *OrgClient) ListUsersAll(guid string, opts *UserListOptions) ([]*resourc
 // Update the organization's specified attributes
 func (c *OrgClient) Update(guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
 	var org resource.Organization
-	err := c.client.patch(path("/v3/organizations/%s", guid), r, &org)
+	_, err := c.client.patch(path("/v3/organizations/%s", guid), r, &org)
 	if err != nil {
 		return nil, err
 	}

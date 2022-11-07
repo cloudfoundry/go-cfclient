@@ -50,7 +50,8 @@ func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 
 // Delete the specified user
 func (c *UserClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/users/%s", guid))
+	_, err := c.client.delete(path("/v3/users/%s", guid))
+	return err
 }
 
 // Get the specified user
@@ -90,7 +91,7 @@ func (c *UserClient) ListAll(opts *UserListOptions) ([]*resource.User, error) {
 // Update the specified attributes of a user
 func (c *UserClient) Update(guid string, r *resource.UserUpdate) (*resource.User, error) {
 	var user resource.User
-	err := c.client.patch(path("/v3/users/%s", guid), r, &user)
+	_, err := c.client.patch(path("/v3/users/%s", guid), r, &user)
 	if err != nil {
 		return nil, err
 	}

@@ -43,7 +43,7 @@ func (c *AppFeatureClient) Update(appGUID, featureName string, enabled bool) (*r
 		Enabled: enabled,
 	}
 	var a resource.AppFeature
-	err := c.client.patch(path("/v3/apps/%s/features/%s", appGUID, featureName), r, &a)
+	_, err := c.client.patch(path("/v3/apps/%s/features/%s", appGUID, featureName), r, &a)
 	if err != nil {
 		return nil, err
 	}

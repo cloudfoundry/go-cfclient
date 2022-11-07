@@ -94,7 +94,8 @@ func (c *DropletClient) Create(r *resource.DropletCreate) (*resource.Droplet, er
 
 // Delete the specified droplet
 func (c *DropletClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/droplets/%s", guid))
+	_, err := c.client.delete(path("/v3/droplets/%s", guid))
+	return err
 }
 
 // Download a gzip compressed tarball file containing a Cloud Foundry compatible droplet
@@ -221,7 +222,7 @@ func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, err
 func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string) (*resource.DropletCurrent, error) {
 	var d resource.DropletCurrent
 	r := resource.ToOneRelationship{Data: &resource.Relationship{GUID: dropletGUID}}
-	err := c.client.patch(path("/v3/apps/%s/relationships/current_droplet", appGUID), r, &d)
+	_, err := c.client.patch(path("/v3/apps/%s/relationships/current_droplet", appGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +232,7 @@ func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string)
 // Update an existing droplet
 func (c *DropletClient) Update(guid string, r *resource.DropletUpdate) (*resource.Droplet, error) {
 	var d resource.Droplet
-	err := c.client.patch(path("/v3/droplets/%s", guid), r, &d)
+	_, err := c.client.patch(path("/v3/droplets/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

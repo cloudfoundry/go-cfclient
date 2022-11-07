@@ -42,7 +42,8 @@ func (c *IsolationSegmentClient) Create(r *resource.IsolationSegmentCreate) (*re
 //
 // An isolation segment cannot be deleted if it is entitled to any organization.
 func (c *IsolationSegmentClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/isolation_segments/%s", guid))
+	_, err := c.client.delete(path("/v3/isolation_segments/%s", guid))
+	return err
 }
 
 // EntitleOrg entitles the specified organization for the isolation segment.
@@ -153,7 +154,8 @@ func (c *IsolationSegmentClient) ListSpaceRelationships(guid string) ([]string, 
 // If the isolation segment is assigned to a space within an organization, the entitlement cannot be revoked.
 // If the isolation segment is the organization’s default, the entitlement cannot be revoked.
 func (c *IsolationSegmentClient) RevokeOrg(guid string, orgGUID string) error {
-	return c.client.delete(path("/v3/isolation_segments/%s/relationships/organizations/%s", guid, orgGUID))
+	_, err := c.client.delete(path("/v3/isolation_segments/%s/relationships/organizations/%s", guid, orgGUID))
+	return err
 }
 
 // RevokeOrgs revokes the entitlement for all the specified organizations to the isolation segment
@@ -173,7 +175,7 @@ func (c *IsolationSegmentClient) RevokeOrgs(guid string, orgGUIDs []string) erro
 // Update the specified attributes of the isolation segments
 func (c *IsolationSegmentClient) Update(guid string, r *resource.IsolationSegmentUpdate) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment
-	err := c.client.patch(path("/v3/isolation_segments/%s", guid), r, &iso)
+	_, err := c.client.patch(path("/v3/isolation_segments/%s", guid), r, &iso)
 	if err != nil {
 		return nil, err
 	}

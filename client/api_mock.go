@@ -144,29 +144,41 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 				return status, output[0]
 			})
 		case "DELETE":
-			r.Delete(endpoint, func(req *http.Request) (int, string) {
+			r.Delete(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output[0]
 			})
 		case "PUT":
-			r.Put(endpoint, func(req *http.Request) (int, string) {
+			r.Put(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output[0]
 			})
 		case "PATCH":
-			r.Patch(endpoint, func(req *http.Request) (int, string) {
+			r.Patch(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				testReqBody(req, postFormBody, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output[0]
 			})
 		case "PUT-FILE":
-			r.Put(endpoint, func(req *http.Request) (int, string) {
+			r.Put(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testBodyContains(req, postFormBody, t)
+				if redirectLocation != "" {
+					res.Header().Add("Location", redirectLocation)
+				}
 				return status, output[0]
 			})
 		}
@@ -238,30 +250,38 @@ func executeTests(tests []RouteTest, t *testing.T) {
 			cl, err := New(c)
 			require.NoError(t, err, details)
 
-			assertJSONEq := func(t *testing.T, expected string, obj any) {
-				if expected != "" {
+			assertEq := func(t *testing.T, expected string, obj any) {
+				if isJSON(expected) {
 					actualJSON, err := json.Marshal(obj)
 					require.NoError(t, err, details)
 					require.JSONEq(t, expected, string(actualJSON), details)
+				} else {
+					if s, ok := obj.(string); ok {
+						require.Equal(t, expected, s, details)
+					}
 				}
 			}
 
 			if tt.Action != nil {
 				obj1, err := tt.Action(cl, t)
 				require.NoError(t, err, details)
-				assertJSONEq(t, tt.Expected, obj1)
+				assertEq(t, tt.Expected, obj1)
 			} else if tt.Action2 != nil {
 				obj1, obj2, err := tt.Action2(cl, t)
 				require.NoError(t, err, details)
-				assertJSONEq(t, tt.Expected, obj1)
-				assertJSONEq(t, tt.Expected2, obj2)
+				assertEq(t, tt.Expected, obj1)
+				assertEq(t, tt.Expected2, obj2)
 			} else if tt.Action3 != nil {
 				obj1, obj2, obj3, err := tt.Action3(cl, t)
 				require.NoError(t, err, details)
-				assertJSONEq(t, tt.Expected, obj1)
-				assertJSONEq(t, tt.Expected2, obj2)
-				assertJSONEq(t, tt.Expected3, obj3)
+				assertEq(t, tt.Expected, obj1)
+				assertEq(t, tt.Expected2, obj2)
+				assertEq(t, tt.Expected3, obj3)
 			}
 		}()
 	}
+}
+
+func isJSON(obj string) bool {
+	return strings.HasPrefix(obj, "{") || strings.HasPrefix(obj, "[")
 }

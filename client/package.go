@@ -54,7 +54,8 @@ func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, er
 
 // Delete the specified package
 func (c *PackageClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/packages/%s", guid))
+	_, err := c.client.delete(path("/v3/packages/%s", guid))
+	return err
 }
 
 // Download the bits of an existing package
@@ -136,7 +137,7 @@ func (c *PackageClient) ListForAppAll(appGUID string, opts *PackageListOptions) 
 // Update the specified attributes of the package
 func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resource.Package, error) {
 	var p resource.Package
-	err := c.client.patch(path("/v3/packages/%s", guid), r, &p)
+	_, err := c.client.patch(path("/v3/packages/%s", guid), r, &p)
 	if err != nil {
 		return nil, err
 	}

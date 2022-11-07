@@ -39,7 +39,8 @@ func (c *DomainClient) Create(r *resource.DomainCreate) (*resource.Domain, error
 
 // Delete the specified app
 func (c *DomainClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/domains/%s", guid))
+	_, err := c.client.delete(path("/v3/domains/%s", guid))
+	return err
 }
 
 // Get the specified domain
@@ -118,13 +119,14 @@ func (c *DomainClient) ShareMany(guid string, r *resource.ToManyRelationships) (
 // Unshare an organization-scoped domain to other organizations specified by a list of organization guids
 // This will allow any of the other organizations to use the organization-scoped domain.
 func (c *DomainClient) Unshare(domainGUID, orgGUID string) error {
-	return c.client.delete(path("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
+	_, err := c.client.delete(path("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
+	return err
 }
 
 // Update the specified attributes of the domain
 func (c *DomainClient) Update(guid string, r *resource.DomainUpdate) (*resource.Domain, error) {
 	var d resource.Domain
-	err := c.client.patch(path("/v3/domains/%s", guid), r, &d)
+	_, err := c.client.patch(path("/v3/domains/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

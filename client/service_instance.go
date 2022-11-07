@@ -53,8 +53,8 @@ func (c *ServiceInstanceClient) CreateUserProvided(r *resource.ServiceInstanceCr
 	return &si, nil
 }
 
-// Delete the specified service instance
-func (c *ServiceInstanceClient) Delete(guid string) error {
+// Delete the specified service instance returning the async deletion job GUID
+func (c *ServiceInstanceClient) Delete(guid string) (string, error) {
 	return c.client.delete(path("/v3/service_instances/%s", guid))
 }
 

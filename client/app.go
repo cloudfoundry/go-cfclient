@@ -45,7 +45,8 @@ func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 
 // Delete the specified app
 func (c *AppClient) Delete(guid string) error {
-	return c.client.delete(path("/v3/apps/%s", guid))
+	_, err := c.client.delete(path("/v3/apps/%s", guid))
+	return err
 }
 
 // Get the specified app
@@ -240,7 +241,7 @@ func (c *AppClient) SetEnvironmentVariables(guid string, envRequest map[string]*
 		Var: envRequest,
 	}
 	var res resource.EnvVarResponse
-	err := c.client.patch(path("/v3/apps/%s/environment_variables", guid), req, &res)
+	_, err := c.client.patch(path("/v3/apps/%s/environment_variables", guid), req, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +271,7 @@ func (c *AppClient) Stop(guid string) (*resource.App, error) {
 // Update the specified attributes of the app
 func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, error) {
 	var app resource.App
-	err := c.client.patch(path("/v3/apps/%s", guid), r, &app)
+	_, err := c.client.patch(path("/v3/apps/%s", guid), r, &app)
 	if err != nil {
 		return nil, err
 	}
