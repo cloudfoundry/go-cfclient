@@ -53,6 +53,7 @@ type Client struct {
 	ServiceCredentialBindings *ServiceCredentialBindingClient
 	ServiceInstances          *ServiceInstanceClient
 	ServiceOfferings          *ServiceOfferingClient
+	ServicePlans              *ServicePlanClient
 	Spaces                    *SpaceClient
 	Stacks                    *StackClient
 	Users                     *UserClient
@@ -132,6 +133,7 @@ func New(config *Config) (*Client, error) {
 	client.ServiceCredentialBindings = (*ServiceCredentialBindingClient)(&client.common)
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
 	client.ServiceOfferings = (*ServiceOfferingClient)(&client.common)
+	client.ServicePlans = (*ServicePlanClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
 	client.Stacks = (*StackClient)(&client.common)
 	client.Users = (*UserClient)(&client.common)
