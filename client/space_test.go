@@ -20,6 +20,20 @@ func TestSpaces(t *testing.T) {
 
 	tests := []RouteTest{
 		{
+			Description: "Assign space iso segment",
+			Route: MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/relationships/isolation_segment",
+				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
+				Status:   http.StatusOK,
+				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				err := c.Spaces.AssignIsoSegment("000d1e0c-218e-470b-b5db-84481b89fa92", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				return nil, err
+			},
+		},
+		{
 			Description: "Create space",
 			Route: MockRoute{
 				Method:   "POST",
@@ -64,6 +78,30 @@ func TestSpaces(t *testing.T) {
 			Expected: space,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Spaces.Get("000d1e0c-218e-470b-b5db-84481b89fa92")
+			},
+		},
+		{
+			Description: "Get assigned isolation segment",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/relationships/isolation_segment",
+				Output: []string{`{
+					  "data": {
+						"guid": "e4c91047-3b29-4fda-b7f9-04033e5a9c9f"
+					  },
+					  "links": {
+						"self": {
+						  "href": "https://api.example.org/v3/spaces/885735b5-aea4-4cf5-8e44-961af0e41920/relationships/isolation_segment"
+						},
+						"related": {
+						  "href": "https://api.example.org/v3/isolation_segments/e4c91047-3b29-4fda-b7f9-04033e5a9c9f"
+						}
+					  }
+					}`},
+				Status: http.StatusOK},
+			Expected: "e4c91047-3b29-4fda-b7f9-04033e5a9c9f",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Spaces.GetAssignedIsoSegment("000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
