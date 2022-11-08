@@ -357,6 +357,14 @@ func (o *ObjectJSONGenerator) ServiceUsage() string {
 	return o.template(r, "service_usage.json")
 }
 
+func (o *ObjectJSONGenerator) Sidecar() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "sidecar.json")
+}
+
 func (o *ObjectJSONGenerator) Space() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
