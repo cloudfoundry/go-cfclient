@@ -7,16 +7,32 @@ type AppUsage struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	App          AppUsageGUIDNamePair `json:"app"`
-	Process      AppUsageGUIDTypePair `json:"process"`
-	Space        AppUsageGUIDNamePair `json:"space"`
-	Organization Relationship         `json:"organization"`
-	Buildpack    AppUsageGUIDNamePair `json:"buildpack"`
-	Task         AppUsageGUIDNamePair `json:"task"`
+	// the app that this event pertains to, if applicable
+	App AppUsageGUIDName `json:"app"`
 
-	State                 AppUsageCurrentPreviousString `json:"state"`
-	MemoryInMbPerInstance AppUsageCurrentPreviousInt    `json:"memory_in_mb_per_instance"`
-	InstanceCount         AppUsageCurrentPreviousInt    `json:"instance_count"`
+	// the process that this event pertains to, if applicable
+	Process AppUsageGUIDType `json:"process"`
+
+	// the space that this event pertains to, if applicable
+	Space AppUsageGUIDName `json:"space"`
+
+	// the organization that this event pertains to, if applicable
+	Organization Relationship `json:"organization"`
+
+	// the buildpack that this event pertains to, if applicable
+	Buildpack AppUsageGUIDName `json:"buildpack"`
+
+	// the task that this event pertains to, if applicable
+	Task AppUsageGUIDName `json:"task"`
+
+	// state of the app that this event pertains to, if applicable
+	State AppUsageCurrentPreviousString `json:"state"`
+
+	// memory in MB of the app that this event pertains to, if applicable
+	MemoryInMbPerInstance AppUsageCurrentPreviousInt `json:"memory_in_mb_per_instance"`
+
+	// instance count of the app that this event pertains to, if applicable
+	InstanceCount AppUsageCurrentPreviousInt `json:"instance_count"`
 
 	Links map[string]Link `json:"links"`
 }
@@ -36,12 +52,12 @@ type AppUsageCurrentPreviousInt struct {
 	Previous int `json:"previous"`
 }
 
-type AppUsageGUIDNamePair struct {
+type AppUsageGUIDName struct {
 	GUID string `json:"guid"`
 	Name string `json:"name"`
 }
 
-type AppUsageGUIDTypePair struct {
+type AppUsageGUIDType struct {
 	GUID string `json:"guid"`
 	Type string `json:"type"`
 }

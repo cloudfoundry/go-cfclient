@@ -350,6 +350,13 @@ func (o *ObjectJSONGenerator) ServiceRouteBinding() string {
 	return o.template(r, "service_route_binding.json")
 }
 
+func (o *ObjectJSONGenerator) ServiceUsage() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "service_usage.json")
+}
+
 func (o *ObjectJSONGenerator) Space() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
@@ -358,20 +365,20 @@ func (o *ObjectJSONGenerator) Space() string {
 	return o.template(r, "space.json")
 }
 
-func (o *ObjectJSONGenerator) User() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-		Name: RandomName(),
-	}
-	return o.template(r, "user.json")
-}
-
 func (o *ObjectJSONGenerator) Stack() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
 	return o.template(r, "stack.json")
+}
+
+func (o *ObjectJSONGenerator) User() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "user.json")
 }
 
 // ResourceWithInclude merges the included resources under the primary resource's included key
