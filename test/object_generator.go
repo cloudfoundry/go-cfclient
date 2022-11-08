@@ -373,6 +373,14 @@ func (o *ObjectJSONGenerator) Space() string {
 	return o.template(r, "space.json")
 }
 
+func (o *ObjectJSONGenerator) SpaceQuota() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.template(r, "space_quota.json")
+}
+
 func (o *ObjectJSONGenerator) Stack() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
