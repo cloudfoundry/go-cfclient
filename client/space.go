@@ -30,6 +30,19 @@ func (o SpaceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
+// AssignIsoSegment assigns an isolation segment to the space
+//
+// Apps will not run in the isolation segment until they are restarted
+func (c *SpaceClient) AssignIsoSegment(guid, isoSegmentGUID string) error {
+	r := &resource.ToOneRelationship{
+		Data: &resource.Relationship{
+			GUID: isoSegmentGUID,
+		},
+	}
+	_, err := c.client.patch(path("/v3/spaces/%s/relationships/isolation_segment", guid), r, nil)
+	return err
+}
+
 // Create a new space
 func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	var space resource.Space
@@ -54,6 +67,19 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 		return nil, err
 	}
 	return &space, nil
+}
+
+// GetAssignedIsoSegment gets the space's assigned isolation segment, if any
+func (c *SpaceClient) GetAssignedIsoSegment(guid string) (string, error) {
+	var relation resource.ToOneRelationship
+	err := c.client.get(path("/v3/spaces/%s/relationships/isolation_segment", guid), &relation)
+	if err != nil {
+		return "", err
+	}
+	if relation.Data == nil {
+		return "", nil
+	}
+	return relation.Data.GUID, nil
 }
 
 // GetIncludeOrg allows callers to fetch a space and include the parent org

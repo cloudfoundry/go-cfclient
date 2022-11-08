@@ -21,6 +21,20 @@ func TestOrgs(t *testing.T) {
 
 	tests := []RouteTest{
 		{
+			Description: "Assign default org iso segment",
+			Route: MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
+				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
+				Status:   http.StatusOK,
+				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				err := c.Organizations.AssignDefaultIsoSegment("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				return nil, err
+			},
+		},
+		{
 			Description: "Create org",
 			Route: MockRoute{
 				Method:   "POST",
@@ -153,20 +167,6 @@ func TestOrgs(t *testing.T) {
 					Name: "new_name",
 				}
 				return c.Organizations.Update("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", r)
-			},
-		},
-		{
-			Description: "Assign default org iso segment",
-			Route: MockRoute{
-				Method:   "PATCH",
-				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
-				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
-				Status:   http.StatusOK,
-				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
-			},
-			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.Organizations.AssignDefaultIsoSegment("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
-				return nil, err
 			},
 		},
 	}
