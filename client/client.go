@@ -56,6 +56,7 @@ type Client struct {
 	ServicePlans              *ServicePlanClient
 	ServicePlansVisibility    *ServicePlanVisibilityClient
 	ServiceRouteBindings      *ServiceRouteBindingClient
+	ServiceUsageEvents        *ServiceUsageClient
 	Spaces                    *SpaceClient
 	Stacks                    *StackClient
 	Users                     *UserClient
@@ -138,6 +139,7 @@ func New(config *Config) (*Client, error) {
 	client.ServicePlans = (*ServicePlanClient)(&client.common)
 	client.ServicePlansVisibility = (*ServicePlanVisibilityClient)(&client.common)
 	client.ServiceRouteBindings = (*ServiceRouteBindingClient)(&client.common)
+	client.ServiceUsageEvents = (*ServiceUsageClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
 	client.Stacks = (*StackClient)(&client.common)
 	client.Users = (*UserClient)(&client.common)

@@ -52,20 +52,9 @@ func (c *AppUsageClient) ListAll(opts *AppUsageOptions) ([]*resource.AppUsage, e
 	if opts == nil {
 		opts = NewAppUsageOptions()
 	}
-
-	var all []*resource.AppUsage
-	for {
-		page, pager, err := c.List(opts)
-		if err != nil {
-			return nil, err
-		}
-		all = append(all, page...)
-		if !pager.HasNextPage() {
-			break
-		}
-		pager.NextPage(opts)
-	}
-	return all, nil
+	return AutoPage[*AppUsageOptions, *resource.AppUsage](opts, func(opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
+		return c.List(opts)
+	})
 }
 
 // Purge destroys all existing events. Populates new usage events, one for each started app.
