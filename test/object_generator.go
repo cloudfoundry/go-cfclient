@@ -389,6 +389,13 @@ func (o *ObjectJSONGenerator) Stack() string {
 	return o.template(r, "stack.json")
 }
 
+func (o *ObjectJSONGenerator) Task() string {
+	r := resourceTemplate{
+		GUID: RandomGUID(),
+	}
+	return o.template(r, "task.json")
+}
+
 func (o *ObjectJSONGenerator) User() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
