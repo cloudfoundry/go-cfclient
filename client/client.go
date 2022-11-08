@@ -54,6 +54,7 @@ type Client struct {
 	ServiceInstances          *ServiceInstanceClient
 	ServiceOfferings          *ServiceOfferingClient
 	ServicePlans              *ServicePlanClient
+	ServicePlansVisibility    *ServicePlanVisibilityClient
 	Spaces                    *SpaceClient
 	Stacks                    *StackClient
 	Users                     *UserClient
@@ -134,6 +135,7 @@ func New(config *Config) (*Client, error) {
 	client.ServiceInstances = (*ServiceInstanceClient)(&client.common)
 	client.ServiceOfferings = (*ServiceOfferingClient)(&client.common)
 	client.ServicePlans = (*ServicePlanClient)(&client.common)
+	client.ServicePlansVisibility = (*ServicePlanVisibilityClient)(&client.common)
 	client.Spaces = (*SpaceClient)(&client.common)
 	client.Stacks = (*StackClient)(&client.common)
 	client.Users = (*UserClient)(&client.common)

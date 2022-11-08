@@ -338,6 +338,11 @@ func (o *ObjectJSONGenerator) ServicePlan() string {
 	return o.template(r, "service_plan.json")
 }
 
+func (o *ObjectJSONGenerator) ServicePlanVisibility() string {
+	r := resourceTemplate{}
+	return o.template(r, "service_plan_visibility.json")
+}
+
 func (o *ObjectJSONGenerator) Space() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
