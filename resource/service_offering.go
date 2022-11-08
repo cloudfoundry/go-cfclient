@@ -34,6 +34,15 @@ type ServiceOffering struct {
 	Links         map[string]Link           `json:"links,omitempty"`
 }
 
+type ServiceOfferingList struct {
+	Pagination Pagination         `json:"pagination"`
+	Resources  []*ServiceOffering `json:"resources"`
+}
+
+type ServiceOfferingUpdate struct {
+	Metadata Metadata `json:"metadata,omitempty"`
+}
+
 type ServiceOfferingBrokerCatalog struct {
 	// The identifier that the service broker provided for this service offering
 	ID string `json:"id"`
