@@ -11,6 +11,8 @@ func TestStacks(t *testing.T) {
 	g := test.NewObjectJSONGenerator(1)
 	stack := g.Stack()
 	stack2 := g.Stack()
+	app := g.Application()
+	app2 := g.Application()
 
 	tests := []RouteTest{
 		{
@@ -65,6 +67,18 @@ func TestStacks(t *testing.T) {
 			Expected: g.Array(stack, stack2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Stacks.ListAll(nil)
+			},
+		},
+		{
+			Description: "List all apps for given stack",
+			Route: MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595/apps",
+				Output:   g.Paged([]string{app}, []string{app2}),
+				Status:   http.StatusOK},
+			Expected: g.Array(app, app2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Stacks.ListAppsOnStackAll("88db2b75-671f-4e4b-a19a-7db992366595", nil)
 			},
 		},
 		{
