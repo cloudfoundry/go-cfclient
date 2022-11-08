@@ -62,6 +62,7 @@ type Client struct {
 	SpaceFeatures             *SpaceFeatureClient
 	SpaceQuotas               *SpaceQuotaClient
 	Stacks                    *StackClient
+	Tasks                     *TaskClient
 	Users                     *UserClient
 }
 
@@ -148,6 +149,7 @@ func New(config *Config) (*Client, error) {
 	client.SpaceQuotas = (*SpaceQuotaClient)(&client.common)
 	client.SpaceFeatures = (*SpaceFeatureClient)(&client.common)
 	client.Stacks = (*StackClient)(&client.common)
+	client.Tasks = (*TaskClient)(&client.common)
 	client.Users = (*UserClient)(&client.common)
 	return client, nil
 }
