@@ -1,26 +1,30 @@
 # go-cfclient
 
-[![build workflow](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml)
-[![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient?status.svg)](http://godoc.org/github.com/cloudfoundry-community/go-cfclient)
-[![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient)
-
 ## Overview
+`cfclient` is a package to assist you in writing apps that need to interact with the [Cloud Foundry](http://cloudfoundry.org)
+v2 cloud controller API.
 
-`cfclient` is a package to assist you in writing apps that need to interact with [Cloud Foundry](http://cloudfoundry.org).
-It provides functions and structures to retrieve and update
+## v2 go-cfclient deprecated
+The v2 version of the client and corresponding v2 cloud controller (CC) API is deprecated. Please start using the v3 version of this
+client and CC API. This v2 branch is only kept around to support critical bug fixes.
 
+## Upgrading the v2 go-cfclient
+If you're currently using an old version of the go-cfclient and need to upgrade to the latest version that still
+supports the v2 CC API, then you'll need to go get the "new" v2 module.
+
+```shell
+$ go get -u github.com/cloudfoundry-community/go-cfclient/v2
+```
+
+Update your go import statements as necessary in your go source files, then finally:
+```shell
+$ go mod tidy
+```
 
 ## Usage
-
 ```
-go get github.com/cloudfoundry-community/go-cfclient
+go get github.com/cloudfoundry-community/go-cfclient/v2
 ```
-
-NOTE: Currently this project is not versioning its releases and so breaking changes might be introduced.
-Whilst hopefully notifications of breaking changes are made via commit messages, ideally your project will use a local
-vendoring system to lock in a version of `go-cfclient` that is known to work for you.
-This will allow you to control the timing and maintenance of upgrades to newer versions of this library.
-
 Some example code:
 
 ```go
@@ -29,7 +33,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/cloudfoundry-community/go-cfclient/v2"
 )
 
 func main() {
@@ -108,6 +112,3 @@ To do this, simply use Go to regenerate the code:
 make generate
 ```
 
-## Contributing
-
-Pull requests welcome. Please ensure you run all the unit tests, go fmt the code, and golangci-lint via `make all`
