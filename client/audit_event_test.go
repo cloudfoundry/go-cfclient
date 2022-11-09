@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/test"
 	"net/http"
 	"testing"
 )
