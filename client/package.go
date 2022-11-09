@@ -3,8 +3,10 @@ package client
 import (
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -144,5 +146,64 @@ func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resourc
 	return &p, nil
 }
 
+// UploadBits uploads an app's zip file contents
+func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
+	requestFile, err := os.CreateTemp("", "requests")
+	if err != nil {
+		return fmt.Errorf("could not create temp zipFile for package bits: %w", err)
+	}
+	defer func() {
+		_ = requestFile.Close()
+		_ = os.Remove(requestFile.Name())
+	}()
+
+	formWriter := multipart.NewWriter(requestFile)
+	part, err := formWriter.CreateFormFile("application", "application.zip")
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
+	}
+
+	_, err = io.Copy(part, zipFile)
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits, failed to copy all bytes: %w", guid, err)
+	}
+
+	err = formWriter.Close()
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits, failed to close multipart formWriter: %w", guid, err)
+	}
+
+	_, err = requestFile.Seek(0, 0)
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits, failed to seek beginning of temp zipFile: %w", guid, err)
+	}
+	fileStats, err := requestFile.Stat()
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits, failed to stat temp zipFile: %w", guid, err)
+	}
+
+	r := c.client.NewRequestWithBody("PUT", path("/v3/packages/%s/upload", guid), requestFile)
+	req, err := r.toHTTP()
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
+	}
+
+	req.ContentLength = fileStats.Size()
+	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", formWriter.Boundary())
+	req.Header.Set("Content-Type", contentType)
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("error uploading package %s bits, response code: %d", guid, resp.StatusCode)
+	}
+
+	return nil
+}
+
 // TODO Stage a package
-// TODO Upload package bits

@@ -4,9 +4,11 @@ import "time"
 
 type Process struct {
 	GUID      string    `json:"guid"`
-	Type      string    `json:"type"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+
+	// Process type; a unique identifier for processes belonging to an app: web, task
+	Type string `json:"type"`
 
 	// The command used to start the process; use null to revert to the buildpack-detected or procfile-provided start command
 	Command *string `json:"command"`
