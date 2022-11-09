@@ -5,40 +5,92 @@
 [![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient)
 
 ## Overview
+`go-cfclient` is a go module library to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
+Cloud Controller [v3 API](https://v3-apidocs.cloudfoundry.org). The v2 API is no longer supported, however if you _really_ 
+need to use the older API you may use the go-cfclient v2 branch and releases.
 
-`go-cfclient` is a package to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
-Cloud Controller [v3 API](https://v3-apidocs.cloudfoundry.org). The v2 API is no longer supported, however if you still
-need to use the older API you may use the v2 branch.
+## Installation
+go-cfclient is compatible with modern Go releases in module mode, with Go installed:
+```
+go get github.com/cloudfoundry-community/go-cfclient/v3
+```
+Will resolve and add the package to the current development module, along with its dependencies. Eventually this
+library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the Versioning section below.
 
 ## Usage
-It's recommended you use the latest tagged version of the library and upgrade to newer version at your convenience.
-This library now follows semantic versioning of releases.
-```
-go get github.com/cloudfoundry-community/go-cfclient@v1.0.0
-```
-
-Some example code:
-
+Using go modules, import the client and resource packages:
 ```go
-package main
-
 import (
-	"fmt"
-
-	"github.com/cloudfoundry-community/go-cfclient"
+    "github.com/cloudfoundry-community/go-cfclient/v3/client"
+    "github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
+```
 
-func main() {
-	c := &cfclient.Config{
-		ApiAddress: "https://api.10.244.0.34.xip.io",
-		Username:   "admin",
-		Password:   "secret",
-	}
-	client, _ := cfclient.New(c)
-	apps, _ := client.ListApps()
-	fmt.Println(apps)
+### Authentication
+Construct a new CF client configuration object. The configuration object configures how the client will authenticate to the 
+CF API. There are various supported auth mechanisms, with the simplest being - use the existing CF CLI configuration and
+auth token:
+```go
+config, _ := client.NewConfigFromCFHome()
+cf, _ := client.New(config)
+```
+You may also use username/password
+```go
+config, _ := client.NewUserPasswordConfig("https://api.example.org", "user", "pass")
+cf, _ := client.New(config)
+```
+There is also client/secret and token config support.
+
+### Resources
+The services of a client divide the API into logical chunks and correspond to the structure of the CF API documentation
+at https://v3-apidocs.cloudfoundry.org. In other words each major resource type has its own service client that
+is accessible via the main client instance.
+```go
+apps, _ := cf.Applications.ListAll(nil)
+for _, app := range apps {
+    fmt.Printf("Application %s is %s\n", app.Name, app.State)
 }
 ```
+All clients and their functions that interact with the CF API live in the `client` package. The client package
+is responsible for making HTTP requests using the resources defined in the `resource` package. All generic serializable
+resource definitions live in the `resource` package and could be reused with other client's outside this library.
+
+### Pagination
+All requests for resource collections (apps, orgs, spaces etc) support pagination. Pagination options are described
+in the client.ListOptions struct and passed to the list methods directly or as an embedded type of a more specific
+list options struct (for example client.AppListOptions).
+
+Example iterating through all apps one page at a time:
+```go
+opts := NewAppListOptions()
+for {
+    apps, pager, _ := cf.Applications.List(opts)
+    for _, app := range apps {
+        fmt.Printf("Application %s is %s\n", app.Name, app.State)
+    }  
+    if !pager.HasNextPage() {
+        break
+    }
+    pager.NextPage(opts)
+}
+```
+If you'd rather have your code get _all_ of the resources in one go and not worry about paging, every collection
+has a corresponding `All` method that gathers all the resources from every page before returning.
+```go
+opts := NewAppListOptions()
+apps, _ := cf.Applications.ListAll(opts)
+for _, app := range apps {
+    fmt.Printf("Application %s is %s\n", app.Name, app.State)
+}
+```
+
+## Versioning
+In general, go-cfclient follows [semver](https://go.dev/doc/modules/version-number) as closely as we can for [tagging
+releases](https://go.dev/doc/modules/publishing) of the package. We've adopted the following versioning policy:
+
+- We increment the major version with any incompatible change to non-preview functionality, including changes to the exported Go API surface or behavior of the API.
+- We increment the minor version with any backwards-compatible changes to functionality
+- We increment the patch version with any backwards-compatible bug fixes.
 
 ## Development
 
@@ -49,18 +101,8 @@ branch is considered a potentially unstable branch until a new release (see belo
 make all
 ```
 
-Please attempt to use standard go naming conventions for all structs, for example prefer GUID over Guid. Packages
-should roughly follow the v3 API resources although short names are preferred, for example:
-
-|- app
-|- space
-|- org
-|- route
-
-### Releases
-
-This library uses [semantic versioning](https://go.dev/doc/modules/version-numbers) to release new features,
-bug fixes or other breaking changes [via git tags](https://go.dev/doc/modules/publishing).
+Please attempt to use standard go naming conventions for all structs, for example use GUID over Guid. All client
+functions should have at least once basic unit test.
 
 ### Errors
 
