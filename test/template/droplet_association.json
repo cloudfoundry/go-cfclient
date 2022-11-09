@@ -1,0 +1,13 @@
+{
+  "data": {
+    "guid": "{{.GUID}}"
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/relationships/current_droplet"
+    },
+    "related": {
+      "href": "https://api.example.org/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/droplets/current"
+    }
+  }
+}

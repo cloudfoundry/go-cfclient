@@ -1,0 +1,30 @@
+{
+  "resources": [
+    {
+      "type": "web",
+      "index": 0,
+      "state": "RUNNING",
+      "usage": {
+        "time": "2016-03-23T23:17:30.476314154Z",
+        "cpu": 0.00038711029163348665,
+        "mem": 19177472,
+        "disk": 69705728
+      },
+      "host": "10.244.16.10",
+      "instance_ports": [
+        {
+          "external": 64546,
+          "internal": 8080,
+          "external_tls_proxy_port": 61002,
+          "internal_tls_proxy_port": 61003
+        }
+      ],
+      "uptime": 9042,
+      "mem_quota": 268435456,
+      "disk_quota": 1073741824,
+      "fds_quota": 16384,
+      "isolation_segment": "example_iso_segment",
+      "details": null
+    }
+  ]
+}
