@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/resource"
-	"github.com/cloudfoundry-community/go-cfclient/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/test"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"

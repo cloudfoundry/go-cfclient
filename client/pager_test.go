@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/stretchr/testify/require"
 )
 

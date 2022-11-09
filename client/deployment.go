@@ -2,7 +2,7 @@ package client
 
 import (
 	"errors"
-	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
 

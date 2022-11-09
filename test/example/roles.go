@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/client"
-	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"os"
 )
 
