@@ -5,97 +5,104 @@
 [![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient)
 
 ## Overview
+`go-cfclient` is a go module library to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
+Cloud Controller [v3 API](https://v3-apidocs.cloudfoundry.org). The v2 API is no longer supported, however if you _really_ 
+need to use the older API you may use the go-cfclient v2 branch and releases.
 
-`cfclient` is a package to assist you in writing apps that need to interact with [Cloud Foundry](http://cloudfoundry.org).
-It provides functions and structures to retrieve and update
-
+## Installation
+go-cfclient is compatible with modern Go releases in module mode, with Go installed:
+```
+go get github.com/cloudfoundry-community/go-cfclient/v3
+```
+Will resolve and add the package to the current development module, along with its dependencies. Eventually this
+library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the Versioning section below.
 
 ## Usage
-
-```
-go get github.com/cloudfoundry-community/go-cfclient
-```
-
-NOTE: Currently this project is not versioning its releases and so breaking changes might be introduced.
-Whilst hopefully notifications of breaking changes are made via commit messages, ideally your project will use a local
-vendoring system to lock in a version of `go-cfclient` that is known to work for you.
-This will allow you to control the timing and maintenance of upgrades to newer versions of this library.
-
-Some example code:
-
+Using go modules, import the client and resource packages:
 ```go
-package main
-
 import (
-	"fmt"
-
-	"github.com/cloudfoundry-community/go-cfclient"
+    "github.com/cloudfoundry-community/go-cfclient/v3/client"
+    "github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
-
-func main() {
-	c := &cfclient.Config{
-		ApiAddress: "https://api.10.244.0.34.xip.io",
-		Username:   "admin",
-		Password:   "secret",
-	}
-	client, _ := cfclient.NewClient(c)
-	apps, _ := client.ListApps()
-	fmt.Println(apps)
-}
 ```
 
-### Paging Results
-
-The API supports paging results via query string parameters. All of the v3 ListV3*ByQuery functions support paging. Only a subset of v2 function calls support paging the results:
-
-- ListSpacesByQuery
-- ListOrgsByQuery
-- ListAppsByQuery
-- ListServiceInstancesByQuery
-- ListUsersByQuery
-
-You can iterate over the results page-by-page using a function similar to this one:
-
+### Authentication
+Construct a new CF client configuration object. The configuration object configures how the client will authenticate to the 
+CF API. There are various supported auth mechanisms, with the simplest being - use the existing CF CLI configuration and
+auth token:
 ```go
-func processSpacesOnePageAtATime(client *cfclient.Client) error {
-	page := 1
-	pageSize := 50
+config, _ := client.NewConfigFromCFHome()
+cf, _ := client.New(config)
+```
+You may also use username/password
+```go
+config, _ := client.NewUserPasswordConfig("https://api.example.org", "user", "pass")
+cf, _ := client.New(config)
+```
+There is also client/secret and token config support.
 
-	q := url.Values{}
-	q.Add("results-per-page", strconv.Itoa(pageSize))
-
-	for {
-		// get the current page of spaces
-		q.Set("page", strconv.Itoa(page))
-		spaces, err := client.ListSpacesByQuery(q)
-		if err != nil {
-			fmt.Printf("Error getting spaces by query: %s", err)
-			return err
-		}
-
-		// do something with each space
-		fmt.Printf("Page %d:\n", page)
-		for _, s := range spaces {
-			fmt.Println("  " + s.Name)
-		}
-
-		// if we hit an empty page or partial page, that means we're done
-		if len(spaces) < pageSize {
-			break
-		}
-
-		// next page
-		page++
-	}
-	return nil
+### Resources
+The services of a client divide the API into logical chunks and correspond to the structure of the CF API documentation
+at https://v3-apidocs.cloudfoundry.org. In other words each major resource type has its own service client that
+is accessible via the main client instance.
+```go
+apps, _ := cf.Applications.ListAll(nil)
+for _, app := range apps {
+    fmt.Printf("Application %s is %s\n", app.Name, app.State)
 }
 ```
+All clients and their functions that interact with the CF API live in the `client` package. The client package
+is responsible for making HTTP requests using the resources defined in the `resource` package. All generic serializable
+resource definitions live in the `resource` package and could be reused with other client's outside this library.
+
+### Pagination
+All requests for resource collections (apps, orgs, spaces etc) support pagination. Pagination options are described
+in the client.ListOptions struct and passed to the list methods directly or as an embedded type of a more specific
+list options struct (for example client.AppListOptions).
+
+Example iterating through all apps one page at a time:
+```go
+opts := client.NewAppListOptions()
+for {
+    apps, pager, _ := cf.Applications.List(opts)
+    for _, app := range apps {
+        fmt.Printf("Application %s is %s\n", app.Name, app.State)
+    }  
+    if !pager.HasNextPage() {
+        break
+    }
+    pager.NextPage(opts)
+}
+```
+If you'd rather have your code get _all_ of the resources in one go and not worry about paging, every collection
+has a corresponding `All` method that gathers all the resources from every page before returning.
+```go
+opts := client.NewAppListOptions()
+apps, _ := cf.Applications.ListAll(opts)
+for _, app := range apps {
+    fmt.Printf("Application %s is %s\n", app.Name, app.State)
+}
+```
+
+## Versioning
+In general, go-cfclient follows [semver](https://go.dev/doc/modules/version-number) as closely as we can for [tagging
+releases](https://go.dev/doc/modules/publishing) of the package. We've adopted the following versioning policy:
+
+- We increment the major version with any incompatible change to non-preview functionality, including changes to the exported Go API surface or behavior of the API.
+- We increment the minor version with any backwards-compatible changes to functionality
+- We increment the patch version with any backwards-compatible bug fixes.
 
 ## Development
+
+All development takes place on feature branches and is merged to the `main` branch. Therefore the main
+branch is considered a potentially unstable branch until a new release (see below) is cut.
 
 ```shell
 make all
 ```
+
+Please attempt to use standard go naming conventions for all structs, for example use GUID over Guid. All client
+functions should have at least once basic unit test.
 
 ### Errors
 

@@ -9,11 +9,11 @@ clean: ## Clean testcache and delete build output
 
 .PHONY: test
 test: ## Run the unit tests
-	go test -v -race
+	go test ./... -v -race
 
 .PHONY: generate
 generate: ## Generate fakes
-	go generate
+	go generate ./...
 
 .PHONY: lint-prepare
 lint-prepare:

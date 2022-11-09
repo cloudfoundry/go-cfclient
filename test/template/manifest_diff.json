@@ -1,0 +1,20 @@
+{
+  "diff": [
+    {
+      "op": "remove",
+      "path": "/applications/0/routes/1",
+      "was": {"route": "route.example.com"}
+    },
+    {
+      "op": "add",
+      "path": "/applications/1/buildpacks/2",
+      "value": "java_buildpack"
+    },
+    {
+      "op": "replace",
+      "path": "/applications/2/processes/1/memory",
+      "was": "256M",
+      "value": "512M"
+    }
+  ]
+}

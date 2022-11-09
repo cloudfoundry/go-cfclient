@@ -1,0 +1,16 @@
+{
+  "guid": "{{.GUID}}",
+  "created_at": "2018-11-09T22:43:28Z",
+  "updated_at": "2018-11-09T22:43:28Z",
+  "name": "{{.Name}}",
+  "description": "Here is my stack!",
+  "metadata": {
+    "labels": { },
+    "annotations": { }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.com/v3/stacks/{{.GUID}}"
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "guid": "{{.GUID}}",
+  "created_at": "2022-10-19T18:26:05Z",
+  "updated_at": "2022-10-19T18:26:57Z",
+  "name": "{{.Name}}",
+  "state": "STARTED",
+  "lifecycle": {
+    "type": "buildpack",
+    "data": {
+      "buildpacks": [
+        "java_buildpack_offline"
+      ],
+      "stack": "cflinuxfs3"
+    }
+  },
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "5c1b65d8-abdc-471b-962d-b60a6d8646b0"
+      }
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}"
+    },
+    "environment_variables": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/environment_variables"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/5c1b65d8-abdc-471b-962d-b60a6d8646b0"
+    },
+    "processes": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/processes"
+    },
+    "packages": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/packages"
+    },
+    "current_droplet": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/droplets/current"
+    },
+    "droplets": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/droplets"
+    },
+    "tasks": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/tasks"
+    },
+    "start": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/actions/start",
+      "method": "POST"
+    },
+    "stop": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/actions/stop",
+      "method": "POST"
+    },
+    "revisions": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/revisions"
+    },
+    "deployed_revisions": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/revisions/deployed"
+    },
+    "features": {
+      "href": "https://api.example.org/v3/apps/{{.GUID}}/features"
+    }
+  }
+}
