@@ -62,7 +62,7 @@ list options struct (for example client.AppListOptions).
 
 Example iterating through all apps one page at a time:
 ```go
-opts := NewAppListOptions()
+opts := client.NewAppListOptions()
 for {
     apps, pager, _ := cf.Applications.List(opts)
     for _, app := range apps {
@@ -77,7 +77,7 @@ for {
 If you'd rather have your code get _all_ of the resources in one go and not worry about paging, every collection
 has a corresponding `All` method that gathers all the resources from every page before returning.
 ```go
-opts := NewAppListOptions()
+opts := client.NewAppListOptions()
 apps, _ := cf.Applications.ListAll(opts)
 for _, app := range apps {
     fmt.Printf("Application %s is %s\n", app.Name, app.State)
