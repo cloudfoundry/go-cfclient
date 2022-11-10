@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestSpaces(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	space := g.Space()
-	space2 := g.Space()
-	space3 := g.Space()
-	space4 := g.Space()
-	user := g.User()
-	user2 := g.User()
-	org := g.Organization()
-	org2 := g.Organization()
+	g := testutil.NewObjectJSONGenerator(19652)
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	space3 := g.Space().JSON
+	space4 := g.Space().JSON
+	user := g.User().JSON
+	user2 := g.User().JSON
+	org := g.Organization().JSON
+	org2 := g.Organization().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Assign space iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/relationships/isolation_segment",
 				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
@@ -35,10 +35,10 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Create space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/spaces",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "my-space",
@@ -59,7 +59,7 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Delete space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
 				Status:   http.StatusAccepted,
@@ -70,10 +70,10 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Get space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusOK},
 			Expected: space,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -82,7 +82,7 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Get assigned isolation segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/relationships/isolation_segment",
 				Output: []string{`{
@@ -106,10 +106,10 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Get space and org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:      space,
 					Organizations: []string{org},
 				}),
@@ -123,7 +123,7 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "List all spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces",
 				Output:   g.Paged([]string{space}, []string{space2}),
@@ -135,15 +135,15 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "List all spaces and include parent orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{space, space2},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{space3, space4},
 						Organizations: []string{org2},
 					}),
@@ -157,7 +157,7 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "List all space users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/users",
 				Output:   g.Paged([]string{user}, []string{user2}),
@@ -169,10 +169,10 @@ func TestSpaces(t *testing.T) {
 		},
 		{
 			Description: "Update space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new-space-name" }`,
 			},
@@ -185,5 +185,5 @@ func TestSpaces(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

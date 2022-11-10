@@ -2,25 +2,25 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestStacks(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	stack := g.Stack()
-	stack2 := g.Stack()
-	app := g.Application()
-	app2 := g.Application()
+	g := testutil.NewObjectJSONGenerator(165123)
+	stack := g.Stack().JSON
+	stack2 := g.Stack().JSON
+	app := g.Application().JSON
+	app2 := g.Application().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/stacks",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-stack", "description": "Here is my stack!" }`,
 			},
@@ -36,7 +36,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Delete stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
 				Status:   http.StatusAccepted,
@@ -47,10 +47,10 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Get stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusOK},
 			Expected: stack,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -59,7 +59,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "List all stacks",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks",
 				Output:   g.Paged([]string{stack}, []string{stack2}),
@@ -71,7 +71,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "List all apps for given stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595/apps",
 				Output:   g.Paged([]string{app}, []string{app2}),
@@ -83,10 +83,10 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Update stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -106,5 +106,5 @@ func TestStacks(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

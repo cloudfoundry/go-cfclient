@@ -2,22 +2,22 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestEnvVarGroups(t *testing.T) {
-	g := test.NewObjectJSONGenerator(852)
-	envVarGroup := g.EnvVarGroup()
+	g := testutil.NewObjectJSONGenerator(852)
+	envVarGroup := g.EnvVarGroup().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get running env var group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/environment_variable_groups/running",
-				Output:   []string{envVarGroup},
+				Output:   g.Single(envVarGroup),
 				Status:   http.StatusOK},
 			Expected: envVarGroup,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -26,10 +26,10 @@ func TestEnvVarGroups(t *testing.T) {
 		},
 		{
 			Description: "Update buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/environment_variable_groups/staging",
-				Output:   []string{envVarGroup},
+				Output:   g.Single(envVarGroup),
 				Status:   http.StatusOK,
 				PostForm: `{ "var": { "DEBUG": "false" }}`,
 			},
@@ -44,5 +44,5 @@ func TestEnvVarGroups(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

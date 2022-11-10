@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestDomains(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	domain := g.Domain()
-	domain2 := g.Domain()
-	domain3 := g.Domain()
-	domain4 := g.Domain()
-	sharedDomains := g.DomainShared()
+	g := testutil.NewObjectJSONGenerator(1)
+	domain := g.Domain().JSON
+	domain2 := g.Domain().JSON
+	domain3 := g.Domain().JSON
+	domain4 := g.Domain().JSON
+	sharedDomains := g.DomainShared().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "foo.example.org", "internal": true }`,
 			},
@@ -35,10 +35,10 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Get domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK},
 			Expected: domain,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -47,10 +47,10 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List first page of domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
-				Output:   g.Paged([]string{domain}),
+				Output:   g.SinglePaged(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),
@@ -61,7 +61,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List all domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
 				Output:   g.Paged([]string{domain, domain2}, []string{domain3, domain4}),
@@ -73,10 +73,10 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List first page of domains for org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b/domains",
-				Output:   g.Paged([]string{domain}),
+				Output:   g.SinglePaged(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),
@@ -87,10 +87,10 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Update domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"key": "value"}, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -111,7 +111,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Delete domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
 				Status:   http.StatusAccepted,
@@ -122,10 +122,10 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Share domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains/1cb006ee-fb05-47e1-b541-c34179ddc446/relationships/shared_organizations",
-				Output:   []string{sharedDomains},
+				Output:   g.Single(sharedDomains),
 				Status:   http.StatusOK,
 			},
 			Expected: sharedDomains,
@@ -135,7 +135,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Un-share domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/domains/1cb006ee-fb05-47e1-b541-c34179ddc446/relationships/shared_organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b",
 				Status:   http.StatusNoContent,
@@ -145,5 +145,5 @@ func TestDomains(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

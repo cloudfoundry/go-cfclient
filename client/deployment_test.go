@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestDeployments(t *testing.T) {
-	g := test.NewObjectJSONGenerator(4)
-	deployment := g.Deployment()
-	deployment2 := g.Deployment()
-	deployment3 := g.Deployment()
-	deployment4 := g.Deployment()
+	g := testutil.NewObjectJSONGenerator(4)
+	deployment := g.Deployment().JSON
+	deployment2 := g.Deployment().JSON
+	deployment3 := g.Deployment().JSON
+	deployment4 := g.Deployment().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create deployment with droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusCreated,
 				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}, "droplet": {"guid": "c2941033-4575-486d-bf2c-3ae49e8b4ca1"}}`,
 			},
@@ -36,10 +36,10 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Create deployment with revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusCreated,
 				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}, "revision": {"guid": "d95d8024-8665-4aac-97ea-3c08373e233e"}}`,
 			},
@@ -70,7 +70,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Cancel deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998/actions/cancel",
 				Status:   http.StatusOK,
@@ -81,10 +81,10 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Get deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusOK,
 			},
 			Expected: deployment,
@@ -94,10 +94,10 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "List first page of deployments",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
-				Output:   g.Paged([]string{deployment}),
+				Output:   g.SinglePaged(deployment),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(deployment),
@@ -108,7 +108,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "List all apps",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
 				Output:   g.Paged([]string{deployment, deployment2}, []string{deployment3, deployment4}),
@@ -120,10 +120,10 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Update deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 				Status:   http.StatusOK,
 			},
@@ -143,5 +143,5 @@ func TestDeployments(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

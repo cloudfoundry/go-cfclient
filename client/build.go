@@ -119,6 +119,17 @@ func (c *BuildClient) ListForAppAll(appGUID string, opts *BuildAppListOptions) (
 	})
 }
 
+// PollStaged waits until the build is staged, fails, or times out
+func (c *BuildClient) PollStaged(guid string, opts *PollingOptions) error {
+	return PollForStateOrTimeout(func() (string, error) {
+		build, err := c.Get(guid)
+		if build != nil {
+			return string(build.State), err
+		}
+		return "", err
+	}, string(resource.BuildStateStaged), opts)
+}
+
 // Update the specified attributes of the build
 func (c *BuildClient) Update(guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build

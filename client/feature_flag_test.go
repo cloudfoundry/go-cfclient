@@ -2,25 +2,25 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestFeatureFlags(t *testing.T) {
-	g := test.NewObjectJSONGenerator(852)
-	ff := g.FeatureFlag()
-	ff2 := g.FeatureFlag()
-	ff3 := g.FeatureFlag()
-	ff4 := g.FeatureFlag()
+	g := testutil.NewObjectJSONGenerator(852)
+	ff := g.FeatureFlag().JSON
+	ff2 := g.FeatureFlag().JSON
+	ff3 := g.FeatureFlag().JSON
+	ff4 := g.FeatureFlag().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get feature flag",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/feature_flags/resource_matching",
-				Output:   []string{ff},
+				Output:   g.Single(ff),
 				Status:   http.StatusOK},
 			Expected: ff,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -29,7 +29,7 @@ func TestFeatureFlags(t *testing.T) {
 		},
 		{
 			Description: "List all feature flags",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/feature_flags",
 				Output:   g.Paged([]string{ff, ff2}, []string{ff3, ff4}),
@@ -41,10 +41,10 @@ func TestFeatureFlags(t *testing.T) {
 		},
 		{
 			Description: "Update feature flag",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/feature_flags/resource_matching",
-				Output:   []string{ff},
+				Output:   g.Single(ff),
 				Status:   http.StatusOK,
 				PostForm: `{ "enabled": true, "custom_error_message": "error message the user sees" }`,
 			},
@@ -57,5 +57,5 @@ func TestFeatureFlags(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -12,8 +12,8 @@ import (
 )
 
 func TestBitsMarshalling(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	rawPkg := g.Package()
+	g := testutil.NewObjectJSONGenerator(1)
+	rawPkg := g.Package("PROCESSING_UPLOAD").JSON
 
 	var pkg resource.Package
 	err := json.Unmarshal([]byte(rawPkg), &pkg)
@@ -29,8 +29,8 @@ func TestBitsMarshalling(t *testing.T) {
 }
 
 func TestDockerMarshalling(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	rawPkg := g.PackageDocker()
+	g := testutil.NewObjectJSONGenerator(1)
+	rawPkg := g.PackageDocker().JSON
 
 	var pkg resource.Package
 	err := json.Unmarshal([]byte(rawPkg), &pkg)
@@ -47,19 +47,19 @@ func TestDockerMarshalling(t *testing.T) {
 }
 
 func TestPackages(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	pkg := g.Package()
-	pkg2 := g.Package()
-	pkg3 := g.Package()
-	pkg4 := g.Package()
+	g := testutil.NewObjectJSONGenerator(1)
+	pkg := g.Package("PROCESSING_UPLOAD").JSON
+	pkg2 := g.Package("PROCESSING_UPLOAD").JSON
+	pkg3 := g.Package("PROCESSING_UPLOAD").JSON
+	pkg4 := g.Package("PROCESSING_UPLOAD").JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/packages",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusCreated,
 				PostForm: `{ "type": "bits", "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
 			},
@@ -71,11 +71,11 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Copy package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:      "POST",
 				Endpoint:    "/v3/packages",
 				QueryString: "source_guid=66e89f29-475e-4baf-9675-40c6096c017b",
-				Output:      []string{pkg},
+				Output:      g.Single(pkg),
 				Status:      http.StatusCreated,
 				PostForm:    `{ "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
 			},
@@ -86,7 +86,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Delete package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
 				Status:   http.StatusAccepted,
@@ -97,7 +97,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Download package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b/download",
 				Output:   []string{"package bits..."},
@@ -115,10 +115,10 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Get package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: pkg,
@@ -128,10 +128,10 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List first page of packages",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages",
-				Output:   g.Paged([]string{pkg}),
+				Output:   g.SinglePaged(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(pkg),
@@ -142,7 +142,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List all packages",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages",
 				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3, pkg4}),
@@ -154,10 +154,10 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List first page of packages for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
-				Output:   g.Paged([]string{pkg}),
+				Output:   g.SinglePaged(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(pkg),
@@ -168,7 +168,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List all packages for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
 				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3}),
@@ -181,10 +181,10 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Update package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/packages/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: pkg,
@@ -193,5 +193,5 @@ func TestPackages(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

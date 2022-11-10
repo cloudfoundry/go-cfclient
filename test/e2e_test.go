@@ -4,7 +4,6 @@
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
@@ -20,7 +19,8 @@ const (
 func TestEndToEnd(t *testing.T) {
 	c := createClient(t)
 	org := getOrg(t, c)
-	fmt.Printf("%v\n", org)
+	space := getSpace(t, c)
+
 }
 
 func getOrg(t *testing.T, c *client.Client) *resource.Organization {

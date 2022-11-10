@@ -2,8 +2,8 @@
   "guid": "{{.GUID}}",
   "created_at": "2016-10-19T20:25:04Z",
   "updated_at": "2016-11-08T16:41:26Z",
-  "operation": "app.delete",
-  "state": "COMPLETE",
+  "operation": "app.create",
+  "state": "{{index .Params "state"}}",
   "links": {
     "self": {
       "href": "https://api.example.org/v3/jobs/{{.GUID}}"

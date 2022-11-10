@@ -2,25 +2,25 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestBuilds(t *testing.T) {
-	g := test.NewObjectJSONGenerator(2)
-	build := g.Build()
-	build2 := g.Build()
-	build3 := g.Build()
-	build4 := g.Build()
+	g := testutil.NewObjectJSONGenerator(2)
+	build := g.Build("STAGED").JSON
+	build2 := g.Build("STAGED").JSON
+	build3 := g.Build("STAGED").JSON
+	build4 := g.Build("STAGED").JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/builds",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				Status:   http.StatusCreated,
 				PostForm: `{"metadata":{"labels":{"foo":"bar"},"annotations":null},"package":{"guid":"993386e8-5f68-403c-b372-d4aba7c71dbc"}}`},
 			Expected: build,
@@ -36,10 +36,10 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Get build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				Status:   http.StatusOK,
 			},
 			Expected: build,
@@ -49,7 +49,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Delete build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
 				Status:   http.StatusAccepted,
@@ -60,10 +60,10 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Update build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				PostForm: `{"metadata":{"labels":{"env":"dev"},"annotations":{"foo": "bar"}}}`,
 				Status:   http.StatusOK,
 			},
@@ -77,10 +77,10 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List first page of builds",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
-				Output:   g.Paged([]string{build}),
+				Output:   g.SinglePaged(build),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),
@@ -91,7 +91,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List all builds",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
 				Output:   g.Paged([]string{build, build2}, []string{build3, build4}),
@@ -103,10 +103,10 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List first page of builds for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
-				Output:   g.Paged([]string{build}),
+				Output:   g.SinglePaged(build),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),
@@ -116,5 +116,5 @@ func TestBuilds(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

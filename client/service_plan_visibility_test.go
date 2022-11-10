@@ -2,23 +2,23 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestServicePlanVisibilities(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
-	svcPlanVisibility := g.ServicePlanVisibility()
+	g := testutil.NewObjectJSONGenerator(156)
+	svcPlanVisibility := g.ServicePlanVisibility().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Apply service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"type": "organization",
@@ -40,7 +40,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Delete service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility/90a4d2ca-054b-4f15-9a44-cc94f845df9c",
 				Status:   http.StatusNoContent,
@@ -52,10 +52,10 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Get service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				v, err := c.ServicePlansVisibility.Get("79aae221-b2a6-4aaa-a134-76f605af46c9")
@@ -66,10 +66,10 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Update service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"type": "organization",
@@ -90,5 +90,5 @@ func TestServicePlanVisibilities(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

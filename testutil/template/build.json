@@ -7,7 +7,7 @@
     "name": "bill",
     "email": "bill@example.com"
   },
-  "state": "STAGING",
+  "state": "{{index .Params "state"}}",
   "staging_memory_in_mb": 1024,
   "staging_disk_in_mb": 1024,
   "staging_log_rate_limit_bytes_per_second": 1024,

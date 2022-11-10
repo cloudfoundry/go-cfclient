@@ -8,7 +8,7 @@
     },
     "error": null
   },
-  "state": "PROCESSING_UPLOAD",
+  "state": "{{index .Params "state"}}",
   "created_at": "2015-11-13T17:02:56Z",
   "updated_at": "2016-06-08T16:41:26Z",
   "relationships": {

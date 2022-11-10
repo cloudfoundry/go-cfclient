@@ -2,23 +2,23 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceBrokers(t *testing.T) {
-	g := test.NewObjectJSONGenerator(6872)
-	sb := g.ServiceBroker()
-	sb2 := g.ServiceBroker()
+	g := testutil.NewObjectJSONGenerator(6872)
+	sb := g.ServiceBroker().JSON
+	sb2 := g.ServiceBroker().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_brokers",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusAccepted,
 				PostForm: `{
 					"name": "my_service_broker",
@@ -52,7 +52,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Delete service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:           "DELETE",
 				Endpoint:         "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
 				Status:           http.StatusAccepted,
@@ -65,10 +65,10 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Get service brokers",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusOK},
 			Expected: sb,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -77,7 +77,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "List all service brokers",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_brokers",
 				Output:   g.Paged([]string{sb}, []string{sb2}),
@@ -89,10 +89,10 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Update a service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusAccepted,
 				PostForm: `{
 					"name": "my_service_broker",
@@ -117,5 +117,5 @@ func TestServiceBrokers(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

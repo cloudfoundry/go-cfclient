@@ -2,22 +2,22 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestQuotasOrgs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
-	orgQuota := g.OrganizationQuota()
-	orgQuota2 := g.OrganizationQuota()
-	orgQuota3 := g.OrganizationQuota()
-	orgQuota4 := g.OrganizationQuota()
+	g := testutil.NewObjectJSONGenerator(15)
+	orgQuota := g.OrganizationQuota().JSON
+	orgQuota2 := g.OrganizationQuota().JSON
+	orgQuota3 := g.OrganizationQuota().JSON
+	orgQuota4 := g.OrganizationQuota().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Apply org quota to org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff/relationships/organizations",
 				Output: []string{`{
@@ -38,10 +38,10 @@ func TestQuotasOrgs(t *testing.T) {
 		},
 		{
 			Description: "Create org quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organization_quotas",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-org-quota" }`,
 			},
@@ -53,10 +53,10 @@ func TestQuotasOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusOK,
 			},
 			Expected: orgQuota,
@@ -66,7 +66,7 @@ func TestQuotasOrgs(t *testing.T) {
 		},
 		{
 			Description: "Delete org quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
 				Status:   http.StatusAccepted,
@@ -77,7 +77,7 @@ func TestQuotasOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all org quotas",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organization_quotas",
 				Output:   g.Paged([]string{orgQuota, orgQuota2}, []string{orgQuota3, orgQuota4}),
@@ -90,10 +90,10 @@ func TestQuotasOrgs(t *testing.T) {
 		},
 		{
 			Description: "Update org quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name", "apps": { "per_app_tasks": 5 }}`,
 			},
@@ -104,5 +104,5 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,23 +2,23 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestUsers(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	user := g.User()
-	user2 := g.User()
+	g := testutil.NewObjectJSONGenerator(16451)
+	user := g.User().JSON
+	user2 := g.User().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/users",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusCreated,
 				PostForm: `{ "guid": "3ebeaa8b-fd55-4724-a764-9f2231d8f7db" }`,
 			},
@@ -32,7 +32,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Delete user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
 				Status:   http.StatusAccepted,
@@ -43,10 +43,10 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Get user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusOK},
 			Expected: user,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -55,7 +55,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "List all users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/users",
 				Output:   g.Paged([]string{user}, []string{user2}),
@@ -67,10 +67,10 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Update user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -90,5 +90,5 @@ func TestUsers(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }
