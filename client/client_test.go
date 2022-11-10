@@ -8,8 +8,8 @@ import (
 )
 
 func TestMakeRequest(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer teardown()
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer Teardown()
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
@@ -21,8 +21,8 @@ func TestMakeRequest(t *testing.T) {
 }
 
 func TestMakeRequestFailure(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer teardown()
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer Teardown()
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
@@ -35,8 +35,8 @@ func TestMakeRequestFailure(t *testing.T) {
 }
 
 func TestMakeRequestWithTimeout(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer teardown()
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer Teardown()
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	c.HTTPClient(&http.Client{Timeout: 10 * time.Nanosecond})
@@ -46,8 +46,8 @@ func TestMakeRequestWithTimeout(t *testing.T) {
 }
 
 func TestHTTPErrorHandling(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"502 Bad Gateway"}, Status: 502}, t)
-	defer teardown()
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"502 Bad Gateway"}, Status: 502}, t)
+	defer Teardown()
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
@@ -64,7 +64,7 @@ func TestHTTPErrorHandling(t *testing.T) {
 }
 
 func TestTokenRefresh(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
 	fakeUAAServer = FakeUAAServer(1)
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	client, err := New(c)
@@ -85,7 +85,7 @@ func TestTokenRefresh(t *testing.T) {
 }
 
 func TestEndpointRefresh(t *testing.T) {
-	setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
 	fakeUAAServer = FakeUAAServer(0)
 	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
 	client, err := New(c)

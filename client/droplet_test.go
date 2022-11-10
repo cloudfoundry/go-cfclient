@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestDroplets(t *testing.T) {
-	g := test.NewObjectJSONGenerator(2)
+	g := testutil.NewObjectJSONGenerator(2)
 	droplet := g.Droplet()
 	droplet2 := g.Droplet()
 	droplet3 := g.Droplet()
@@ -211,5 +211,5 @@ func TestDroplets(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

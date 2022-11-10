@@ -2,14 +2,14 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestDeployments(t *testing.T) {
-	g := test.NewObjectJSONGenerator(4)
+	g := testutil.NewObjectJSONGenerator(4)
 	deployment := g.Deployment()
 	deployment2 := g.Deployment()
 	deployment3 := g.Deployment()
@@ -143,5 +143,5 @@ func TestDeployments(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

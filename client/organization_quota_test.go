@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestQuotasOrgs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator(15)
 	orgQuota := g.OrganizationQuota()
 	orgQuota2 := g.OrganizationQuota()
 	orgQuota3 := g.OrganizationQuota()
@@ -104,5 +104,5 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

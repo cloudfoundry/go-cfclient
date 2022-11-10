@@ -26,5 +26,5 @@ func TestSpaceFeatures(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

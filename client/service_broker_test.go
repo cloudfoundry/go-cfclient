@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceBrokers(t *testing.T) {
-	g := test.NewObjectJSONGenerator(6872)
+	g := testutil.NewObjectJSONGenerator(6872)
 	sb := g.ServiceBroker()
 	sb2 := g.ServiceBroker()
 
@@ -117,5 +117,5 @@ func TestServiceBrokers(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

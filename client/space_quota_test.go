@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestSpaceOrgs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator(15)
 	spaceQuota := g.SpaceQuota()
 	spaceQuota2 := g.SpaceQuota()
 	spaceQuota3 := g.SpaceQuota()
@@ -153,5 +153,5 @@ func TestSpaceOrgs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestSpaces(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	space := g.Space()
 	space2 := g.Space()
 	space3 := g.Space()
@@ -109,7 +109,7 @@ func TestSpaces(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:      space,
 					Organizations: []string{org},
 				}),
@@ -139,11 +139,11 @@ func TestSpaces(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/spaces",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{space, space2},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{space3, space4},
 						Organizations: []string{org2},
 					}),
@@ -185,5 +185,5 @@ func TestSpaces(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

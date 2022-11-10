@@ -1,13 +1,13 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestAuditEvents(t *testing.T) {
-	g := test.NewObjectJSONGenerator(161)
+	g := testutil.NewObjectJSONGenerator(161)
 	auditEvent := g.AuditEvent()
 	auditEvent2 := g.AuditEvent()
 	auditEvent3 := g.AuditEvent()
@@ -38,5 +38,5 @@ func TestAuditEvents(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

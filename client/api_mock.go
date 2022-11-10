@@ -44,64 +44,11 @@ type MockRoute struct {
 	RedirectLocation string
 }
 
-func setup(mock MockRoute, t *testing.T) {
-	setupMultiple([]MockRoute{mock}, t)
+func Setup(mock MockRoute, t *testing.T) {
+	SetupMultiple([]MockRoute{mock}, t)
 }
 
-func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
-	t.Helper()
-	if QueryStringExp == "" {
-		return
-	}
-
-	value, _ := url.QueryUnescape(QueryString)
-	if QueryStringExp != value {
-		t.Errorf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
-	}
-}
-
-func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
-	t.Helper()
-	if len(UserAgentExp) < 1 {
-		UserAgentExp = "Go-CF-client/2.0"
-	}
-	if UserAgent != UserAgentExp {
-		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
-	}
-}
-
-func testReqBody(req *http.Request, postFormBody string, t *testing.T) {
-	t.Helper()
-	if postFormBody != "" {
-		if body, err := io.ReadAll(req.Body); err != nil {
-			t.Error("No request body but expected one")
-		} else {
-			defer func(Body io.ReadCloser) {
-				_ = Body.Close()
-			}(req.Body)
-			require.JSONEq(t, postFormBody, string(body),
-				"Expected request body (%s) does not equal request body (%s)", postFormBody, body)
-		}
-	}
-}
-
-func testBodyContains(req *http.Request, expected string, t *testing.T) {
-	t.Helper()
-	if expected != "" {
-		if body, err := io.ReadAll(req.Body); err != nil {
-			t.Error("No request body but expected one")
-		} else {
-			defer func(Body io.ReadCloser) {
-				_ = Body.Close()
-			}(req.Body)
-			if !strings.Contains(string(body), expected) {
-				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", expected, body)
-			}
-		}
-	}
-}
-
-func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
+func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 	fakeUAAServer = FakeUAAServer(3)
@@ -231,16 +178,16 @@ func FakeUAAServer(expiresIn int) *httptest.Server {
 	return server
 }
 
-func teardown() {
+func Teardown() {
 	server.Close()
 	fakeUAAServer.Close()
 }
 
-func executeTests(tests []RouteTest, t *testing.T) {
+func ExecuteTests(tests []RouteTest, t *testing.T) {
 	for _, tt := range tests {
 		func() {
-			setup(tt.Route, t)
-			defer teardown()
+			Setup(tt.Route, t)
+			defer Teardown()
 			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
 			if tt.Description != "" {
 				details = tt.Description + ": " + details
@@ -284,4 +231,57 @@ func executeTests(tests []RouteTest, t *testing.T) {
 
 func isJSON(obj string) bool {
 	return strings.HasPrefix(obj, "{") || strings.HasPrefix(obj, "[")
+}
+
+func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
+	t.Helper()
+	if QueryStringExp == "" {
+		return
+	}
+
+	value, _ := url.QueryUnescape(QueryString)
+	if QueryStringExp != value {
+		t.Errorf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
+	}
+}
+
+func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
+	t.Helper()
+	if len(UserAgentExp) < 1 {
+		UserAgentExp = "Go-CF-client/2.0"
+	}
+	if UserAgent != UserAgentExp {
+		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
+	}
+}
+
+func testReqBody(req *http.Request, postFormBody string, t *testing.T) {
+	t.Helper()
+	if postFormBody != "" {
+		if body, err := io.ReadAll(req.Body); err != nil {
+			t.Error("No request body but expected one")
+		} else {
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
+			require.JSONEq(t, postFormBody, string(body),
+				"Expected request body (%s) does not equal request body (%s)", postFormBody, body)
+		}
+	}
+}
+
+func testBodyContains(req *http.Request, expected string, t *testing.T) {
+	t.Helper()
+	if expected != "" {
+		if body, err := io.ReadAll(req.Body); err != nil {
+			t.Error("No request body but expected one")
+		} else {
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
+			if !strings.Contains(string(body), expected) {
+				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", expected, body)
+			}
+		}
+	}
 }

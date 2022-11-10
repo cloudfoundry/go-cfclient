@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestRoles(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator(15)
 	role := g.Role()
 	role2 := g.Role()
 	role3 := g.Role()
@@ -98,7 +98,7 @@ func TestRoles(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:      role,
 					Organizations: []string{org, org2},
 				}),
@@ -114,7 +114,7 @@ func TestRoles(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: role,
 					Spaces:   []string{space, space2},
 				}),
@@ -130,7 +130,7 @@ func TestRoles(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: role,
 					Users:    []string{user, user2, user3},
 				}),
@@ -170,11 +170,11 @@ func TestRoles(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{role, role2},
 						Organizations: []string{org, org2},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{role3, role4},
 						Organizations: []string{},
 					}),
@@ -191,11 +191,11 @@ func TestRoles(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{role, role2},
 						Spaces:    []string{space, space2},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{role3, role4},
 						Spaces:    []string{space3},
 					}),
@@ -212,11 +212,11 @@ func TestRoles(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{role, role2},
 						Users:     []string{user, user2},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{role3, role4},
 						Users:     []string{user3},
 					}),
@@ -228,5 +228,5 @@ func TestRoles(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

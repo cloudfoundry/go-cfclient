@@ -1,13 +1,13 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceUsages(t *testing.T) {
-	g := test.NewObjectJSONGenerator(161)
+	g := testutil.NewObjectJSONGenerator(161)
 	serviceUsage := g.ServiceUsage()
 	serviceUsage2 := g.ServiceUsage()
 	serviceUsage3 := g.ServiceUsage()
@@ -49,5 +49,5 @@ func TestServiceUsages(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

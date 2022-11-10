@@ -2,14 +2,14 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestOrgs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator(15)
 	org := g.Organization()
 	org2 := g.Organization()
 	org3 := g.Organization()
@@ -170,5 +170,5 @@ func TestOrgs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

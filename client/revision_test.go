@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestRevisions(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	revision := g.Revision()
 	revision2 := g.Revision()
 	revision3 := g.Revision()
@@ -90,5 +90,5 @@ func TestRevisions(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

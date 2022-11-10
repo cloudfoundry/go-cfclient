@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestEnvVarGroups(t *testing.T) {
-	g := test.NewObjectJSONGenerator(852)
+	g := testutil.NewObjectJSONGenerator(852)
 	envVarGroup := g.EnvVarGroup()
 
 	tests := []RouteTest{
@@ -44,5 +44,5 @@ func TestEnvVarGroups(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }
