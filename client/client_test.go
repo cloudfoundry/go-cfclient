@@ -67,6 +67,7 @@ func TestHTTPErrorHandling(t *testing.T) {
 func TestTokenRefresh(t *testing.T) {
 	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
 	testutil.SetupFakeUAAServer(1)
+	defer testutil.Teardown()
 
 	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	client, err := New(c)
@@ -89,6 +90,8 @@ func TestTokenRefresh(t *testing.T) {
 func TestEndpointRefresh(t *testing.T) {
 	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
 	testutil.SetupFakeUAAServer(0)
+	defer testutil.Teardown()
+
 	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	client, err := New(c)
 	require.NoError(t, err)
