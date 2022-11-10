@@ -1,4 +1,4 @@
-package actors
+package operation
 
 import (
 	"fmt"
@@ -8,16 +8,16 @@ import (
 	"io"
 )
 
-// AppPushActor can be used to push buildpack apps
-type AppPushActor struct {
+// AppPushOperation can be used to push buildpack apps
+type AppPushOperation struct {
 	orgName   string
 	spaceName string
 	client    *client.Client
 }
 
-// NewAppPushActor creates a new AppPushActor
-func NewAppPushActor(client *client.Client, orgName, spaceName string) *AppPushActor {
-	return &AppPushActor{
+// NewAppPushOperation creates a new AppPushOperation
+func NewAppPushOperation(client *client.Client, orgName, spaceName string) *AppPushOperation {
+	return &AppPushOperation{
 		orgName:   orgName,
 		spaceName: spaceName,
 		client:    client,
@@ -25,7 +25,7 @@ func NewAppPushActor(client *client.Client, orgName, spaceName string) *AppPushA
 }
 
 // Push creates or updates an application using the specified manifest and zipped source files
-func (p *AppPushActor) Push(appManifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+func (p *AppPushOperation) Push(appManifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	org, err := p.findOrg()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (p *AppPushActor) Push(appManifest *AppManifest, zipFile io.Reader) (*resou
 // an application to be deployed or tasks to be run. The current droplet must be assigned to an application before
 // it may be started. When tasks are created, they either use a specific droplet guid, or use the current droplet
 // assigned to an application.
-func (p *AppPushActor) pushApp(space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+func (p *AppPushOperation) pushApp(space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	err := p.applySpaceManifest(space, manifest)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (p *AppPushActor) pushApp(space *resource.Space, manifest *AppManifest, zip
 	return p.client.Applications.Start(app.GUID)
 }
 
-func (p *AppPushActor) applySpaceManifest(space *resource.Space, manifest *AppManifest) error {
+func (p *AppPushOperation) applySpaceManifest(space *resource.Space, manifest *AppManifest) error {
 	manifestBytes, err := yaml.Marshal(&manifest)
 	if err != nil {
 		return fmt.Errorf("error marshalling application manifest: %w", err)
@@ -89,7 +89,7 @@ func (p *AppPushActor) applySpaceManifest(space *resource.Space, manifest *AppMa
 	return nil
 }
 
-func (p *AppPushActor) findApp(appName string, space *resource.Space) (*resource.App, error) {
+func (p *AppPushOperation) findApp(appName string, space *resource.Space) (*resource.App, error) {
 	appOpts := client.NewAppListOptions()
 	appOpts.Names.Values = []string{appName}
 	appOpts.SpaceGUIDs.Values = []string{space.GUID}
@@ -104,7 +104,7 @@ func (p *AppPushActor) findApp(appName string, space *resource.Space) (*resource
 	return apps[0], nil
 }
 
-func (p *AppPushActor) uploadPackage(app *resource.App, zipFile io.Reader) (*resource.Package, error) {
+func (p *AppPushOperation) uploadPackage(app *resource.App, zipFile io.Reader) (*resource.Package, error) {
 	newPkg := resource.NewPackageCreate(app.GUID)
 	pkg, err := p.client.Packages.Create(newPkg)
 	if err != nil {
@@ -122,7 +122,7 @@ func (p *AppPushActor) uploadPackage(app *resource.App, zipFile io.Reader) (*res
 	return pkg, nil
 }
 
-func (p *AppPushActor) buildDroplet(pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
+func (p *AppPushOperation) buildDroplet(pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
 	newBuild.Lifecycle = &resource.Lifecycle{
 		Type: "buildpack",
@@ -152,7 +152,7 @@ func (p *AppPushActor) buildDroplet(pkg *resource.Package, manifest *AppManifest
 	return droplets[0], nil
 }
 
-func (p *AppPushActor) findOrg() (*resource.Organization, error) {
+func (p *AppPushOperation) findOrg() (*resource.Organization, error) {
 	opts := client.NewOrgListOptions()
 	opts.Names.Values = []string{p.orgName}
 	orgs, err := p.client.Organizations.ListAll(opts)
@@ -165,7 +165,7 @@ func (p *AppPushActor) findOrg() (*resource.Organization, error) {
 	return orgs[0], nil
 }
 
-func (p *AppPushActor) findSpace(orgGUID string) (*resource.Space, error) {
+func (p *AppPushOperation) findSpace(orgGUID string) (*resource.Space, error) {
 	opts := client.NewSpaceListOptions()
 	opts.Names.Values = []string{p.spaceName}
 	opts.OrganizationGUIDs.Values = []string{orgGUID}
