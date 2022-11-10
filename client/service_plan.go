@@ -18,8 +18,8 @@ type ServicePlanListOptions struct {
 	OrganizationGUIDs    Filter `filter:"organization_guids,omitempty"`
 	ServiceBrokerGUIDs   Filter `filter:"service_broker_guids,omitempty"`
 	ServiceBrokerNames   Filter `filter:"service_broker_names,omitempty"`
-	ServicePlanGUIDs     Filter `filter:"service_offering_guids,omitempty"`
-	ServicePlanNames     Filter `filter:"service_offering_names,omitempty"`
+	ServiceOfferingGUIDs Filter `filter:"service_offering_guids,omitempty"`
+	ServiceOfferingNames Filter `filter:"service_offering_names,omitempty"`
 	ServiceInstanceGUIDs Filter `filter:"service_instance_guids,omitempty"`
 	Available            *bool  `filter:"available,omitempty"`
 
