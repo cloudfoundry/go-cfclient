@@ -50,7 +50,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
-				Output:   g.Paged([]string{domain}),
+				Output:   g.SinglePaged(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),
@@ -76,7 +76,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b/domains",
-				Output:   g.Paged([]string{domain}),
+				Output:   g.SinglePaged(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(domain),

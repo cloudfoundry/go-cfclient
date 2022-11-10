@@ -97,7 +97,7 @@ func TestDeployments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
-				Output:   g.Paged([]string{deployment}),
+				Output:   g.SinglePaged(deployment),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(deployment),
