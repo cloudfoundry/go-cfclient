@@ -27,7 +27,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusCreated,
 				PostForm: `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`,
 			},
@@ -43,7 +43,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -55,7 +55,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env",
-				Output:   []string{appEnvironment},
+				Output:   g.Single(appEnvironment),
 				Status:   http.StatusOK,
 			},
 			Expected: appEnvironment,
@@ -87,7 +87,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
-				Output:   []string{appEnvVar},
+				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
@@ -100,7 +100,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/ssh_enabled",
-				Output:   []string{appSSH},
+				Output:   g.Single(appSSH),
 				Status:   http.StatusOK,
 			},
 			Expected: appSSH,
@@ -113,7 +113,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/permissions",
-				Output:   []string{appPermission},
+				Output:   g.Single(appPermission),
 				Status:   http.StatusOK,
 			},
 			Expected: appPermission,
@@ -126,7 +126,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -139,7 +139,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -152,7 +152,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -176,7 +176,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name", "lifecycle": { "type": "buildpack", "data": { "buildpacks": ["java_offline"] }}}`,
 			},

@@ -24,7 +24,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/relationships/current_droplet",
-				Output:   []string{dropletAssociation},
+				Output:   g.Single(dropletAssociation),
 				Status:   http.StatusOK,
 				PostForm: `{"data":{"guid":"3fc0916f-2cea-4f3a-ae53-048388baa6bd"}}`,
 			},
@@ -38,7 +38,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/relationships/current_droplet",
-				Output:   []string{dropletAssociation},
+				Output:   g.Single(dropletAssociation),
 				Status:   http.StatusOK,
 			},
 			Expected: dropletAssociation,
@@ -51,7 +51,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/droplets/current",
-				Output:   []string{droplet},
+				Output:   g.Single(droplet),
 				Status:   http.StatusOK,
 			},
 			Expected: droplet,
@@ -64,7 +64,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
-				Output:   []string{droplet},
+				Output:   g.Single(droplet),
 				Status:   http.StatusOK,
 			},
 			Expected: droplet,
@@ -144,7 +144,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/droplets",
-				Output:   []string{droplet},
+				Output:   g.Single(droplet),
 				Status:   http.StatusCreated,
 			},
 			Expected: droplet,
@@ -169,7 +169,7 @@ func TestDroplets(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
-				Output:   []string{droplet},
+				Output:   g.Single(droplet),
 				Status:   http.StatusOK,
 			},
 			Expected: droplet,
@@ -183,7 +183,7 @@ func TestDroplets(t *testing.T) {
 				Method:      "POST",
 				Endpoint:    "/v3/droplets",
 				QueryString: "source_guid=59c3d133-2b83-46f3-960e-7765a129aea4",
-				Output:      []string{droplet},
+				Output:      g.Single(droplet),
 				Status:      http.StatusCreated,
 				PostForm:    `{ "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
 			},

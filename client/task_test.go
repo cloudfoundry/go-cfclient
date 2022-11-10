@@ -20,7 +20,7 @@ func TestTasks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504/actions/cancel",
-				Output:   []string{task},
+				Output:   g.Single(task),
 				Status:   http.StatusOK,
 			},
 			Expected: task,
@@ -33,7 +33,7 @@ func TestTasks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/tasks",
-				Output:   []string{task},
+				Output:   g.Single(task),
 				Status:   http.StatusCreated,
 				PostForm: `{ "command": "rake db:migrate" }`,
 			},
@@ -48,7 +48,7 @@ func TestTasks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504",
-				Output:   []string{task},
+				Output:   g.Single(task),
 				Status:   http.StatusOK},
 			Expected: task,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -84,7 +84,7 @@ func TestTasks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504",
-				Output:   []string{task},
+				Output:   g.Single(task),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},

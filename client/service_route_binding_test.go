@@ -22,7 +22,7 @@ func TestServiceRouteBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_route_bindings",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"relationships": {
@@ -63,7 +63,7 @@ func TestServiceRouteBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusOK},
 			Expected: svcRouteBinding,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -178,7 +178,7 @@ func TestServiceRouteBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {

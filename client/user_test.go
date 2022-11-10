@@ -18,7 +18,7 @@ func TestUsers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/users",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusCreated,
 				PostForm: `{ "guid": "3ebeaa8b-fd55-4724-a764-9f2231d8f7db" }`,
 			},
@@ -46,7 +46,7 @@ func TestUsers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusOK},
 			Expected: user,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -70,7 +70,7 @@ func TestUsers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				Output:   []string{user},
+				Output:   g.Single(user),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},

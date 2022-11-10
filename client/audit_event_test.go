@@ -18,7 +18,7 @@ func TestAuditEvents(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/audit_events/27a9b4a5-ba8a-448c-ac51-3a6dab9aa3f8",
-				Output:   []string{auditEvent},
+				Output:   g.Single(auditEvent),
 				Status:   http.StatusOK},
 			Expected: auditEvent,
 			Action: func(c *Client, t *testing.T) (any, error) {

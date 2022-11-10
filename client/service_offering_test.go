@@ -30,7 +30,7 @@ func TestServiceOfferings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_offerings/928a32d9-8101-4b86-85a4-96e06f833c2d",
-				Output:   []string{so},
+				Output:   g.Single(so),
 				Status:   http.StatusOK},
 			Expected: so,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -54,7 +54,7 @@ func TestServiceOfferings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_offerings/928a32d9-8101-4b86-85a4-96e06f833c2d",
-				Output:   []string{so},
+				Output:   g.Single(so),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {

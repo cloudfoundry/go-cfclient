@@ -20,7 +20,7 @@ func TestBuilds(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/builds",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				Status:   http.StatusCreated,
 				PostForm: `{"metadata":{"labels":{"foo":"bar"},"annotations":null},"package":{"guid":"993386e8-5f68-403c-b372-d4aba7c71dbc"}}`},
 			Expected: build,
@@ -39,7 +39,7 @@ func TestBuilds(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				Status:   http.StatusOK,
 			},
 			Expected: build,
@@ -63,7 +63,7 @@ func TestBuilds(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
-				Output:   []string{build},
+				Output:   g.Single(build),
 				PostForm: `{"metadata":{"labels":{"env":"dev"},"annotations":{"foo": "bar"}}}`,
 				Status:   http.StatusOK,
 			},

@@ -20,7 +20,7 @@ func TestStacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/stacks",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-stack", "description": "Here is my stack!" }`,
 			},
@@ -50,7 +50,7 @@ func TestStacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusOK},
 			Expected: stack,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -86,7 +86,7 @@ func TestStacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
-				Output:   []string{stack},
+				Output:   g.Single(stack),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},

@@ -22,7 +22,7 @@ func TestRoutes(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/routes",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"host": "a-hostname",
@@ -64,7 +64,7 @@ func TestRoutes(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusOK,
 			},
 			Expected: route,
@@ -223,7 +223,7 @@ func TestRoutes(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"key": "value"}, "annotations": {"note": "detailed information"}}}`,
 			},

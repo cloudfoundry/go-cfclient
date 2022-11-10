@@ -18,7 +18,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"type": "organization",
@@ -55,7 +55,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				v, err := c.ServicePlansVisibility.Get("79aae221-b2a6-4aaa-a134-76f605af46c9")
@@ -69,7 +69,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
-				Output:   []string{svcPlanVisibility},
+				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"type": "organization",

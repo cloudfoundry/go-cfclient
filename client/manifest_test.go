@@ -17,7 +17,7 @@ func TestManifests(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/389f0d73-04ee-455b-b63c-513c7c78d5ff/manifest",
-				Output:   []string{manifest},
+				Output:   g.Single(manifest),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				actual, err := c.Manifests.Generate("389f0d73-04ee-455b-b63c-513c7c78d5ff")

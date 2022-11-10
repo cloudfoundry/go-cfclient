@@ -38,7 +38,7 @@ func TestSpaces(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/spaces",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "my-space",
@@ -73,7 +73,7 @@ func TestSpaces(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusOK},
 			Expected: space,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -172,7 +172,7 @@ func TestSpaces(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Output:   []string{space},
+				Output:   g.Single(space),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new-space-name" }`,
 			},

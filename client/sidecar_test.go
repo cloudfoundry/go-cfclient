@@ -20,7 +20,7 @@ func TestSidecars(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/sidecars",
-				Output:   []string{sidecar},
+				Output:   g.Single(sidecar),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "auth-sidecar",
@@ -52,7 +52,7 @@ func TestSidecars(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/sidecars/319ac7e8-e34a-4b6f-89da-1753ad3ece93",
-				Output:   []string{sidecar},
+				Output:   g.Single(sidecar),
 				Status:   http.StatusOK},
 			Expected: sidecar,
 			Action: func(c *Client, t *testing.T) (any, error) {

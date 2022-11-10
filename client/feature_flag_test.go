@@ -20,7 +20,7 @@ func TestFeatureFlags(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/feature_flags/resource_matching",
-				Output:   []string{ff},
+				Output:   g.Single(ff),
 				Status:   http.StatusOK},
 			Expected: ff,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -44,7 +44,7 @@ func TestFeatureFlags(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/feature_flags/resource_matching",
-				Output:   []string{ff},
+				Output:   g.Single(ff),
 				Status:   http.StatusOK,
 				PostForm: `{ "enabled": true, "custom_error_message": "error message the user sees" }`,
 			},

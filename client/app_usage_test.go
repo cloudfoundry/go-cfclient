@@ -18,7 +18,7 @@ func TestAppUsages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/app_usage_events/af846b67-e0c4-44eb-bfa8-ff30e902d710",
-				Output:   []string{appUsage},
+				Output:   g.Single(appUsage),
 				Status:   http.StatusOK},
 			Expected: appUsage,
 			Action: func(c *Client, t *testing.T) (any, error) {

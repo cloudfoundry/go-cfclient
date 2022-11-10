@@ -25,7 +25,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_credential_bindings",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "app",
@@ -76,7 +76,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusOK},
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -177,7 +177,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"foo": "bar"}, "annotations": {"baz": "qux"} }}`,
 			},
