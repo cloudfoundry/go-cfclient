@@ -80,7 +80,7 @@ func TestBuilds(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
-				Output:   g.Paged([]string{build}),
+				Output:   g.SinglePaged(build),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),
@@ -106,7 +106,7 @@ func TestBuilds(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
-				Output:   g.Paged([]string{build}),
+				Output:   g.SinglePaged(build),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(build),

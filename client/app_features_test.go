@@ -28,7 +28,7 @@ func TestAppFeatures(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features",
-				Output:   g.Paged([]string{appFeature}),
+				Output:   g.SinglePaged(appFeature),
 				Status:   http.StatusOK},
 			Expected: g.Array(appFeature),
 			Action: func(c *Client, t *testing.T) (any, error) {

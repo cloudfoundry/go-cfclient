@@ -131,7 +131,7 @@ func TestPackages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages",
-				Output:   g.Paged([]string{pkg}),
+				Output:   g.SinglePaged(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(pkg),
@@ -157,7 +157,7 @@ func TestPackages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
-				Output:   g.Paged([]string{pkg}),
+				Output:   g.SinglePaged(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: g.Array(pkg),
