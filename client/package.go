@@ -2,13 +2,12 @@ package client
 
 import (
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
-
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
 type PackageClient commonClient
@@ -136,6 +135,17 @@ func (c *PackageClient) ListForAppAll(appGUID string, opts *PackageListOptions) 
 	})
 }
 
+// PollReady waits until the package is ready, fails, or times out
+func (c *PackageClient) PollReady(guid string, opts *PollingOptions) error {
+	return PollForStateOrTimeout(func() (string, error) {
+		pkg, err := c.Get(guid)
+		if pkg != nil {
+			return string(pkg.State), err
+		}
+		return "", err
+	}, string(resource.PackageStateReady), opts)
+}
+
 // Update the specified attributes of the package
 func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resource.Package, error) {
 	var p resource.Package
@@ -158,7 +168,7 @@ func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
 	}()
 
 	formWriter := multipart.NewWriter(requestFile)
-	part, err := formWriter.CreateFormFile("application", "application.zip")
+	part, err := formWriter.CreateFormFile("bits", "package.zip")
 	if err != nil {
 		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
 	}
@@ -182,7 +192,7 @@ func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
 		return fmt.Errorf("error uploading package %s bits, failed to stat temp zipFile: %w", guid, err)
 	}
 
-	r := c.client.NewRequestWithBody("PUT", path("/v3/packages/%s/upload", guid), requestFile)
+	r := c.client.NewRequestWithBody("POST", path("/v3/packages/%s/upload", guid), requestFile)
 	req, err := r.toHTTP()
 	if err != nil {
 		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
@@ -199,7 +209,7 @@ func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error uploading package %s bits, response code: %d", guid, resp.StatusCode)
 	}
 
