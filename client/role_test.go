@@ -28,7 +28,7 @@ func TestRoles(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/roles",
-				Output:   []string{role},
+				Output:   g.Single(role),
 				Status:   http.StatusCreated,
 				PostForm: `{
 				  "type": "organization_auditor",
@@ -57,7 +57,7 @@ func TestRoles(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/roles",
-				Output:   []string{role},
+				Output:   g.Single(role),
 				Status:   http.StatusCreated,
 				PostForm: `{
 				  "type": "space_developer",
@@ -86,7 +86,7 @@ func TestRoles(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
-				Output:   []string{role},
+				Output:   g.Single(role),
 				Status:   http.StatusOK},
 			Expected: role,
 			Action: func(c *Client, t *testing.T) (any, error) {

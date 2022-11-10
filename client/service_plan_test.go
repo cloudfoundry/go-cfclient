@@ -36,7 +36,7 @@ func TestServicePlans(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
-				Output:   []string{svcPlan},
+				Output:   g.Single(svcPlan),
 				Status:   http.StatusOK},
 			Expected: svcPlan,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -103,7 +103,7 @@ func TestServicePlans(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
-				Output:   []string{svcPlan},
+				Output:   g.Single(svcPlan),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {

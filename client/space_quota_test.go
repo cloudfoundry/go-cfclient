@@ -41,7 +41,7 @@ func TestSpaceOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/space_quotas",
-				Output:   []string{spaceQuota},
+				Output:   g.Single(spaceQuota),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "my-space-quota",
@@ -65,7 +65,7 @@ func TestSpaceOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
-				Output:   []string{spaceQuota},
+				Output:   g.Single(spaceQuota),
 				Status:   http.StatusOK,
 			},
 			Expected: spaceQuota,
@@ -113,7 +113,7 @@ func TestSpaceOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
-				Output:   []string{spaceQuota},
+				Output:   g.Single(spaceQuota),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"name": "don-quixote",

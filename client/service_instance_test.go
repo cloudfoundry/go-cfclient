@@ -18,7 +18,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "managed",
@@ -52,7 +52,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "user-provided",
@@ -93,7 +93,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusOK},
 			Expected: si,
 			Action: func(c *Client, t *testing.T) (any, error) {

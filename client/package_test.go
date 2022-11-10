@@ -59,7 +59,7 @@ func TestPackages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/packages",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusCreated,
 				PostForm: `{ "type": "bits", "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
 			},
@@ -75,7 +75,7 @@ func TestPackages(t *testing.T) {
 				Method:      "POST",
 				Endpoint:    "/v3/packages",
 				QueryString: "source_guid=66e89f29-475e-4baf-9675-40c6096c017b",
-				Output:      []string{pkg},
+				Output:      g.Single(pkg),
 				Status:      http.StatusCreated,
 				PostForm:    `{ "relationships": { "app": { "data": { "guid": "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b" }}}}`,
 			},
@@ -118,7 +118,7 @@ func TestPackages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: pkg,
@@ -184,7 +184,7 @@ func TestPackages(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/packages/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b",
-				Output:   []string{pkg},
+				Output:   g.Single(pkg),
 				Status:   http.StatusOK,
 			},
 			Expected: pkg,

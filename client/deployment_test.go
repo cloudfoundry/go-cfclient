@@ -21,7 +21,7 @@ func TestDeployments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusCreated,
 				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}, "droplet": {"guid": "c2941033-4575-486d-bf2c-3ae49e8b4ca1"}}`,
 			},
@@ -39,7 +39,7 @@ func TestDeployments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusCreated,
 				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}, "revision": {"guid": "d95d8024-8665-4aac-97ea-3c08373e233e"}}`,
 			},
@@ -84,7 +84,7 @@ func TestDeployments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				Status:   http.StatusOK,
 			},
 			Expected: deployment,
@@ -123,7 +123,7 @@ func TestDeployments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
-				Output:   []string{deployment},
+				Output:   g.Single(deployment),
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 				Status:   http.StatusOK,
 			},

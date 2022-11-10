@@ -16,7 +16,7 @@ func TestAppFeatures(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features/ssh",
-				Output:   []string{appFeature},
+				Output:   g.Single(appFeature),
 				Status:   http.StatusOK},
 			Expected: appFeature,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -41,7 +41,7 @@ func TestAppFeatures(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features/ssh",
-				Output:   []string{appFeature},
+				Output:   g.Single(appFeature),
 				Status:   http.StatusOK,
 				PostForm: `{ "enabled": false }`,
 			},

@@ -21,7 +21,7 @@ func TestIsolationSegments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/isolation_segments",
-				Output:   []string{iso},
+				Output:   g.Single(iso),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-iso" }`,
 			},
@@ -47,7 +47,7 @@ func TestIsolationSegments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations",
-				Output:   []string{isoRelations},
+				Output:   g.Single(isoRelations),
 				Status:   http.StatusCreated,
 				PostForm: `{ "data": [{ "guid":"5700e458-283d-4528-806f-c3509e038f05" }]}`,
 			},
@@ -61,7 +61,7 @@ func TestIsolationSegments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821",
-				Output:   []string{iso},
+				Output:   g.Single(iso),
 				Status:   http.StatusOK},
 			Expected: iso,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -157,7 +157,7 @@ func TestIsolationSegments(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821",
-				Output:   []string{iso},
+				Output:   g.Single(iso),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new-name" }`,
 			},

@@ -21,7 +21,7 @@ func TestProcesses(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 			},
 			Expected: process,
@@ -34,7 +34,7 @@ func TestProcesses(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/stats",
-				Output:   []string{processStats},
+				Output:   g.Single(processStats),
 				Status:   http.StatusOK,
 			},
 			Expected: processStats,
@@ -73,7 +73,7 @@ func TestProcesses(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/actions/scale",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"instances": 5,
@@ -97,7 +97,7 @@ func TestProcesses(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"command": "rackup",

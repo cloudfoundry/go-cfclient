@@ -20,7 +20,7 @@ func TestBuildpacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/buildpacks",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "ruby_buildpack",
@@ -56,7 +56,7 @@ func TestBuildpacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusOK},
 			Expected: buildpack,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -80,7 +80,7 @@ func TestBuildpacks(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusOK,
 				PostForm: `{ "position": 1 }`,
 			},

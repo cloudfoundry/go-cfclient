@@ -39,7 +39,7 @@ func TestOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organizations",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-organization" }`,
 			},
@@ -54,7 +54,7 @@ func TestOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusOK,
 			},
 			Expected: org,
@@ -82,7 +82,7 @@ func TestOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/domains/default",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: domain,
@@ -95,7 +95,7 @@ func TestOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/usage_summary",
-				Output:   []string{orgUsageSummary},
+				Output:   g.Single(orgUsageSummary),
 				Status:   http.StatusOK,
 			},
 			Expected: orgUsageSummary,
@@ -157,7 +157,7 @@ func TestOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name" }`,
 			},

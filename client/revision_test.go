@@ -21,7 +21,7 @@ func TestRevisions(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
-				Output:   []string{revision},
+				Output:   g.Single(revision),
 				Status:   http.StatusOK},
 			Expected: revision,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -33,7 +33,7 @@ func TestRevisions(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2/environment_variables",
-				Output:   []string{appEnvVar},
+				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
@@ -70,7 +70,7 @@ func TestRevisions(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
-				Output:   []string{revision},
+				Output:   g.Single(revision),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},

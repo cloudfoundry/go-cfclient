@@ -17,7 +17,7 @@ func TestResourceMatches(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/resource_matches",
-				Output:   []string{resourceMatch},
+				Output:   g.Single(resourceMatch),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"resources": [

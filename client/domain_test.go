@@ -21,7 +21,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "foo.example.org", "internal": true }`,
 			},
@@ -38,7 +38,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK},
 			Expected: domain,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -90,7 +90,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"key": "value"}, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -125,7 +125,7 @@ func TestDomains(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains/1cb006ee-fb05-47e1-b541-c34179ddc446/relationships/shared_organizations",
-				Output:   []string{sharedDomains},
+				Output:   g.Single(sharedDomains),
 				Status:   http.StatusOK,
 			},
 			Expected: sharedDomains,

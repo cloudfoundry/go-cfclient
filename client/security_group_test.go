@@ -18,7 +18,7 @@ func TestSecurityGroups(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/security_groups",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusCreated,
 				PostForm: `{
 				  "name": "my-group0",
@@ -69,7 +69,7 @@ func TestSecurityGroups(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusOK},
 			Expected: sg,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -93,7 +93,7 @@ func TestSecurityGroups(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusOK,
 				PostForm: `{
 				  "name": "my-group0",

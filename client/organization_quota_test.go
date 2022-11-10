@@ -41,7 +41,7 @@ func TestQuotasOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organization_quotas",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-org-quota" }`,
 			},
@@ -56,7 +56,7 @@ func TestQuotasOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusOK,
 			},
 			Expected: orgQuota,
@@ -93,7 +93,7 @@ func TestQuotasOrgs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
-				Output:   []string{orgQuota},
+				Output:   g.Single(orgQuota),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name", "apps": { "per_app_tasks": 5 }}`,
 			},

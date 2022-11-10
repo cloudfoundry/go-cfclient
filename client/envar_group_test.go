@@ -17,7 +17,7 @@ func TestEnvVarGroups(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/environment_variable_groups/running",
-				Output:   []string{envVarGroup},
+				Output:   g.Single(envVarGroup),
 				Status:   http.StatusOK},
 			Expected: envVarGroup,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -29,7 +29,7 @@ func TestEnvVarGroups(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/environment_variable_groups/staging",
-				Output:   []string{envVarGroup},
+				Output:   g.Single(envVarGroup),
 				Status:   http.StatusOK,
 				PostForm: `{ "var": { "DEBUG": "false" }}`,
 			},

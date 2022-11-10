@@ -18,7 +18,7 @@ func TestServiceBrokers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_brokers",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusAccepted,
 				PostForm: `{
 					"name": "my_service_broker",
@@ -68,7 +68,7 @@ func TestServiceBrokers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusOK},
 			Expected: sb,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -92,7 +92,7 @@ func TestServiceBrokers(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
-				Output:   []string{sb},
+				Output:   g.Single(sb),
 				Status:   http.StatusAccepted,
 				PostForm: `{
 					"name": "my_service_broker",

@@ -16,7 +16,7 @@ func TestJobs(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
-				Output:   []string{job},
+				Output:   g.Single(job),
 				Status:   http.StatusOK},
 			Expected: job,
 			Action: func(c *Client, t *testing.T) (any, error) {
