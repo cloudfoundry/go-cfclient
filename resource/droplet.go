@@ -2,6 +2,18 @@ package resource
 
 import "time"
 
+type DropletState string
+
+// The 3 lifecycle states
+const (
+	DropletStateAwaitingUpload   BuildState = "AWAITING_UPLOAD"
+	DropletStateProcessingUpload BuildState = "PROCESSING_UPLOAD"
+	DropletStateStaged           BuildState = "STAGED"
+	DropletStateCopying          BuildState = "COPYING"
+	DropletStateFailed           BuildState = "FAILED"
+	DropletStateExpired          BuildState = "EXPIRED"
+)
+
 // Droplet is the result of staging an application package.
 // There are two types (lifecycles) of droplets: buildpack and
 // docker. In the case of buildpacks, the droplet contains the
@@ -10,7 +22,7 @@ type Droplet struct {
 	GUID              string            `json:"guid"`
 	CreatedAt         time.Time         `json:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at"`
-	State             string            `json:"state"`
+	State             DropletState      `json:"state"`
 	Error             *string           `json:"error"`
 	Lifecycle         Lifecycle         `json:"lifecycle"`
 	Links             map[string]Link   `json:"links"`
