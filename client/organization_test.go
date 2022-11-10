@@ -2,27 +2,27 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestOrgs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(15)
-	org := g.Organization()
-	org2 := g.Organization()
-	org3 := g.Organization()
-	org4 := g.Organization()
-	domain := g.Domain()
-	orgUsageSummary := g.OrganizationUsageSummary()
-	user := g.User()
-	user2 := g.User()
+	g := testutil.NewObjectJSONGenerator(15)
+	org := g.Organization().JSON
+	org2 := g.Organization().JSON
+	org3 := g.Organization().JSON
+	org4 := g.Organization().JSON
+	domain := g.Domain().JSON
+	orgUsageSummary := g.OrganizationUsageSummary().JSON
+	user := g.User().JSON
+	user2 := g.User().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Assign default org iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
 				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
@@ -36,10 +36,10 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Create org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organizations",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusCreated,
 				PostForm: `{ "name": "my-organization" }`,
 			},
@@ -51,10 +51,10 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusOK,
 			},
 			Expected: org,
@@ -64,7 +64,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org default iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
 				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
@@ -79,10 +79,10 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org default domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/domains/default",
-				Output:   []string{domain},
+				Output:   g.Single(domain),
 				Status:   http.StatusOK,
 			},
 			Expected: domain,
@@ -92,10 +92,10 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org usage summary",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/usage_summary",
-				Output:   []string{orgUsageSummary},
+				Output:   g.Single(orgUsageSummary),
 				Status:   http.StatusOK,
 			},
 			Expected: orgUsageSummary,
@@ -105,7 +105,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Delete org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
 				Status:   http.StatusAccepted,
@@ -116,7 +116,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations",
 				Output:   g.Paged([]string{org, org2}, []string{org3, org4}),
@@ -129,7 +129,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all orgs for iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/571de34f-8067-44f0-8bec-4ac17bf8750f/organizations",
 				Output:   g.Paged([]string{org, org2}, []string{org3, org4}),
@@ -142,7 +142,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all org users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/users",
 				Output:   g.Paged([]string{user}, []string{user2}),
@@ -154,10 +154,10 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Update org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
-				Output:   []string{org},
+				Output:   g.Single(org),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name" }`,
 			},
@@ -170,5 +170,5 @@ func TestOrgs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

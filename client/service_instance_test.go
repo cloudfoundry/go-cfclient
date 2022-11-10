@@ -2,23 +2,23 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceInstances(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
-	si := g.ServiceInstance()
-	si2 := g.ServiceInstance()
+	g := testutil.NewObjectJSONGenerator(156)
+	si := g.ServiceInstance().JSON
+	si2 := g.ServiceInstance().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create managed service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "managed",
@@ -49,10 +49,10 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Create user provided service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "user-provided",
@@ -77,7 +77,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Delete service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:           "DELETE",
 				Endpoint:         "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
 				Status:           http.StatusAccepted,
@@ -90,10 +90,10 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Get service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
-				Output:   []string{si},
+				Output:   g.Single(si),
 				Status:   http.StatusOK},
 			Expected: si,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -102,7 +102,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "List all service instances",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_instances",
 				Output:   g.Paged([]string{si}, []string{si2}),
@@ -113,5 +113,5 @@ func TestServiceInstances(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

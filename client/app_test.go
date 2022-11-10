@@ -2,32 +2,32 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestApps(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	app1 := g.Application()
-	app2 := g.Application()
-	app3 := g.Application()
-	app4 := g.Application()
-	space1 := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
-	appEnvironment := g.AppEnvironment()
-	appEnvVar := g.AppEnvVar()
-	appSSH := g.AppSSH()
-	appPermission := g.AppPermission()
+	g := testutil.NewObjectJSONGenerator(1)
+	app1 := g.Application().JSON
+	app2 := g.Application().JSON
+	app3 := g.Application().JSON
+	app4 := g.Application().JSON
+	space1 := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
+	appEnvironment := g.AppEnvironment().JSON
+	appEnvVar := g.AppEnvVar().JSON
+	appSSH := g.AppSSH().JSON
+	appPermission := g.AppPermission().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusCreated,
 				PostForm: `{"environment_variables":{"FOO":"BAR"},"name":"my-app","relationships":{"space":{"data":{"guid":"space-guid"}}}}`,
 			},
@@ -40,10 +40,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -52,10 +52,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app environment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env",
-				Output:   []string{appEnvironment},
+				Output:   g.Single(appEnvironment),
 				Status:   http.StatusOK,
 			},
 			Expected: appEnvironment,
@@ -65,10 +65,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Update app environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
-				Output:   []string{g.AppUpdateEnvVars()},
+				Output:   []string{g.AppUpdateEnvVars().JSON},
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production", "DEBUG": "false" }`,
@@ -84,10 +84,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
-				Output:   []string{appEnvVar},
+				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
@@ -97,10 +97,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get SSH enabled for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/ssh_enabled",
-				Output:   []string{appSSH},
+				Output:   g.Single(appSSH),
 				Status:   http.StatusOK,
 			},
 			Expected: appSSH,
@@ -110,10 +110,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app permissions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/permissions",
-				Output:   []string{appPermission},
+				Output:   g.Single(appPermission),
 				Status:   http.StatusOK,
 			},
 			Expected: appPermission,
@@ -123,10 +123,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Start app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -136,10 +136,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Stop app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -149,10 +149,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Restart app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 			},
 			Expected: app1,
@@ -162,7 +162,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Delete app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
 				Status:   http.StatusAccepted,
@@ -173,10 +173,10 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Update app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Output:   []string{app1},
+				Output:   g.Single(app1),
 				Status:   http.StatusOK,
 				PostForm: `{ "name": "new_name", "lifecycle": { "type": "buildpack", "data": { "buildpacks": ["java_offline"] }}}`,
 			},
@@ -196,7 +196,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output:   g.Paged([]string{app1, app2}, []string{app3, app4}),
@@ -208,15 +208,15 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps include spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app1, app2},
 						Spaces:    []string{space1},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app3, app4},
 						Spaces:    []string{space2},
 					}),
@@ -229,16 +229,16 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{app1, app2},
 						Spaces:        []string{space1},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app3, app4},
 						Spaces:    []string{space2},
 					}),
@@ -251,5 +251,5 @@ func TestApps(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

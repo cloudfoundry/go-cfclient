@@ -1,23 +1,23 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestManifests(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	manifest := g.Manifest()
+	g := testutil.NewObjectJSONGenerator(1)
+	manifest := g.Manifest().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Generate app manifest",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/389f0d73-04ee-455b-b63c-513c7c78d5ff/manifest",
-				Output:   []string{manifest},
+				Output:   g.Single(manifest),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				actual, err := c.Manifests.Generate("389f0d73-04ee-455b-b63c-513c7c78d5ff")
@@ -27,5 +27,5 @@ func TestManifests(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

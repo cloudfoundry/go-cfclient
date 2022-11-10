@@ -1,8 +1,6 @@
-package client
+package testutil
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -22,17 +20,6 @@ var (
 	fakeUAAServer *httptest.Server
 )
 
-type RouteTest struct {
-	Description string
-	Route       MockRoute
-	Expected    string
-	Expected2   string
-	Expected3   string
-	Action      func(c *Client, t *testing.T) (any, error)
-	Action2     func(c *Client, t *testing.T) (any, any, error)
-	Action3     func(c *Client, t *testing.T) (any, any, any, error)
-}
-
 type MockRoute struct {
 	Method           string
 	Endpoint         string
@@ -44,67 +31,44 @@ type MockRoute struct {
 	RedirectLocation string
 }
 
-func setup(mock MockRoute, t *testing.T) {
-	setupMultiple([]MockRoute{mock}, t)
-}
-
-func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
-	t.Helper()
-	if QueryStringExp == "" {
-		return
+func SetupFakeAPIServer() string {
+	if fakeUAAServer == nil {
+		SetupFakeUAAServer(3)
 	}
-
-	value, _ := url.QueryUnescape(QueryString)
-	if QueryStringExp != value {
-		t.Errorf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
-	}
-}
-
-func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
-	t.Helper()
-	if len(UserAgentExp) < 1 {
-		UserAgentExp = "Go-CF-client/2.0"
-	}
-	if UserAgent != UserAgentExp {
-		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
-	}
-}
-
-func testReqBody(req *http.Request, postFormBody string, t *testing.T) {
-	t.Helper()
-	if postFormBody != "" {
-		if body, err := io.ReadAll(req.Body); err != nil {
-			t.Error("No request body but expected one")
-		} else {
-			defer func(Body io.ReadCloser) {
-				_ = Body.Close()
-			}(req.Body)
-			require.JSONEq(t, postFormBody, string(body),
-				"Expected request body (%s) does not equal request body (%s)", postFormBody, body)
-		}
-	}
-}
-
-func testBodyContains(req *http.Request, expected string, t *testing.T) {
-	t.Helper()
-	if expected != "" {
-		if body, err := io.ReadAll(req.Body); err != nil {
-			t.Error("No request body but expected one")
-		} else {
-			defer func(Body io.ReadCloser) {
-				_ = Body.Close()
-			}(req.Body)
-			if !strings.Contains(string(body), expected) {
-				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", expected, body)
-			}
-		}
-	}
-}
-
-func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
-	fakeUAAServer = FakeUAAServer(3)
+	return server.URL
+}
+
+func SetupFakeUAAServer(expiresIn int) {
+	uaaMux := http.NewServeMux()
+	fakeUAAServer = httptest.NewServer(uaaMux)
+	m := martini.New()
+	m.Use(render.Renderer())
+	r := martini.NewRouter()
+	count := 1
+	r.Post("/oauth/token", func(r render.Render) {
+		r.JSON(200, map[string]interface{}{
+			"token_type":    "bearer",
+			"access_token":  "foobar" + strconv.Itoa(count),
+			"refresh_token": "barfoo",
+			"expires_in":    expiresIn,
+		})
+		count = count + 1
+	})
+	r.NotFound(func() string { return "" })
+	m.Action(r.Handle)
+	uaaMux.Handle("/", m)
+}
+
+func Setup(mock MockRoute, t *testing.T) string {
+	return SetupMultiple([]MockRoute{mock}, t)
+}
+
+func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
+	if server == nil {
+		SetupFakeAPIServer()
+	}
 	m := martini.New()
 	m.Use(render.Renderer())
 	r := martini.NewRouter()
@@ -207,81 +171,66 @@ func setupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 
 	m.Action(r.Handle)
 	mux.Handle("/", m)
+
+	return server.URL
 }
 
-func FakeUAAServer(expiresIn int) *httptest.Server {
-	mux := http.NewServeMux()
-	server := httptest.NewServer(mux)
-	m := martini.New()
-	m.Use(render.Renderer())
-	r := martini.NewRouter()
-	count := 1
-	r.Post("/oauth/token", func(r render.Render) {
-		r.JSON(200, map[string]interface{}{
-			"token_type":    "bearer",
-			"access_token":  "foobar" + strconv.Itoa(count),
-			"refresh_token": "barfoo",
-			"expires_in":    expiresIn,
-		})
-		count = count + 1
-	})
-	r.NotFound(func() string { return "" })
-	m.Action(r.Handle)
-	mux.Handle("/", m)
-	return server
-}
-
-func teardown() {
+func Teardown() {
 	server.Close()
+	server = nil
 	fakeUAAServer.Close()
+	fakeUAAServer = nil
 }
 
-func executeTests(tests []RouteTest, t *testing.T) {
-	for _, tt := range tests {
-		func() {
-			setup(tt.Route, t)
-			defer teardown()
-			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
-			if tt.Description != "" {
-				details = tt.Description + ": " + details
-			}
+func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
+	t.Helper()
+	if QueryStringExp == "" {
+		return
+	}
 
-			c, _ := NewTokenConfig(server.URL, "foobar")
-			cl, err := New(c)
-			require.NoError(t, err, details)
-
-			assertEq := func(t *testing.T, expected string, obj any) {
-				if isJSON(expected) {
-					actualJSON, err := json.Marshal(obj)
-					require.NoError(t, err, details)
-					require.JSONEq(t, expected, string(actualJSON), details)
-				} else {
-					if s, ok := obj.(string); ok {
-						require.Equal(t, expected, s, details)
-					}
-				}
-			}
-
-			if tt.Action != nil {
-				obj1, err := tt.Action(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-			} else if tt.Action2 != nil {
-				obj1, obj2, err := tt.Action2(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-				assertEq(t, tt.Expected2, obj2)
-			} else if tt.Action3 != nil {
-				obj1, obj2, obj3, err := tt.Action3(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-				assertEq(t, tt.Expected2, obj2)
-				assertEq(t, tt.Expected3, obj3)
-			}
-		}()
+	value, _ := url.QueryUnescape(QueryString)
+	if QueryStringExp != value {
+		t.Errorf("Error: Query string '%s' should be equal to '%s'", QueryStringExp, value)
 	}
 }
 
-func isJSON(obj string) bool {
-	return strings.HasPrefix(obj, "{") || strings.HasPrefix(obj, "[")
+func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
+	t.Helper()
+	if len(UserAgentExp) < 1 {
+		UserAgentExp = "Go-CF-client/2.0"
+	}
+	if UserAgent != UserAgentExp {
+		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
+	}
+}
+
+func testReqBody(req *http.Request, postFormBody string, t *testing.T) {
+	t.Helper()
+	if postFormBody != "" {
+		if body, err := io.ReadAll(req.Body); err != nil {
+			t.Error("No request body but expected one")
+		} else {
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
+			require.JSONEq(t, postFormBody, string(body),
+				"Expected request body (%s) does not equal request body (%s)", postFormBody, body)
+		}
+	}
+}
+
+func testBodyContains(req *http.Request, expected string, t *testing.T) {
+	t.Helper()
+	if expected != "" {
+		if body, err := io.ReadAll(req.Body); err != nil {
+			t.Error("No request body but expected one")
+		} else {
+			defer func(Body io.ReadCloser) {
+				_ = Body.Close()
+			}(req.Body)
+			if !strings.Contains(string(body), expected) {
+				t.Errorf("Expected request body (%s) was not found in actual request body (%s)", expected, body)
+			}
+		}
+	}
 }

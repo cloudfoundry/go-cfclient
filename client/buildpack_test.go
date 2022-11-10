@@ -2,25 +2,25 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestBuildpacks(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1002)
-	buildpack := g.Buildpack()
-	buildpack2 := g.Buildpack()
-	buildpack3 := g.Buildpack()
-	buildpack4 := g.Buildpack()
+	g := testutil.NewObjectJSONGenerator(1002)
+	buildpack := g.Buildpack().JSON
+	buildpack2 := g.Buildpack().JSON
+	buildpack3 := g.Buildpack().JSON
+	buildpack4 := g.Buildpack().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/buildpacks",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"name": "ruby_buildpack",
@@ -42,7 +42,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Delete buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
 				Status:   http.StatusAccepted,
@@ -53,10 +53,10 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Get buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusOK},
 			Expected: buildpack,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -65,7 +65,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "List all buildpacks",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/buildpacks",
 				Output:   g.Paged([]string{buildpack, buildpack2}, []string{buildpack3, buildpack4}),
@@ -77,10 +77,10 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Update buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
-				Output:   []string{buildpack},
+				Output:   g.Single(buildpack),
 				Status:   http.StatusOK,
 				PostForm: `{ "position": 1 }`,
 			},
@@ -91,5 +91,5 @@ func TestBuildpacks(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

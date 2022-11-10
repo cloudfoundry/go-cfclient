@@ -2,22 +2,22 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestResourceMatches(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	resourceMatch := g.ResourceMatch()
+	g := testutil.NewObjectJSONGenerator(1)
+	resourceMatch := g.ResourceMatch().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create a resource match",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/resource_matches",
-				Output:   []string{resourceMatch},
+				Output:   g.Single(resourceMatch),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"resources": [
@@ -62,5 +62,5 @@ func TestResourceMatches(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestRevisions(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	revision := g.Revision()
-	revision2 := g.Revision()
-	revision3 := g.Revision()
-	revision4 := g.Revision()
-	appEnvVar := g.AppEnvVar()
+	g := testutil.NewObjectJSONGenerator(1)
+	revision := g.Revision().JSON
+	revision2 := g.Revision().JSON
+	revision3 := g.Revision().JSON
+	revision4 := g.Revision().JSON
+	appEnvVar := g.AppEnvVar().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
-				Output:   []string{revision},
+				Output:   g.Single(revision),
 				Status:   http.StatusOK},
 			Expected: revision,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -30,10 +30,10 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "Get revision environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2/environment_variables",
-				Output:   []string{appEnvVar},
+				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
@@ -43,7 +43,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "List all app revisions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/487d2a80-3769-4ad8-8ef5-a02c363d017b/revisions",
 				Output:   g.Paged([]string{revision, revision2}, []string{revision3, revision4}),
@@ -55,7 +55,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "List all deployed app revisions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/487d2a80-3769-4ad8-8ef5-a02c363d017b/revisions/deployed",
 				Output:   g.Paged([]string{revision, revision2}, []string{revision3, revision4}),
@@ -67,10 +67,10 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "Update a revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
-				Output:   []string{revision},
+				Output:   g.Single(revision),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -90,5 +90,5 @@ func TestRevisions(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

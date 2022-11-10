@@ -1,22 +1,22 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestJobs(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	job := g.Job()
+	g := testutil.NewObjectJSONGenerator(1)
+	job := g.Job("COMPLETE").JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get job",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
-				Output:   []string{job},
+				Output:   g.Single(job),
 				Status:   http.StatusOK},
 			Expected: job,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -24,5 +24,5 @@ func TestJobs(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

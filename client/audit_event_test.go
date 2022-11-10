@@ -1,24 +1,24 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestAuditEvents(t *testing.T) {
-	g := test.NewObjectJSONGenerator(161)
-	auditEvent := g.AuditEvent()
-	auditEvent2 := g.AuditEvent()
-	auditEvent3 := g.AuditEvent()
+	g := testutil.NewObjectJSONGenerator(161)
+	auditEvent := g.AuditEvent().JSON
+	auditEvent2 := g.AuditEvent().JSON
+	auditEvent3 := g.AuditEvent().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get audit event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/audit_events/27a9b4a5-ba8a-448c-ac51-3a6dab9aa3f8",
-				Output:   []string{auditEvent},
+				Output:   g.Single(auditEvent),
 				Status:   http.StatusOK},
 			Expected: auditEvent,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -27,7 +27,7 @@ func TestAuditEvents(t *testing.T) {
 		},
 		{
 			Description: "List all audit events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/audit_events",
 				Output:   g.Paged([]string{auditEvent, auditEvent2}, []string{auditEvent3}),
@@ -38,5 +38,5 @@ func TestAuditEvents(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServicePlans(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
-	svcPlan := g.ServicePlan()
-	svcPlan2 := g.ServicePlan()
-	svcPlan3 := g.ServicePlan()
-	svcPlan4 := g.ServicePlan()
-	space := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
-	svcOffering := g.ServiceOffering()
+	g := testutil.NewObjectJSONGenerator(156)
+	svcPlan := g.ServicePlan().JSON
+	svcPlan2 := g.ServicePlan().JSON
+	svcPlan3 := g.ServicePlan().JSON
+	svcPlan4 := g.ServicePlan().JSON
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
+	svcOffering := g.ServiceOffering().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Delete service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
 				Status:   http.StatusNoContent,
@@ -33,10 +33,10 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "Get service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
-				Output:   []string{svcPlan},
+				Output:   g.Single(svcPlan),
 				Status:   http.StatusOK},
 			Expected: svcPlan,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -45,7 +45,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output:   g.Paged([]string{svcPlan}, []string{svcPlan2}),
@@ -57,15 +57,15 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans include service offerings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{svcPlan, svcPlan2},
 						ServiceOfferings: []string{svcOffering},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcPlan3, svcPlan4},
 					}),
 				Status: http.StatusOK},
@@ -77,16 +77,16 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{svcPlan, svcPlan2},
 						Spaces:        []string{space},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcPlan3, svcPlan4},
 						Spaces:    []string{space2},
 					}),
@@ -100,10 +100,10 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "Update service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
-				Output:   []string{svcPlan},
+				Output:   g.Single(svcPlan),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {
@@ -128,5 +128,5 @@ func TestServicePlans(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

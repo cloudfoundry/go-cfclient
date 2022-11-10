@@ -2,27 +2,27 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceRouteBindings(t *testing.T) {
-	g := test.NewObjectJSONGenerator(324)
-	svcRouteBinding := g.ServiceRouteBinding()
-	svcRouteBinding2 := g.ServiceRouteBinding()
-	svcRouteBinding3 := g.ServiceRouteBinding()
-	svcRouteBinding4 := g.ServiceRouteBinding()
-	route := g.Route()
-	si := g.ServiceInstance()
+	g := testutil.NewObjectJSONGenerator(324)
+	svcRouteBinding := g.ServiceRouteBinding().JSON
+	svcRouteBinding2 := g.ServiceRouteBinding().JSON
+	svcRouteBinding3 := g.ServiceRouteBinding().JSON
+	svcRouteBinding4 := g.ServiceRouteBinding().JSON
+	route := g.Route().JSON
+	si := g.ServiceInstance().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_route_bindings",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"relationships": {
@@ -48,7 +48,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Delete service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Status:   http.StatusNoContent,
@@ -60,10 +60,10 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusOK},
 			Expected: svcRouteBinding,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -72,10 +72,10 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding include route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: svcRouteBinding,
 					Routes:   []string{route},
 				}),
@@ -89,10 +89,10 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding include service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:         svcRouteBinding,
 					ServiceInstances: []string{si},
 				}),
@@ -106,7 +106,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding parameters",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7/parameters",
 				Output: []string{`
@@ -123,7 +123,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output:   g.Paged([]string{svcRouteBinding}, []string{svcRouteBinding2}),
@@ -135,15 +135,15 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings include routes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding, svcRouteBinding2},
 						Routes:    []string{route},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding3, svcRouteBinding4},
 					}),
 				Status: http.StatusOK},
@@ -155,15 +155,15 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings include service instances",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{svcRouteBinding, svcRouteBinding2},
 						ServiceInstances: []string{si},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding3, svcRouteBinding4},
 					}),
 				Status: http.StatusOK},
@@ -175,10 +175,10 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Update service route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output:   []string{svcRouteBinding},
+				Output:   g.Single(svcRouteBinding),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {
@@ -203,5 +203,5 @@ func TestServiceRouteBindings(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

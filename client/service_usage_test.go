@@ -1,24 +1,24 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceUsages(t *testing.T) {
-	g := test.NewObjectJSONGenerator(161)
-	serviceUsage := g.ServiceUsage()
-	serviceUsage2 := g.ServiceUsage()
-	serviceUsage3 := g.ServiceUsage()
+	g := testutil.NewObjectJSONGenerator(161)
+	serviceUsage := g.ServiceUsage().JSON
+	serviceUsage2 := g.ServiceUsage().JSON
+	serviceUsage3 := g.ServiceUsage().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get service usage event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_usage_events/cb4fb5eb-9b72-4696-b7bc-666696dec1b3",
-				Output:   []string{serviceUsage},
+				Output:   g.Single(serviceUsage),
 				Status:   http.StatusOK},
 			Expected: serviceUsage,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -27,7 +27,7 @@ func TestServiceUsages(t *testing.T) {
 		},
 		{
 			Description: "List all service usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_usage_events",
 				Output:   g.Paged([]string{serviceUsage, serviceUsage2}, []string{serviceUsage3}),
@@ -39,7 +39,7 @@ func TestServiceUsages(t *testing.T) {
 		},
 		{
 			Description: "Purge all service usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_usage_events/actions/destructively_purge_all_and_reseed",
 				Status:   http.StatusOK},
@@ -49,5 +49,5 @@ func TestServiceUsages(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

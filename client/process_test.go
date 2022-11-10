@@ -2,26 +2,26 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestProcesses(t *testing.T) {
-	g := test.NewObjectJSONGenerator(78)
-	process := g.Process()
-	process2 := g.Process()
-	process3 := g.Process()
-	process4 := g.Process()
-	processStats := g.ProcessStats()
+	g := testutil.NewObjectJSONGenerator(78)
+	process := g.Process().JSON
+	process2 := g.Process().JSON
+	process3 := g.Process().JSON
+	process4 := g.Process().JSON
+	processStats := g.ProcessStats().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 			},
 			Expected: process,
@@ -31,10 +31,10 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Get process stats",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/stats",
-				Output:   []string{processStats},
+				Output:   g.Single(processStats),
 				Status:   http.StatusOK,
 			},
 			Expected: processStats,
@@ -44,7 +44,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "List all processes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes",
 				Output:   g.Paged([]string{process, process2}, []string{process3, process4}),
@@ -57,7 +57,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "List all processes for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/2a550283-9245-493e-af36-5e4b8703f896/processes",
 				Output:   g.Paged([]string{process, process2}, []string{process3, process4}),
@@ -70,10 +70,10 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Scale a process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/actions/scale",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"instances": 5,
@@ -94,10 +94,10 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Update a process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
-				Output:   []string{process},
+				Output:   g.Single(process),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"command": "rackup",
@@ -120,7 +120,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Terminate process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/instances/0",
 				Status:   http.StatusAccepted,
@@ -130,5 +130,5 @@ func TestProcesses(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,23 +2,23 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestSecurityGroups(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	sg := g.SecurityGroup()
-	sg2 := g.SecurityGroup()
+	g := testutil.NewObjectJSONGenerator(1)
+	sg := g.SecurityGroup().JSON
+	sg2 := g.SecurityGroup().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/security_groups",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusCreated,
 				PostForm: `{
 				  "name": "my-group0",
@@ -55,7 +55,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Delete security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
 				Status:   http.StatusAccepted,
@@ -66,10 +66,10 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Get security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusOK},
 			Expected: sg,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -78,7 +78,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "List all security groups",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/security_groups",
 				Output:   g.Paged([]string{sg}, []string{sg2}),
@@ -90,10 +90,10 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Update security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
-				Output:   []string{sg},
+				Output:   g.Single(sg),
 				Status:   http.StatusOK,
 				PostForm: `{
 				  "name": "my-group0",
@@ -136,5 +136,5 @@ func TestSecurityGroups(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

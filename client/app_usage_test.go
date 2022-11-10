@@ -1,24 +1,24 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestAppUsages(t *testing.T) {
-	g := test.NewObjectJSONGenerator(161)
-	appUsage := g.AppUsage()
-	appUsage2 := g.AppUsage()
-	appUsage3 := g.AppUsage()
+	g := testutil.NewObjectJSONGenerator(161)
+	appUsage := g.AppUsage().JSON
+	appUsage2 := g.AppUsage().JSON
+	appUsage3 := g.AppUsage().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Get app usage event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/app_usage_events/af846b67-e0c4-44eb-bfa8-ff30e902d710",
-				Output:   []string{appUsage},
+				Output:   g.Single(appUsage),
 				Status:   http.StatusOK},
 			Expected: appUsage,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -27,7 +27,7 @@ func TestAppUsages(t *testing.T) {
 		},
 		{
 			Description: "List all app usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/app_usage_events",
 				Output:   g.Paged([]string{appUsage, appUsage2}, []string{appUsage3}),
@@ -39,7 +39,7 @@ func TestAppUsages(t *testing.T) {
 		},
 		{
 			Description: "Purge all app usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/app_usage_events/actions/destructively_purge_all_and_reseed",
 				Status:   http.StatusOK},
@@ -49,5 +49,5 @@ func TestAppUsages(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

@@ -2,27 +2,27 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestRoutes(t *testing.T) {
-	g := test.NewObjectJSONGenerator(123)
-	route := g.Route()
-	route2 := g.Route()
-	domain := g.Domain()
-	space := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
+	g := testutil.NewObjectJSONGenerator(123)
+	route := g.Route().JSON
+	route2 := g.Route().JSON
+	domain := g.Domain().JSON
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/routes",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"host": "a-hostname",
@@ -50,7 +50,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Delete route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Status:   http.StatusAccepted,
@@ -61,10 +61,10 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusOK,
 			},
 			Expected: route,
@@ -74,10 +74,10 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: route,
 					Domains:  []string{domain},
 				}),
@@ -91,10 +91,10 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: route,
 					Spaces:   []string{space},
 				}),
@@ -108,10 +108,10 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include space and org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:      route,
 					Spaces:        []string{space},
 					Organizations: []string{org},
@@ -127,7 +127,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output:   g.Paged([]string{route}, []string{route2}),
@@ -140,7 +140,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/758c78dc-60bc-4f84-999b-247bdc2c37fe/routes",
 				Output:   g.Paged([]string{route}, []string{route2}),
@@ -153,15 +153,15 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{route},
 						Domains:   []string{domain},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{route2},
 					}),
 				Status: http.StatusOK,
@@ -174,15 +174,15 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{route},
 						Spaces:    []string{space},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{route2},
 						Spaces:    []string{space2},
 					}),
@@ -196,16 +196,16 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{route},
 						Spaces:        []string{space},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{route2},
 						Spaces:    []string{space2},
 					}),
@@ -220,10 +220,10 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Update route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Output:   []string{route},
+				Output:   g.Single(route),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"key": "value"}, "annotations": {"note": "detailed information"}}}`,
 			},
@@ -243,5 +243,5 @@ func TestRoutes(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

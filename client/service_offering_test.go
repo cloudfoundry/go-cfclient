@@ -2,20 +2,20 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceOfferings(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
-	so := g.ServiceOffering()
-	so2 := g.ServiceOffering()
+	g := testutil.NewObjectJSONGenerator(156)
+	so := g.ServiceOffering().JSON
+	so2 := g.ServiceOffering().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Delete service offering",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_offerings/928a32d9-8101-4b86-85a4-96e06f833c2d",
 				Status:   http.StatusNoContent,
@@ -27,10 +27,10 @@ func TestServiceOfferings(t *testing.T) {
 		},
 		{
 			Description: "Get service offering",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_offerings/928a32d9-8101-4b86-85a4-96e06f833c2d",
-				Output:   []string{so},
+				Output:   g.Single(so),
 				Status:   http.StatusOK},
 			Expected: so,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -39,7 +39,7 @@ func TestServiceOfferings(t *testing.T) {
 		},
 		{
 			Description: "List all service offerings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_offerings",
 				Output:   g.Paged([]string{so}, []string{so2}),
@@ -51,10 +51,10 @@ func TestServiceOfferings(t *testing.T) {
 		},
 		{
 			Description: "Update service offering",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_offerings/928a32d9-8101-4b86-85a4-96e06f833c2d",
-				Output:   []string{so},
+				Output:   g.Single(so),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"metadata": {
@@ -79,5 +79,5 @@ func TestServiceOfferings(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

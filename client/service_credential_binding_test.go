@@ -2,30 +2,30 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceCredentialBindings(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
-	scb := g.ServiceCredentialBinding()
-	scb2 := g.ServiceCredentialBinding()
-	scb3 := g.ServiceCredentialBinding()
-	scb4 := g.ServiceCredentialBinding()
-	app := g.Application()
-	app2 := g.Application()
-	app3 := g.Application()
-	app4 := g.Application()
-	si := g.ServiceInstance()
+	g := testutil.NewObjectJSONGenerator(1)
+	scb := g.ServiceCredentialBinding().JSON
+	scb2 := g.ServiceCredentialBinding().JSON
+	scb3 := g.ServiceCredentialBinding().JSON
+	scb4 := g.ServiceCredentialBinding().JSON
+	app := g.Application().JSON
+	app2 := g.Application().JSON
+	app3 := g.Application().JSON
+	app4 := g.Application().JSON
+	si := g.ServiceInstance().JSON
 
 	tests := []RouteTest{
 		{
 			Description: "Create service credential binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_credential_bindings",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "app",
@@ -62,7 +62,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "Delete service credential binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
 				Status:   http.StatusAccepted,
@@ -73,10 +73,10 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service credential binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusOK},
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -85,10 +85,10 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service credential binding and app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: scb,
 					Apps:     []string{app},
 				}),
@@ -102,10 +102,10 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service credential binding and service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:         scb,
 					ServiceInstances: []string{si},
 				}),
@@ -119,7 +119,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service credential bindings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings",
 				Output:   g.Paged([]string{scb}, []string{scb2}),
@@ -131,15 +131,15 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service credential bindings and include apps",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb, scb2},
 						Apps:      []string{app, app2},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb3, scb4},
 						Apps:      []string{app3, app4},
 					}),
@@ -153,15 +153,15 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service credential bindings and include service instances",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{scb, scb2},
 						ServiceInstances: []string{si},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb3, scb4},
 					}),
 				Status: http.StatusOK,
@@ -174,10 +174,10 @@ func TestServiceCredentialBindings(t *testing.T) {
 		},
 		{
 			Description: "Update service credential binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output:   []string{scb},
+				Output:   g.Single(scb),
 				Status:   http.StatusOK,
 				PostForm: `{ "metadata": { "labels": {"foo": "bar"}, "annotations": {"baz": "qux"} }}`,
 			},
@@ -197,5 +197,5 @@ func TestServiceCredentialBindings(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }
