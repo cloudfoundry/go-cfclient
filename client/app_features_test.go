@@ -8,7 +8,7 @@ import (
 
 func TestAppFeatures(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(163)
-	appFeature := g.AppFeature()
+	appFeature := g.AppFeature().JSON
 
 	tests := []RouteTest{
 		{

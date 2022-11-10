@@ -9,14 +9,14 @@ import (
 
 func TestServicePlans(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(156)
-	svcPlan := g.ServicePlan()
-	svcPlan2 := g.ServicePlan()
-	svcPlan3 := g.ServicePlan()
-	svcPlan4 := g.ServicePlan()
-	space := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
-	svcOffering := g.ServiceOffering()
+	svcPlan := g.ServicePlan().JSON
+	svcPlan2 := g.ServicePlan().JSON
+	svcPlan3 := g.ServicePlan().JSON
+	svcPlan4 := g.ServicePlan().JSON
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
+	svcOffering := g.ServiceOffering().JSON
 
 	tests := []RouteTest{
 		{

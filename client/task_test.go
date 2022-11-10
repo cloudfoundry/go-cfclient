@@ -8,11 +8,11 @@ import (
 )
 
 func TestTasks(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
-	task := g.Task()
-	task2 := g.Task()
-	task3 := g.Task()
-	task4 := g.Task()
+	g := testutil.NewObjectJSONGenerator(174545)
+	task := g.Task().JSON
+	task2 := g.Task().JSON
+	task3 := g.Task().JSON
+	task4 := g.Task().JSON
 
 	tests := []RouteTest{
 		{

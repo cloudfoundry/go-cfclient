@@ -9,17 +9,17 @@ import (
 
 func TestApps(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	app1 := g.Application()
-	app2 := g.Application()
-	app3 := g.Application()
-	app4 := g.Application()
-	space1 := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
-	appEnvironment := g.AppEnvironment()
-	appEnvVar := g.AppEnvVar()
-	appSSH := g.AppSSH()
-	appPermission := g.AppPermission()
+	app1 := g.Application().JSON
+	app2 := g.Application().JSON
+	app3 := g.Application().JSON
+	app4 := g.Application().JSON
+	space1 := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
+	appEnvironment := g.AppEnvironment().JSON
+	appEnvVar := g.AppEnvVar().JSON
+	appSSH := g.AppSSH().JSON
+	appPermission := g.AppPermission().JSON
 
 	tests := []RouteTest{
 		{
@@ -68,7 +68,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
-				Output:   []string{g.AppUpdateEnvVars()},
+				Output:   []string{g.AppUpdateEnvVars().JSON},
 				Status:   http.StatusOK,
 			},
 			Expected: `{ "RAILS_ENV": "production", "DEBUG": "false" }`,

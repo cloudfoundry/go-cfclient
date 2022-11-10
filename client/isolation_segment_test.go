@@ -9,11 +9,11 @@ import (
 
 func TestIsolationSegments(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	iso := g.IsolationSegment()
-	iso2 := g.IsolationSegment()
-	iso3 := g.IsolationSegment()
-	iso4 := g.IsolationSegment()
-	isoRelations := g.IsolationSegmentRelationships()
+	iso := g.IsolationSegment().JSON
+	iso2 := g.IsolationSegment().JSON
+	iso3 := g.IsolationSegment().JSON
+	iso4 := g.IsolationSegment().JSON
+	isoRelations := g.IsolationSegmentRelationships().JSON
 
 	tests := []RouteTest{
 		{

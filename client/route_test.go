@@ -9,12 +9,12 @@ import (
 
 func TestRoutes(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(123)
-	route := g.Route()
-	route2 := g.Route()
-	domain := g.Domain()
-	space := g.Space()
-	space2 := g.Space()
-	org := g.Organization()
+	route := g.Route().JSON
+	route2 := g.Route().JSON
+	domain := g.Domain().JSON
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	org := g.Organization().JSON
 
 	tests := []RouteTest{
 		{

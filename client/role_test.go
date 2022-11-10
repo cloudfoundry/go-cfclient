@@ -9,18 +9,18 @@ import (
 
 func TestRoles(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(15)
-	role := g.Role()
-	role2 := g.Role()
-	role3 := g.Role()
-	role4 := g.Role()
-	org := g.Organization()
-	org2 := g.Organization()
-	space := g.Space()
-	space2 := g.Space()
-	space3 := g.Space()
-	user := g.User()
-	user2 := g.User()
-	user3 := g.User()
+	role := g.Role().JSON
+	role2 := g.Role().JSON
+	role3 := g.Role().JSON
+	role4 := g.Role().JSON
+	org := g.Organization().JSON
+	org2 := g.Organization().JSON
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	space3 := g.Space().JSON
+	user := g.User().JSON
+	user2 := g.User().JSON
+	user3 := g.User().JSON
 
 	tests := []RouteTest{
 		{

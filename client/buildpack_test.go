@@ -9,10 +9,10 @@ import (
 
 func TestBuildpacks(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1002)
-	buildpack := g.Buildpack()
-	buildpack2 := g.Buildpack()
-	buildpack3 := g.Buildpack()
-	buildpack4 := g.Buildpack()
+	buildpack := g.Buildpack().JSON
+	buildpack2 := g.Buildpack().JSON
+	buildpack3 := g.Buildpack().JSON
+	buildpack4 := g.Buildpack().JSON
 
 	tests := []RouteTest{
 		{

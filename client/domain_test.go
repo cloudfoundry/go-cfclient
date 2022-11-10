@@ -9,11 +9,11 @@ import (
 
 func TestDomains(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	domain := g.Domain()
-	domain2 := g.Domain()
-	domain3 := g.Domain()
-	domain4 := g.Domain()
-	sharedDomains := g.DomainShared()
+	domain := g.Domain().JSON
+	domain2 := g.Domain().JSON
+	domain3 := g.Domain().JSON
+	domain4 := g.Domain().JSON
+	sharedDomains := g.DomainShared().JSON
 
 	tests := []RouteTest{
 		{

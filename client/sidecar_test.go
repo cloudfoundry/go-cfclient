@@ -8,11 +8,11 @@ import (
 )
 
 func TestSidecars(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
-	sidecar := g.Sidecar()
-	sidecar2 := g.Sidecar()
-	sidecar3 := g.Sidecar()
-	sidecar4 := g.Sidecar()
+	g := testutil.NewObjectJSONGenerator(195)
+	sidecar := g.Sidecar().JSON
+	sidecar2 := g.Sidecar().JSON
+	sidecar3 := g.Sidecar().JSON
+	sidecar4 := g.Sidecar().JSON
 
 	tests := []RouteTest{
 		{

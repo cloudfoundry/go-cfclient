@@ -8,15 +8,15 @@ import (
 )
 
 func TestSpaces(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
-	space := g.Space()
-	space2 := g.Space()
-	space3 := g.Space()
-	space4 := g.Space()
-	user := g.User()
-	user2 := g.User()
-	org := g.Organization()
-	org2 := g.Organization()
+	g := testutil.NewObjectJSONGenerator(19652)
+	space := g.Space().JSON
+	space2 := g.Space().JSON
+	space3 := g.Space().JSON
+	space4 := g.Space().JSON
+	user := g.User().JSON
+	user2 := g.User().JSON
+	org := g.Organization().JSON
+	org2 := g.Organization().JSON
 
 	tests := []RouteTest{
 		{

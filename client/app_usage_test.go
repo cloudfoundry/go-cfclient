@@ -8,9 +8,9 @@ import (
 
 func TestAppUsages(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(161)
-	appUsage := g.AppUsage()
-	appUsage2 := g.AppUsage()
-	appUsage3 := g.AppUsage()
+	appUsage := g.AppUsage().JSON
+	appUsage2 := g.AppUsage().JSON
+	appUsage3 := g.AppUsage().JSON
 
 	tests := []RouteTest{
 		{

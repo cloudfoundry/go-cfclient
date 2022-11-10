@@ -8,9 +8,9 @@ import (
 
 func TestServiceUsages(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(161)
-	serviceUsage := g.ServiceUsage()
-	serviceUsage2 := g.ServiceUsage()
-	serviceUsage3 := g.ServiceUsage()
+	serviceUsage := g.ServiceUsage().JSON
+	serviceUsage2 := g.ServiceUsage().JSON
+	serviceUsage3 := g.ServiceUsage().JSON
 
 	tests := []RouteTest{
 		{

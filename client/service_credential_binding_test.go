@@ -9,15 +9,15 @@ import (
 
 func TestServiceCredentialBindings(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	scb := g.ServiceCredentialBinding()
-	scb2 := g.ServiceCredentialBinding()
-	scb3 := g.ServiceCredentialBinding()
-	scb4 := g.ServiceCredentialBinding()
-	app := g.Application()
-	app2 := g.Application()
-	app3 := g.Application()
-	app4 := g.Application()
-	si := g.ServiceInstance()
+	scb := g.ServiceCredentialBinding().JSON
+	scb2 := g.ServiceCredentialBinding().JSON
+	scb3 := g.ServiceCredentialBinding().JSON
+	scb4 := g.ServiceCredentialBinding().JSON
+	app := g.Application().JSON
+	app2 := g.Application().JSON
+	app3 := g.Application().JSON
+	app4 := g.Application().JSON
+	si := g.ServiceInstance().JSON
 
 	tests := []RouteTest{
 		{
