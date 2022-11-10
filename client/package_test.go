@@ -13,7 +13,7 @@ import (
 
 func TestBitsMarshalling(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	rawPkg := g.Package()
+	rawPkg := g.Package().JSON
 
 	var pkg resource.Package
 	err := json.Unmarshal([]byte(rawPkg), &pkg)
@@ -30,7 +30,7 @@ func TestBitsMarshalling(t *testing.T) {
 
 func TestDockerMarshalling(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	rawPkg := g.PackageDocker()
+	rawPkg := g.PackageDocker().JSON
 
 	var pkg resource.Package
 	err := json.Unmarshal([]byte(rawPkg), &pkg)
@@ -48,10 +48,10 @@ func TestDockerMarshalling(t *testing.T) {
 
 func TestPackages(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	pkg := g.Package()
-	pkg2 := g.Package()
-	pkg3 := g.Package()
-	pkg4 := g.Package()
+	pkg := g.Package().JSON
+	pkg2 := g.Package().JSON
+	pkg3 := g.Package().JSON
+	pkg4 := g.Package().JSON
 
 	tests := []RouteTest{
 		{

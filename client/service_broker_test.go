@@ -9,8 +9,8 @@ import (
 
 func TestServiceBrokers(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(6872)
-	sb := g.ServiceBroker()
-	sb2 := g.ServiceBroker()
+	sb := g.ServiceBroker().JSON
+	sb2 := g.ServiceBroker().JSON
 
 	tests := []RouteTest{
 		{

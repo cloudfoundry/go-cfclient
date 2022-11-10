@@ -12,11 +12,11 @@ import (
 
 func TestDroplets(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(2)
-	droplet := g.Droplet()
-	droplet2 := g.Droplet()
-	droplet3 := g.Droplet()
-	droplet4 := g.Droplet()
-	dropletAssociation := g.DropletAssociation()
+	droplet := g.Droplet().JSON
+	droplet2 := g.Droplet().JSON
+	droplet3 := g.Droplet().JSON
+	droplet4 := g.Droplet().JSON
+	dropletAssociation := g.DropletAssociation().JSON
 
 	tests := []RouteTest{
 		{

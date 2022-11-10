@@ -9,11 +9,11 @@ import (
 
 func TestRevisions(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	revision := g.Revision()
-	revision2 := g.Revision()
-	revision3 := g.Revision()
-	revision4 := g.Revision()
-	appEnvVar := g.AppEnvVar()
+	revision := g.Revision().JSON
+	revision2 := g.Revision().JSON
+	revision3 := g.Revision().JSON
+	revision4 := g.Revision().JSON
+	appEnvVar := g.AppEnvVar().JSON
 
 	tests := []RouteTest{
 		{

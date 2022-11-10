@@ -8,9 +8,9 @@ import (
 
 func TestAuditEvents(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(161)
-	auditEvent := g.AuditEvent()
-	auditEvent2 := g.AuditEvent()
-	auditEvent3 := g.AuditEvent()
+	auditEvent := g.AuditEvent().JSON
+	auditEvent2 := g.AuditEvent().JSON
+	auditEvent3 := g.AuditEvent().JSON
 
 	tests := []RouteTest{
 		{

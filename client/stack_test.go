@@ -8,11 +8,11 @@ import (
 )
 
 func TestStacks(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
-	stack := g.Stack()
-	stack2 := g.Stack()
-	app := g.Application()
-	app2 := g.Application()
+	g := testutil.NewObjectJSONGenerator(165123)
+	stack := g.Stack().JSON
+	stack2 := g.Stack().JSON
+	app := g.Application().JSON
+	app2 := g.Application().JSON
 
 	tests := []RouteTest{
 		{

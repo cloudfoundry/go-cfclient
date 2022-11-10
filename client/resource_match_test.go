@@ -9,7 +9,7 @@ import (
 
 func TestResourceMatches(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	resourceMatch := g.ResourceMatch()
+	resourceMatch := g.ResourceMatch().JSON
 
 	tests := []RouteTest{
 		{

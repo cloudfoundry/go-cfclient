@@ -8,9 +8,9 @@ import (
 )
 
 func TestUsers(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
-	user := g.User()
-	user2 := g.User()
+	g := testutil.NewObjectJSONGenerator(16451)
+	user := g.User().JSON
+	user2 := g.User().JSON
 
 	tests := []RouteTest{
 		{

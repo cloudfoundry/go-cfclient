@@ -9,8 +9,8 @@ import (
 
 func TestServiceOfferings(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(156)
-	so := g.ServiceOffering()
-	so2 := g.ServiceOffering()
+	so := g.ServiceOffering().JSON
+	so2 := g.ServiceOffering().JSON
 
 	tests := []RouteTest{
 		{

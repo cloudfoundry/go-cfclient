@@ -14,6 +14,12 @@ import (
 
 const defaultAPIResourcePath = "https://api.example.org/v3/somepagedresource"
 
+type JSONResource struct {
+	GUID string
+	Name string
+	JSON string
+}
+
 type ResourceResult struct {
 	Resource string
 
@@ -44,11 +50,6 @@ type PagedResult struct {
 	Routes           []string
 }
 
-type resourceTemplate struct {
-	GUID string
-	Name string
-}
-
 type resultTemplate struct {
 	TotalResults int
 	TotalPages   int
@@ -76,333 +77,337 @@ func NewObjectJSONGenerator(seed int) *ObjectJSONGenerator {
 	return &ObjectJSONGenerator{}
 }
 
-func (o ObjectJSONGenerator) Application() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Application() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "app.json")
+	return o.renderTemplate(r, "app.json")
 }
 
-func (o ObjectJSONGenerator) AppFeature() string {
-	r := resourceTemplate{}
-	return o.template(r, "app_feature.json")
+func (o ObjectJSONGenerator) AppFeature() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "app_feature.json")
 }
 
-func (o ObjectJSONGenerator) AppUsage() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) AppUsage() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "app_usage.json")
+	return o.renderTemplate(r, "app_usage.json")
 }
 
-func (o ObjectJSONGenerator) AuditEvent() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) AuditEvent() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "audit_event.json")
+	return o.renderTemplate(r, "audit_event.json")
 }
 
-func (o ObjectJSONGenerator) AppUpdateEnvVars() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) AppUpdateEnvVars() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "app_update_envvar.json")
+	return o.renderTemplate(r, "app_update_envvar.json")
 }
 
-func (o ObjectJSONGenerator) AppEnvironment() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) AppEnvironment() *JSONResource {
+	r := &JSONResource{
 		Name: RandomName(),
 	}
-	return o.template(r, "app_environment.json")
+	return o.renderTemplate(r, "app_environment.json")
 }
 
-func (o ObjectJSONGenerator) AppEnvVar() string {
-	r := resourceTemplate{}
-	return o.template(r, "app_envvar.json")
+func (o ObjectJSONGenerator) AppEnvVar() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "app_envvar.json")
 }
 
-func (o ObjectJSONGenerator) AppSSH() string {
-	return o.template(resourceTemplate{}, "app_ssh.json")
+func (o ObjectJSONGenerator) AppSSH() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "app_ssh.json")
 }
 
-func (o ObjectJSONGenerator) AppPermission() string {
-	return o.template(resourceTemplate{}, "app_permissions.json")
+func (o ObjectJSONGenerator) AppPermission() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "app_permissions.json")
 }
 
-func (o ObjectJSONGenerator) Build() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Build() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "build.json")
+	return o.renderTemplate(r, "build.json")
 }
 
-func (o ObjectJSONGenerator) Buildpack() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-		Name: RandomName(),
-	}
-	return o.template(r, "buildpack.json")
-}
-
-func (o ObjectJSONGenerator) Droplet() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "droplet.json")
-}
-
-func (o ObjectJSONGenerator) DropletAssociation() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "droplet_association.json")
-}
-
-func (o ObjectJSONGenerator) Deployment() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "deployment.json")
-}
-
-func (o ObjectJSONGenerator) Domain() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "domain.json")
-}
-
-func (o ObjectJSONGenerator) DomainShared() string {
-	return o.template(resourceTemplate{}, "domain_shared.json")
-}
-
-func (o ObjectJSONGenerator) EnvVarGroup() string {
-	return o.template(resourceTemplate{}, "environment_variable_group.json")
-}
-
-func (o ObjectJSONGenerator) FeatureFlag() string {
-	r := resourceTemplate{
-		Name: RandomName(),
-	}
-	return o.template(r, "feature_flag.json")
-}
-
-func (o ObjectJSONGenerator) IsolationSegment() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "isolation_segment.json")
-}
-
-func (o ObjectJSONGenerator) IsolationSegmentRelationships() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "isolation_segment_relationships.json")
-}
-
-func (o ObjectJSONGenerator) Job() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "job.json")
-}
-
-func (o ObjectJSONGenerator) Manifest() string {
-	r := resourceTemplate{}
-	return o.template(r, "manifest.yml")
-}
-
-func (o ObjectJSONGenerator) ManifestDiff() string {
-	r := resourceTemplate{}
-	return o.template(r, "manifest_diff.yml")
-}
-
-func (o ObjectJSONGenerator) Organization() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Buildpack() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "org.json")
+	return o.renderTemplate(r, "buildpack.json")
 }
 
-func (o ObjectJSONGenerator) OrganizationUsageSummary() string {
-	r := resourceTemplate{}
-	return o.template(r, "org_usage_summary.json")
-}
-
-func (o ObjectJSONGenerator) OrganizationQuota() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Droplet() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "org_quota.json")
+	return o.renderTemplate(r, "droplet.json")
 }
 
-func (o ObjectJSONGenerator) Package() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) DropletAssociation() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "package.json")
+	return o.renderTemplate(r, "droplet_association.json")
 }
 
-func (o ObjectJSONGenerator) PackageDocker() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Deployment() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "package_docker.json")
+	return o.renderTemplate(r, "deployment.json")
 }
 
-func (o ObjectJSONGenerator) Process() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Domain() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "process.json")
+	return o.renderTemplate(r, "domain.json")
 }
 
-func (o ObjectJSONGenerator) ProcessStats() string {
-	r := resourceTemplate{}
-	return o.template(r, "process_stats.json")
+func (o ObjectJSONGenerator) DomainShared() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "domain_shared.json")
 }
 
-func (o ObjectJSONGenerator) ResourceMatch() string {
-	r := resourceTemplate{}
-	return o.template(r, "resource_match.json")
+func (o ObjectJSONGenerator) EnvVarGroup() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "environment_variable_group.json")
 }
 
-func (o ObjectJSONGenerator) Revision() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) FeatureFlag() *JSONResource {
+	r := &JSONResource{
+		Name: RandomName(),
+	}
+	return o.renderTemplate(r, "feature_flag.json")
+}
+
+func (o ObjectJSONGenerator) IsolationSegment() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "revision.json")
+	return o.renderTemplate(r, "isolation_segment.json")
 }
 
-func (o ObjectJSONGenerator) Role() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) IsolationSegmentRelationships() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "role.json")
+	return o.renderTemplate(r, "isolation_segment_relationships.json")
 }
 
-func (o ObjectJSONGenerator) Route() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Job() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 	}
-	return o.template(r, "route.json")
+	return o.renderTemplate(r, "job.json")
 }
 
-func (o ObjectJSONGenerator) ServiceBroker() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Manifest() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "manifest.yml")
+}
+
+func (o ObjectJSONGenerator) ManifestDiff() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "manifest_diff.yml")
+}
+
+func (o ObjectJSONGenerator) Organization() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "service_broker.json")
+	return o.renderTemplate(r, "org.json")
 }
 
-func (o ObjectJSONGenerator) SecurityGroup() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) OrganizationUsageSummary() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "org_usage_summary.json")
+}
+
+func (o ObjectJSONGenerator) OrganizationQuota() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "org_quota.json")
+}
+
+func (o ObjectJSONGenerator) Package() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "package.json")
+}
+
+func (o ObjectJSONGenerator) PackageDocker() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "package_docker.json")
+}
+
+func (o ObjectJSONGenerator) Process() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "process.json")
+}
+
+func (o ObjectJSONGenerator) ProcessStats() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "process_stats.json")
+}
+
+func (o ObjectJSONGenerator) ResourceMatch() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "resource_match.json")
+}
+
+func (o ObjectJSONGenerator) Revision() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "revision.json")
+}
+
+func (o ObjectJSONGenerator) Role() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "role.json")
+}
+
+func (o ObjectJSONGenerator) Route() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "route.json")
+}
+
+func (o ObjectJSONGenerator) ServiceBroker() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "security_group.json")
+	return o.renderTemplate(r, "service_broker.json")
 }
 
-func (o ObjectJSONGenerator) ServiceCredentialBinding() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) SecurityGroup() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "service_credential_binding.json")
+	return o.renderTemplate(r, "security_group.json")
 }
 
-func (o ObjectJSONGenerator) ServiceInstance() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) ServiceCredentialBinding() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "service_instance.json")
+	return o.renderTemplate(r, "service_credential_binding.json")
 }
 
-func (o ObjectJSONGenerator) ServiceOffering() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) ServiceInstance() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "service_offering.json")
+	return o.renderTemplate(r, "service_instance.json")
 }
 
-func (o ObjectJSONGenerator) ServicePlan() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) ServiceOffering() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "service_plan.json")
+	return o.renderTemplate(r, "service_offering.json")
 }
 
-func (o ObjectJSONGenerator) ServicePlanVisibility() string {
-	r := resourceTemplate{}
-	return o.template(r, "service_plan_visibility.json")
-}
-
-func (o ObjectJSONGenerator) ServiceRouteBinding() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "service_route_binding.json")
-}
-
-func (o ObjectJSONGenerator) ServiceUsage() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "service_usage.json")
-}
-
-func (o ObjectJSONGenerator) Sidecar() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) ServicePlan() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "sidecar.json")
+	return o.renderTemplate(r, "service_plan.json")
 }
 
-func (o ObjectJSONGenerator) Space() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) ServicePlanVisibility() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "service_plan_visibility.json")
+}
+
+func (o ObjectJSONGenerator) ServiceRouteBinding() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "service_route_binding.json")
+}
+
+func (o ObjectJSONGenerator) ServiceUsage() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "service_usage.json")
+}
+
+func (o ObjectJSONGenerator) Sidecar() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "space.json")
+	return o.renderTemplate(r, "sidecar.json")
 }
 
-func (o ObjectJSONGenerator) SpaceQuota() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Space() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "space_quota.json")
+	return o.renderTemplate(r, "space.json")
 }
 
-func (o ObjectJSONGenerator) Stack() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) SpaceQuota() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "stack.json")
+	return o.renderTemplate(r, "space_quota.json")
 }
 
-func (o ObjectJSONGenerator) Task() string {
-	r := resourceTemplate{
-		GUID: RandomGUID(),
-	}
-	return o.template(r, "task.json")
-}
-
-func (o ObjectJSONGenerator) User() string {
-	r := resourceTemplate{
+func (o ObjectJSONGenerator) Stack() *JSONResource {
+	r := &JSONResource{
 		GUID: RandomGUID(),
 		Name: RandomName(),
 	}
-	return o.template(r, "user.json")
+	return o.renderTemplate(r, "stack.json")
+}
+
+func (o ObjectJSONGenerator) Task() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "task.json")
+}
+
+func (o ObjectJSONGenerator) User() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.renderTemplate(r, "user.json")
 }
 
 // ResourceWithInclude merges the included resources under the primary resource's included key
@@ -511,7 +516,7 @@ func (o ObjectJSONGenerator) Array(resourcesJSON ...string) string {
 	return "[" + strings.Join(resourcesJSON, ",") + "]"
 }
 
-func (o ObjectJSONGenerator) template(rt resourceTemplate, fileName string) string {
+func (o ObjectJSONGenerator) renderTemplate(rt *JSONResource, fileName string) *JSONResource {
 	_, filename, _, _ := runtime.Caller(1)
 	p := path.Join(path.Dir(filename), "template", fileName)
 	f, err := os.ReadFile(p)
@@ -528,7 +533,8 @@ func (o ObjectJSONGenerator) template(rt resourceTemplate, fileName string) stri
 	if err != nil {
 		panic(err)
 	}
-	return b.String()
+	rt.JSON = b.String()
+	return rt
 }
 
 const listTemplate = `

@@ -9,8 +9,8 @@ import (
 
 func TestSecurityGroups(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	sg := g.SecurityGroup()
-	sg2 := g.SecurityGroup()
+	sg := g.SecurityGroup().JSON
+	sg2 := g.SecurityGroup().JSON
 
 	tests := []RouteTest{
 		{

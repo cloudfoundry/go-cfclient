@@ -9,12 +9,12 @@ import (
 
 func TestServiceRouteBindings(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(324)
-	svcRouteBinding := g.ServiceRouteBinding()
-	svcRouteBinding2 := g.ServiceRouteBinding()
-	svcRouteBinding3 := g.ServiceRouteBinding()
-	svcRouteBinding4 := g.ServiceRouteBinding()
-	route := g.Route()
-	si := g.ServiceInstance()
+	svcRouteBinding := g.ServiceRouteBinding().JSON
+	svcRouteBinding2 := g.ServiceRouteBinding().JSON
+	svcRouteBinding3 := g.ServiceRouteBinding().JSON
+	svcRouteBinding4 := g.ServiceRouteBinding().JSON
+	route := g.Route().JSON
+	si := g.ServiceInstance().JSON
 
 	tests := []RouteTest{
 		{

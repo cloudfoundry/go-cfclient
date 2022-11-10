@@ -9,10 +9,10 @@ import (
 
 func TestQuotasOrgs(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(15)
-	orgQuota := g.OrganizationQuota()
-	orgQuota2 := g.OrganizationQuota()
-	orgQuota3 := g.OrganizationQuota()
-	orgQuota4 := g.OrganizationQuota()
+	orgQuota := g.OrganizationQuota().JSON
+	orgQuota2 := g.OrganizationQuota().JSON
+	orgQuota3 := g.OrganizationQuota().JSON
+	orgQuota4 := g.OrganizationQuota().JSON
 
 	tests := []RouteTest{
 		{

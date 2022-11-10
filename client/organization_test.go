@@ -10,14 +10,14 @@ import (
 
 func TestOrgs(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(15)
-	org := g.Organization()
-	org2 := g.Organization()
-	org3 := g.Organization()
-	org4 := g.Organization()
-	domain := g.Domain()
-	orgUsageSummary := g.OrganizationUsageSummary()
-	user := g.User()
-	user2 := g.User()
+	org := g.Organization().JSON
+	org2 := g.Organization().JSON
+	org3 := g.Organization().JSON
+	org4 := g.Organization().JSON
+	domain := g.Domain().JSON
+	orgUsageSummary := g.OrganizationUsageSummary().JSON
+	user := g.User().JSON
+	user2 := g.User().JSON
 
 	tests := []RouteTest{
 		{

@@ -9,10 +9,10 @@ import (
 
 func TestFeatureFlags(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(852)
-	ff := g.FeatureFlag()
-	ff2 := g.FeatureFlag()
-	ff3 := g.FeatureFlag()
-	ff4 := g.FeatureFlag()
+	ff := g.FeatureFlag().JSON
+	ff2 := g.FeatureFlag().JSON
+	ff3 := g.FeatureFlag().JSON
+	ff4 := g.FeatureFlag().JSON
 
 	tests := []RouteTest{
 		{

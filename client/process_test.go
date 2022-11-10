@@ -9,11 +9,11 @@ import (
 
 func TestProcesses(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(78)
-	process := g.Process()
-	process2 := g.Process()
-	process3 := g.Process()
-	process4 := g.Process()
-	processStats := g.ProcessStats()
+	process := g.Process().JSON
+	process2 := g.Process().JSON
+	process3 := g.Process().JSON
+	process4 := g.Process().JSON
+	processStats := g.ProcessStats().JSON
 
 	tests := []RouteTest{
 		{

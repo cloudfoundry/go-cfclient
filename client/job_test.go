@@ -8,7 +8,7 @@ import (
 
 func TestJobs(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(1)
-	job := g.Job()
+	job := g.Job().JSON
 
 	tests := []RouteTest{
 		{

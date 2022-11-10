@@ -10,10 +10,10 @@ import (
 
 func TestDeployments(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(4)
-	deployment := g.Deployment()
-	deployment2 := g.Deployment()
-	deployment3 := g.Deployment()
-	deployment4 := g.Deployment()
+	deployment := g.Deployment().JSON
+	deployment2 := g.Deployment().JSON
+	deployment3 := g.Deployment().JSON
+	deployment4 := g.Deployment().JSON
 
 	tests := []RouteTest{
 		{

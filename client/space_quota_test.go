@@ -8,11 +8,11 @@ import (
 )
 
 func TestSpaceOrgs(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(15)
-	spaceQuota := g.SpaceQuota()
-	spaceQuota2 := g.SpaceQuota()
-	spaceQuota3 := g.SpaceQuota()
-	spaceQuota4 := g.SpaceQuota()
+	g := testutil.NewObjectJSONGenerator(15954)
+	spaceQuota := g.SpaceQuota().JSON
+	spaceQuota2 := g.SpaceQuota().JSON
+	spaceQuota3 := g.SpaceQuota().JSON
+	spaceQuota4 := g.SpaceQuota().JSON
 
 	tests := []RouteTest{
 		{
