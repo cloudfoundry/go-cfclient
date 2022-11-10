@@ -2,29 +2,30 @@ package actors
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/client"
-	"github.com/cloudfoundry-community/go-cfclient/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"gopkg.in/yaml.v3"
 	"io"
-	"strconv"
-	"strings"
-	"time"
 )
 
-type AppPusher struct {
+// AppPushActor can be used to push buildpack apps
+type AppPushActor struct {
 	orgName   string
 	spaceName string
 	client    *client.Client
 }
 
-func NewAppPusher(client *client.Client, orgName, spaceName string) *AppPusher {
-	return &AppPusher{
+// NewAppPushActor creates a new AppPushActor
+func NewAppPushActor(client *client.Client, orgName, spaceName string) *AppPushActor {
+	return &AppPushActor{
 		orgName:   orgName,
 		spaceName: spaceName,
 		client:    client,
 	}
 }
 
-func (p *AppPusher) Push(appManifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+// Push creates or updates an application using the specified manifest and zipped source files
+func (p *AppPushActor) Push(appManifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	org, err := p.findOrg()
 	if err != nil {
 		return nil, err
@@ -33,54 +34,95 @@ func (p *AppPusher) Push(appManifest *AppManifest, zipFile io.Reader) (*resource
 	if err != nil {
 		return nil, err
 	}
-	app, err := p.findAppOrNil(org.GUID, space.GUID, appManifest.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	if app == nil {
-		return p.pushNewApp(org, space, appManifest, zipFile)
-	} else {
-		return p.pushUpdatedApp(org, space, app, appManifest, zipFile)
-	}
+	return p.pushApp(space, appManifest, zipFile)
 }
 
-func (p *AppPusher) pushUpdatedApp(org *resource.Organization, space *resource.Space, app *resource.App, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
-	panic("pushUpdatedApp not implemented")
-}
-
-// pushNewApp pushes a new application that doesn't already exist
+// pushApp pushes an application
 //
 // After an application is created and packages are uploaded, a droplet must be created via a build in order for
 // an application to be deployed or tasks to be run. The current droplet must be assigned to an application before
 // it may be started. When tasks are created, they either use a specific droplet guid, or use the current droplet
 // assigned to an application.
-func (p *AppPusher) pushNewApp(org *resource.Organization, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
-	// Create the application object
-	newApp := resource.NewAppCreate(manifest.Name, space.GUID)
-	newApp.EnvironmentVariables = manifest.Env
-	newApp.Lifecycle.Type = "buildpack"
-	newApp.Lifecycle.BuildpackData = resource.BuildpackLifecycle{
-		Buildpacks: manifest.Buildpacks,
-		Stack:      manifest.Stack,
-	}
-	app, err := p.client.Applications.Create(newApp)
+func (p *AppPushActor) pushApp(space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	err := p.applySpaceManifest(space, manifest)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new app %s: %w", manifest.Name, err)
+		return nil, err
 	}
 
-	// create a package and then upload package bits
+	app, err := p.findApp(manifest.Name, space)
+	if err != nil {
+		return nil, err
+	}
+
+	pkg, err := p.uploadPackage(app, zipFile)
+	if err != nil {
+		return nil, err
+	}
+
+	droplet, err := p.buildDroplet(pkg, manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.client.Droplets.SetCurrentAssociationForApp(app.GUID, droplet.GUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.client.Applications.Start(app.GUID)
+}
+
+func (p *AppPushActor) applySpaceManifest(space *resource.Space, manifest *AppManifest) error {
+	manifestBytes, err := yaml.Marshal(&manifest)
+	if err != nil {
+		return fmt.Errorf("error marshalling application manifest: %w", err)
+	}
+
+	jobGUID, err := p.client.Manifests.ApplyManifest(space.GUID, string(manifestBytes))
+	if err != nil {
+		return fmt.Errorf("error applying application manifest to space %s: %w", space.Name, err)
+	}
+	err = p.client.Jobs.PollComplete(jobGUID, nil)
+	if err != nil {
+		return fmt.Errorf("error waiting for application manifest to finish applying to space %s: %w", space.Name, err)
+	}
+	return nil
+}
+
+func (p *AppPushActor) findApp(appName string, space *resource.Space) (*resource.App, error) {
+	appOpts := client.NewAppListOptions()
+	appOpts.Names.Values = []string{appName}
+	appOpts.SpaceGUIDs.Values = []string{space.GUID}
+	apps, err := p.client.Applications.ListAll(appOpts)
+	if err != nil {
+		return nil, err
+	}
+	if len(apps) != 1 {
+		return nil, fmt.Errorf("expected to find one application named %s in space %s, but found %d",
+			appName, space.Name, len(apps))
+	}
+	return apps[0], nil
+}
+
+func (p *AppPushActor) uploadPackage(app *resource.App, zipFile io.Reader) (*resource.Package, error) {
 	newPkg := resource.NewPackageCreate(app.GUID)
 	pkg, err := p.client.Packages.Create(newPkg)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new app %s package: %w", manifest.Name, err)
-	}
-	err = p.client.Packages.UploadBits(pkg.GUID, zipFile)
-	if err != nil {
-		return nil, fmt.Errorf("could not upload app %s package bits: %w", manifest.Name, err)
+		return nil, fmt.Errorf("error creating package for app %s: %w", app.Name, err)
 	}
 
-	// build droplet
+	err = p.client.Packages.UploadBits(pkg.GUID, zipFile)
+	if err != nil {
+		return nil, fmt.Errorf("error uploading package bits for app %s: %w", app.Name, err)
+	}
+	err = p.client.Packages.PollReady(pkg.GUID, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while waiting for package to process for app %s: %w", app.Name, err)
+	}
+	return pkg, nil
+}
+
+func (p *AppPushActor) buildDroplet(pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
 	newBuild.Lifecycle = &resource.Lifecycle{
 		Type: "buildpack",
@@ -91,92 +133,26 @@ func (p *AppPusher) pushNewApp(org *resource.Organization, space *resource.Space
 	}
 	build, err := p.client.Builds.Create(newBuild)
 	if err != nil {
-		return nil, fmt.Errorf("could not create build for app %s: %w", manifest.Name, err)
+		return nil, fmt.Errorf("error creating build from package for app %s: %w", manifest.Name, err)
 	}
-
-	// wait for build to finish
-	done := false
-	for !done {
-		time.Sleep(time.Second * 2)
-		b, err := p.client.Builds.Get(build.GUID)
-		if err != nil {
-			return nil, fmt.Errorf("could not get build for app %s: %w", manifest.Name, err)
-		}
-		switch b.State {
-		case "STAGING":
-			continue
-		case "STAGED":
-			done = true
-		case "FAILED":
-			return nil, fmt.Errorf("failed to stage app %s: %w", manifest.Name, err)
-		}
-	}
-
-	// set the app's process attributes
-	processes, err := p.client.Processes.ListForAppAll(app.GUID, nil)
+	err = p.client.Builds.PollStaged(build.GUID, nil)
 	if err != nil {
-		return nil, fmt.Errorf("could not get processes for app %s: %w", manifest.Name, err)
+		return nil, fmt.Errorf("error while waiting for app %s package to build: %w", manifest.Name, err)
 	}
-	if len(processes) != 1 {
-		return nil, fmt.Errorf("expected one process for app %s but got %d", manifest.Name, len(processes))
-	}
-	process := processes[0]
 
-	processUpdate := resource.NewProcessUpdate()
-	if manifest.Command != "" {
-		processUpdate.WithCommand(manifest.Command)
-	}
-	if manifest.HealthCheckHTTPEndpoint != "" {
-		processUpdate.WithHealthCheckEndpoint(manifest.HealthCheckHTTPEndpoint)
-	}
-	if manifest.Timeout != 0 {
-		processUpdate.WithHealthCheckInvocationTimeout(manifest.Timeout)
-	}
-	if manifest.HealthCheckType != "" {
-		processUpdate.WithHealthCheckType(manifest.HealthCheckType)
-	}
-	process, err = p.client.Processes.Update(process.GUID, processUpdate)
+	opts := client.NewDropletPackageListOptions()
+	opts.States.Values = []string{string(resource.DropletStateStaged)}
+	droplets, err := p.client.Droplets.ListForPackageAll(pkg.GUID, opts)
 	if err != nil {
-		return nil, fmt.Errorf("could not update process for app %s: %w", manifest.Name, err)
+		return nil, fmt.Errorf("error finding droplet for app %s: %w", manifest.Name, err)
 	}
-
-	processScale := resource.NewProcessScale()
-	if manifest.Memory != "" {
-		mb, err := sizeStringToIntMB(manifest.Memory)
-		if err != nil {
-			return nil, err
-		}
-		processScale.WithMemoryInMB(mb)
+	if len(droplets) != 1 {
+		return nil, fmt.Errorf("expected one droplet, but found %d", len(droplets))
 	}
-	if manifest.DiskQuota != "" {
-		mb, err := sizeStringToIntMB(manifest.DiskQuota)
-		if err != nil {
-			return nil, err
-		}
-		processScale.WithDiskInMB(mb)
-	}
-	if manifest.Instances > 0 {
-		processScale.WithInstances(manifest.Instances)
-	}
-	if manifest.LogRateLimit != "" {
-		// TODO add a type/func that can natively parse and convert 1MB 1GB etc
-		//processScale.WithLogRateLimitInBytesPerSecond(manifest.LogRateLimit)
-	}
-	process, err = p.client.Processes.Scale(process.GUID, processScale)
-	if err != nil {
-		return nil, fmt.Errorf("could not scale process for app %s: %w", manifest.Name, err)
-	}
-
-	// finally start the app
-	app, err = p.client.Applications.Start(app.GUID)
-	if err != nil {
-		return nil, fmt.Errorf("could not start the app %s: %w", manifest.Name, err)
-	}
-
-	return app, nil
+	return droplets[0], nil
 }
 
-func (p *AppPusher) findOrg() (*resource.Organization, error) {
+func (p *AppPushActor) findOrg() (*resource.Organization, error) {
 	opts := client.NewOrgListOptions()
 	opts.Names.Values = []string{p.orgName}
 	orgs, err := p.client.Organizations.ListAll(opts)
@@ -189,7 +165,7 @@ func (p *AppPusher) findOrg() (*resource.Organization, error) {
 	return orgs[0], nil
 }
 
-func (p *AppPusher) findSpace(orgGUID string) (*resource.Space, error) {
+func (p *AppPushActor) findSpace(orgGUID string) (*resource.Space, error) {
 	opts := client.NewSpaceListOptions()
 	opts.Names.Values = []string{p.spaceName}
 	opts.OrganizationGUIDs.Values = []string{orgGUID}
@@ -201,40 +177,4 @@ func (p *AppPusher) findSpace(orgGUID string) (*resource.Space, error) {
 		return nil, fmt.Errorf("expected to find one space named %s, but found %d", p.spaceName, len(spaces))
 	}
 	return spaces[0], nil
-}
-
-func (p *AppPusher) findAppOrNil(orgGUID, spaceGUID, appName string) (*resource.App, error) {
-	opts := client.NewAppListOptions()
-	opts.OrganizationGUIDs.Values = []string{orgGUID}
-	opts.SpaceGUIDs.Values = []string{spaceGUID}
-	opts.Names.Values = []string{appName}
-	apps, err := p.client.Applications.ListAll(opts)
-	if err != nil {
-		return nil, fmt.Errorf("could not find app %s: %w", appName, err)
-	}
-	if len(apps) == 1 {
-		return apps[0], nil
-	}
-	return nil, nil
-}
-
-func sizeStringToIntMB(size string) (int, error) {
-	size = strings.ToUpper(size)
-	if strings.HasSuffix(size, "M") || strings.HasSuffix(size, "MB") {
-		s := strings.TrimSuffix(strings.TrimSuffix(size, "M"), "MB")
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return 0, fmt.Errorf("could not convert MB size string to int: %w", err)
-		}
-		return i, nil
-	} else if strings.HasSuffix(size, "G") || strings.HasSuffix(size, "GB") {
-		s := strings.TrimSuffix(strings.TrimSuffix(size, "G"), "GB")
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return 0, fmt.Errorf("could not convert GB size string to int: %w", err)
-		}
-		i = i * 1024
-		return i, nil
-	}
-	return 0, fmt.Errorf("unsupported size string %s", size)
 }
