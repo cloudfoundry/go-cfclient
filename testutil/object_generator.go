@@ -1,4 +1,4 @@
-package test
+package testutil
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"text/template"
 )
@@ -75,7 +76,7 @@ func NewObjectJSONGenerator(seed int) *ObjectJSONGenerator {
 	return &ObjectJSONGenerator{}
 }
 
-func (o *ObjectJSONGenerator) Application() string {
+func (o ObjectJSONGenerator) Application() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -83,60 +84,60 @@ func (o *ObjectJSONGenerator) Application() string {
 	return o.template(r, "app.json")
 }
 
-func (o *ObjectJSONGenerator) AppFeature() string {
+func (o ObjectJSONGenerator) AppFeature() string {
 	r := resourceTemplate{}
 	return o.template(r, "app_feature.json")
 }
 
-func (o *ObjectJSONGenerator) AppUsage() string {
+func (o ObjectJSONGenerator) AppUsage() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "app_usage.json")
 }
 
-func (o *ObjectJSONGenerator) AuditEvent() string {
+func (o ObjectJSONGenerator) AuditEvent() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "audit_event.json")
 }
 
-func (o *ObjectJSONGenerator) AppUpdateEnvVars() string {
+func (o ObjectJSONGenerator) AppUpdateEnvVars() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "app_update_envvar.json")
 }
 
-func (o *ObjectJSONGenerator) AppEnvironment() string {
+func (o ObjectJSONGenerator) AppEnvironment() string {
 	r := resourceTemplate{
 		Name: RandomName(),
 	}
 	return o.template(r, "app_environment.json")
 }
 
-func (o *ObjectJSONGenerator) AppEnvVar() string {
+func (o ObjectJSONGenerator) AppEnvVar() string {
 	r := resourceTemplate{}
 	return o.template(r, "app_envvar.json")
 }
 
-func (o *ObjectJSONGenerator) AppSSH() string {
+func (o ObjectJSONGenerator) AppSSH() string {
 	return o.template(resourceTemplate{}, "app_ssh.json")
 }
 
-func (o *ObjectJSONGenerator) AppPermission() string {
+func (o ObjectJSONGenerator) AppPermission() string {
 	return o.template(resourceTemplate{}, "app_permissions.json")
 }
 
-func (o *ObjectJSONGenerator) Build() string {
+func (o ObjectJSONGenerator) Build() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "build.json")
 }
 
-func (o *ObjectJSONGenerator) Buildpack() string {
+func (o ObjectJSONGenerator) Buildpack() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -144,81 +145,81 @@ func (o *ObjectJSONGenerator) Buildpack() string {
 	return o.template(r, "buildpack.json")
 }
 
-func (o *ObjectJSONGenerator) Droplet() string {
+func (o ObjectJSONGenerator) Droplet() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "droplet.json")
 }
 
-func (o *ObjectJSONGenerator) DropletAssociation() string {
+func (o ObjectJSONGenerator) DropletAssociation() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "droplet_association.json")
 }
 
-func (o *ObjectJSONGenerator) Deployment() string {
+func (o ObjectJSONGenerator) Deployment() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "deployment.json")
 }
 
-func (o *ObjectJSONGenerator) Domain() string {
+func (o ObjectJSONGenerator) Domain() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "domain.json")
 }
 
-func (o *ObjectJSONGenerator) DomainShared() string {
+func (o ObjectJSONGenerator) DomainShared() string {
 	return o.template(resourceTemplate{}, "domain_shared.json")
 }
 
-func (o *ObjectJSONGenerator) EnvVarGroup() string {
+func (o ObjectJSONGenerator) EnvVarGroup() string {
 	return o.template(resourceTemplate{}, "environment_variable_group.json")
 }
 
-func (o *ObjectJSONGenerator) FeatureFlag() string {
+func (o ObjectJSONGenerator) FeatureFlag() string {
 	r := resourceTemplate{
 		Name: RandomName(),
 	}
 	return o.template(r, "feature_flag.json")
 }
 
-func (o *ObjectJSONGenerator) IsolationSegment() string {
+func (o ObjectJSONGenerator) IsolationSegment() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "isolation_segment.json")
 }
 
-func (o *ObjectJSONGenerator) IsolationSegmentRelationships() string {
+func (o ObjectJSONGenerator) IsolationSegmentRelationships() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "isolation_segment_relationships.json")
 }
 
-func (o *ObjectJSONGenerator) Job() string {
+func (o ObjectJSONGenerator) Job() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "job.json")
 }
 
-func (o *ObjectJSONGenerator) Manifest() string {
+func (o ObjectJSONGenerator) Manifest() string {
 	r := resourceTemplate{}
 	return o.template(r, "manifest.yml")
 }
 
-func (o *ObjectJSONGenerator) ManifestDiff() string {
+func (o ObjectJSONGenerator) ManifestDiff() string {
 	r := resourceTemplate{}
 	return o.template(r, "manifest_diff.yml")
 }
 
-func (o *ObjectJSONGenerator) Organization() string {
+func (o ObjectJSONGenerator) Organization() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -226,71 +227,71 @@ func (o *ObjectJSONGenerator) Organization() string {
 	return o.template(r, "org.json")
 }
 
-func (o *ObjectJSONGenerator) OrganizationUsageSummary() string {
+func (o ObjectJSONGenerator) OrganizationUsageSummary() string {
 	r := resourceTemplate{}
 	return o.template(r, "org_usage_summary.json")
 }
 
-func (o *ObjectJSONGenerator) OrganizationQuota() string {
+func (o ObjectJSONGenerator) OrganizationQuota() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "org_quota.json")
 }
 
-func (o *ObjectJSONGenerator) Package() string {
+func (o ObjectJSONGenerator) Package() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "package.json")
 }
 
-func (o *ObjectJSONGenerator) PackageDocker() string {
+func (o ObjectJSONGenerator) PackageDocker() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "package_docker.json")
 }
 
-func (o *ObjectJSONGenerator) Process() string {
+func (o ObjectJSONGenerator) Process() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "process.json")
 }
 
-func (o *ObjectJSONGenerator) ProcessStats() string {
+func (o ObjectJSONGenerator) ProcessStats() string {
 	r := resourceTemplate{}
 	return o.template(r, "process_stats.json")
 }
 
-func (o *ObjectJSONGenerator) ResourceMatch() string {
+func (o ObjectJSONGenerator) ResourceMatch() string {
 	r := resourceTemplate{}
 	return o.template(r, "resource_match.json")
 }
 
-func (o *ObjectJSONGenerator) Revision() string {
+func (o ObjectJSONGenerator) Revision() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "revision.json")
 }
 
-func (o *ObjectJSONGenerator) Role() string {
+func (o ObjectJSONGenerator) Role() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "role.json")
 }
 
-func (o *ObjectJSONGenerator) Route() string {
+func (o ObjectJSONGenerator) Route() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "route.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceBroker() string {
+func (o ObjectJSONGenerator) ServiceBroker() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -298,7 +299,7 @@ func (o *ObjectJSONGenerator) ServiceBroker() string {
 	return o.template(r, "service_broker.json")
 }
 
-func (o *ObjectJSONGenerator) SecurityGroup() string {
+func (o ObjectJSONGenerator) SecurityGroup() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -306,7 +307,7 @@ func (o *ObjectJSONGenerator) SecurityGroup() string {
 	return o.template(r, "security_group.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceCredentialBinding() string {
+func (o ObjectJSONGenerator) ServiceCredentialBinding() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -314,7 +315,7 @@ func (o *ObjectJSONGenerator) ServiceCredentialBinding() string {
 	return o.template(r, "service_credential_binding.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceInstance() string {
+func (o ObjectJSONGenerator) ServiceInstance() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -322,7 +323,7 @@ func (o *ObjectJSONGenerator) ServiceInstance() string {
 	return o.template(r, "service_instance.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceOffering() string {
+func (o ObjectJSONGenerator) ServiceOffering() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -330,7 +331,7 @@ func (o *ObjectJSONGenerator) ServiceOffering() string {
 	return o.template(r, "service_offering.json")
 }
 
-func (o *ObjectJSONGenerator) ServicePlan() string {
+func (o ObjectJSONGenerator) ServicePlan() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -338,26 +339,26 @@ func (o *ObjectJSONGenerator) ServicePlan() string {
 	return o.template(r, "service_plan.json")
 }
 
-func (o *ObjectJSONGenerator) ServicePlanVisibility() string {
+func (o ObjectJSONGenerator) ServicePlanVisibility() string {
 	r := resourceTemplate{}
 	return o.template(r, "service_plan_visibility.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceRouteBinding() string {
+func (o ObjectJSONGenerator) ServiceRouteBinding() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "service_route_binding.json")
 }
 
-func (o *ObjectJSONGenerator) ServiceUsage() string {
+func (o ObjectJSONGenerator) ServiceUsage() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "service_usage.json")
 }
 
-func (o *ObjectJSONGenerator) Sidecar() string {
+func (o ObjectJSONGenerator) Sidecar() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -365,7 +366,7 @@ func (o *ObjectJSONGenerator) Sidecar() string {
 	return o.template(r, "sidecar.json")
 }
 
-func (o *ObjectJSONGenerator) Space() string {
+func (o ObjectJSONGenerator) Space() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -373,7 +374,7 @@ func (o *ObjectJSONGenerator) Space() string {
 	return o.template(r, "space.json")
 }
 
-func (o *ObjectJSONGenerator) SpaceQuota() string {
+func (o ObjectJSONGenerator) SpaceQuota() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -381,7 +382,7 @@ func (o *ObjectJSONGenerator) SpaceQuota() string {
 	return o.template(r, "space_quota.json")
 }
 
-func (o *ObjectJSONGenerator) Stack() string {
+func (o ObjectJSONGenerator) Stack() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -389,14 +390,14 @@ func (o *ObjectJSONGenerator) Stack() string {
 	return o.template(r, "stack.json")
 }
 
-func (o *ObjectJSONGenerator) Task() string {
+func (o ObjectJSONGenerator) Task() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 	}
 	return o.template(r, "task.json")
 }
 
-func (o *ObjectJSONGenerator) User() string {
+func (o ObjectJSONGenerator) User() string {
 	r := resourceTemplate{
 		GUID: RandomGUID(),
 		Name: RandomName(),
@@ -510,8 +511,9 @@ func (o ObjectJSONGenerator) Array(resourcesJSON ...string) string {
 	return "[" + strings.Join(resourcesJSON, ",") + "]"
 }
 
-func (o *ObjectJSONGenerator) template(rt resourceTemplate, fileName string) string {
-	p := path.Join("../test/template", fileName)
+func (o ObjectJSONGenerator) template(rt resourceTemplate, fileName string) string {
+	_, filename, _, _ := runtime.Caller(1)
+	p := path.Join(path.Dir(filename), "template", fileName)
 	f, err := os.ReadFile(p)
 	if err != nil {
 		panic(err)

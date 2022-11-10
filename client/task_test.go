@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestTasks(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	task := g.Task()
 	task2 := g.Task()
 	task3 := g.Task()
@@ -104,5 +104,5 @@ func TestTasks(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

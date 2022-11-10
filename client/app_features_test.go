@@ -1,13 +1,13 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestAppFeatures(t *testing.T) {
-	g := test.NewObjectJSONGenerator(163)
+	g := testutil.NewObjectJSONGenerator(163)
 	appFeature := g.AppFeature()
 
 	tests := []RouteTest{
@@ -51,5 +51,5 @@ func TestAppFeatures(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

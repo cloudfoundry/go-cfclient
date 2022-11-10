@@ -1,14 +1,14 @@
 package client
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestManifests(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	manifest := g.Manifest()
 
 	tests := []RouteTest{
@@ -27,5 +27,5 @@ func TestManifests(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

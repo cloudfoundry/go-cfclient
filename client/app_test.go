@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestApps(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	app1 := g.Application()
 	app2 := g.Application()
 	app3 := g.Application()
@@ -212,11 +212,11 @@ func TestApps(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app1, app2},
 						Spaces:    []string{space1},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app3, app4},
 						Spaces:    []string{space2},
 					}),
@@ -233,12 +233,12 @@ func TestApps(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{app1, app2},
 						Spaces:        []string{space1},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{app3, app4},
 						Spaces:    []string{space2},
 					}),
@@ -251,5 +251,5 @@ func TestApps(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

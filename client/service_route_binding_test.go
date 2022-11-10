@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceRouteBindings(t *testing.T) {
-	g := test.NewObjectJSONGenerator(324)
+	g := testutil.NewObjectJSONGenerator(324)
 	svcRouteBinding := g.ServiceRouteBinding()
 	svcRouteBinding2 := g.ServiceRouteBinding()
 	svcRouteBinding3 := g.ServiceRouteBinding()
@@ -75,7 +75,7 @@ func TestServiceRouteBindings(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: svcRouteBinding,
 					Routes:   []string{route},
 				}),
@@ -92,7 +92,7 @@ func TestServiceRouteBindings(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:         svcRouteBinding,
 					ServiceInstances: []string{si},
 				}),
@@ -139,11 +139,11 @@ func TestServiceRouteBindings(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding, svcRouteBinding2},
 						Routes:    []string{route},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding3, svcRouteBinding4},
 					}),
 				Status: http.StatusOK},
@@ -159,11 +159,11 @@ func TestServiceRouteBindings(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{svcRouteBinding, svcRouteBinding2},
 						ServiceInstances: []string{si},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcRouteBinding3, svcRouteBinding4},
 					}),
 				Status: http.StatusOK},
@@ -203,5 +203,5 @@ func TestServiceRouteBindings(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

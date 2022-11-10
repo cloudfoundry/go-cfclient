@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestFeatureFlags(t *testing.T) {
-	g := test.NewObjectJSONGenerator(852)
+	g := testutil.NewObjectJSONGenerator(852)
 	ff := g.FeatureFlag()
 	ff2 := g.FeatureFlag()
 	ff3 := g.FeatureFlag()
@@ -57,5 +57,5 @@ func TestFeatureFlags(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

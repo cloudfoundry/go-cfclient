@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 )
 
 func TestBitsMarshalling(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	rawPkg := g.Package()
 
 	var pkg resource.Package
@@ -29,7 +29,7 @@ func TestBitsMarshalling(t *testing.T) {
 }
 
 func TestDockerMarshalling(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	rawPkg := g.PackageDocker()
 
 	var pkg resource.Package
@@ -47,7 +47,7 @@ func TestDockerMarshalling(t *testing.T) {
 }
 
 func TestPackages(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	pkg := g.Package()
 	pkg2 := g.Package()
 	pkg3 := g.Package()
@@ -193,5 +193,5 @@ func TestPackages(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

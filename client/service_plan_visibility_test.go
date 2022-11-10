@@ -2,14 +2,14 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
 func TestServicePlanVisibilities(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
+	g := testutil.NewObjectJSONGenerator(156)
 	svcPlanVisibility := g.ServicePlanVisibility()
 
 	tests := []RouteTest{
@@ -90,5 +90,5 @@ func TestServicePlanVisibilities(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

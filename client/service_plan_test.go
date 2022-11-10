@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServicePlans(t *testing.T) {
-	g := test.NewObjectJSONGenerator(156)
+	g := testutil.NewObjectJSONGenerator(156)
 	svcPlan := g.ServicePlan()
 	svcPlan2 := g.ServicePlan()
 	svcPlan3 := g.ServicePlan()
@@ -61,11 +61,11 @@ func TestServicePlans(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{svcPlan, svcPlan2},
 						ServiceOfferings: []string{svcOffering},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcPlan3, svcPlan4},
 					}),
 				Status: http.StatusOK},
@@ -81,12 +81,12 @@ func TestServicePlans(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:     []string{svcPlan, svcPlan2},
 						Spaces:        []string{space},
 						Organizations: []string{org},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{svcPlan3, svcPlan4},
 						Spaces:    []string{space2},
 					}),
@@ -128,5 +128,5 @@ func TestServicePlans(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }

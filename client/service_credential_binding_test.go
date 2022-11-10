@@ -2,13 +2,13 @@ package client
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/test"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
 
 func TestServiceCredentialBindings(t *testing.T) {
-	g := test.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator(1)
 	scb := g.ServiceCredentialBinding()
 	scb2 := g.ServiceCredentialBinding()
 	scb3 := g.ServiceCredentialBinding()
@@ -88,7 +88,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource: scb,
 					Apps:     []string{app},
 				}),
@@ -105,7 +105,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Route: MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Output: g.ResourceWithInclude(test.ResourceResult{
+				Output: g.ResourceWithInclude(testutil.ResourceResult{
 					Resource:         scb,
 					ServiceInstances: []string{si},
 				}),
@@ -135,11 +135,11 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb, scb2},
 						Apps:      []string{app, app2},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb3, scb4},
 						Apps:      []string{app3, app4},
 					}),
@@ -157,11 +157,11 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_credential_bindings",
 				Output: g.PagedWithInclude(
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources:        []string{scb, scb2},
 						ServiceInstances: []string{si},
 					},
-					test.PagedResult{
+					testutil.PagedResult{
 						Resources: []string{scb3, scb4},
 					}),
 				Status: http.StatusOK,
@@ -197,5 +197,5 @@ func TestServiceCredentialBindings(t *testing.T) {
 			},
 		},
 	}
-	executeTests(tests, t)
+	ExecuteTests(tests, t)
 }
