@@ -9,10 +9,10 @@ import (
 
 func TestBuilds(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(2)
-	build := g.Build().JSON
-	build2 := g.Build().JSON
-	build3 := g.Build().JSON
-	build4 := g.Build().JSON
+	build := g.Build("STAGED").JSON
+	build2 := g.Build("STAGED").JSON
+	build3 := g.Build("STAGED").JSON
+	build4 := g.Build("STAGED").JSON
 
 	tests := []RouteTest{
 		{
