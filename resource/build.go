@@ -2,19 +2,21 @@ package resource
 
 import "time"
 
+type BuildState string
+
 // The 3 lifecycle states
 const (
-	BuildStateStaging = "STAGING"
-	BuildStateStaged  = "STAGED"
-	BuildStateFailed  = "FAILED"
+	BuildStateStaging BuildState = "STAGING"
+	BuildStateStaged  BuildState = "STAGED"
+	BuildStateFailed  BuildState = "FAILED"
 )
 
 type Build struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	State     string    `json:"state"`
-	Error     *string   `json:"error"`
+	GUID      string     `json:"guid"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	State     BuildState `json:"state"`
+	Error     *string    `json:"error"`
 
 	StagingMemoryInMB                 int `json:"staging_memory_in_mb"`
 	StagingDiskInMB                   int `json:"staging_disk_in_mb"`
