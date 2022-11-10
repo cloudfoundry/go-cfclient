@@ -31,15 +31,44 @@ type MockRoute struct {
 	RedirectLocation string
 }
 
+func SetupFakeAPIServer() string {
+	if fakeUAAServer == nil {
+		SetupFakeUAAServer(3)
+	}
+	mux = http.NewServeMux()
+	server = httptest.NewServer(mux)
+	return server.URL
+}
+
+func SetupFakeUAAServer(expiresIn int) {
+	uaaMux := http.NewServeMux()
+	fakeUAAServer = httptest.NewServer(uaaMux)
+	m := martini.New()
+	m.Use(render.Renderer())
+	r := martini.NewRouter()
+	count := 1
+	r.Post("/oauth/token", func(r render.Render) {
+		r.JSON(200, map[string]interface{}{
+			"token_type":    "bearer",
+			"access_token":  "foobar" + strconv.Itoa(count),
+			"refresh_token": "barfoo",
+			"expires_in":    expiresIn,
+		})
+		count = count + 1
+	})
+	r.NotFound(func() string { return "" })
+	m.Action(r.Handle)
+	uaaMux.Handle("/", m)
+}
+
 func Setup(mock MockRoute, t *testing.T) string {
 	return SetupMultiple([]MockRoute{mock}, t)
 }
 
 func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
-	SetupFakeUAAServer(3)
-
-	mux = http.NewServeMux()
-	server = httptest.NewServer(mux)
+	if server == nil {
+		SetupFakeAPIServer()
+	}
 	m := martini.New()
 	m.Use(render.Renderer())
 	r := martini.NewRouter()
@@ -146,30 +175,11 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 	return server.URL
 }
 
-func SetupFakeUAAServer(expiresIn int) {
-	uaaMux := http.NewServeMux()
-	fakeUAAServer = httptest.NewServer(uaaMux)
-	m := martini.New()
-	m.Use(render.Renderer())
-	r := martini.NewRouter()
-	count := 1
-	r.Post("/oauth/token", func(r render.Render) {
-		r.JSON(200, map[string]interface{}{
-			"token_type":    "bearer",
-			"access_token":  "foobar" + strconv.Itoa(count),
-			"refresh_token": "barfoo",
-			"expires_in":    expiresIn,
-		})
-		count = count + 1
-	})
-	r.NotFound(func() string { return "" })
-	m.Action(r.Handle)
-	uaaMux.Handle("/", m)
-}
-
 func Teardown() {
 	server.Close()
+	server = nil
 	fakeUAAServer.Close()
+	fakeUAAServer = nil
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
