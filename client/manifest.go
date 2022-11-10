@@ -33,3 +33,30 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 	}
 	return buf.String(), nil
 }
+
+func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (string, error) {
+	reader := strings.NewReader(manifest)
+	r := c.client.NewRequestWithBody("POST", path("/v3/spaces/%s/actions/apply_manifest", spaceGUID), reader)
+	req, err := r.toHTTP()
+	if err != nil {
+		return "", fmt.Errorf("error posting manifest %s bits: %w", spaceGUID, err)
+	}
+	req.Header.Set("Content-Type", "application/x-yaml")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("error uploading manifest %s bits: %w", spaceGUID, err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	if resp.StatusCode != http.StatusAccepted {
+		return "", fmt.Errorf("error uploading manifest %s bits, response code: %d", spaceGUID, resp.StatusCode)
+	}
+
+	jobID, err := c.client.decodeBodyOrJobID(resp, nil)
+	if err != nil {
+		return "", fmt.Errorf("error reading jobID: %w", err)
+	}
+	return jobID, nil
+}
