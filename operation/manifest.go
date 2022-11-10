@@ -1,4 +1,4 @@
-package actors
+package operation
 
 type Manifest struct {
 	Applications []AppManifest `yaml:"applications"`

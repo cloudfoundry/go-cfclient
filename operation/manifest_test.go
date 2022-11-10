@@ -1,4 +1,4 @@
-package actors
+package operation
 
 import (
 	"github.com/stretchr/testify/require"
