@@ -24,7 +24,7 @@ func TestApps(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps",
 				Output:   []string{app1},
@@ -40,7 +40,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
 				Output:   []string{app1},
@@ -52,7 +52,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app environment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env",
 				Output:   []string{appEnvironment},
@@ -65,7 +65,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Update app environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
 				Output:   []string{g.AppUpdateEnvVars()},
@@ -84,7 +84,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/environment_variables",
 				Output:   []string{appEnvVar},
@@ -97,7 +97,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get SSH enabled for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/ssh_enabled",
 				Output:   []string{appSSH},
@@ -110,7 +110,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Get app permissions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/permissions",
 				Output:   []string{appPermission},
@@ -123,7 +123,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Start app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
 				Output:   []string{app1},
@@ -136,7 +136,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Stop app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
 				Output:   []string{app1},
@@ -149,7 +149,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Restart app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
 				Output:   []string{app1},
@@ -162,7 +162,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Delete app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
 				Status:   http.StatusAccepted,
@@ -173,7 +173,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "Update app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
 				Output:   []string{app1},
@@ -196,7 +196,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output:   g.Paged([]string{app1, app2}, []string{app3, app4}),
@@ -208,7 +208,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps include spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(
@@ -229,7 +229,7 @@ func TestApps(t *testing.T) {
 		},
 		{
 			Description: "List all apps include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
 				Output: g.PagedWithInclude(

@@ -13,7 +13,7 @@ func TestJobs(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get job",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 				Output:   []string{job},

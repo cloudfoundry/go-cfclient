@@ -14,7 +14,7 @@ func TestEnvVarGroups(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get running env var group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/environment_variable_groups/running",
 				Output:   []string{envVarGroup},
@@ -26,7 +26,7 @@ func TestEnvVarGroups(t *testing.T) {
 		},
 		{
 			Description: "Update buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/environment_variable_groups/staging",
 				Output:   []string{envVarGroup},

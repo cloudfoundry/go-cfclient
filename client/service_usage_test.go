@@ -15,7 +15,7 @@ func TestServiceUsages(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get service usage event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_usage_events/cb4fb5eb-9b72-4696-b7bc-666696dec1b3",
 				Output:   []string{serviceUsage},
@@ -27,7 +27,7 @@ func TestServiceUsages(t *testing.T) {
 		},
 		{
 			Description: "List all service usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_usage_events",
 				Output:   g.Paged([]string{serviceUsage, serviceUsage2}, []string{serviceUsage3}),
@@ -39,7 +39,7 @@ func TestServiceUsages(t *testing.T) {
 		},
 		{
 			Description: "Purge all service usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_usage_events/actions/destructively_purge_all_and_reseed",
 				Status:   http.StatusOK},

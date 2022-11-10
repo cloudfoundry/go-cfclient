@@ -21,7 +21,7 @@ func TestServicePlans(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Delete service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
 				Status:   http.StatusNoContent,
@@ -33,7 +33,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "Get service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
 				Output:   []string{svcPlan},
@@ -45,7 +45,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output:   g.Paged([]string{svcPlan}, []string{svcPlan2}),
@@ -57,7 +57,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans include service offerings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
@@ -77,7 +77,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "List all service plans include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
 				Output: g.PagedWithInclude(
@@ -100,7 +100,7 @@ func TestServicePlans(t *testing.T) {
 		},
 		{
 			Description: "Update service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9",
 				Output:   []string{svcPlan},

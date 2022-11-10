@@ -17,7 +17,7 @@ func TestTasks(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Cancel a task",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504/actions/cancel",
 				Output:   []string{task},
@@ -30,7 +30,7 @@ func TestTasks(t *testing.T) {
 		},
 		{
 			Description: "Create a task",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/tasks",
 				Output:   []string{task},
@@ -45,7 +45,7 @@ func TestTasks(t *testing.T) {
 		},
 		{
 			Description: "Get task",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504",
 				Output:   []string{task},
@@ -57,7 +57,7 @@ func TestTasks(t *testing.T) {
 		},
 		{
 			Description: "List all tasks",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/tasks",
 				Output:   g.Paged([]string{task, task2}, []string{task3, task4}),
@@ -69,7 +69,7 @@ func TestTasks(t *testing.T) {
 		},
 		{
 			Description: "List all tasks for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/tasks",
 				Output:   g.Paged([]string{task, task2}, []string{task3, task4}),
@@ -81,7 +81,7 @@ func TestTasks(t *testing.T) {
 		},
 		{
 			Description: "Update a task",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/tasks/d9442132-4669-49f7-a3c5-8fa8d1150504",
 				Output:   []string{task},

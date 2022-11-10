@@ -15,7 +15,7 @@ func TestServiceInstances(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create managed service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
 				Output:   []string{si},
@@ -49,7 +49,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Create user provided service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
 				Output:   []string{si},
@@ -77,7 +77,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Delete service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:           "DELETE",
 				Endpoint:         "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
 				Status:           http.StatusAccepted,
@@ -90,7 +90,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "Get service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
 				Output:   []string{si},
@@ -102,7 +102,7 @@ func TestServiceInstances(t *testing.T) {
 		},
 		{
 			Description: "List all service instances",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_instances",
 				Output:   g.Paged([]string{si}, []string{si2}),

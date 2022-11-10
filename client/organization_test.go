@@ -22,7 +22,7 @@ func TestOrgs(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Assign default org iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
 				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
@@ -36,7 +36,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Create org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organizations",
 				Output:   []string{org},
@@ -51,7 +51,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
 				Output:   []string{org},
@@ -64,7 +64,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org default iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
 				Output:   []string{`{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`},
@@ -79,7 +79,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org default domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/domains/default",
 				Output:   []string{domain},
@@ -92,7 +92,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get org usage summary",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/usage_summary",
 				Output:   []string{orgUsageSummary},
@@ -105,7 +105,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Delete org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
 				Status:   http.StatusAccepted,
@@ -116,7 +116,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations",
 				Output:   g.Paged([]string{org, org2}, []string{org3, org4}),
@@ -129,7 +129,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all orgs for iso segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/571de34f-8067-44f0-8bec-4ac17bf8750f/organizations",
 				Output:   g.Paged([]string{org, org2}, []string{org3, org4}),
@@ -142,7 +142,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all org users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/users",
 				Output:   g.Paged([]string{user}, []string{user2}),
@@ -154,7 +154,7 @@ func TestOrgs(t *testing.T) {
 		},
 		{
 			Description: "Update org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
 				Output:   []string{org},

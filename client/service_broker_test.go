@@ -15,7 +15,7 @@ func TestServiceBrokers(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_brokers",
 				Output:   []string{sb},
@@ -52,7 +52,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Delete service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:           "DELETE",
 				Endpoint:         "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
 				Status:           http.StatusAccepted,
@@ -65,7 +65,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Get service brokers",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
 				Output:   []string{sb},
@@ -77,7 +77,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "List all service brokers",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_brokers",
 				Output:   g.Paged([]string{sb}, []string{sb2}),
@@ -89,7 +89,7 @@ func TestServiceBrokers(t *testing.T) {
 		},
 		{
 			Description: "Update a service broker",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_brokers/c680ad12-1ada-4051-8f85-e859e3819c6a",
 				Output:   []string{sb},

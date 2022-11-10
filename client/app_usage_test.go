@@ -15,7 +15,7 @@ func TestAppUsages(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get app usage event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/app_usage_events/af846b67-e0c4-44eb-bfa8-ff30e902d710",
 				Output:   []string{appUsage},
@@ -27,7 +27,7 @@ func TestAppUsages(t *testing.T) {
 		},
 		{
 			Description: "List all app usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/app_usage_events",
 				Output:   g.Paged([]string{appUsage, appUsage2}, []string{appUsage3}),
@@ -39,7 +39,7 @@ func TestAppUsages(t *testing.T) {
 		},
 		{
 			Description: "Purge all app usage events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/app_usage_events/actions/destructively_purge_all_and_reseed",
 				Status:   http.StatusOK},

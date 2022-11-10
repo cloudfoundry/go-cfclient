@@ -18,7 +18,7 @@ func TestIsolationSegments(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create isolation segment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/isolation_segments",
 				Output:   []string{iso},
@@ -33,7 +33,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "Delete iso",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821",
 				Status:   http.StatusAccepted,
@@ -44,7 +44,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "Entitle isolation segment for org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations",
 				Output:   []string{isoRelations},
@@ -58,7 +58,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "Get iso",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821",
 				Output:   []string{iso},
@@ -70,7 +70,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "List all isolation segments",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments",
 				Output:   g.Paged([]string{iso, iso2}, []string{iso3, iso4}),
@@ -82,7 +82,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "List all isolation segment related orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations",
 				Output: []string{`{
@@ -112,7 +112,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "List all isolation segment related spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/spaces",
 				Output: []string{`{
@@ -142,7 +142,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "Revoke isolation segment for org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations/5700e458-283d-4528-806f-c3509e038f05",
 				Status:   http.StatusNoContent,
@@ -154,7 +154,7 @@ func TestIsolationSegments(t *testing.T) {
 		},
 		{
 			Description: "Update iso",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821",
 				Output:   []string{iso},

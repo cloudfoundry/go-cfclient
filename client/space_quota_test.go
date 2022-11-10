@@ -17,7 +17,7 @@ func TestSpaceOrgs(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Apply space quota to space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04/relationships/spaces",
 				Output: []string{`{
@@ -38,7 +38,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "Create space quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/space_quotas",
 				Output:   []string{spaceQuota},
@@ -62,7 +62,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "Get space quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
 				Output:   []string{spaceQuota},
@@ -75,7 +75,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "Delete space quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
 				Status:   http.StatusAccepted,
@@ -86,7 +86,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "List all space quotas",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/space_quotas",
 				Output:   g.Paged([]string{spaceQuota, spaceQuota2}, []string{spaceQuota3, spaceQuota4}),
@@ -99,7 +99,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "Remove space quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04/relationships/spaces/ac79b04c-c9a2-488d-b830-3e5f26e600d1",
 				Status:   http.StatusNoContent,
@@ -110,7 +110,7 @@ func TestSpaceOrgs(t *testing.T) {
 		},
 		{
 			Description: "Update space quota",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
 				Output:   []string{spaceQuota},

@@ -15,7 +15,7 @@ func TestUsers(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/users",
 				Output:   []string{user},
@@ -32,7 +32,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Delete user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
 				Status:   http.StatusAccepted,
@@ -43,7 +43,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Get user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
 				Output:   []string{user},
@@ -55,7 +55,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "List all users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/users",
 				Output:   g.Paged([]string{user}, []string{user2}),
@@ -67,7 +67,7 @@ func TestUsers(t *testing.T) {
 		},
 		{
 			Description: "Update user",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
 				Output:   []string{user},

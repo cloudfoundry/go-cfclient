@@ -15,7 +15,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Apply service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
 				Output:   []string{svcPlanVisibility},
@@ -40,7 +40,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Delete service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility/90a4d2ca-054b-4f15-9a44-cc94f845df9c",
 				Status:   http.StatusNoContent,
@@ -52,7 +52,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Get service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
 				Output:   []string{svcPlanVisibility},
@@ -66,7 +66,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 		},
 		{
 			Description: "Update service plan visibility",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
 				Output:   []string{svcPlanVisibility},

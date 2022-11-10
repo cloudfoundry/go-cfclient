@@ -17,7 +17,7 @@ func TestBuilds(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/builds",
 				Output:   []string{build},
@@ -36,7 +36,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Get build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
 				Output:   []string{build},
@@ -49,7 +49,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Delete build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
 				Status:   http.StatusAccepted,
@@ -60,7 +60,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "Update build",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
 				Output:   []string{build},
@@ -77,7 +77,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List first page of builds",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
 				Output:   g.Paged([]string{build}),
@@ -91,7 +91,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List all builds",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/builds",
 				Output:   g.Paged([]string{build, build2}, []string{build3, build4}),
@@ -103,7 +103,7 @@ func TestBuilds(t *testing.T) {
 		},
 		{
 			Description: "List first page of builds for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/builds",
 				Output:   g.Paged([]string{build}),

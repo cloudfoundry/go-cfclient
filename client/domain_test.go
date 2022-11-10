@@ -18,7 +18,7 @@ func TestDomains(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains",
 				Output:   []string{domain},
@@ -35,7 +35,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Get domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
 				Output:   []string{domain},
@@ -47,7 +47,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List first page of domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
 				Output:   g.Paged([]string{domain}),
@@ -61,7 +61,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List all domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/domains",
 				Output:   g.Paged([]string{domain, domain2}, []string{domain3, domain4}),
@@ -73,7 +73,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "List first page of domains for org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b/domains",
 				Output:   g.Paged([]string{domain}),
@@ -87,7 +87,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Update domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
 				Output:   []string{domain},
@@ -111,7 +111,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Delete domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
 				Status:   http.StatusAccepted,
@@ -122,7 +122,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Share domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/domains/1cb006ee-fb05-47e1-b541-c34179ddc446/relationships/shared_organizations",
 				Output:   []string{sharedDomains},
@@ -135,7 +135,7 @@ func TestDomains(t *testing.T) {
 		},
 		{
 			Description: "Un-share domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/domains/1cb006ee-fb05-47e1-b541-c34179ddc446/relationships/shared_organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b",
 				Status:   http.StatusNoContent,

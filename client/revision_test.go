@@ -18,7 +18,7 @@ func TestRevisions(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
 				Output:   []string{revision},
@@ -30,7 +30,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "Get revision environment variables",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2/environment_variables",
 				Output:   []string{appEnvVar},
@@ -43,7 +43,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "List all app revisions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/487d2a80-3769-4ad8-8ef5-a02c363d017b/revisions",
 				Output:   g.Paged([]string{revision, revision2}, []string{revision3, revision4}),
@@ -55,7 +55,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "List all deployed app revisions",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/487d2a80-3769-4ad8-8ef5-a02c363d017b/revisions/deployed",
 				Output:   g.Paged([]string{revision, revision2}, []string{revision3, revision4}),
@@ -67,7 +67,7 @@ func TestRevisions(t *testing.T) {
 		},
 		{
 			Description: "Update a revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/revisions/5a49a370-92cd-4091-bb62-e0914460f7b2",
 				Output:   []string{revision},

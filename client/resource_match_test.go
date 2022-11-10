@@ -14,7 +14,7 @@ func TestResourceMatches(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create a resource match",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/resource_matches",
 				Output:   []string{resourceMatch},
