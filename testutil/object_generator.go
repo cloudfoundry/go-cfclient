@@ -15,9 +15,10 @@ import (
 const defaultAPIResourcePath = "https://api.example.org/v3/somepagedresource"
 
 type JSONResource struct {
-	GUID string
-	Name string
-	JSON string
+	GUID   string
+	Name   string
+	JSON   string
+	Params map[string]string
 }
 
 type ResourceResult struct {
@@ -133,9 +134,12 @@ func (o ObjectJSONGenerator) AppPermission() *JSONResource {
 	return o.renderTemplate(r, "app_permissions.json")
 }
 
-func (o ObjectJSONGenerator) Build() *JSONResource {
+func (o ObjectJSONGenerator) Build(state string) *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
+		Params: map[string]string{
+			"state": state,
+		},
 	}
 	return o.renderTemplate(r, "build.json")
 }
@@ -207,9 +211,12 @@ func (o ObjectJSONGenerator) IsolationSegmentRelationships() *JSONResource {
 	return o.renderTemplate(r, "isolation_segment_relationships.json")
 }
 
-func (o ObjectJSONGenerator) Job() *JSONResource {
+func (o ObjectJSONGenerator) Job(state string) *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
+		Params: map[string]string{
+			"state": state,
+		},
 	}
 	return o.renderTemplate(r, "job.json")
 }
@@ -244,9 +251,12 @@ func (o ObjectJSONGenerator) OrganizationQuota() *JSONResource {
 	return o.renderTemplate(r, "org_quota.json")
 }
 
-func (o ObjectJSONGenerator) Package() *JSONResource {
+func (o ObjectJSONGenerator) Package(state string) *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
+		Params: map[string]string{
+			"state": state,
+		},
 	}
 	return o.renderTemplate(r, "package.json")
 }
@@ -499,6 +509,14 @@ func (o ObjectJSONGenerator) PagedWithInclude(pagesOfResourcesJSON ...PagedResul
 
 	}
 	return resultPages
+}
+
+func (o ObjectJSONGenerator) Single(resourceJSON string) []string {
+	return []string{resourceJSON}
+}
+
+func (o ObjectJSONGenerator) SinglePaged(resourceJSON string) []string {
+	return o.Paged([]string{resourceJSON})
 }
 
 func (o ObjectJSONGenerator) Paged(pagesOfResourcesJSON ...[]string) []string {
