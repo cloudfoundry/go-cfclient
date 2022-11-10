@@ -13,7 +13,7 @@ func TestAppFeatures(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get SSH app feature",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features/ssh",
 				Output:   []string{appFeature},
@@ -25,7 +25,7 @@ func TestAppFeatures(t *testing.T) {
 		},
 		{
 			Description: "List all app features",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features",
 				Output:   g.Paged([]string{appFeature}),
@@ -38,7 +38,7 @@ func TestAppFeatures(t *testing.T) {
 		},
 		{
 			Description: "Update SSH app feature",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/features/ssh",
 				Output:   []string{appFeature},

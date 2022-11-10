@@ -19,7 +19,7 @@ func TestServiceRouteBindings(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_route_bindings",
 				Output:   []string{svcRouteBinding},
@@ -48,7 +48,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Delete service plan",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Status:   http.StatusNoContent,
@@ -60,7 +60,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Output:   []string{svcRouteBinding},
@@ -72,7 +72,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding include route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -89,7 +89,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding include service instance",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -106,7 +106,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Get service route binding parameters",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7/parameters",
 				Output: []string{`
@@ -123,7 +123,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output:   g.Paged([]string{svcRouteBinding}, []string{svcRouteBinding2}),
@@ -135,7 +135,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings include routes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
@@ -155,7 +155,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "List all service route bindings include service instances",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_route_bindings",
 				Output: g.PagedWithInclude(
@@ -175,7 +175,7 @@ func TestServiceRouteBindings(t *testing.T) {
 		},
 		{
 			Description: "Update service route binding",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Output:   []string{svcRouteBinding},

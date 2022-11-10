@@ -18,7 +18,7 @@ func TestDeployments(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create deployment with droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
 				Output:   []string{deployment},
@@ -36,7 +36,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Create deployment with revision",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments",
 				Output:   []string{deployment},
@@ -70,7 +70,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Cancel deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998/actions/cancel",
 				Status:   http.StatusOK,
@@ -81,7 +81,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Get deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
 				Output:   []string{deployment},
@@ -94,7 +94,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "List first page of deployments",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
 				Output:   g.Paged([]string{deployment}),
@@ -108,7 +108,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "List all apps",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/deployments",
 				Output:   g.Paged([]string{deployment, deployment2}, []string{deployment3, deployment4}),
@@ -120,7 +120,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Description: "Update deployment",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998",
 				Output:   []string{deployment},

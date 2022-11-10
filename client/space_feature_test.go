@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
 )
@@ -9,7 +10,7 @@ func TestSpaceFeatures(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Enable SSH for a space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/features/ssh",
 				Output: []string{`{

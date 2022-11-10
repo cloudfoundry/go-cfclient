@@ -15,7 +15,7 @@ func TestAuditEvents(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get audit event",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/audit_events/27a9b4a5-ba8a-448c-ac51-3a6dab9aa3f8",
 				Output:   []string{auditEvent},
@@ -27,7 +27,7 @@ func TestAuditEvents(t *testing.T) {
 		},
 		{
 			Description: "List all audit events",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/audit_events",
 				Output:   g.Paged([]string{auditEvent, auditEvent2}, []string{auditEvent3}),

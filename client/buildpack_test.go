@@ -17,7 +17,7 @@ func TestBuildpacks(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/buildpacks",
 				Output:   []string{buildpack},
@@ -42,7 +42,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Delete buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
 				Status:   http.StatusAccepted,
@@ -53,7 +53,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Get buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
 				Output:   []string{buildpack},
@@ -65,7 +65,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "List all buildpacks",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/buildpacks",
 				Output:   g.Paged([]string{buildpack, buildpack2}, []string{buildpack3, buildpack4}),
@@ -77,7 +77,7 @@ func TestBuildpacks(t *testing.T) {
 		},
 		{
 			Description: "Update buildpack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
 				Output:   []string{buildpack},

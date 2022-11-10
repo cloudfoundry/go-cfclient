@@ -17,7 +17,7 @@ func TestSidecars(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create a sidecar",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/sidecars",
 				Output:   []string{sidecar},
@@ -38,7 +38,7 @@ func TestSidecars(t *testing.T) {
 		},
 		{
 			Description: "Delete sidecar",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/sidecars/319ac7e8-e34a-4b6f-89da-1753ad3ece93",
 				Status:   http.StatusNoContent,
@@ -49,7 +49,7 @@ func TestSidecars(t *testing.T) {
 		},
 		{
 			Description: "Get sidecar",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/sidecars/319ac7e8-e34a-4b6f-89da-1753ad3ece93",
 				Output:   []string{sidecar},
@@ -61,7 +61,7 @@ func TestSidecars(t *testing.T) {
 		},
 		{
 			Description: "List all sidecars for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/631b46a1-c3b6-4599-9659-72c9fd54817f/sidecars",
 				Output:   g.Paged([]string{sidecar, sidecar2}, []string{sidecar3, sidecar4}),
@@ -73,7 +73,7 @@ func TestSidecars(t *testing.T) {
 		},
 		{
 			Description: "List all sidecars for process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/0d2da177-c801-42a0-a6ca-ee4b10334954/sidecars",
 				Output:   g.Paged([]string{sidecar, sidecar2}, []string{sidecar3, sidecar4}),

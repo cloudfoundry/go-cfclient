@@ -19,7 +19,7 @@ func TestRoutes(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/routes",
 				Output:   []string{route},
@@ -50,7 +50,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Delete route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Status:   http.StatusAccepted,
@@ -61,7 +61,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output:   []string{route},
@@ -74,7 +74,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include domain",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -91,7 +91,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include space",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -108,7 +108,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Get route include space and org",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -127,7 +127,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output:   g.Paged([]string{route}, []string{route2}),
@@ -140,7 +140,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/758c78dc-60bc-4f84-999b-247bdc2c37fe/routes",
 				Output:   g.Paged([]string{route}, []string{route2}),
@@ -153,7 +153,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include domains",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
@@ -174,7 +174,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
@@ -196,7 +196,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "List all routes and include spaces and orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
 				Output: g.PagedWithInclude(
@@ -220,7 +220,7 @@ func TestRoutes(t *testing.T) {
 		},
 		{
 			Description: "Update route",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
 				Output:   []string{route},

@@ -1,8 +1,6 @@
-package client
+package testutil
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -22,17 +20,6 @@ var (
 	fakeUAAServer *httptest.Server
 )
 
-type RouteTest struct {
-	Description string
-	Route       MockRoute
-	Expected    string
-	Expected2   string
-	Expected3   string
-	Action      func(c *Client, t *testing.T) (any, error)
-	Action2     func(c *Client, t *testing.T) (any, any, error)
-	Action3     func(c *Client, t *testing.T) (any, any, any, error)
-}
-
 type MockRoute struct {
 	Method           string
 	Endpoint         string
@@ -44,14 +31,15 @@ type MockRoute struct {
 	RedirectLocation string
 }
 
-func Setup(mock MockRoute, t *testing.T) {
-	SetupMultiple([]MockRoute{mock}, t)
+func Setup(mock MockRoute, t *testing.T) string {
+	return SetupMultiple([]MockRoute{mock}, t)
 }
 
-func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) {
+func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
+	SetupFakeUAAServer(3)
+
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
-	fakeUAAServer = FakeUAAServer(3)
 	m := martini.New()
 	m.Use(render.Renderer())
 	r := martini.NewRouter()
@@ -154,11 +142,13 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) {
 
 	m.Action(r.Handle)
 	mux.Handle("/", m)
+
+	return server.URL
 }
 
-func FakeUAAServer(expiresIn int) *httptest.Server {
-	mux := http.NewServeMux()
-	server := httptest.NewServer(mux)
+func SetupFakeUAAServer(expiresIn int) {
+	uaaMux := http.NewServeMux()
+	fakeUAAServer = httptest.NewServer(uaaMux)
 	m := martini.New()
 	m.Use(render.Renderer())
 	r := martini.NewRouter()
@@ -174,63 +164,12 @@ func FakeUAAServer(expiresIn int) *httptest.Server {
 	})
 	r.NotFound(func() string { return "" })
 	m.Action(r.Handle)
-	mux.Handle("/", m)
-	return server
+	uaaMux.Handle("/", m)
 }
 
 func Teardown() {
 	server.Close()
 	fakeUAAServer.Close()
-}
-
-func ExecuteTests(tests []RouteTest, t *testing.T) {
-	for _, tt := range tests {
-		func() {
-			Setup(tt.Route, t)
-			defer Teardown()
-			details := fmt.Sprintf("%s %s", tt.Route.Method, tt.Route.Endpoint)
-			if tt.Description != "" {
-				details = tt.Description + ": " + details
-			}
-
-			c, _ := NewTokenConfig(server.URL, "foobar")
-			cl, err := New(c)
-			require.NoError(t, err, details)
-
-			assertEq := func(t *testing.T, expected string, obj any) {
-				if isJSON(expected) {
-					actualJSON, err := json.Marshal(obj)
-					require.NoError(t, err, details)
-					require.JSONEq(t, expected, string(actualJSON), details)
-				} else {
-					if s, ok := obj.(string); ok {
-						require.Equal(t, expected, s, details)
-					}
-				}
-			}
-
-			if tt.Action != nil {
-				obj1, err := tt.Action(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-			} else if tt.Action2 != nil {
-				obj1, obj2, err := tt.Action2(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-				assertEq(t, tt.Expected2, obj2)
-			} else if tt.Action3 != nil {
-				obj1, obj2, obj3, err := tt.Action3(cl, t)
-				require.NoError(t, err, details)
-				assertEq(t, tt.Expected, obj1)
-				assertEq(t, tt.Expected2, obj2)
-				assertEq(t, tt.Expected3, obj3)
-			}
-		}()
-	}
-}
-
-func isJSON(obj string) bool {
-	return strings.HasPrefix(obj, "{") || strings.HasPrefix(obj, "[")
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {

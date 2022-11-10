@@ -17,7 +17,7 @@ func TestStacks(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/stacks",
 				Output:   []string{stack},
@@ -36,7 +36,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Delete stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
 				Status:   http.StatusAccepted,
@@ -47,7 +47,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Get stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
 				Output:   []string{stack},
@@ -59,7 +59,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "List all stacks",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks",
 				Output:   g.Paged([]string{stack}, []string{stack2}),
@@ -71,7 +71,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "List all apps for given stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595/apps",
 				Output:   g.Paged([]string{app}, []string{app2}),
@@ -83,7 +83,7 @@ func TestStacks(t *testing.T) {
 		},
 		{
 			Description: "Update stack",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/stacks/88db2b75-671f-4e4b-a19a-7db992366595",
 				Output:   []string{stack},

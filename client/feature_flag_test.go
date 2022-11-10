@@ -17,7 +17,7 @@ func TestFeatureFlags(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get feature flag",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/feature_flags/resource_matching",
 				Output:   []string{ff},
@@ -29,7 +29,7 @@ func TestFeatureFlags(t *testing.T) {
 		},
 		{
 			Description: "List all feature flags",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/feature_flags",
 				Output:   g.Paged([]string{ff, ff2}, []string{ff3, ff4}),
@@ -41,7 +41,7 @@ func TestFeatureFlags(t *testing.T) {
 		},
 		{
 			Description: "Update feature flag",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/feature_flags/resource_matching",
 				Output:   []string{ff},

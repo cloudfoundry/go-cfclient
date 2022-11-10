@@ -18,7 +18,7 @@ func TestProcesses(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Get process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
 				Output:   []string{process},
@@ -31,7 +31,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Get process stats",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/stats",
 				Output:   []string{processStats},
@@ -44,7 +44,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "List all processes",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/processes",
 				Output:   g.Paged([]string{process, process2}, []string{process3, process4}),
@@ -57,7 +57,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "List all processes for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/2a550283-9245-493e-af36-5e4b8703f896/processes",
 				Output:   g.Paged([]string{process, process2}, []string{process3, process4}),
@@ -70,7 +70,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Scale a process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/actions/scale",
 				Output:   []string{process},
@@ -94,7 +94,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Update a process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
 				Output:   []string{process},
@@ -120,7 +120,7 @@ func TestProcesses(t *testing.T) {
 		},
 		{
 			Description: "Terminate process",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606/instances/0",
 				Status:   http.StatusAccepted,

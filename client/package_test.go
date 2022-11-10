@@ -56,7 +56,7 @@ func TestPackages(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/packages",
 				Output:   []string{pkg},
@@ -71,7 +71,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Copy package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:      "POST",
 				Endpoint:    "/v3/packages",
 				QueryString: "source_guid=66e89f29-475e-4baf-9675-40c6096c017b",
@@ -86,7 +86,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Delete package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
 				Status:   http.StatusAccepted,
@@ -97,7 +97,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Download package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b/download",
 				Output:   []string{"package bits..."},
@@ -115,7 +115,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Get package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b",
 				Output:   []string{pkg},
@@ -128,7 +128,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List first page of packages",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages",
 				Output:   g.Paged([]string{pkg}),
@@ -142,7 +142,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List all packages",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages",
 				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3, pkg4}),
@@ -154,7 +154,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List first page of packages for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
 				Output:   g.Paged([]string{pkg}),
@@ -168,7 +168,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "List all packages for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/packages",
 				Output:   g.Paged([]string{pkg, pkg2}, []string{pkg3}),
@@ -181,7 +181,7 @@ func TestPackages(t *testing.T) {
 		},
 		{
 			Description: "Update package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/packages/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b",
 				Output:   []string{pkg},

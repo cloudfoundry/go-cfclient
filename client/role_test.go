@@ -25,7 +25,7 @@ func TestRoles(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create org role",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/roles",
 				Output:   []string{role},
@@ -54,7 +54,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Create space role",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/roles",
 				Output:   []string{role},
@@ -83,7 +83,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Get role",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
 				Output:   []string{role},
@@ -95,7 +95,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Get role with orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -111,7 +111,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Get role with spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -127,7 +127,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Get role with users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
 				Output: g.ResourceWithInclude(testutil.ResourceResult{
@@ -143,7 +143,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "Delete role",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
 				Status:   http.StatusAccepted,
@@ -154,7 +154,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "List all roles",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output:   g.Paged([]string{role, role2}, []string{role3, role4}),
@@ -166,7 +166,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "List all roles include orgs",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(
@@ -187,7 +187,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "List all roles include spaces",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(
@@ -208,7 +208,7 @@ func TestRoles(t *testing.T) {
 		},
 		{
 			Description: "List all roles include users",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles",
 				Output: g.PagedWithInclude(

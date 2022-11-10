@@ -15,7 +15,7 @@ func TestSecurityGroups(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Create security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/security_groups",
 				Output:   []string{sg},
@@ -55,7 +55,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Delete security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
 				Status:   http.StatusAccepted,
@@ -66,7 +66,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Get security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
 				Output:   []string{sg},
@@ -78,7 +78,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "List all security groups",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/security_groups",
 				Output:   g.Paged([]string{sg}, []string{sg2}),
@@ -90,7 +90,7 @@ func TestSecurityGroups(t *testing.T) {
 		},
 		{
 			Description: "Update security group",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
 				Output:   []string{sg},

@@ -21,7 +21,7 @@ func TestDroplets(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Set current droplet association for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/relationships/current_droplet",
 				Output:   []string{dropletAssociation},
@@ -35,7 +35,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Get current droplet association for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/relationships/current_droplet",
 				Output:   []string{dropletAssociation},
@@ -48,7 +48,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Get current droplet for app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/droplets/current",
 				Output:   []string{droplet},
@@ -61,7 +61,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Get droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
 				Output:   []string{droplet},
@@ -74,7 +74,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "List first page of droplets",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets",
 				Output:   g.Paged([]string{droplet}),
@@ -88,7 +88,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "List all droplets",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets",
 				Output:   g.Paged([]string{droplet, droplet2}, []string{droplet3, droplet4}),
@@ -100,7 +100,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "List first page of droplets for a package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/8222f76a-9e09-4360-b3aa-1ed329945e92/droplets",
 				Output:   g.Paged([]string{droplet}),
@@ -114,7 +114,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "List all droplets for a package",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/packages/8222f76a-9e09-4360-b3aa-1ed329945e92/droplets",
 				Output:   g.Paged([]string{droplet, droplet2}, []string{droplet3}),
@@ -127,7 +127,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "List first page of droplets for an app",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/bf75e72f-f1ed-4815-9e28-048595a35b6c/droplets",
 				Output:   g.Paged([]string{droplet}),
@@ -141,7 +141,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Create droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/droplets",
 				Output:   []string{droplet},
@@ -155,7 +155,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Delete droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
 				Status:   http.StatusAccepted,
@@ -166,7 +166,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Update droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
 				Output:   []string{droplet},
@@ -179,7 +179,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Copy droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:      "POST",
 				Endpoint:    "/v3/droplets",
 				QueryString: "source_guid=59c3d133-2b83-46f3-960e-7765a129aea4",
@@ -194,7 +194,7 @@ func TestDroplets(t *testing.T) {
 		},
 		{
 			Description: "Download droplet",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4/download",
 				Output:   []string{"droplet bits..."},

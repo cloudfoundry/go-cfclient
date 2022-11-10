@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
@@ -8,9 +9,9 @@ import (
 )
 
 func TestMakeRequest(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer Teardown()
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer testutil.Teardown()
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
 	require.NoError(t, err)
@@ -21,9 +22,9 @@ func TestMakeRequest(t *testing.T) {
 }
 
 func TestMakeRequestFailure(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer Teardown()
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer testutil.Teardown()
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
 	require.NoError(t, err)
@@ -35,9 +36,9 @@ func TestMakeRequestFailure(t *testing.T) {
 }
 
 func TestMakeRequestWithTimeout(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	defer Teardown()
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	defer testutil.Teardown()
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	c.HTTPClient(&http.Client{Timeout: 10 * time.Nanosecond})
 	client, err := New(c)
@@ -46,9 +47,9 @@ func TestMakeRequestWithTimeout(t *testing.T) {
 }
 
 func TestHTTPErrorHandling(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"502 Bad Gateway"}, Status: 502}, t)
-	defer Teardown()
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"502 Bad Gateway"}, Status: 502}, t)
+	defer testutil.Teardown()
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	c.SkipSSLValidation(true)
 	client, err := New(c)
 	require.NoError(t, err)
@@ -64,9 +65,10 @@ func TestHTTPErrorHandling(t *testing.T) {
 }
 
 func TestTokenRefresh(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	fakeUAAServer = FakeUAAServer(1)
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	testutil.SetupFakeUAAServer(1)
+
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	client, err := New(c)
 	require.NoError(t, err)
 
@@ -85,9 +87,9 @@ func TestTokenRefresh(t *testing.T) {
 }
 
 func TestEndpointRefresh(t *testing.T) {
-	Setup(MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
-	fakeUAAServer = FakeUAAServer(0)
-	c, _ := NewUserPasswordConfig(server.URL, "foo", "bar")
+	serverURL := testutil.Setup(testutil.MockRoute{Method: "GET", Endpoint: "/v2/organizations", Output: []string{"fake payload"}, Status: 200}, t)
+	testutil.SetupFakeUAAServer(0)
+	c, _ := NewUserPasswordConfig(serverURL, "foo", "bar")
 	client, err := New(c)
 	require.NoError(t, err)
 

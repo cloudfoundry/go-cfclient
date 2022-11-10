@@ -14,7 +14,7 @@ func TestManifests(t *testing.T) {
 	tests := []RouteTest{
 		{
 			Description: "Generate app manifest",
-			Route: MockRoute{
+			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/389f0d73-04ee-455b-b63c-513c7c78d5ff/manifest",
 				Output:   []string{manifest},
