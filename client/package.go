@@ -16,9 +16,9 @@ type PackageClient commonClient
 type PackageListOptions struct {
 	*ListOptions
 
-	GUIDs  Filter `filter:"guids,omitempty"`  // list of package guids to filter by
-	States Filter `filter:"states,omitempty"` // list of package states to filter by
-	Types  Filter `filter:"types,omitempty"`  // list of package types to filter by, docker or bits
+	GUIDs  Filter `qs:"guids"`  // list of package guids to filter by
+	States Filter `qs:"states"` // list of package states to filter by
+	Types  Filter `qs:"types"`  // list of package types to filter by, docker or bits
 }
 
 // NewPackageListOptions creates new options to pass to list

@@ -11,7 +11,7 @@ type RevisionClient commonClient
 type RevisionListOptions struct {
 	*ListOptions
 
-	Versions Filter `filter:"versions,omitempty"`
+	Versions Filter `qs:"versions"`
 }
 
 // NewRevisionListOptions creates new options to pass to list

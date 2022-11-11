@@ -11,7 +11,7 @@ type StackClient commonClient
 type StackListOptions struct {
 	*ListOptions
 
-	Names Filter `filter:"names,omitempty"` // list of stack names to filter by
+	Names Filter `qs:"names"` // list of stack names to filter by
 }
 
 // NewStackListOptions creates new options to pass to list

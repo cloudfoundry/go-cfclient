@@ -11,13 +11,13 @@ type ServiceInstanceClient commonClient
 type ServiceInstanceListOptions struct {
 	*ListOptions
 
-	Names             Filter `filter:"names,omitempty"` // list of service instance names to filter by
-	GUIDs             Filter `filter:"guids,omitempty"` // list of service instance guids to filter by
-	Type              string `filter:"type,omitempty"`  // Filter by type; valid values are managed and user-provided
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
-	ServicePlanGUIDs  Filter `filter:"service_plan_guids,omitempty"`
-	ServicePlanNames  Filter `filter:"service_plan_names,omitempty"`
+	Names             Filter `qs:"names"` // list of service instance names to filter by
+	GUIDs             Filter `qs:"guids"` // list of service instance guids to filter by
+	Type              string `qs:"type"`  // Filter by type; valid values are managed and user-provided
+	SpaceGUIDs        Filter `qs:"space_guids"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	ServicePlanGUIDs  Filter `qs:"service_plan_guids"`
+	ServicePlanNames  Filter `qs:"service_plan_names"`
 }
 
 // NewServiceInstanceListOptions creates new options to pass to list

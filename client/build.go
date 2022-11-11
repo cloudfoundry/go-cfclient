@@ -11,16 +11,16 @@ type BuildClient commonClient
 type BuildListOptions struct {
 	*ListOptions
 
-	States       Filter `filter:"states,omitempty"`
-	AppGUIDs     Filter `filter:"app_guids,omitempty"`
-	PackageGUIDs Filter `filter:"package_guids,omitempty"`
+	States       Filter `qs:"states"`
+	AppGUIDs     Filter `qs:"app_guids"`
+	PackageGUIDs Filter `qs:"package_guids"`
 }
 
 // BuildAppListOptions list filters
 type BuildAppListOptions struct {
 	*ListOptions
 
-	States Filter `filter:"states,omitempty"`
+	States Filter `qs:"states"`
 }
 
 // NewBuildListOptions creates new options to pass to list

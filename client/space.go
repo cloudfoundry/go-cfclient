@@ -12,9 +12,9 @@ type SpaceClient commonClient
 type SpaceListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`              // list of space guids to filter by
-	Names             Filter `filter:"names,omitempty"`              // list of space names to filter by
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"` // list of organization guids to filter by
+	GUIDs             Filter `qs:"guids"`              // list of space guids to filter by
+	Names             Filter `qs:"names"`              // list of space names to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"` // list of organization guids to filter by
 
 	Include resource.SpaceIncludeType // include parent objects if any
 }

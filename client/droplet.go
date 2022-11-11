@@ -14,11 +14,11 @@ type DropletClient commonClient
 type DropletListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`              // list of droplet guids to filter by
-	States            Filter `filter:"states,omitempty"`             // list of droplet states to filter by
-	AppGUIDs          Filter `filter:"app_guids,omitempty"`          // list of app guids to filter by
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`        // list of space guids to filter by
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"` // list of organization guids to filter by
+	GUIDs             Filter `qs:"guids"`              // list of droplet guids to filter by
+	States            Filter `qs:"states"`             // list of droplet states to filter by
+	AppGUIDs          Filter `qs:"app_guids"`          // list of app guids to filter by
+	SpaceGUIDs        Filter `qs:"space_guids"`        // list of space guids to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"` // list of organization guids to filter by
 }
 
 // NewDropletListOptions creates new options to pass to list
@@ -36,8 +36,8 @@ func (o DropletListOptions) ToQueryString() url.Values {
 type DropletPackageListOptions struct {
 	*ListOptions
 
-	GUIDs  Filter `filter:"guids,omitempty"`  // list of droplet guids to filter by
-	States Filter `filter:"states,omitempty"` // list of droplet states to filter by
+	GUIDs  Filter `qs:"guids"`  // list of droplet guids to filter by
+	States Filter `qs:"states"` // list of droplet states to filter by
 }
 
 // NewDropletPackageListOptions creates new options to pass to list droplets by package
@@ -55,9 +55,9 @@ func (o DropletPackageListOptions) ToQueryString() url.Values {
 type DropletAppListOptions struct {
 	*ListOptions
 
-	GUIDs   Filter `filter:"guids,omitempty"`   // list of droplet guids to filter by
-	States  Filter `filter:"states,omitempty"`  // list of droplet states to filter by
-	Current bool   `filter:"current,omitempty"` // If true, only include the droplet currently assigned to the app
+	GUIDs   Filter `qs:"guids"`   // list of droplet guids to filter by
+	States  Filter `qs:"states"`  // list of droplet states to filter by
+	Current bool   `qs:"current"` // If true, only include the droplet currently assigned to the app
 }
 
 // NewDropletAppListOptions creates new options to pass to list droplets by package

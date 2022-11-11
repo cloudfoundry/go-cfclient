@@ -12,8 +12,8 @@ type ServiceBrokerClient commonClient
 type ServiceBrokerListOptions struct {
 	*ListOptions
 
-	SpaceGUIDs Filter `filter:"space_guids,omitempty"`
-	Names      Filter `filter:"names,omitempty"`
+	SpaceGUIDs Filter `qs:"space_guids"`
+	Names      Filter `qs:"names"`
 }
 
 // NewServiceBrokerListOptions creates new options to pass to list
