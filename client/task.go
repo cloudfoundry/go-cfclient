@@ -12,11 +12,11 @@ type TaskClient commonClient
 type TaskListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`
-	Names             Filter `filter:"names,omitempty"`
-	States            Filter `filter:"states,omitempty"`
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	States            Filter `qs:"states"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
 // NewTaskListOptions creates new options to pass to list

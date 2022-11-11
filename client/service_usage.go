@@ -11,10 +11,10 @@ type ServiceUsageClient commonClient
 type ServiceUsageOptions struct {
 	*ListOptions
 
-	AfterGUID            string `filter:"after_guid,omitempty"`
-	GUIDs                Filter `filter:"guids,omitempty"`
-	ServiceInstanceTypes Filter `filter:"service_instance_types,omitempty"`
-	ServiceOfferingGUIDs Filter `filter:"service_offering_guids,omitempty"`
+	AfterGUID            string `qs:"after_guid"`
+	GUIDs                Filter `qs:"guids"`
+	ServiceInstanceTypes Filter `qs:"service_instance_types"`
+	ServiceOfferingGUIDs Filter `qs:"service_offering_guids"`
 }
 
 // NewServiceUsageOptions creates new options to pass to list

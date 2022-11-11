@@ -10,8 +10,8 @@ type OrgClient commonClient
 type OrgListOptions struct {
 	*ListOptions
 
-	GUIDs Filter `filter:"guids,omitempty"` // list of organization guids to filter by
-	Names Filter `filter:"names,omitempty"` // list of organization names to filter by
+	GUIDs Filter `qs:"guids"` // list of organization guids to filter by
+	Names Filter `qs:"names"` // list of organization names to filter by
 }
 
 // NewOrgListOptions creates new options to pass to list

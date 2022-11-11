@@ -12,9 +12,9 @@ type IsolationSegmentClient commonClient
 type IsolationSegmentOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`
-	Names             Filter `filter:"names,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
 // NewIsolationSegmentOptions creates new options to pass to list

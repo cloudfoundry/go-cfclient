@@ -11,10 +11,10 @@ type AuditEventClient commonClient
 type AuditEventListOptions struct {
 	*ListOptions
 
-	Types             Filter `filter:"types,omitempty"`        //  list of event types to filter by
-	TargetGUIDs       Filter `filter:"target_guids,omitempty"` // list of target guids to filter by
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
+	Types             Filter `qs:"types"`        //  list of event types to filter by
+	TargetGUIDs       Filter `qs:"target_guids"` // list of target guids to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
 }
 
 // NewAuditEventListOptions creates new options to pass to list

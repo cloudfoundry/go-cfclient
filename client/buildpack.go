@@ -11,8 +11,8 @@ type BuildpackClient commonClient
 type BuildpackListOptions struct {
 	*ListOptions
 
-	Names  Filter `filter:"names,omitempty"`  // list of buildpack names to filter by
-	Stacks Filter `filter:"stacks,omitempty"` // list of stack names to filter by
+	Names  Filter `qs:"names"`  // list of buildpack names to filter by
+	Stacks Filter `qs:"stacks"` // list of stack names to filter by
 }
 
 // NewBuildpackListOptions creates new options to pass to list

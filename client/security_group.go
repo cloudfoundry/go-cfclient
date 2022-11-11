@@ -11,13 +11,13 @@ type SecurityGroupClient commonClient
 type SecurityGroupListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`               // list of security group guids to filter by
-	Names             Filter `filter:"names,omitempty"`               // list of security group names to filter by
-	RunningSpaceGUIDs Filter `filter:"running_space_guids,omitempty"` // list of space guids to filter by
-	StagingSpaceGUIDs Filter `filter:"staging_space_guids,omitempty"` // list of space guids to filter by
+	GUIDs             Filter `qs:"guids"`               // list of security group guids to filter by
+	Names             Filter `qs:"names"`               // list of security group names to filter by
+	RunningSpaceGUIDs Filter `qs:"running_space_guids"` // list of space guids to filter by
+	StagingSpaceGUIDs Filter `qs:"staging_space_guids"` // list of space guids to filter by
 
-	GloballyEnabledRunning *bool `filter:"globally_enabled_running,omitempty"` // If true, only include the security groups that are enabled for running
-	GloballyEnabledStaging *bool `filter:"globally_enabled_staging,omitempty"` // If true, only include the security groups that are enabled for staging
+	GloballyEnabledRunning *bool `qs:"globally_enabled_running"` // If true, only include the security groups that are enabled for running
+	GloballyEnabledStaging *bool `qs:"globally_enabled_staging"` // If true, only include the security groups that are enabled for staging
 }
 
 // NewSecurityGroupListOptions creates new options to pass to list

@@ -12,12 +12,12 @@ type ServiceOfferingClient commonClient
 type ServiceOfferingListOptions struct {
 	*ListOptions
 
-	Names              Filter `filter:"names,omitempty"`
-	ServiceBrokerGUIDs Filter `filter:"service_broker_guids,omitempty"`
-	ServiceBrokerNames Filter `filter:"service_broker_names,omitempty"`
-	SpaceGUIDs         Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs  Filter `filter:"organization_guids,omitempty"`
-	Available          *bool  `filter:"available,omitempty"`
+	Names              Filter `qs:"names"`
+	ServiceBrokerGUIDs Filter `qs:"service_broker_guids"`
+	ServiceBrokerNames Filter `qs:"service_broker_names"`
+	SpaceGUIDs         Filter `qs:"space_guids"`
+	OrganizationGUIDs  Filter `qs:"organization_guids"`
+	Available          *bool  `qs:"available"`
 }
 
 // NewServiceOfferingListOptions creates new options to pass to list

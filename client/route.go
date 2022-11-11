@@ -12,17 +12,17 @@ type RouteClient commonClient
 type RouteListOptions struct {
 	*ListOptions
 
-	AppGUIDs             Filter `filter:"app_guids,omitempty"`
-	SpaceGUIDs           Filter `filter:"space_guids,omitempty"`
-	DomainGUIDs          Filter `filter:"domain_guids,omitempty"`
-	OrganizationGUIDs    Filter `filter:"organization_guids,omitempty"`
-	ServiceInstanceGUIDs Filter `filter:"service_instance_guids,omitempty"`
+	AppGUIDs             Filter `qs:"app_guids"`
+	SpaceGUIDs           Filter `qs:"space_guids"`
+	DomainGUIDs          Filter `qs:"domain_guids"`
+	OrganizationGUIDs    Filter `qs:"organization_guids"`
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
 
-	Hosts Filter `filter:"hosts,omitempty"`
-	Paths Filter `filter:"paths,omitempty"`
-	Ports Filter `filter:"ports,omitempty"`
+	Hosts Filter `qs:"hosts"`
+	Paths Filter `qs:"paths"`
+	Ports Filter `qs:"ports"`
 
-	Include resource.RouteIncludeType `filter:"include,omitempty"`
+	Include resource.RouteIncludeType `qs:"include"`
 }
 
 // NewRouteListOptions creates new options to pass to list

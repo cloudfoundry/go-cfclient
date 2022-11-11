@@ -11,12 +11,12 @@ type ServiceRouteBindingClient commonClient
 type ServiceRouteBindingListOptions struct {
 	*ListOptions
 
-	GUIDs                Filter `filter:"guids,omitempty"`
-	RouteGUIDs           Filter `filter:"route_guids,omitempty"`
-	ServiceInstanceGUIDs Filter `filter:"service_instance_guids,omitempty"`
-	ServiceInstanceNames Filter `filter:"service_instance_names,omitempty"`
+	GUIDs                Filter `qs:"guids"`
+	RouteGUIDs           Filter `qs:"route_guids"`
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
+	ServiceInstanceNames Filter `qs:"service_instance_names"`
 
-	Include resource.ServiceRouteBindingIncludeType `filter:"include,omitempty"`
+	Include resource.ServiceRouteBindingIncludeType `qs:"include"`
 }
 
 // NewServiceRouteBindingListOptions creates new options to pass to list

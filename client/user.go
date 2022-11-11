@@ -12,19 +12,19 @@ type UserListOptions struct {
 	*ListOptions
 
 	// list of user guids to filter by
-	GUIDs Filter `filter:"guids,omitempty"`
+	GUIDs Filter `qs:"guids"`
 
 	// list of usernames to filter by. Mutually exclusive with partial_usernames
-	UserNames Filter `filter:"usernames,omitempty"`
+	UserNames Filter `qs:"usernames"`
 
 	// list of strings to search by. When using this query parameter, all the users that
 	// contain the string provided in their username will be returned. Mutually exclusive with usernames
-	PartialUsernames Filter `filter:"partial_usernames,omitempty"`
+	PartialUsernames Filter `qs:"partial_usernames"`
 
 	// list of user origins (user stores) to filter by, for example, users authenticated by
 	// UAA have the origin “uaa”; users authenticated by an LDAP provider have the
 	// origin ldap when filtering by origins, usernames must be included
-	Origins Filter `filter:"origins,omitempty"`
+	Origins Filter `qs:"origins"`
 }
 
 // NewUserListOptions creates new options to pass to list

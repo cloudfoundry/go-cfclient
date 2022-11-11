@@ -12,14 +12,14 @@ type AppClient commonClient
 type AppListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`
-	Names             Filter `filter:"names,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
-	Stacks            Filter `filter:"stacks,omitempty"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
+	Stacks            Filter `qs:"stacks"`
 
-	LifecycleType resource.LifecycleType  `filter:"lifecycle_type,omitempty"`
-	Include       resource.AppIncludeType `filter:"include,omitempty"`
+	LifecycleType resource.LifecycleType  `qs:"lifecycle_type"`
+	Include       resource.AppIncludeType `qs:"include"`
 }
 
 // NewAppListOptions creates new options to pass to list

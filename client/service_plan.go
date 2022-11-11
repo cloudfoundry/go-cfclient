@@ -12,18 +12,18 @@ type ServicePlanClient commonClient
 type ServicePlanListOptions struct {
 	*ListOptions
 
-	Names                Filter `filter:"names,omitempty"`
-	BrokerCatalogIDs     Filter `filter:"broker_catalog_ids,omitempty"`
-	SpaceGUIDs           Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs    Filter `filter:"organization_guids,omitempty"`
-	ServiceBrokerGUIDs   Filter `filter:"service_broker_guids,omitempty"`
-	ServiceBrokerNames   Filter `filter:"service_broker_names,omitempty"`
-	ServiceOfferingGUIDs Filter `filter:"service_offering_guids,omitempty"`
-	ServiceOfferingNames Filter `filter:"service_offering_names,omitempty"`
-	ServiceInstanceGUIDs Filter `filter:"service_instance_guids,omitempty"`
-	Available            *bool  `filter:"available,omitempty"`
+	Names                Filter `qs:"names"`
+	BrokerCatalogIDs     Filter `qs:"broker_catalog_ids"`
+	SpaceGUIDs           Filter `qs:"space_guids"`
+	OrganizationGUIDs    Filter `qs:"organization_guids"`
+	ServiceBrokerGUIDs   Filter `qs:"service_broker_guids"`
+	ServiceBrokerNames   Filter `qs:"service_broker_names"`
+	ServiceOfferingGUIDs Filter `qs:"service_offering_guids"`
+	ServiceOfferingNames Filter `qs:"service_offering_names"`
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
+	Available            *bool  `qs:"available"`
 
-	Include resource.ServicePlanIncludeType `filter:"include,omitempty"`
+	Include resource.ServicePlanIncludeType `qs:"include"`
 }
 
 // NewServicePlanListOptions creates new options to pass to list

@@ -11,19 +11,19 @@ type ServiceCredentialBindingClient commonClient
 type ServiceCredentialBindingListOptions struct {
 	*ListOptions
 
-	Names                Filter `filter:"names,omitempty"`                  // list of service credential binding names to filter by
-	ServiceInstanceGUIDs Filter `filter:"service_instance_guids,omitempty"` // list of SI guids to filter by
-	ServiceInstanceNames Filter `filter:"service_instance_names,omitempty"` // list of SI names to filter by
-	AppGUIDs             Filter `filter:"app_guids,omitempty"`              // list of app guids to filter by
-	AppNames             Filter `filter:"app_names,omitempty"`              // list of app names to filter by
-	ServicePlanGUIDs     Filter `filter:"service_plan_guids,omitempty"`     // list of service plan guids to filter by
-	ServicePlanNames     Filter `filter:"service_plan_names,omitempty"`     // list of service plan names to filter by
-	ServiceOfferingGUIDs Filter `filter:"service_offering_guids,omitempty"` // list of service offering guids to filter by
-	ServiceOfferingNames Filter `filter:"service_offering_names,omitempty"` // list of service offering names to filter by
-	Type                 Filter `filter:"type,omitempty"`                   // list of service credential binding types to filter by, app or key
-	GUIDs                Filter `filter:"guids,omitempty"`                  // list of service route binding guids to filter by
+	Names                Filter `qs:"names"`                  // list of service credential binding names to filter by
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"` // list of SI guids to filter by
+	ServiceInstanceNames Filter `qs:"service_instance_names"` // list of SI names to filter by
+	AppGUIDs             Filter `qs:"app_guids"`              // list of app guids to filter by
+	AppNames             Filter `qs:"app_names"`              // list of app names to filter by
+	ServicePlanGUIDs     Filter `qs:"service_plan_guids"`     // list of service plan guids to filter by
+	ServicePlanNames     Filter `qs:"service_plan_names"`     // list of service plan names to filter by
+	ServiceOfferingGUIDs Filter `qs:"service_offering_guids"` // list of service offering guids to filter by
+	ServiceOfferingNames Filter `qs:"service_offering_names"` // list of service offering names to filter by
+	Type                 Filter `qs:"type"`                   // list of service credential binding types to filter by, app or key
+	GUIDs                Filter `qs:"guids"`                  // list of service route binding guids to filter by
 
-	Include resource.ServiceCredentialBindingIncludeType `filter:"include,omitempty"`
+	Include resource.ServiceCredentialBindingIncludeType `qs:"include"`
 }
 
 // NewServiceCredentialBindingListOptions creates new options to pass to list

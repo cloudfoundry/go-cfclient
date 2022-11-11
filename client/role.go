@@ -12,13 +12,13 @@ type RoleClient commonClient
 type RoleListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`              // list of role guids to filter by
-	Types             Filter `filter:"types,omitempty"`              // list of role types to filter by
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"` // list of org guids to filter by
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`        // list of space guids to filter by
-	UserGUIDs         Filter `filter:"user_guids,omitempty"`         // list of user guids to filter by
+	GUIDs             Filter `qs:"guids"`              // list of role guids to filter by
+	Types             Filter `qs:"types"`              // list of role types to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"` // list of org guids to filter by
+	SpaceGUIDs        Filter `qs:"space_guids"`        // list of space guids to filter by
+	UserGUIDs         Filter `qs:"user_guids"`         // list of user guids to filter by
 
-	Include resource.RoleIncludeType `filter:"include,omitempty"`
+	Include resource.RoleIncludeType `qs:"include"`
 }
 
 // NewRoleListOptions creates new options to pass to list
