@@ -253,14 +253,10 @@ func (c *Client) NewRequest(method, path string) *Request {
 	return r
 }
 
-// NewRequestWithBody is used to create a new request with
-// arbigtrary body io.Reader.
+// NewRequestWithBody is used to create a new request with arbitrary body io.Reader
 func (c *Client) NewRequestWithBody(method, path string, body io.Reader) *Request {
 	r := c.NewRequest(method, path)
-
-	// Set request body
 	r.body = body
-
 	return r
 }
 
