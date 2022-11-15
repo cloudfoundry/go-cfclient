@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -50,14 +51,14 @@ func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 
 // Delete the specified user
 func (c *UserClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/users/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/users/%s", guid))
 	return err
 }
 
 // Get the specified user
 func (c *UserClient) Get(guid string) (*resource.User, error) {
 	var user resource.User
-	err := c.client.get(path("/v3/users/%s", guid), &user)
+	err := c.client.get(path.Format("/v3/users/%s", guid), &user)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (c *UserClient) List(opts *UserListOptions) ([]*resource.User, *Pager, erro
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(path("/v3/users?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/users?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -91,7 +92,7 @@ func (c *UserClient) ListAll(opts *UserListOptions) ([]*resource.User, error) {
 // Update the specified attributes of a user
 func (c *UserClient) Update(guid string, r *resource.UserUpdate) (*resource.User, error) {
 	var user resource.User
-	_, err := c.client.patch(path("/v3/users/%s", guid), r, &user)
+	_, err := c.client.patch(path.Format("/v3/users/%s", guid), r, &user)
 	if err != nil {
 		return nil, err
 	}

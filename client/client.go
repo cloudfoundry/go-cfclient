@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
 	http2 "net/http"
@@ -150,7 +151,7 @@ func (c *Client) SSHCode() (string, error) {
 		return "", err
 	}
 
-	req := http.NewRequest("GET", path("/oauth/authorize", values.Encode())).
+	req := http.NewRequest("GET", path.Format("/oauth/authorize", values)).
 		WithHeader("authorization", token)
 
 	nonRedirectingHTTPClient := &http2.Client{

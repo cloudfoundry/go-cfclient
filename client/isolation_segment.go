@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -42,7 +43,7 @@ func (c *IsolationSegmentClient) Create(r *resource.IsolationSegmentCreate) (*re
 //
 // An isolation segment cannot be deleted if it is entitled to any organization.
 func (c *IsolationSegmentClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/isolation_segments/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/isolation_segments/%s", guid))
 	return err
 }
 
@@ -63,7 +64,7 @@ func (c *IsolationSegmentClient) EntitleOrg(guid string, orgGUID string) (*resou
 func (c *IsolationSegmentClient) EntitleOrgs(guid string, orgGUIDs []string) (*resource.IsolationSegmentRelationship, error) {
 	req := resource.NewToManyRelationships(orgGUIDs)
 	var iso resource.IsolationSegmentRelationship
-	_, err := c.client.post(path("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
+	_, err := c.client.post(path.Format("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +74,7 @@ func (c *IsolationSegmentClient) EntitleOrgs(guid string, orgGUIDs []string) (*r
 // Get the specified isolation segment
 func (c *IsolationSegmentClient) Get(guid string) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment
-	err := c.client.get(path("/v3/isolation_segments/%s", guid), &iso)
+	err := c.client.get(path.Format("/v3/isolation_segments/%s", guid), &iso)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (c *IsolationSegmentClient) List(opts *IsolationSegmentOptions) ([]*resourc
 	}
 
 	var isos resource.IsolationSegmentList
-	err := c.client.get(path("/v3/isolation_segments?%s", opts.ToQueryString()), &isos)
+	err := c.client.get(path.Format("/v3/isolation_segments?%s", opts.ToQueryString()), &isos)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -117,7 +118,7 @@ func (c *IsolationSegmentClient) ListAll(opts *IsolationSegmentOptions) ([]*reso
 // this will list only the entitled organizations to which the user belongs.
 func (c *IsolationSegmentClient) ListOrgRelationships(guid string) ([]string, error) {
 	var relationships resource.IsolationSegmentRelationship
-	err := c.client.get(path("/v3/isolation_segments/%s/relationships/organizations", guid), &relationships)
+	err := c.client.get(path.Format("/v3/isolation_segments/%s/relationships/organizations", guid), &relationships)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +138,7 @@ func (c *IsolationSegmentClient) ListOrgRelationships(guid string) ([]string, er
 // user has access.
 func (c *IsolationSegmentClient) ListSpaceRelationships(guid string) ([]string, error) {
 	var relationships resource.IsolationSegmentRelationship
-	err := c.client.get(path("/v3/isolation_segments/%s/relationships/spaces", guid), &relationships)
+	err := c.client.get(path.Format("/v3/isolation_segments/%s/relationships/spaces", guid), &relationships)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +155,7 @@ func (c *IsolationSegmentClient) ListSpaceRelationships(guid string) ([]string, 
 // If the isolation segment is assigned to a space within an organization, the entitlement cannot be revoked.
 // If the isolation segment is the organization’s default, the entitlement cannot be revoked.
 func (c *IsolationSegmentClient) RevokeOrg(guid string, orgGUID string) error {
-	_, err := c.client.delete(path("/v3/isolation_segments/%s/relationships/organizations/%s", guid, orgGUID))
+	_, err := c.client.delete(path.Format("/v3/isolation_segments/%s/relationships/organizations/%s", guid, orgGUID))
 	return err
 }
 
@@ -175,7 +176,7 @@ func (c *IsolationSegmentClient) RevokeOrgs(guid string, orgGUIDs []string) erro
 // Update the specified attributes of the isolation segments
 func (c *IsolationSegmentClient) Update(guid string, r *resource.IsolationSegmentUpdate) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment
-	_, err := c.client.patch(path("/v3/isolation_segments/%s", guid), r, &iso)
+	_, err := c.client.patch(path.Format("/v3/isolation_segments/%s", guid), r, &iso)
 	if err != nil {
 		return nil, err
 	}

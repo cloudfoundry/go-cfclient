@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -26,7 +27,7 @@ func (o AppUsageOptions) ToQueryString() url.Values {
 // Get retrieves the specified app event
 func (c *AppUsageClient) Get(guid string) (*resource.AppUsage, error) {
 	var a resource.AppUsage
-	err := c.client.get(path("/v3/app_usage_events/%s", guid), &a)
+	err := c.client.get(path.Format("/v3/app_usage_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func (c *AppUsageClient) List(opts *AppUsageOptions) ([]*resource.AppUsage, *Pag
 		opts = NewAppUsageOptions()
 	}
 	var res resource.AppUsageList
-	err := c.client.get(path("/v3/app_usage_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/app_usage_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

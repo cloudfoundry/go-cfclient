@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -48,14 +49,14 @@ func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
 
 // Delete the specified route
 func (c *RouteClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/routes/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/routes/%s", guid))
 	return err
 }
 
 // Get the specified route
 func (c *RouteClient) Get(guid string) (*resource.Route, error) {
 	var Route resource.Route
-	err := c.client.get(path("/v3/routes/%s", guid), &Route)
+	err := c.client.get(path.Format("/v3/routes/%s", guid), &Route)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (c *RouteClient) Get(guid string) (*resource.Route, error) {
 // GetIncludeDomain allows callers to fetch a route and include the parent domain
 func (c *RouteClient) GetIncludeDomain(guid string) (*resource.Route, *resource.Domain, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeDomain), &r)
+	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeDomain), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,7 +76,7 @@ func (c *RouteClient) GetIncludeDomain(guid string) (*resource.Route, *resource.
 // GetIncludeSpace allows callers to fetch a route and include the parent space
 func (c *RouteClient) GetIncludeSpace(guid string) (*resource.Route, *resource.Space, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -85,7 +86,7 @@ func (c *RouteClient) GetIncludeSpace(guid string) (*resource.Route, *resource.S
 // GetIncludeSpaceAndOrg allows callers to fetch a route and include the parent space and org
 func (c *RouteClient) GetIncludeSpaceAndOrg(guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -100,7 +101,7 @@ func (c *RouteClient) List(opts *RouteListOptions) ([]*resource.Route, *Pager, e
 	opts.Include = resource.RouteIncludeNone
 
 	var res resource.RouteList
-	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -126,7 +127,7 @@ func (c *RouteClient) ListForApp(appGUID string, opts *RouteListOptions) ([]*res
 	opts.Include = resource.RouteIncludeNone
 
 	var res resource.RouteList
-	err := c.client.get(path("/v3/apps/%s/routes?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/routes?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -152,7 +153,7 @@ func (c *RouteClient) ListIncludeDomains(opts *RouteListOptions) ([]*resource.Ro
 	opts.Include = resource.RouteIncludeDomain
 
 	var res resource.RouteList
-	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -191,7 +192,7 @@ func (c *RouteClient) ListIncludeSpaces(opts *RouteListOptions) ([]*resource.Rou
 	opts.Include = resource.RouteIncludeSpace
 
 	var res resource.RouteList
-	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -230,7 +231,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgs(opts *RouteListOptions) ([]*resou
 	opts.Include = resource.RouteIncludeSpaceOrganization
 
 	var res resource.RouteList
-	err := c.client.get(path("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -266,7 +267,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*re
 // Update the specified attributes of the app
 func (c *RouteClient) Update(guid string, r *resource.RouteUpdate) (*resource.Route, error) {
 	var res resource.Route
-	_, err := c.client.patch(path("/v3/routes/%s", guid), r, &res)
+	_, err := c.client.patch(path.Format("/v3/routes/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

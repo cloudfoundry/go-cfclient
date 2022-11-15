@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"io"
 	"net/http"
-	"path"
 )
 
 type Executor struct {

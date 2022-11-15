@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -49,14 +50,14 @@ func (c *ServiceCredentialBindingClient) Create(r *resource.ServiceCredentialBin
 
 // Delete the specified service credential binding
 func (c *ServiceCredentialBindingClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/service_credential_bindings/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/service_credential_bindings/%s", guid))
 	return err
 }
 
 // Get the specified service credential binding
 func (c *ServiceCredentialBindingClient) Get(guid string) (*resource.ServiceCredentialBinding, error) {
 	var d resource.ServiceCredentialBinding
-	err := c.client.get(path("/v3/service_credential_bindings/%s", guid), &d)
+	err := c.client.get(path.Format("/v3/service_credential_bindings/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func (c *ServiceCredentialBindingClient) Get(guid string) (*resource.ServiceCred
 // GetIncludeApp allows callers to fetch a service credential binding and include the associated app
 func (c *ServiceCredentialBindingClient) GetIncludeApp(guid string) (*resource.ServiceCredentialBinding, *resource.App, error) {
 	var r resource.ServiceCredentialBindingWithIncluded
-	err := c.client.get(path("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeApp), &r)
+	err := c.client.get(path.Format("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeApp), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,7 +77,7 @@ func (c *ServiceCredentialBindingClient) GetIncludeApp(guid string) (*resource.S
 // GetIncludeServiceInstance allows callers to fetch a service credential binding and include the associated service instance
 func (c *ServiceCredentialBindingClient) GetIncludeServiceInstance(guid string) (*resource.ServiceCredentialBinding, *resource.ServiceInstance, error) {
 	var r resource.ServiceCredentialBindingWithIncluded
-	err := c.client.get(path("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeServiceInstance), &r)
+	err := c.client.get(path.Format("/v3/service_credential_bindings/%s?include=%s", guid, resource.ServiceCredentialBindingIncludeServiceInstance), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,7 +87,7 @@ func (c *ServiceCredentialBindingClient) GetIncludeServiceInstance(guid string) 
 // List pages ServiceCredentialBindings the user has access to
 func (c *ServiceCredentialBindingClient) List(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, *Pager, error) {
 	var res resource.ServiceCredentialBindingList
-	err := c.client.get(path("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -112,7 +113,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeApps(opts *ServiceCredential
 	opts.Include = resource.ServiceCredentialBindingIncludeApp
 
 	var res resource.ServiceCredentialBindingList
-	err := c.client.get(path("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -151,7 +152,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeServiceInstances(opts *Servi
 	opts.Include = resource.ServiceCredentialBindingIncludeServiceInstance
 
 	var res resource.ServiceCredentialBindingList
-	err := c.client.get(path("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -185,7 +186,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeServiceInstancesAll(opts *Se
 // Update the specified attributes of the app
 func (c *ServiceCredentialBindingClient) Update(guid string, r *resource.ServiceCredentialBindingUpdate) (*resource.ServiceCredentialBinding, error) {
 	var d resource.ServiceCredentialBinding
-	_, err := c.client.patch(path("/v3/service_credential_bindings/%s", guid), r, &d)
+	_, err := c.client.patch(path.Format("/v3/service_credential_bindings/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

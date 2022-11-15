@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -39,14 +40,14 @@ func (o ServicePlanListOptions) ToQueryString() url.Values {
 
 // Delete the specified service plan
 func (c *ServicePlanClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/service_plans/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/service_plans/%s", guid))
 	return err
 }
 
 // Get the specified service plan
 func (c *ServicePlanClient) Get(guid string) (*resource.ServicePlan, error) {
 	var ServicePlan resource.ServicePlan
-	err := c.client.get(path("/v3/service_plans/%s", guid), &ServicePlan)
+	err := c.client.get(path.Format("/v3/service_plans/%s", guid), &ServicePlan)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func (c *ServicePlanClient) Get(guid string) (*resource.ServicePlan, error) {
 // GetIncludeServicePlan allows callers to fetch a service plan and include the associated service offering
 func (c *ServicePlanClient) GetIncludeServicePlan(guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
 	var servicePlan resource.ServicePlanWithIncluded
-	err := c.client.get(path("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
+	err := c.client.get(path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,7 +67,7 @@ func (c *ServicePlanClient) GetIncludeServicePlan(guid string) (*resource.Servic
 // GetIncludeSpaceAndOrg allows callers to fetch a service plan and include the parent space and org
 func (c *ServicePlanClient) GetIncludeSpaceAndOrg(guid string) (*resource.ServicePlan, *resource.Space, *resource.Organization, error) {
 	var servicePlan resource.ServicePlanWithIncluded
-	err := c.client.get(path("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeSpaceOrganization), &servicePlan)
+	err := c.client.get(path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeSpaceOrganization), &servicePlan)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -80,7 +81,7 @@ func (c *ServicePlanClient) List(opts *ServicePlanListOptions) ([]*resource.Serv
 	}
 
 	var res resource.ServicePlanList
-	err := c.client.get(path("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -106,7 +107,7 @@ func (c *ServicePlanClient) ListIncludeServiceOffering(opts *ServicePlanListOpti
 	opts.Include = resource.ServicePlanIncludeServiceOffering
 
 	var res resource.ServicePlanList
-	err := c.client.get(path("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -145,7 +146,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(opts *ServicePlanListOption
 	opts.Include = resource.ServicePlanIncludeSpaceOrganization
 
 	var res resource.ServicePlanList
-	err := c.client.get(path("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -181,7 +182,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(opts *ServicePlanListOpt
 // Update the specified attributes of the service plan
 func (c *ServicePlanClient) Update(guid string, r *resource.ServicePlanUpdate) (*resource.ServicePlan, error) {
 	var res resource.ServicePlan
-	_, err := c.client.patch(path("/v3/service_plans/%s", guid), r, &res)
+	_, err := c.client.patch(path.Format("/v3/service_plans/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

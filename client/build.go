@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -57,14 +58,14 @@ func (c *BuildClient) Create(r *resource.BuildCreate) (*resource.Build, error) {
 
 // Delete the specified build
 func (c *BuildClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/builds/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/builds/%s", guid))
 	return err
 }
 
 // Get the specified build
 func (c *BuildClient) Get(guid string) (*resource.Build, error) {
 	var build resource.Build
-	err := c.client.get(path("/v3/builds/%s", guid), &build)
+	err := c.client.get(path.Format("/v3/builds/%s", guid), &build)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +78,7 @@ func (c *BuildClient) List(opts *BuildListOptions) ([]*resource.Build, *Pager, e
 		opts = NewBuildListOptions()
 	}
 	var res resource.BuildList
-	err := c.client.get(path("/v3/builds?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/builds?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +102,7 @@ func (c *BuildClient) ListForApp(appGUID string, opts *BuildAppListOptions) ([]*
 		opts = NewBuildAppListOptions()
 	}
 	var res resource.BuildList
-	err := c.client.get(path("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/builds?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -133,7 +134,7 @@ func (c *BuildClient) PollStaged(guid string, opts *PollingOptions) error {
 // Update the specified attributes of the build
 func (c *BuildClient) Update(guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build
-	_, err := c.client.patch(path("/v3/builds/%s", guid), r, &build)
+	_, err := c.client.patch(path.Format("/v3/builds/%s", guid), r, &build)
 	if err != nil {
 		return nil, err
 	}

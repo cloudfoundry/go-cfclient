@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -106,7 +107,7 @@ func (m *OAuthSessionManager) userAuth(ctx context.Context, loginEndpoint, uaaEn
 		}
 		val := url.Values{}
 		val.Set("login_hint", string(origin))
-		authConfig.Endpoint.TokenURL = fmt.Sprintf("%s?%s", authConfig.Endpoint.TokenURL, val.Encode())
+		authConfig.Endpoint.TokenURL = path.Format("%s?%s", authConfig.Endpoint.TokenURL, val)
 	}
 
 	token, err := authConfig.PasswordCredentialsToken(ctx, m.config.Username, m.config.Password)

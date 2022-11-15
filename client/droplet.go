@@ -2,7 +2,8 @@ package client
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
 	http2 "net/http"
@@ -76,7 +77,7 @@ func (o DropletAppListOptions) ToQueryString() url.Values {
 func (c *DropletClient) Copy(srcDropletGUID string, destAppGUID string) (any, error) {
 	var d resource.Droplet
 	r := resource.NewDropletCopy(destAppGUID)
-	_, err := c.client.post(path("/v3/droplets?source_guid=%s", srcDropletGUID), r, &d)
+	_, err := c.client.post(path.Format("/v3/droplets?source_guid=%s", srcDropletGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,7 @@ func (c *DropletClient) Create(r *resource.DropletCreate) (*resource.Droplet, er
 
 // Delete the specified droplet
 func (c *DropletClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/droplets/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/droplets/%s", guid))
 	return err
 }
 
@@ -105,7 +106,7 @@ func (c *DropletClient) Download(guid string) (io.ReadCloser, error) {
 	// This is the initial request, which will redirect to the internal blobstore location.
 	// The client should automatically follow this redirect. External blob stores are untested.
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-droplet-bits
-	p := path("/v3/droplets/%s/download", guid)
+	p := path.Format("/v3/droplets/%s/download", guid)
 	req := http.NewRequest("GET", p)
 	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
@@ -120,7 +121,7 @@ func (c *DropletClient) Download(guid string) (io.ReadCloser, error) {
 // Get retrieves the droplet by ID
 func (c *DropletClient) Get(guid string) (*resource.Droplet, error) {
 	var d resource.Droplet
-	err := c.client.get(path("/v3/droplets/%s", guid), &d)
+	err := c.client.get(path.Format("/v3/droplets/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +134,7 @@ func (c *DropletClient) List(opts *DropletListOptions) ([]*resource.Droplet, *Pa
 		opts = NewDropletListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/droplets?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/droplets?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -157,7 +158,7 @@ func (c *DropletClient) ListForApp(appGUID string, opts *DropletAppListOptions) 
 		opts = NewDropletAppListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/apps/%s/droplets?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/droplets?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -181,7 +182,7 @@ func (c *DropletClient) ListForPackage(packageGUID string, opts *DropletPackageL
 		opts = NewDropletPackageListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.get(path("/v3/packages/%s/droplets?%s", packageGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/packages/%s/droplets?%s", packageGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -202,7 +203,7 @@ func (c *DropletClient) ListForPackageAll(packageGUID string, opts *DropletPacka
 // GetCurrentAssociationForApp retrieves the current droplet relationship for an app
 func (c *DropletClient) GetCurrentAssociationForApp(appGUID string) (*resource.DropletCurrent, error) {
 	var d resource.DropletCurrent
-	err := c.client.get(path("/v3/apps/%s/relationships/current_droplet", appGUID), &d)
+	err := c.client.get(path.Format("/v3/apps/%s/relationships/current_droplet", appGUID), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +213,7 @@ func (c *DropletClient) GetCurrentAssociationForApp(appGUID string) (*resource.D
 // GetCurrentForApp retrieves the current droplet for an app
 func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, error) {
 	var d resource.Droplet
-	err := c.client.get(path("/v3/apps/%s/droplets/current", appGUID), &d)
+	err := c.client.get(path.Format("/v3/apps/%s/droplets/current", appGUID), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +224,7 @@ func (c *DropletClient) GetCurrentForApp(appGUID string) (*resource.Droplet, err
 func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string) (*resource.DropletCurrent, error) {
 	var d resource.DropletCurrent
 	r := resource.ToOneRelationship{Data: &resource.Relationship{GUID: dropletGUID}}
-	_, err := c.client.patch(path("/v3/apps/%s/relationships/current_droplet", appGUID), r, &d)
+	_, err := c.client.patch(path.Format("/v3/apps/%s/relationships/current_droplet", appGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +234,7 @@ func (c *DropletClient) SetCurrentAssociationForApp(appGUID, dropletGUID string)
 // Update an existing droplet
 func (c *DropletClient) Update(guid string, r *resource.DropletUpdate) (*resource.Droplet, error) {
 	var d resource.Droplet
-	_, err := c.client.patch(path("/v3/droplets/%s", guid), r, &d)
+	_, err := c.client.patch(path.Format("/v3/droplets/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}
