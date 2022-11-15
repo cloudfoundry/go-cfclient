@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -39,7 +40,7 @@ func (c *SpaceClient) AssignIsoSegment(guid, isoSegmentGUID string) error {
 			GUID: isoSegmentGUID,
 		},
 	}
-	_, err := c.client.patch(path("/v3/spaces/%s/relationships/isolation_segment", guid), r, nil)
+	_, err := c.client.patch(path.Format("/v3/spaces/%s/relationships/isolation_segment", guid), r, nil)
 	return err
 }
 
@@ -55,14 +56,14 @@ func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 
 // Delete the specified space
 func (c *SpaceClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/spaces/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/spaces/%s", guid))
 	return err
 }
 
 // Get the specified space
 func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 	var space resource.Space
-	err := c.client.get(path("/v3/spaces/%s", guid), &space)
+	err := c.client.get(path.Format("/v3/spaces/%s", guid), &space)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (c *SpaceClient) Get(guid string) (*resource.Space, error) {
 // GetAssignedIsoSegment gets the space's assigned isolation segment, if any
 func (c *SpaceClient) GetAssignedIsoSegment(guid string) (string, error) {
 	var relation resource.ToOneRelationship
-	err := c.client.get(path("/v3/spaces/%s/relationships/isolation_segment", guid), &relation)
+	err := c.client.get(path.Format("/v3/spaces/%s/relationships/isolation_segment", guid), &relation)
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +86,7 @@ func (c *SpaceClient) GetAssignedIsoSegment(guid string) (string, error) {
 // GetIncludeOrg allows callers to fetch a space and include the parent org
 func (c *SpaceClient) GetIncludeOrg(guid string) (*resource.Space, *resource.Organization, error) {
 	var space resource.SpaceWithIncluded
-	err := c.client.get(path("/v3/spaces/%s?include=%s", guid, resource.SpaceIncludeOrganization), &space)
+	err := c.client.get(path.Format("/v3/spaces/%s?include=%s", guid, resource.SpaceIncludeOrganization), &space)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,7 +101,7 @@ func (c *SpaceClient) List(opts *SpaceListOptions) ([]*resource.Space, *Pager, e
 	opts.Include = resource.SpaceIncludeNone
 
 	var res resource.SpaceList
-	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/spaces?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -126,7 +127,7 @@ func (c *SpaceClient) ListIncludeOrgs(opts *SpaceListOptions) ([]*resource.Space
 	opts.Include = resource.SpaceIncludeOrganization
 
 	var res resource.SpaceList
-	err := c.client.get(path("/v3/spaces?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/spaces?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -163,7 +164,7 @@ func (c *SpaceClient) ListUsers(spaceGUID string, opts *UserListOptions) ([]*res
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(path("/v3/spaces/%s/users?%s", spaceGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/spaces/%s/users?%s", spaceGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -184,7 +185,7 @@ func (c *SpaceClient) ListUsersAll(spaceGUID string, opts *UserListOptions) ([]*
 // Update the specified attributes of a space
 func (c *SpaceClient) Update(guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space
-	_, err := c.client.patch(path("/v3/spaces/%s", guid), r, &space)
+	_, err := c.client.patch(path.Format("/v3/spaces/%s", guid), r, &space)
 	if err != nil {
 		return nil, err
 	}

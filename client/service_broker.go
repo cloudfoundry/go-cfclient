@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -41,13 +42,13 @@ func (c *ServiceBrokerClient) Create(r *resource.ServiceBrokerCreate) (string, e
 
 // Delete the specified service broker
 func (c *ServiceBrokerClient) Delete(guid string) (string, error) {
-	return c.client.delete(path("/v3/service_brokers/%s", guid))
+	return c.client.delete(path.Format("/v3/service_brokers/%s", guid))
 }
 
 // Get the specified service broker
 func (c *ServiceBrokerClient) Get(guid string) (*resource.ServiceBroker, error) {
 	var sb resource.ServiceBroker
-	err := c.client.get(path("/v3/service_brokers/%s", guid), &sb)
+	err := c.client.get(path.Format("/v3/service_brokers/%s", guid), &sb)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,7 @@ func (c *ServiceBrokerClient) List(opts *ServiceBrokerListOptions) ([]*resource.
 	}
 
 	var res resource.ServiceBrokerList
-	err := c.client.get(path("/v3/service_brokers?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_brokers?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -82,7 +83,7 @@ func (c *ServiceBrokerClient) ListAll(opts *ServiceBrokerListOptions) ([]*resour
 // Update the specified attributes of the service_broker
 func (c *ServiceBrokerClient) Update(guid string, r *resource.ServiceBrokerUpdate) (string, error) {
 	var sb resource.ServiceBroker
-	jobGUID, err := c.client.patch(path("/v3/service_brokers/%s", guid), r, &sb)
+	jobGUID, err := c.client.patch(path.Format("/v3/service_brokers/%s", guid), r, &sb)
 	if err != nil {
 		return "", err
 	}

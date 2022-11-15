@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -31,7 +32,7 @@ func (o AuditEventListOptions) ToQueryString() url.Values {
 // Get retrieves the specified audit event
 func (c *AuditEventClient) Get(guid string) (*resource.AuditEvent, error) {
 	var a resource.AuditEvent
-	err := c.client.get(path("/v3/audit_events/%s", guid), &a)
+	err := c.client.get(path.Format("/v3/audit_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func (c *AuditEventClient) List(opts *AuditEventListOptions) ([]*resource.AuditE
 		opts = NewAuditEventListOptions()
 	}
 	var res resource.AuditEventList
-	err := c.client.get(path("/v3/audit_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/audit_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

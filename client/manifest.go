@@ -2,7 +2,8 @@ package client
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"io"
 	http2 "net/http"
 	"strings"
@@ -12,7 +13,7 @@ type ManifestClient commonClient
 
 // Generate the specified app manifest as a yaml text string
 func (c *ManifestClient) Generate(appGUID string) (string, error) {
-	p := path("/v3/apps/%s/manifest", appGUID)
+	p := path.Format("/v3/apps/%s/manifest", appGUID)
 	req := http.NewRequest("GET", p)
 
 	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
@@ -37,7 +38,7 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 
 func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (string, error) {
 	reader := strings.NewReader(manifest)
-	req := http.NewRequest("POST", path("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
+	req := http.NewRequest("POST", path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
 		WithContentType("application/x-yaml").
 		WithBody(reader)
 

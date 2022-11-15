@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -42,14 +43,14 @@ func (c *ServiceRouteBindingClient) Create(r *resource.ServiceRouteBindingCreate
 
 // Delete the specified service route binding
 func (c *ServiceRouteBindingClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/service_route_bindings/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/service_route_bindings/%s", guid))
 	return err
 }
 
 // Get the specified service route binding
 func (c *ServiceRouteBindingClient) Get(guid string) (*resource.ServiceRouteBinding, error) {
 	var srb resource.ServiceRouteBinding
-	err := c.client.get(path("/v3/service_route_bindings/%s", guid), &srb)
+	err := c.client.get(path.Format("/v3/service_route_bindings/%s", guid), &srb)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +60,7 @@ func (c *ServiceRouteBindingClient) Get(guid string) (*resource.ServiceRouteBind
 // GetIncludeRoute allows callers to fetch a service route binding and include the associated route
 func (c *ServiceRouteBindingClient) GetIncludeRoute(guid string) (*resource.ServiceRouteBinding, *resource.Route, error) {
 	var srb resource.ServiceRouteBindingWithIncluded
-	err := c.client.get(path("/v3/service_route_bindings/%s?include=%s", guid, resource.ServiceRouteBindingIncludeRoute), &srb)
+	err := c.client.get(path.Format("/v3/service_route_bindings/%s?include=%s", guid, resource.ServiceRouteBindingIncludeRoute), &srb)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -69,7 +70,7 @@ func (c *ServiceRouteBindingClient) GetIncludeRoute(guid string) (*resource.Serv
 // GetIncludeServiceInstance allows callers to fetch a service route binding and include the associated service instance
 func (c *ServiceRouteBindingClient) GetIncludeServiceInstance(guid string) (*resource.ServiceRouteBinding, *resource.ServiceInstance, error) {
 	var srb resource.ServiceRouteBindingWithIncluded
-	err := c.client.get(path("/v3/service_route_bindings/%s?include=%s", guid, resource.ServiceRouteBindingIncludeServiceInstance), &srb)
+	err := c.client.get(path.Format("/v3/service_route_bindings/%s?include=%s", guid, resource.ServiceRouteBindingIncludeServiceInstance), &srb)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,7 +80,7 @@ func (c *ServiceRouteBindingClient) GetIncludeServiceInstance(guid string) (*res
 // GetParameters queries the Service Broker for the parameters associated with this service route binding
 func (c *ServiceRouteBindingClient) GetParameters(guid string) (map[string]string, error) {
 	var srbEnv map[string]string
-	err := c.client.get(path("/v3/service_route_bindings/%s/parameters", guid), &srbEnv)
+	err := c.client.get(path.Format("/v3/service_route_bindings/%s/parameters", guid), &srbEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +95,7 @@ func (c *ServiceRouteBindingClient) List(opts *ServiceRouteBindingListOptions) (
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.get(path("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -120,7 +121,7 @@ func (c *ServiceRouteBindingClient) ListIncludeRoutes(opts *ServiceRouteBindingL
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.get(path("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -160,7 +161,7 @@ func (c *ServiceRouteBindingClient) ListIncludeServiceInstances(opts *ServiceRou
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.get(path("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -195,7 +196,7 @@ func (c *ServiceRouteBindingClient) ListIncludeServiceInstancesAll(opts *Service
 // Update the specified attributes of the service route binding
 func (c *ServiceRouteBindingClient) Update(guid string, r *resource.ServiceRouteBindingUpdate) (*resource.ServiceRouteBinding, error) {
 	var srb resource.ServiceRouteBinding
-	_, err := c.client.patch(path("/v3/service_route_bindings/%s", guid), r, &srb)
+	_, err := c.client.patch(path.Format("/v3/service_route_bindings/%s", guid), r, &srb)
 	if err != nil {
 		return nil, err
 	}

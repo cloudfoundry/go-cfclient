@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -26,7 +27,7 @@ func (o FeatureFlagListOptions) ToQueryString() url.Values {
 // Get the specified feature flag
 func (c *FeatureFlagClient) Get(featureFlag resource.FeatureFlagType) (*resource.FeatureFlag, error) {
 	var ff resource.FeatureFlag
-	err := c.client.get(path("/v3/feature_flags/%s", featureFlag), &ff)
+	err := c.client.get(path.Format("/v3/feature_flags/%s", featureFlag), &ff)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func (c *FeatureFlagClient) List(opts *FeatureFlagListOptions) ([]*resource.Feat
 		opts = NewFeatureFlagListOptions()
 	}
 	var res resource.FeatureFlagList
-	err := c.client.get(path("/v3/feature_flags?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/feature_flags?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -60,7 +61,7 @@ func (c *FeatureFlagClient) ListAll(opts *FeatureFlagListOptions) ([]*resource.F
 // Update the specified attributes of the feature flag
 func (c *FeatureFlagClient) Update(featureFlag resource.FeatureFlagType, r *resource.FeatureFlagUpdate) (*resource.FeatureFlag, error) {
 	var d resource.FeatureFlag
-	_, err := c.client.patch(path("/v3/feature_flags/%s", featureFlag), r, &d)
+	_, err := c.client.patch(path.Format("/v3/feature_flags/%s", featureFlag), r, &d)
 	if err != nil {
 		return nil, err
 	}

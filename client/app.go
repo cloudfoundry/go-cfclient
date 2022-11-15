@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -45,14 +46,14 @@ func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 
 // Delete the specified app
 func (c *AppClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/apps/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/apps/%s", guid))
 	return err
 }
 
 // Get the specified app
 func (c *AppClient) Get(guid string) (*resource.App, error) {
 	var app resource.App
-	err := c.client.get(path("/v3/apps/%s", guid), &app)
+	err := c.client.get(path.Format("/v3/apps/%s", guid), &app)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func (c *AppClient) Get(guid string) (*resource.App, error) {
 // GetIncludeSpace allows callers to fetch an app and include the parent space
 func (c *AppClient) GetIncludeSpace(guid string) (*resource.App, *resource.Space, error) {
 	var app resource.AppWithIncluded
-	err := c.client.get(path("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpace), &app)
+	err := c.client.get(path.Format("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpace), &app)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -72,7 +73,7 @@ func (c *AppClient) GetIncludeSpace(guid string) (*resource.App, *resource.Space
 // GetIncludeSpaceAndOrg allows callers to fetch an app and include the parent space and org
 func (c *AppClient) GetIncludeSpaceAndOrg(guid string) (*resource.App, *resource.Space, *resource.Organization, error) {
 	var app resource.AppWithIncluded
-	err := c.client.get(path("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpaceOrganization), &app)
+	err := c.client.get(path.Format("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpaceOrganization), &app)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -83,7 +84,7 @@ func (c *AppClient) GetIncludeSpaceAndOrg(guid string) (*resource.App, *resource
 // It will include environment variables for Environment Variable Groups and Service Bindings.
 func (c *AppClient) GetEnvironment(guid string) (*resource.AppEnvironment, error) {
 	var appEnv resource.AppEnvironment
-	err := c.client.get(path("/v3/apps/%s/env", guid), &appEnv)
+	err := c.client.get(path.Format("/v3/apps/%s/env", guid), &appEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +94,7 @@ func (c *AppClient) GetEnvironment(guid string) (*resource.AppEnvironment, error
 // GetEnvironmentVariables retrieves the environment variables that are associated with the given app
 func (c *AppClient) GetEnvironmentVariables(guid string) (map[string]*string, error) {
 	var appEnv resource.EnvVarResponse
-	err := c.client.get(path("/v3/apps/%s/environment_variables", guid), &appEnv)
+	err := c.client.get(path.Format("/v3/apps/%s/environment_variables", guid), &appEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +109,7 @@ func (c *AppClient) List(opts *AppListOptions) ([]*resource.App, *Pager, error) 
 	opts.Include = resource.AppIncludeNone
 
 	var res resource.AppList
-	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -134,7 +135,7 @@ func (c *AppClient) ListIncludeSpaces(opts *AppListOptions) ([]*resource.App, []
 	opts.Include = resource.AppIncludeSpace
 
 	var res resource.AppList
-	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -173,7 +174,7 @@ func (c *AppClient) ListIncludeSpacesAndOrgs(opts *AppListOptions) ([]*resource.
 	opts.Include = resource.AppIncludeSpaceOrganization
 
 	var res resource.AppList
-	err := c.client.get(path("/v3/apps?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -211,7 +212,7 @@ func (c *AppClient) ListIncludeSpacesAndOrgsAll(opts *AppListOptions) ([]*resour
 // Only admin, read-only admins, and space developers can read sensitive data.
 func (c *AppClient) Permissions(guid string) (*resource.AppPermissions, error) {
 	var appPerms resource.AppPermissions
-	err := c.client.get(path("/v3/apps/%s/permissions", guid), &appPerms)
+	err := c.client.get(path.Format("/v3/apps/%s/permissions", guid), &appPerms)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +224,7 @@ func (c *AppClient) Permissions(guid string) (*resource.AppPermissions, error) {
 // For restarting applications without downtime, see the Deployments resource.
 func (c *AppClient) Restart(guid string) (*resource.App, error) {
 	var app resource.App
-	_, err := c.client.post(path("/v3/apps/%s/actions/restart", guid), nil, &app)
+	_, err := c.client.post(path.Format("/v3/apps/%s/actions/restart", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +242,7 @@ func (c *AppClient) SetEnvironmentVariables(guid string, envRequest map[string]*
 		Var: envRequest,
 	}
 	var res resource.EnvVarResponse
-	_, err := c.client.patch(path("/v3/apps/%s/environment_variables", guid), req, &res)
+	_, err := c.client.patch(path.Format("/v3/apps/%s/environment_variables", guid), req, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +252,7 @@ func (c *AppClient) SetEnvironmentVariables(guid string, envRequest map[string]*
 // Start the app if not already started
 func (c *AppClient) Start(guid string) (*resource.App, error) {
 	var app resource.App
-	_, err := c.client.post(path("/v3/apps/%s/actions/start", guid), nil, &app)
+	_, err := c.client.post(path.Format("/v3/apps/%s/actions/start", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +262,7 @@ func (c *AppClient) Start(guid string) (*resource.App, error) {
 // Stop the app if not already stopped
 func (c *AppClient) Stop(guid string) (*resource.App, error) {
 	var app resource.App
-	_, err := c.client.post(path("/v3/apps/%s/actions/stop", guid), nil, &app)
+	_, err := c.client.post(path.Format("/v3/apps/%s/actions/stop", guid), nil, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +272,7 @@ func (c *AppClient) Stop(guid string) (*resource.App, error) {
 // Update the specified attributes of the app
 func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, error) {
 	var app resource.App
-	_, err := c.client.patch(path("/v3/apps/%s", guid), r, &app)
+	_, err := c.client.patch(path.Format("/v3/apps/%s", guid), r, &app)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +284,7 @@ func (c *AppClient) Update(guid string, r *resource.AppUpdate) (*resource.App, e
 // at the space level, or at the app level.
 func (c *AppClient) SSHEnabled(guid string) (*resource.AppSSHEnabled, error) {
 	var appSSH resource.AppSSHEnabled
-	err := c.client.get(path("/v3/apps/%s/ssh_enabled", guid), &appSSH)
+	err := c.client.get(path.Format("/v3/apps/%s/ssh_enabled", guid), &appSSH)
 	if err != nil {
 		return nil, err
 	}

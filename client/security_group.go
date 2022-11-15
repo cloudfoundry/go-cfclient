@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -43,14 +44,14 @@ func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource
 
 // Delete the specified security group
 func (c *SecurityGroupClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/security_groups/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/security_groups/%s", guid))
 	return err
 }
 
 // Get the specified security group
 func (c *SecurityGroupClient) Get(guid string) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	err := c.client.get(path("/v3/security_groups/%s", guid), &d)
+	err := c.client.get(path.Format("/v3/security_groups/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func (c *SecurityGroupClient) Get(guid string) (*resource.SecurityGroup, error) 
 // List pages SecurityGroups the user has access to
 func (c *SecurityGroupClient) List(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
 	var res resource.SecurityGroupList
-	err := c.client.get(path("/v3/security_groups?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/security_groups?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +82,7 @@ func (c *SecurityGroupClient) ListAll(opts *SecurityGroupListOptions) ([]*resour
 // Update the specified attributes of the app
 func (c *SecurityGroupClient) Update(guid string, r *resource.SecurityGroupUpdate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	_, err := c.client.patch(path("/v3/security_groups/%s", guid), r, &d)
+	_, err := c.client.patch(path.Format("/v3/security_groups/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}
