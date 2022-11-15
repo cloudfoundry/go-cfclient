@@ -2,10 +2,11 @@ package client
 
 import (
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/client/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
 	"mime/multipart"
-	"net/http"
+	http2 "net/http"
 	"net/url"
 	"os"
 )
@@ -66,12 +67,12 @@ func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
 	// The client should automatically follow this redirect. External blob stores are untested.
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-package-bits
 	p := path("/v3/packages/%s/download", guid)
-	req := c.client.NewRequest("GET", p)
-	resp, err := c.client.DoRequest(req)
+	req := http.NewRequest("GET", p)
+	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("error getting %s: %w", p, err)
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http2.StatusOK {
 		return nil, fmt.Errorf("error getting %s, response code: %d", p, resp.StatusCode)
 	}
 	return resp.Body, nil
@@ -192,25 +193,20 @@ func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
 		return fmt.Errorf("error uploading package %s bits, failed to stat temp zipFile: %w", guid, err)
 	}
 
-	r := c.client.NewRequestWithBody("POST", path("/v3/packages/%s/upload", guid), requestFile)
-	req, err := r.toHTTP()
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
-	}
+	req := http.NewRequest("POST", path("/v3/packages/%s/upload", guid)).
+		WithContentType(fmt.Sprintf("multipart/form-data; boundary=%s", formWriter.Boundary())).
+		WithContentLength(fileStats.Size()).
+		WithBody(requestFile)
 
-	req.ContentLength = fileStats.Size()
-	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", formWriter.Boundary())
-	req.Header.Set("Content-Type", contentType)
-
-	resp, err := c.client.Do(req)
+	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error uploading package %s bits, response code: %d", guid, resp.StatusCode)
+	if resp.StatusCode != http2.StatusOK {
+		return c.client.handleError(resp)
 	}
 
 	return nil

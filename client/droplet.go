@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/client/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
-	"net/http"
+	http2 "net/http"
 	"net/url"
 )
 
@@ -105,13 +106,13 @@ func (c *DropletClient) Download(guid string) (io.ReadCloser, error) {
 	// The client should automatically follow this redirect. External blob stores are untested.
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-droplet-bits
 	p := path("/v3/droplets/%s/download", guid)
-	req := c.client.NewRequest("GET", p)
-	resp, err := c.client.DoRequest(req)
+	req := http.NewRequest("GET", p)
+	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("error getting %s: %w", p, err)
 	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error getting %s, response code: %d", p, resp.StatusCode)
+	if resp.StatusCode != http2.StatusOK {
+		return nil, c.client.handleError(resp)
 	}
 	return resp.Body, nil
 }
