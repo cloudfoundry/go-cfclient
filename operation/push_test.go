@@ -3,6 +3,7 @@ package operation_test
 import (
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/operation"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
@@ -124,7 +125,7 @@ func TestAppPush(t *testing.T) {
 		},
 	}, t)
 
-	c, _ := client.NewTokenConfig(serverURL, "foo")
+	c, _ := config.NewToken(serverURL, "foo")
 	c.SkipSSLValidation(true)
 	cf, err := client.New(c)
 	require.NoError(t, err)
