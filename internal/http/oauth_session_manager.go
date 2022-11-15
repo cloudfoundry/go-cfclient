@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
@@ -59,17 +60,15 @@ func (m *OAuthSessionManager) Token() (string, error) {
 
 // refreshAuthenticatedHTTPClient creates a new authenticated OAuth http client
 func (m *OAuthSessionManager) refreshAuthenticatedHTTPClient() error {
+	if m.config.LoginEndpointURL == "" || m.config.UAAEndpointURL == "" {
+		return errors.New("login and UAA endpoints must not be empty")
+	}
+
+	loginEndpoint := path.Join(m.config.LoginEndpointURL, "/oauth/auth")
+	uaaEndpoint := path.Join(m.config.UAAEndpointURL, "/oauth/token")
+
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, oauth2.HTTPClient, m.config.BaseHTTPClient)
-
-	loginEndpoint, err := url.JoinPath(m.config.LoginEndpointURL, "/oauth/auth")
-	if err != nil {
-		return err
-	}
-	uaaEndpoint, err := url.JoinPath(m.config.UAAEndpointURL, "/oauth/token")
-	if err != nil {
-		return err
-	}
 
 	switch {
 	case m.config.Token != "":
@@ -77,7 +76,7 @@ func (m *OAuthSessionManager) refreshAuthenticatedHTTPClient() error {
 	case m.config.ClientID != "":
 		m.clientAuth(ctx, loginEndpoint)
 	default:
-		err = m.userAuth(ctx, loginEndpoint, uaaEndpoint)
+		err := m.userAuth(ctx, loginEndpoint, uaaEndpoint)
 		if err != nil {
 			return err
 		}
@@ -151,12 +150,13 @@ func (m *OAuthSessionManager) userTokenAuth(ctx context.Context, loginEndpoint, 
 		TokenType:   "Bearer"}
 
 	m.tokenSource = authConfig.TokenSource(ctx, token)
+	m.tokenSourceDeadline = &token.Expiry
 	m.authenticatedHTTPClient = oauth2.NewClient(ctx, m.tokenSource)
 }
 
 func (m *OAuthSessionManager) shouldRenewToken() bool {
 	if m.tokenSourceDeadline != nil {
-		expiresAt := time.Now().Add(-time.Minute)
+		expiresAt := time.Now()
 		return m.tokenSourceDeadline.Before(expiresAt)
 	}
 	return true

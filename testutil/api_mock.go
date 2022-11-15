@@ -40,7 +40,7 @@ func SetupFakeAPIServer() string {
 	return server.URL
 }
 
-func SetupFakeUAAServer(expiresIn int) {
+func SetupFakeUAAServer(expiresIn int) string {
 	uaaMux := http.NewServeMux()
 	fakeUAAServer = httptest.NewServer(uaaMux)
 	m := martini.New()
@@ -59,6 +59,7 @@ func SetupFakeUAAServer(expiresIn int) {
 	r.NotFound(func() string { return "" })
 	m.Action(r.Handle)
 	uaaMux.Handle("/", m)
+	return fakeUAAServer.URL
 }
 
 func Setup(mock MockRoute, t *testing.T) string {
@@ -207,10 +208,14 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 }
 
 func Teardown() {
-	server.Close()
-	server = nil
-	fakeUAAServer.Close()
-	fakeUAAServer = nil
+	if server != nil {
+		server.Close()
+		server = nil
+	}
+	if fakeUAAServer != nil {
+		fakeUAAServer.Close()
+		fakeUAAServer = nil
+	}
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
