@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 )
 
 type Executor struct {
@@ -31,7 +32,7 @@ func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
 		}
 		reqBody = b
 	}
-	u := c.apiAddress + request.pathAndQuery
+	u := path.Join(c.apiAddress, request.pathAndQuery)
 
 	req, err := http.NewRequest(request.method, u, reqBody)
 	if err != nil {
