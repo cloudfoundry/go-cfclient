@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -12,11 +13,11 @@ type TaskClient commonClient
 type TaskListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`
-	Names             Filter `filter:"names,omitempty"`
-	States            Filter `filter:"states,omitempty"`
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	States            Filter `qs:"states"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
 // NewTaskListOptions creates new options to pass to list
@@ -37,7 +38,7 @@ func (o TaskListOptions) ToQueryString() url.Values {
 // task when the request is executed. Canceling a task that is in SUCCEEDED or FAILED state will return an error.
 func (c *TaskClient) Cancel(guid string) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.post(path("/v3/tasks/%s/actions/cancel", guid), nil, &task)
+	_, err := c.client.post(path.Format("/v3/tasks/%s/actions/cancel", guid), nil, &task)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func (c *TaskClient) Cancel(guid string) (*resource.Task, error) {
 // Create a new task for the specified app
 func (c *TaskClient) Create(appGUID string, r *resource.TaskCreate) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.post(path("/v3/apps/%s/tasks", appGUID), r, &task)
+	_, err := c.client.post(path.Format("/v3/apps/%s/tasks", appGUID), r, &task)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +58,7 @@ func (c *TaskClient) Create(appGUID string, r *resource.TaskCreate) (*resource.T
 // Get the specified task
 func (c *TaskClient) Get(guid string) (*resource.Task, error) {
 	var task resource.Task
-	err := c.client.get(path("/v3/tasks/%s", guid), &task)
+	err := c.client.get(path.Format("/v3/tasks/%s", guid), &task)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (c *TaskClient) List(opts *TaskListOptions) ([]*resource.Task, *Pager, erro
 	}
 
 	var res resource.TaskList
-	err := c.client.get(path("/v3/tasks?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/tasks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,7 +98,7 @@ func (c *TaskClient) ListForApp(appGUID string, opts *TaskListOptions) ([]*resou
 	}
 
 	var res resource.TaskList
-	err := c.client.get(path("/v3/apps/%s/tasks?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/tasks?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -119,7 +120,7 @@ func (c *TaskClient) ListForAppAll(appGUID string, opts *TaskListOptions) ([]*re
 // Update the specified attributes of the task
 func (c *TaskClient) Update(guid string, r *resource.TaskUpdate) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.patch(path("/v3/tasks/%s", guid), r, &task)
+	_, err := c.client.patch(path.Format("/v3/tasks/%s", guid), r, &task)
 	if err != nil {
 		return nil, err
 	}

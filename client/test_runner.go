@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"strings"
@@ -30,7 +31,7 @@ func ExecuteTests(tests []RouteTest, t *testing.T) {
 				details = tt.Description + ": " + details
 			}
 
-			c, _ := NewTokenConfig(serverURL, "foobar")
+			c, _ := config.NewToken(serverURL, "foobar")
 			cl, err := New(c)
 			require.NoError(t, err, details)
 

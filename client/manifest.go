@@ -2,8 +2,10 @@ package client
 
 import (
 	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"io"
-	"net/http"
+	http2 "net/http"
 	"strings"
 )
 
@@ -11,10 +13,10 @@ type ManifestClient commonClient
 
 // Generate the specified app manifest as a yaml text string
 func (c *ManifestClient) Generate(appGUID string) (string, error) {
-	p := path("/v3/apps/%s/manifest", appGUID)
-	req := c.client.NewRequest("GET", p)
+	p := path.Format("/v3/apps/%s/manifest", appGUID)
+	req := http.NewRequest("GET", p)
 
-	resp, err := c.client.DoRequest(req)
+	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("error getting %s: %w", p, err)
 	}
@@ -22,8 +24,8 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 		_ = b.Close()
 	}(resp.Body)
 
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error getting %s, response code: %d", p, resp.StatusCode)
+	if resp.StatusCode != http2.StatusOK {
+		return "", c.client.handleError(resp)
 	}
 
 	buf := new(strings.Builder)
@@ -36,22 +38,19 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 
 func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (string, error) {
 	reader := strings.NewReader(manifest)
-	r := c.client.NewRequestWithBody("POST", path("/v3/spaces/%s/actions/apply_manifest", spaceGUID), reader)
-	req, err := r.toHTTP()
-	if err != nil {
-		return "", fmt.Errorf("error posting manifest %s bits: %w", spaceGUID, err)
-	}
-	req.Header.Set("Content-Type", "application/x-yaml")
+	req := http.NewRequest("POST", path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
+		WithContentType("application/x-yaml").
+		WithBody(reader)
 
-	resp, err := c.client.Do(req)
+	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("error uploading manifest %s bits: %w", spaceGUID, err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-	if resp.StatusCode != http.StatusAccepted {
-		return "", fmt.Errorf("error uploading manifest %s bits, response code: %d", spaceGUID, resp.StatusCode)
+	if resp.StatusCode != http2.StatusAccepted {
+		return "", c.client.handleError(resp)
 	}
 
 	jobID, err := c.client.decodeBodyOrJobID(resp, nil)

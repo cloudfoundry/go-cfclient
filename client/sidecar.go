@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -27,7 +28,7 @@ func (o SidecarListOptions) ToQueryString() url.Values {
 // Create a new app sidecar
 func (c *SidecarClient) Create(appGUID string, r *resource.SidecarCreate) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	_, err := c.client.post(path("/v3/apps/%s/sidecars", appGUID), r, &sc)
+	_, err := c.client.post(path.Format("/v3/apps/%s/sidecars", appGUID), r, &sc)
 	if err != nil {
 		return nil, err
 	}
@@ -36,14 +37,14 @@ func (c *SidecarClient) Create(appGUID string, r *resource.SidecarCreate) (*reso
 
 // Delete the specified sidecar
 func (c *SidecarClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/sidecars/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/sidecars/%s", guid))
 	return err
 }
 
 // Get the specified app
 func (c *SidecarClient) Get(guid string) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	err := c.client.get(path("/v3/sidecars/%s", guid), &sc)
+	err := c.client.get(path.Format("/v3/sidecars/%s", guid), &sc)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func (c *SidecarClient) ListForApp(appGUID string, opts *SidecarListOptions) ([]
 		opts = NewSidecarListOptions()
 	}
 	var res resource.SidecarList
-	err := c.client.get(path("/v3/apps/%s/sidecars?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/sidecars?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -80,7 +81,7 @@ func (c *SidecarClient) ListForProcess(processGUID string, opts *SidecarListOpti
 		opts = NewSidecarListOptions()
 	}
 	var res resource.SidecarList
-	err := c.client.get(path("/v3/processes/%s/sidecars?%s", processGUID, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/processes/%s/sidecars?%s", processGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +102,7 @@ func (c *SidecarClient) ListForProcessAll(processGUID string, opts *SidecarListO
 // Update the specified attributes of the app
 func (c *SidecarClient) Update(guid string, r *resource.SidecarUpdate) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	_, err := c.client.patch(path("/v3/sidecars/%s", guid), r, &sc)
+	_, err := c.client.patch(path.Format("/v3/sidecars/%s", guid), r, &sc)
 	if err != nil {
 		return nil, err
 	}

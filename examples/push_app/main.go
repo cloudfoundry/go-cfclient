@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"os"
 )
@@ -17,7 +18,7 @@ func main() {
 }
 
 func runPush() error {
-	conf, err := client.NewConfigFromCFHome()
+	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
 	}

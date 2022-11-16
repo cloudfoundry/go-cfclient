@@ -1,13 +1,14 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
 )
+
+const filterTagName = "qs"
 
 const (
 	DefaultPage     = 1
@@ -26,15 +27,16 @@ type ListOptioner interface {
 
 // ListOptions is the shared common type for all other list option types
 type ListOptions struct {
-	Page    int    `filter:"page,omitempty"`
-	PerPage int    `filter:"per_page,omitempty"`
-	OrderBy string `filter:"order_by,omitempty"`
+	Page    int    `qs:"page"`
+	PerPage int    `qs:"per_page"`
+	OrderBy string `qs:"order_by"`
 
-	LabelSelector Filter          `filter:"label_selector,omitempty"`
-	CreateAts     TimestampFilter `filter:"created_ats,omitempty"`
-	UpdatedAts    TimestampFilter `filter:"updated_ats,omitempty"`
+	LabelSelector Filter          `qs:"label_selector"`
+	CreateAts     TimestampFilter `qs:"created_ats"`
+	UpdatedAts    TimestampFilter `qs:"updated_ats"`
 }
 
+// NewListOptions creates a default list options with page and page size set
 func NewListOptions() *ListOptions {
 	return &ListOptions{
 		Page:    DefaultPage,
@@ -47,7 +49,7 @@ func (lo *ListOptions) CurrentPage(page, perPage int) {
 	lo.Page = page
 }
 
-func (lo ListOptions) ToQueryString(subOptionsPtr any) url.Values {
+func (lo *ListOptions) ToQueryString(subOptionsPtr any) url.Values {
 	s := ListOptionsSerializer{}
 	s.Add(&lo)
 	s.Add(subOptionsPtr)
@@ -77,7 +79,7 @@ func (los *ListOptionsSerializer) Add(optStruct any) {
 	los.optStructs = append(los.optStructs, optStruct)
 }
 
-func (los ListOptionsSerializer) Serialize() (url.Values, error) {
+func (los *ListOptionsSerializer) Serialize() (url.Values, error) {
 	var values url.Values
 	for _, opt := range los.optStructs {
 		val, err := los.serializeOptionStruct(opt)
@@ -89,7 +91,7 @@ func (los ListOptionsSerializer) Serialize() (url.Values, error) {
 	return values, nil
 }
 
-func (los ListOptionsSerializer) serializeOptionStruct(o any) (url.Values, error) {
+func (los *ListOptionsSerializer) serializeOptionStruct(o any) (url.Values, error) {
 	if o == nil {
 		return url.Values{}, nil
 	}
@@ -109,46 +111,39 @@ func (los ListOptionsSerializer) serializeOptionStruct(o any) (url.Values, error
 	return los.reflectValues(val)
 }
 
-func (los ListOptionsSerializer) reflectValues(val reflect.Value) (url.Values, error) {
+func (los *ListOptionsSerializer) reflectValues(val reflect.Value) (url.Values, error) {
 	values := url.Values{}
 	for i := 0; i < val.Type().NumField(); i++ {
 		sv := val.Field(i)
-		rawTag := val.Type().Field(i).Tag.Get("filter")
-		if rawTag == "" {
+		rawTag := val.Type().Field(i).Tag.Get(filterTagName)
+		if rawTag == "" || rawTag == "-" {
 			continue
 		}
-		tag, err := parseTag(rawTag)
-		if err != nil {
-			return values, err
-		}
-		if tag.name == "-" {
-			continue
-		}
-		if tag.omitEmpty && isEmptyValue(sv) {
+		if los.isEmptyValue(sv) {
 			continue
 		}
 
-		sv = getNonPointerValue(sv)
+		sv = los.getNonPointerValue(sv)
 		switch sv.Type() {
 		case filterType:
-			err := reflectFilter(sv, tag, values)
+			err := los.reflectFilter(sv, rawTag, values)
 			if err != nil {
 				return url.Values{}, err
 			}
 		case timeFilterType:
-			err := reflectTimestampFilter(sv, tag, values)
+			err := los.reflectTimestampFilter(sv, rawTag, values)
 			if err != nil {
 				return url.Values{}, err
 			}
 		default:
-			values.Add(tag.name, fmt.Sprint(sv.Interface()))
+			values.Add(rawTag, fmt.Sprint(sv.Interface()))
 		}
 	}
 
 	return values, nil
 }
 
-func reflectFilter(val reflect.Value, tag filterTag, values url.Values) error {
+func (los *ListOptionsSerializer) reflectFilter(val reflect.Value, tag string, values url.Values) error {
 	var filterStrings []string
 	var not bool
 
@@ -168,7 +163,7 @@ func reflectFilter(val reflect.Value, tag filterTag, values url.Values) error {
 	}
 
 	if len(filterStrings) > 0 {
-		key := tag.name
+		key := tag
 		if not {
 			key = key + "[not]"
 		}
@@ -178,7 +173,7 @@ func reflectFilter(val reflect.Value, tag filterTag, values url.Values) error {
 	return nil
 }
 
-func reflectTimestampFilter(val reflect.Value, tag filterTag, values url.Values) error {
+func (los *ListOptionsSerializer) reflectTimestampFilter(val reflect.Value, tag string, values url.Values) error {
 	var timestamps []string
 	var relationalOperator RelationalOperator
 
@@ -198,7 +193,7 @@ func reflectTimestampFilter(val reflect.Value, tag filterTag, values url.Values)
 	}
 
 	if len(timestamps) > 0 {
-		key := tag.name
+		key := tag
 		if relationalOperator != RelationalOperatorNone {
 			key = key + "[" + relationalOperator.String() + "]"
 		}
@@ -208,7 +203,7 @@ func reflectTimestampFilter(val reflect.Value, tag filterTag, values url.Values)
 	return nil
 }
 
-func isEmptyValue(v reflect.Value) bool {
+func (los *ListOptionsSerializer) isEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
@@ -226,7 +221,7 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func getNonPointerValue(sv reflect.Value) reflect.Value {
+func (los *ListOptionsSerializer) getNonPointerValue(sv reflect.Value) reflect.Value {
 	for sv.Kind() == reflect.Ptr {
 		if sv.IsNil() {
 			break
@@ -234,25 +229,4 @@ func getNonPointerValue(sv reflect.Value) reflect.Value {
 		sv = sv.Elem()
 	}
 	return sv
-}
-
-func parseTag(tagValue string) (filterTag, error) {
-	s := strings.Split(tagValue, ",")
-	if len(s) == 2 {
-		return filterTag{
-			name:      s[0],
-			omitEmpty: s[1] == "omitempty",
-		}, nil
-	} else if len(s) == 1 {
-		return filterTag{
-			name:      s[0],
-			omitEmpty: false,
-		}, nil
-	}
-	return filterTag{}, errors.New("missing required filter tag name")
-}
-
-type filterTag struct {
-	name      string
-	omitEmpty bool
 }

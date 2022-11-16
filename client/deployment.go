@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -12,10 +13,10 @@ type DeploymentClient commonClient
 type DeploymentListOptions struct {
 	*ListOptions
 
-	AppGUIDs      Filter `filter:"app_guids,omitempty"`
-	States        Filter `filter:"states,omitempty"`
-	StatusReasons Filter `filter:"status_reasons,omitempty"`
-	StatusValues  Filter `filter:"status_values,omitempty"`
+	AppGUIDs      Filter `qs:"app_guids"`
+	States        Filter `qs:"states"`
+	StatusReasons Filter `qs:"status_reasons"`
+	StatusValues  Filter `qs:"status_values"`
 }
 
 // NewDeploymentListOptions creates new options to pass to list
@@ -31,7 +32,7 @@ func (o DeploymentListOptions) ToQueryString() url.Values {
 
 // Cancel the ongoing deployment
 func (c *DeploymentClient) Cancel(guid string) error {
-	_, err := c.client.post(path("/v3/deployments/%s/actions/cancel", guid), nil, nil)
+	_, err := c.client.post(path.Format("/v3/deployments/%s/actions/cancel", guid), nil, nil)
 	return err
 }
 
@@ -53,7 +54,7 @@ func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deplo
 // Get the specified deployment
 func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
 	var d resource.Deployment
-	err := c.client.get(path("/v3/deployments/%s", guid), &d)
+	err := c.client.get(path.Format("/v3/deployments/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deploy
 		opts = NewDeploymentListOptions()
 	}
 	var res resource.DeploymentList
-	err := c.client.get(path("/v3/deployments?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/deployments?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,7 +88,7 @@ func (c *DeploymentClient) ListAll(opts *DeploymentListOptions) ([]*resource.Dep
 // Update the specified attributes of the deployment
 func (c *DeploymentClient) Update(guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
 	var d resource.Deployment
-	_, err := c.client.patch(path("/v3/deployments/%s", guid), r, &d)
+	_, err := c.client.patch(path.Format("/v3/deployments/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

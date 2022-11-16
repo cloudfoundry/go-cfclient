@@ -1,62 +1,62 @@
-package client_test
+package config_test
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"os"
 	"path"
 	"testing"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/stretchr/testify/require"
 )
 
 func TestConfigNewUserPasswordConfig(t *testing.T) {
-	c, err := client.NewUserPasswordConfig("https://api.example.com", "admin", "pwd")
+	c, err := config.NewUserPassword("https://api.example.com", "admin", "pwd")
 	require.NoError(t, err)
 
 	require.Equal(t, "Go-CF-client/2.0", c.UserAgent)
 
 	require.Equal(t, "admin", c.Username)
 	require.Equal(t, "pwd", c.Password)
-	require.Equal(t, "https://api.example.com", c.ApiAddress)
+	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
 
 	require.Empty(t, c.ClientID)
 	require.Empty(t, c.ClientSecret)
 }
 
 func TestConfigNewUserPasswordConfigTrimsApiTrailingSlash(t *testing.T) {
-	c, err := client.NewUserPasswordConfig("https://api.example.com/", "admin", "pwd")
+	c, err := config.NewUserPassword("https://api.example.com/", "admin", "pwd")
 	require.NoError(t, err)
-	require.Equal(t, "https://api.example.com", c.ApiAddress)
+	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
 }
 
 func TestConfigNewUserPasswordConfigBadApiAddress(t *testing.T) {
-	_, err := client.NewUserPasswordConfig("api.example.com", "admin", "pwd")
+	_, err := config.NewUserPassword("api.example.com", "admin", "pwd")
 	require.Error(t, err)
 
-	_, err = client.NewUserPasswordConfig("1.1.1.1", "admin", "pwd")
+	_, err = config.NewUserPassword("1.1.1.1", "admin", "pwd")
 	require.Error(t, err)
 
-	_, err = client.NewUserPasswordConfig("", "admin", "pwd")
+	_, err = config.NewUserPassword("", "admin", "pwd")
 	require.Error(t, err)
 }
 
 func TestConfigNewUserPasswordConfigEmptyUserPwd(t *testing.T) {
-	_, err := client.NewUserPasswordConfig("https://api.example.com", "", "pwd")
+	_, err := config.NewUserPassword("https://api.example.com", "", "pwd")
 	require.Error(t, err, "expected missing username error")
 
-	_, err = client.NewUserPasswordConfig("https://api.example.com", "admin", "")
+	_, err = config.NewUserPassword("https://api.example.com", "admin", "")
 	require.Error(t, err, "expected missing password error")
 }
 
 func TestConfigNewClientSecretConfig(t *testing.T) {
-	c, err := client.NewClientSecretConfig("https://api.example.com", "opsman", "secret")
+	c, err := config.NewClientSecret("https://api.example.com", "opsman", "secret")
 	require.NoError(t, err)
 
 	require.Equal(t, "Go-CF-client/2.0", c.UserAgent)
 
 	require.Equal(t, "opsman", c.ClientID)
 	require.Equal(t, "secret", c.ClientSecret)
-	require.Equal(t, "https://api.example.com", c.ApiAddress)
+	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
 
 	require.Empty(t, c.Username)
 	require.Empty(t, c.Password)
@@ -74,10 +74,10 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	err = os.WriteFile(configPath, []byte(cfCLIConfig), 0744)
 	require.NoError(t, err)
 
-	cfg, err := client.NewConfigFromCFHomeDir(cfHomeDir)
+	cfg, err := config.NewFromCFHomeDir(cfHomeDir)
 	require.NoError(t, err)
 
-	require.Equal(t, "https://api.sys.example.com", cfg.ApiAddress)
+	require.Equal(t, "https://api.sys.example.com", cfg.APIEndpointURL)
 }
 
 const cfCLIConfig = `

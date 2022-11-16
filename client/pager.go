@@ -1,10 +1,7 @@
 package client
 
 import (
-	"errors"
-	"net/url"
-	"strconv"
-
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
@@ -12,8 +9,8 @@ type Pager struct {
 	NextPageURL     string
 	PreviousPageURL string
 
-	nextPageQSReader     *querystringReader
-	previousPageQSReader *querystringReader
+	nextPageQSReader     *path.QuerystringReader
+	previousPageQSReader *path.QuerystringReader
 }
 
 func NewPager(pagination resource.Pagination) *Pager {
@@ -24,7 +21,7 @@ func NewPager(pagination resource.Pagination) *Pager {
 }
 
 func (p *Pager) HasNextPage() bool {
-	q, err := newQuerystringReader(p.NextPageURL)
+	q, err := path.NewQuerystringReader(p.NextPageURL)
 	if err != nil {
 		return false
 	}
@@ -32,7 +29,7 @@ func (p *Pager) HasNextPage() bool {
 	return true
 }
 
-func (p Pager) NextPage(opts ListOptioner) {
+func (p *Pager) NextPage(opts ListOptioner) {
 	if !p.HasNextPage() {
 		return
 	}
@@ -42,7 +39,7 @@ func (p Pager) NextPage(opts ListOptioner) {
 }
 
 func (p *Pager) HasPreviousPage() bool {
-	q, err := newQuerystringReader(p.PreviousPageURL)
+	q, err := path.NewQuerystringReader(p.PreviousPageURL)
 	if err != nil {
 		return false
 	}
@@ -50,39 +47,13 @@ func (p *Pager) HasPreviousPage() bool {
 	return true
 }
 
-func (p Pager) PreviousPage(opts ListOptioner) {
+func (p *Pager) PreviousPage(opts ListOptioner) {
 	if !p.HasPreviousPage() {
 		return
 	}
 	page := p.previousPageQSReader.Int(PageField)
 	perPage := p.previousPageQSReader.Int(PerPageField)
 	opts.CurrentPage(page, perPage)
-}
-
-type querystringReader struct {
-	qs url.Values
-}
-
-func newQuerystringReader(pageURL string) (*querystringReader, error) {
-	if pageURL == "" {
-		return nil, errors.New("cannot parse an empty pageURL")
-	}
-	u, err := url.Parse(pageURL)
-	if err != nil {
-		return nil, err
-	}
-	return &querystringReader{
-		qs: u.Query(),
-	}, nil
-}
-
-func (r querystringReader) String(key string) string {
-	return r.qs.Get(key)
-}
-
-func (r querystringReader) Int(key string) int {
-	i, _ := strconv.Atoi(r.qs.Get(key))
-	return i
 }
 
 type ListFunc[T ListOptioner, R any] func(opts T) ([]R, *Pager, error)

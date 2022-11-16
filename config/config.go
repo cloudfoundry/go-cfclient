@@ -1,23 +1,24 @@
-package client
+package config
 
 import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/oauth2"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
-
-	"golang.org/x/oauth2"
 )
 
 // Config is used to configure the creation of a client
 type Config struct {
-	ApiAddress   string
+	APIEndpointURL   string
+	LoginEndpointURL string
+	UAAEndpointURL   string
+
 	Username     string
 	Password     string
 	ClientID     string
@@ -26,10 +27,9 @@ type Config struct {
 	Origin       string
 	Token        string
 
-	tokenSource         oauth2.TokenSource
-	tokenSourceDeadline *time.Time
-	skipSSLValidation   bool
-	httpClient          *http.Client
+	BaseHTTPClient *http.Client
+
+	skipSSLValidation bool
 }
 
 type cfHomeConfig struct {
@@ -46,7 +46,7 @@ type cfHomeConfig struct {
 	SSLDisabled bool
 }
 
-func NewUserPasswordConfig(apiRoot, username, password string) (*Config, error) {
+func NewUserPassword(apiRootURL, username, password string) (*Config, error) {
 	if username == "" {
 		return nil, errors.New("expected an non-empty CF API username")
 	}
@@ -54,7 +54,7 @@ func NewUserPasswordConfig(apiRoot, username, password string) (*Config, error) 
 		return nil, errors.New("expected an non-empty CF API password")
 	}
 
-	c, err := newDefault(apiRoot)
+	c, err := newDefault(apiRootURL)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func NewUserPasswordConfig(apiRoot, username, password string) (*Config, error) 
 	return c, nil
 }
 
-func NewClientSecretConfig(apiRoot, clientID, clientSecret string) (*Config, error) {
+func NewClientSecret(apiRoot, clientID, clientSecret string) (*Config, error) {
 	if clientID == "" {
 		return nil, errors.New("expected an non-empty CF API clientID")
 	}
@@ -82,7 +82,7 @@ func NewClientSecretConfig(apiRoot, clientID, clientSecret string) (*Config, err
 	return c, nil
 }
 
-func NewTokenConfig(apiRoot, token string) (*Config, error) {
+func NewToken(apiRoot, token string) (*Config, error) {
 	if token == "" {
 		return nil, errors.New("expected an non-empty CF API token")
 	}
@@ -96,15 +96,15 @@ func NewTokenConfig(apiRoot, token string) (*Config, error) {
 	return c, nil
 }
 
-func NewConfigFromCFHome() (*Config, error) {
+func NewFromCFHome() (*Config, error) {
 	dir, err := findCFHomeDir()
 	if err != nil {
 		return nil, err
 	}
-	return NewConfigFromCFHomeDir(dir)
+	return NewFromCFHomeDir(dir)
 }
 
-func NewConfigFromCFHomeDir(cfHomeDir string) (*Config, error) {
+func NewFromCFHomeDir(cfHomeDir string) (*Config, error) {
 	cfHomeConfig, err := loadCFHomeConfig(cfHomeDir)
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func NewConfigFromCFHomeDir(cfHomeDir string) (*Config, error) {
 }
 
 func (c *Config) HTTPClient(httpClient *http.Client) {
-	c.httpClient = httpClient
+	c.BaseHTTPClient = httpClient
 	c.setHTTPClientSSLConfig()
 }
 
@@ -132,7 +132,7 @@ func (c *Config) SkipSSLValidation(skip bool) {
 
 func (c *Config) setHTTPClientSSLConfig() {
 	var tp *http.Transport
-	switch t := c.httpClient.Transport.(type) {
+	switch t := c.BaseHTTPClient.Transport.(type) {
 	case *http.Transport:
 		tp = t
 	case *oauth2.Transport:
@@ -149,18 +149,18 @@ func (c *Config) setHTTPClientSSLConfig() {
 	}
 }
 
-func newDefault(apiRoot string) (*Config, error) {
-	u, err := url.ParseRequestURI(apiRoot)
+func newDefault(apiRootURL string) (*Config, error) {
+	u, err := url.ParseRequestURI(apiRootURL)
 	if err != nil {
-		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRoot, err)
+		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRootURL, err)
 	}
 	c := &Config{
-		ApiAddress:        strings.TrimRight(u.String(), "/"),
+		APIEndpointURL:    strings.TrimRight(u.String(), "/"),
 		UserAgent:         "Go-CF-client/2.0",
-		httpClient:        http.DefaultClient,
+		BaseHTTPClient:    http.DefaultClient,
 		skipSSLValidation: false,
 	}
-	c.httpClient.Transport = shallowDefaultTransport()
+	c.BaseHTTPClient.Transport = shallowDefaultTransport()
 	c.setHTTPClientSSLConfig()
 	return c, nil
 }

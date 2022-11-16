@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
@@ -9,7 +10,7 @@ type AppFeatureClient commonClient
 // Get retrieves the named app feature
 func (c *AppFeatureClient) Get(appGUID, featureName string) (*resource.AppFeature, error) {
 	var a resource.AppFeature
-	err := c.client.get(path("/v3/apps/%s/features/%s", appGUID, featureName), &a)
+	err := c.client.get(path.Format("/v3/apps/%s/features/%s", appGUID, featureName), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +30,7 @@ func (c *AppFeatureClient) GetRevisions(appGUID string) (*resource.AppFeature, e
 // List pages all app features
 func (c *AppFeatureClient) List(appGUID string) ([]*resource.AppFeature, *Pager, error) {
 	var res resource.AppFeatureList
-	err := c.client.get(path("/v3/apps/%s/features", appGUID), &res)
+	err := c.client.get(path.Format("/v3/apps/%s/features", appGUID), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -43,7 +44,7 @@ func (c *AppFeatureClient) Update(appGUID, featureName string, enabled bool) (*r
 		Enabled: enabled,
 	}
 	var a resource.AppFeature
-	_, err := c.client.patch(path("/v3/apps/%s/features/%s", appGUID, featureName), r, &a)
+	_, err := c.client.patch(path.Format("/v3/apps/%s/features/%s", appGUID, featureName), r, &a)
 	if err != nil {
 		return nil, err
 	}
