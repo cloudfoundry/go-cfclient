@@ -15,7 +15,7 @@ func TestConfigNewUserPasswordConfig(t *testing.T) {
 	c, err := config.NewUserPassword("https://api.example.com", "admin", "pwd")
 	require.NoError(t, err)
 
-	require.Equal(t, "Go-CF-client/2.0", c.UserAgent)
+	require.Equal(t, "Go-CF-Client/3.0", c.UserAgent)
 
 	require.Equal(t, "admin", c.Username)
 	require.Equal(t, "pwd", c.Password)
@@ -54,7 +54,7 @@ func TestConfigNewClientSecretConfig(t *testing.T) {
 	c, err := config.NewClientSecret("https://api.example.com", "opsman", "secret")
 	require.NoError(t, err)
 
-	require.Equal(t, "Go-CF-client/2.0", c.UserAgent)
+	require.Equal(t, "Go-CF-Client/3.0", c.UserAgent)
 
 	require.Equal(t, "opsman", c.ClientID)
 	require.Equal(t, "secret", c.ClientSecret)
