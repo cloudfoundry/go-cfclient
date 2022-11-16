@@ -5,14 +5,11 @@ type Manifest struct {
 }
 
 type AppManifest struct {
-	Name       string   `yaml:"name"`
-	Buildpacks []string `yaml:"buildpacks,omitempty"`
-	Command    string   `yaml:"command,omitempty"`
-	DiskQuota  string   `yaml:"disk_quota,omitempty"`
-	Docker     struct {
-		Image    string `yaml:"image,omitempty"`
-		Username string `yaml:"username,omitempty"`
-	} `yaml:"docker,omitempty"`
+	Name                    string              `yaml:"name"`
+	Buildpacks              []string            `yaml:"buildpacks,omitempty"`
+	Command                 string              `yaml:"command,omitempty"`
+	DiskQuota               string              `yaml:"disk_quota,omitempty"`
+	Docker                  *AppManifestDocker  `yaml:"docker,omitempty"`
 	Env                     map[string]string   `yaml:"env,omitempty"`
 	HealthCheckType         string              `yaml:"health-check-type,omitempty"`
 	HealthCheckHTTPEndpoint string              `yaml:"health-check-http-endpoint,omitempty"`
@@ -24,6 +21,11 @@ type AppManifest struct {
 	Services                []string            `yaml:"services,omitempty"`
 	Stack                   string              `yaml:"stack,omitempty"`
 	Timeout                 int                 `yaml:"timeout,omitempty"`
+}
+
+type AppManifestDocker struct {
+	Image    string `yaml:"image,omitempty"`
+	Username string `yaml:"username,omitempty"`
 }
 
 type AppManifestRoutes struct {
