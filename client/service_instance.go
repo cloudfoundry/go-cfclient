@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -11,13 +12,13 @@ type ServiceInstanceClient commonClient
 type ServiceInstanceListOptions struct {
 	*ListOptions
 
-	Names             Filter `filter:"names,omitempty"` // list of service instance names to filter by
-	GUIDs             Filter `filter:"guids,omitempty"` // list of service instance guids to filter by
-	Type              string `filter:"type,omitempty"`  // Filter by type; valid values are managed and user-provided
-	SpaceGUIDs        Filter `filter:"space_guids,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
-	ServicePlanGUIDs  Filter `filter:"service_plan_guids,omitempty"`
-	ServicePlanNames  Filter `filter:"service_plan_names,omitempty"`
+	Names             Filter `qs:"names"` // list of service instance names to filter by
+	GUIDs             Filter `qs:"guids"` // list of service instance guids to filter by
+	Type              string `qs:"type"`  // Filter by type; valid values are managed and user-provided
+	SpaceGUIDs        Filter `qs:"space_guids"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	ServicePlanGUIDs  Filter `qs:"service_plan_guids"`
+	ServicePlanNames  Filter `qs:"service_plan_names"`
 }
 
 // NewServiceInstanceListOptions creates new options to pass to list
@@ -55,13 +56,13 @@ func (c *ServiceInstanceClient) CreateUserProvided(r *resource.ServiceInstanceCr
 
 // Delete the specified service instance returning the async deletion job GUID
 func (c *ServiceInstanceClient) Delete(guid string) (string, error) {
-	return c.client.delete(path("/v3/service_instances/%s", guid))
+	return c.client.delete(path.Format("/v3/service_instances/%s", guid))
 }
 
 // Get the specified service instance
 func (c *ServiceInstanceClient) Get(guid string) (*resource.ServiceInstance, error) {
 	var si resource.ServiceInstance
-	err := c.client.get(path("/v3/service_instances/%s", guid), &si)
+	err := c.client.get(path.Format("/v3/service_instances/%s", guid), &si)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +75,7 @@ func (c *ServiceInstanceClient) List(opts *ServiceInstanceListOptions) ([]*resou
 		opts = NewServiceInstanceListOptions()
 	}
 	var res resource.ServiceInstanceList
-	err := c.client.get(path("/v3/service_instances?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_instances?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

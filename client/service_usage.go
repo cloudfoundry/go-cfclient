@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -11,10 +12,10 @@ type ServiceUsageClient commonClient
 type ServiceUsageOptions struct {
 	*ListOptions
 
-	AfterGUID            string `filter:"after_guid,omitempty"`
-	GUIDs                Filter `filter:"guids,omitempty"`
-	ServiceInstanceTypes Filter `filter:"service_instance_types,omitempty"`
-	ServiceOfferingGUIDs Filter `filter:"service_offering_guids,omitempty"`
+	AfterGUID            string `qs:"after_guid"`
+	GUIDs                Filter `qs:"guids"`
+	ServiceInstanceTypes Filter `qs:"service_instance_types"`
+	ServiceOfferingGUIDs Filter `qs:"service_offering_guids"`
 }
 
 // NewServiceUsageOptions creates new options to pass to list
@@ -31,7 +32,7 @@ func (o ServiceUsageOptions) ToQueryString() url.Values {
 // Get retrieves the specified service event
 func (c *ServiceUsageClient) Get(guid string) (*resource.ServiceUsage, error) {
 	var a resource.ServiceUsage
-	err := c.client.get(path("/v3/service_usage_events/%s", guid), &a)
+	err := c.client.get(path.Format("/v3/service_usage_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func (c *ServiceUsageClient) List(opts *ServiceUsageOptions) ([]*resource.Servic
 		opts = NewServiceUsageOptions()
 	}
 	var res resource.ServiceUsageList
-	err := c.client.get(path("/v3/service_usage_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/service_usage_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

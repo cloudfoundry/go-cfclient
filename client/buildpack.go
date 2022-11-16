@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -11,8 +12,8 @@ type BuildpackClient commonClient
 type BuildpackListOptions struct {
 	*ListOptions
 
-	Names  Filter `filter:"names,omitempty"`  // list of buildpack names to filter by
-	Stacks Filter `filter:"stacks,omitempty"` // list of stack names to filter by
+	Names  Filter `qs:"names"`  // list of buildpack names to filter by
+	Stacks Filter `qs:"stacks"` // list of stack names to filter by
 }
 
 // NewBuildpackListOptions creates new options to pass to list
@@ -38,14 +39,14 @@ func (c *BuildpackClient) Create(r *resource.BuildpackCreateOrUpdate) (*resource
 
 // Delete the specified buildpack
 func (c *BuildpackClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/buildpacks/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/buildpacks/%s", guid))
 	return err
 }
 
 // Get retrieves the specified buildpack
 func (c *BuildpackClient) Get(guid string) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	err := c.client.get(path("/v3/buildpacks/%s", guid), &bp)
+	err := c.client.get(path.Format("/v3/buildpacks/%s", guid), &bp)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func (c *BuildpackClient) List(opts *BuildpackListOptions) ([]*resource.Buildpac
 		opts = NewBuildpackListOptions()
 	}
 	var res resource.BuildpackList
-	err := c.client.get(path("/v3/buildpacks?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/buildpacks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -90,7 +91,7 @@ func (c *BuildpackClient) ListAll(opts *BuildpackListOptions) ([]*resource.Build
 // Update the specified attributes of the buildpack
 func (c *BuildpackClient) Update(guid string, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	_, err := c.client.patch(path("/v3/buildpacks/%s", guid), r, &bp)
+	_, err := c.client.patch(path.Format("/v3/buildpacks/%s", guid), r, &bp)
 	if err != nil {
 		return nil, err
 	}

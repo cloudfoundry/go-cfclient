@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -12,19 +13,19 @@ type UserListOptions struct {
 	*ListOptions
 
 	// list of user guids to filter by
-	GUIDs Filter `filter:"guids,omitempty"`
+	GUIDs Filter `qs:"guids"`
 
 	// list of usernames to filter by. Mutually exclusive with partial_usernames
-	UserNames Filter `filter:"usernames,omitempty"`
+	UserNames Filter `qs:"usernames"`
 
 	// list of strings to search by. When using this query parameter, all the users that
 	// contain the string provided in their username will be returned. Mutually exclusive with usernames
-	PartialUsernames Filter `filter:"partial_usernames,omitempty"`
+	PartialUsernames Filter `qs:"partial_usernames"`
 
 	// list of user origins (user stores) to filter by, for example, users authenticated by
 	// UAA have the origin “uaa”; users authenticated by an LDAP provider have the
 	// origin ldap when filtering by origins, usernames must be included
-	Origins Filter `filter:"origins,omitempty"`
+	Origins Filter `qs:"origins"`
 }
 
 // NewUserListOptions creates new options to pass to list
@@ -50,14 +51,14 @@ func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 
 // Delete the specified user
 func (c *UserClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/users/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/users/%s", guid))
 	return err
 }
 
 // Get the specified user
 func (c *UserClient) Get(guid string) (*resource.User, error) {
 	var user resource.User
-	err := c.client.get(path("/v3/users/%s", guid), &user)
+	err := c.client.get(path.Format("/v3/users/%s", guid), &user)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (c *UserClient) List(opts *UserListOptions) ([]*resource.User, *Pager, erro
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(path("/v3/users?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/users?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -91,7 +92,7 @@ func (c *UserClient) ListAll(opts *UserListOptions) ([]*resource.User, error) {
 // Update the specified attributes of a user
 func (c *UserClient) Update(guid string, r *resource.UserUpdate) (*resource.User, error) {
 	var user resource.User
-	_, err := c.client.patch(path("/v3/users/%s", guid), r, &user)
+	_, err := c.client.patch(path.Format("/v3/users/%s", guid), r, &user)
 	if err != nil {
 		return nil, err
 	}

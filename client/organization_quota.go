@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -12,9 +13,9 @@ type OrgQuotaClient commonClient
 type OrgQuotaListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `filter:"guids,omitempty"`
-	Names             Filter `filter:"names,omitempty"`
-	OrganizationGUIDs Filter `filter:"organization_guids,omitempty"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
 // NewOrgQuotaListOptions creates new options to pass to list
@@ -32,7 +33,7 @@ func (o OrgQuotaListOptions) ToQueryString() url.Values {
 func (c *OrgQuotaClient) Apply(guid string, orgGUIDs []string) ([]string, error) {
 	req := resource.NewToManyRelationships(orgGUIDs)
 	var relation resource.ToManyRelationships
-	_, err := c.client.post(path("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
+	_, err := c.client.post(path.Format("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +56,14 @@ func (c *OrgQuotaClient) Create(r *resource.OrganizationQuotaCreateOrUpdate) (*r
 
 // Delete the specified org quota
 func (c *OrgQuotaClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/organization_quotas/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/organization_quotas/%s", guid))
 	return err
 }
 
 // Get the specified org quota
 func (c *OrgQuotaClient) Get(guid string) (*resource.OrganizationQuota, error) {
 	var app resource.OrganizationQuota
-	err := c.client.get(path("/v3/organization_quotas/%s", guid), &app)
+	err := c.client.get(path.Format("/v3/organization_quotas/%s", guid), &app)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +77,7 @@ func (c *OrgQuotaClient) List(opts *OrgQuotaListOptions) ([]*resource.Organizati
 	}
 
 	var res resource.OrganizationQuotaList
-	err := c.client.get(path("/v3/organization_quotas?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/organization_quotas?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,7 +98,7 @@ func (c *OrgQuotaClient) ListAll(opts *OrgQuotaListOptions) ([]*resource.Organiz
 // Update the specified attributes of the org quota
 func (c *OrgQuotaClient) Update(guid string, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota
-	_, err := c.client.patch(path("/v3/organization_quotas/%s", guid), r, &q)
+	_, err := c.client.patch(path.Format("/v3/organization_quotas/%s", guid), r, &q)
 	if err != nil {
 		return nil, err
 	}

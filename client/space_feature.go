@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
@@ -11,6 +12,6 @@ func (c *SpaceFeatureClient) EnableSSH(spaceGUID string, enable bool) error {
 	r := resource.SpaceFeatureUpdate{
 		Enabled: enable,
 	}
-	_, err := c.client.patch(path("/v3/spaces/%s/features/ssh", spaceGUID), r, nil)
+	_, err := c.client.patch(path.Format("/v3/spaces/%s/features/ssh", spaceGUID), r, nil)
 	return err
 }

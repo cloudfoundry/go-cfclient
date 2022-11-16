@@ -7,27 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestQuerystringReader(t *testing.T) {
-	u := "https://api.example.org/v3/apps?page=1&per_page=50"
-	reader, err := newQuerystringReader(u)
-	require.NoError(t, err)
-	require.Equal(t, 1, reader.Int("page"))
-	require.Equal(t, 50, reader.Int("per_page"))
-
-	u = "https://api.example.org/v3/apps"
-	reader, err = newQuerystringReader(u)
-	require.NoError(t, err)
-	require.Equal(t, 0, reader.Int("page"))
-
-	u = "https://api.example.org/v3/apps?order_by=id"
-	reader, err = newQuerystringReader(u)
-	require.NoError(t, err)
-	require.Equal(t, "id", reader.String("order_by"))
-
-	_, err = newQuerystringReader("")
-	require.Error(t, err)
-}
-
 func TestPager(t *testing.T) {
 	paginationPage1 := resource.Pagination{
 		TotalResults: 120,

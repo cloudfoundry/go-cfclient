@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
 )
@@ -11,7 +12,7 @@ type StackClient commonClient
 type StackListOptions struct {
 	*ListOptions
 
-	Names Filter `filter:"names,omitempty"` // list of stack names to filter by
+	Names Filter `qs:"names"` // list of stack names to filter by
 }
 
 // NewStackListOptions creates new options to pass to list
@@ -37,14 +38,14 @@ func (c *StackClient) Create(r *resource.StackCreate) (*resource.Stack, error) {
 
 // Delete the specified stack
 func (c *StackClient) Delete(guid string) error {
-	_, err := c.client.delete(path("/v3/stacks/%s", guid))
+	_, err := c.client.delete(path.Format("/v3/stacks/%s", guid))
 	return err
 }
 
 // Get the specified stack
 func (c *StackClient) Get(guid string) (*resource.Stack, error) {
 	var stack resource.Stack
-	err := c.client.get(path("/v3/stacks/%s", guid), &stack)
+	err := c.client.get(path.Format("/v3/stacks/%s", guid), &stack)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +58,7 @@ func (c *StackClient) List(opts *StackListOptions) ([]*resource.Stack, *Pager, e
 		opts = NewStackListOptions()
 	}
 	var res resource.StackList
-	err := c.client.get(path("/v3/stacks?%s", opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/stacks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +82,7 @@ func (c *StackClient) ListAppsOnStack(guid string, opts *StackListOptions) ([]*r
 		opts = NewStackListOptions()
 	}
 	var res resource.AppList
-	err := c.client.get(path("/v3/stacks/%s/apps?%s", guid, opts.ToQueryString()), &res)
+	err := c.client.get(path.Format("/v3/stacks/%s/apps?%s", guid, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -102,7 +103,7 @@ func (c *StackClient) ListAppsOnStackAll(guid string, opts *StackListOptions) ([
 // Update the specified attributes of a stack
 func (c *StackClient) Update(guid string, r *resource.StackUpdate) (*resource.Stack, error) {
 	var stack resource.Stack
-	_, err := c.client.patch(path("/v3/stacks/%s", guid), r, &stack)
+	_, err := c.client.patch(path.Format("/v3/stacks/%s", guid), r, &stack)
 	if err != nil {
 		return nil, err
 	}

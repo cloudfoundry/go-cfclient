@@ -40,7 +40,7 @@ func SetupFakeAPIServer() string {
 	return server.URL
 }
 
-func SetupFakeUAAServer(expiresIn int) {
+func SetupFakeUAAServer(expiresIn int) string {
 	uaaMux := http.NewServeMux()
 	fakeUAAServer = httptest.NewServer(uaaMux)
 	m := martini.New()
@@ -59,6 +59,7 @@ func SetupFakeUAAServer(expiresIn int) {
 	r.NotFound(func() string { return "" })
 	m.Action(r.Handle)
 	uaaMux.Handle("/", m)
+	return fakeUAAServer.URL
 }
 
 func Setup(mock MockRoute, t *testing.T) string {
@@ -147,26 +148,57 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 			})
 		}
 	}
-	r.Get("/v2/info", func(r render.Render) {
-		r.JSON(200, map[string]interface{}{
-			"authorization_endpoint":       fakeUAAServer.URL,
-			"token_endpoint":               fakeUAAServer.URL,
-			"logging_endpoint":             server.URL,
-			"name":                         "",
-			"build":                        "",
-			"support":                      "https://support.example.net",
-			"version":                      0,
-			"description":                  "",
-			"min_cli_version":              "6.23.0",
-			"min_recommended_cli_version":  "6.23.0",
-			"api_version":                  "2.103.0",
-			"app_ssh_endpoint":             "ssh.example.net:2222",
-			"app_ssh_host_key_fingerprint": "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01",
-			"app_ssh_oauth_client":         "ssh-proxy",
-			"doppler_logging_endpoint":     "wss://doppler.example.net:443",
-			"routing_endpoint":             "https://api.example.net/routing",
+	r.Get("/", func(r render.Render) {
+		r.JSON(200, map[string]any{
+			"links": map[string]any{
+				"cloud_controller_v2": map[string]any{
+					"href": server.URL + "/v2",
+					"meta": map[string]any{
+						"version": "2.155.0",
+					},
+				},
+				"cloud_controller_v3": map[string]any{
+					"href": server.URL + "/v3",
+					"meta": map[string]any{
+						"version": "3.90.0",
+					},
+				},
+				"network_policy_v0": map[string]any{
+					"href": "https://api.example.org/networking/v0/external",
+				},
+				"network_policy_v1": map[string]any{
+					"href": "https://api.example.org/networking/v1/external",
+				},
+				"uaa": map[string]any{
+					"href": fakeUAAServer.URL,
+				},
+				"login": map[string]any{
+					"href": fakeUAAServer.URL,
+				},
+				"credhub": map[string]any{
+					"href": "",
+				},
+				"routing": map[string]any{
+					"href": "https://api.example.org/routing",
+				},
+				"logging": map[string]any{
+					"href": "wss://doppler.example.org:443",
+				},
+				"log_cache": map[string]any{
+					"href": "https://log-cache.example.org",
+				},
+				"log_stream": map[string]any{
+					"href": "https://log-stream.example.org",
+				},
+				"app_ssh": map[string]any{
+					"href": "ssh.example.org:2222",
+					"meta": map[string]any{
+						"host_key_fingerprint": "Y411oivJwZCUQnXHq83mdM5SKCK4ftyoSXI31RRe4Zs",
+						"oauth_client":         "ssh-proxy",
+					},
+				},
+			},
 		})
-
 	})
 
 	m.Action(r.Handle)
@@ -176,10 +208,14 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 }
 
 func Teardown() {
-	server.Close()
-	server = nil
-	fakeUAAServer.Close()
-	fakeUAAServer = nil
+	if server != nil {
+		server.Close()
+		server = nil
+	}
+	if fakeUAAServer != nil {
+		fakeUAAServer.Close()
+		fakeUAAServer = nil
+	}
 }
 
 func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {

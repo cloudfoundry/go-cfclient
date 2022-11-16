@@ -1,0 +1,112 @@
+package http
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"io"
+	"net/http"
+)
+
+// Executor handles executing HTTP requests
+type Executor struct {
+	userAgent      string
+	apiAddress     string
+	clientProvider ClientProvider
+}
+
+// NewExecutor creates a new HTTP Executor instance
+func NewExecutor(clientProvider ClientProvider, apiAddress, userAgent string) *Executor {
+	return &Executor{
+		userAgent:      userAgent,
+		apiAddress:     apiAddress,
+		clientProvider: clientProvider,
+	}
+}
+
+// ExecuteRequest executes the specified request using the http.Client provided by the client provider
+func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
+	req, err := c.newHTTPRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	// do the request to the remote API
+	r, err := c.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// it's possible the access token expired and the oauth subsystem could not obtain a new one because the
+	// refresh token is expired or revoked. Attempt to get a new refresh and access token and retry the request.
+	if r.StatusCode == http.StatusUnauthorized {
+		err = c.reAuthenticate()
+		if err != nil {
+			return nil, err
+		}
+		r, err = c.do(req)
+	}
+
+	return r, err
+}
+
+// newHTTPRequest creates a new *http.Request instance from the internal model
+func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
+	// JSON encode the object and use that as the body if specified, otherwise use the body as-is
+	reqBody := request.body
+	if request.object != nil {
+		b, err := encodeBody(request.object)
+		if err != nil {
+			return nil, fmt.Errorf("error executing request, failed to encode the request object to JSON: %w", err)
+		}
+		reqBody = b
+	}
+	u := path.Join(c.apiAddress, request.pathAndQuery)
+
+	r, err := http.NewRequest(request.method, u, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed to create a new underlying HTTP request: %w", err)
+	}
+	r.Header.Set("User-Agent", c.userAgent)
+	if request.contentType != "" {
+		r.Header.Set("Content-type", request.contentType)
+	}
+	if request.contentLength != nil {
+		r.ContentLength = *request.contentLength
+	}
+	return r, nil
+}
+
+// do the proper http.Client and calls Do on it using the specified http.Request
+func (c *Executor) do(request *http.Request) (*http.Response, error) {
+	client, err := c.clientProvider.Client()
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed to get the underlying HTTP client: %w", err)
+	}
+	r, err := client.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
+	}
+	return r, nil
+}
+
+// reAuthenticate tells the client provider to restart authentication anew because we received a 401
+func (c *Executor) reAuthenticate() error {
+	err := c.clientProvider.ReAuthenticate()
+	if err != nil {
+		return fmt.Errorf("an error occurred attempting to reauthenticate "+
+			"after initially receiving a 401 executing a request: %w", err)
+	}
+	return nil
+}
+
+// encodeBody is used to encode a request body
+func encodeBody(obj any) (io.Reader, error) {
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	if err := enc.Encode(obj); err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
