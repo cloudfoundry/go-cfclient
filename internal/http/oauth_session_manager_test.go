@@ -67,5 +67,5 @@ func TestOAuthSessionManager(t *testing.T) {
 	oauthTransport2 := client3.Transport.(*oauth2.Transport)
 
 	require.Same(t, oauthTransport1.Base, oauthTransport2.Base, "expect the same http transport between Client() calls")
-	require.Same(t, c.BaseHTTPClient.Transport, oauthTransport2.Base, "expect the same http transport from config")
+	require.Same(t, c.HTTPClient().Transport, oauthTransport2.Base, "expect the same http transport from config")
 }

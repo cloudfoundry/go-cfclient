@@ -11,7 +11,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+const UserAgent = "Go-CF-httpClient/3.0"
 
 // Config is used to configure the creation of a client
 type Config struct {
@@ -27,9 +30,9 @@ type Config struct {
 	Origin       string
 	Token        string
 
-	BaseHTTPClient *http.Client
-
-	skipSSLValidation bool
+	baseHTTPClient    *http.Client
+	requestTimeout    time.Duration
+	skipTLSValidation bool
 }
 
 type cfHomeConfig struct {
@@ -46,6 +49,7 @@ type cfHomeConfig struct {
 	SSLDisabled bool
 }
 
+// NewUserPassword creates a new config configured for regular user/password authentication
 func NewUserPassword(apiRootURL, username, password string) (*Config, error) {
 	if username == "" {
 		return nil, errors.New("expected an non-empty CF API username")
@@ -64,6 +68,7 @@ func NewUserPassword(apiRootURL, username, password string) (*Config, error) {
 	return c, nil
 }
 
+// NewClientSecret creates a new config configured for client id and client secret authentication
 func NewClientSecret(apiRoot, clientID, clientSecret string) (*Config, error) {
 	if clientID == "" {
 		return nil, errors.New("expected an non-empty CF API clientID")
@@ -82,6 +87,10 @@ func NewClientSecret(apiRoot, clientID, clientSecret string) (*Config, error) {
 	return c, nil
 }
 
+// NewToken creates a new config configured to use a static access token
+//
+// This method of authentication does _not_ support refresh tokens or re-authentication, the access token
+// must be valid and created externally to this client.
 func NewToken(apiRoot, token string) (*Config, error) {
 	if token == "" {
 		return nil, errors.New("expected an non-empty CF API token")
@@ -96,6 +105,11 @@ func NewToken(apiRoot, token string) (*Config, error) {
 	return c, nil
 }
 
+// NewFromCFHome is similar to NewToken but reads the access token from the CF_HOME config, which must
+// exist and have a valid access token.
+//
+// This will use the currently configured CF_HOME env var if it exists, otherwise attempts to use the
+// default CF_HOME directory.
 func NewFromCFHome() (*Config, error) {
 	dir, err := findCFHomeDir()
 	if err != nil {
@@ -104,6 +118,8 @@ func NewFromCFHome() (*Config, error) {
 	return NewFromCFHomeDir(dir)
 }
 
+// NewFromCFHomeDir is similar to NewToken but reads the access token from the config in the specified directory
+// which must exist and have a valid access token.
 func NewFromCFHomeDir(cfHomeDir string) (*Config, error) {
 	cfHomeConfig, err := loadCFHomeConfig(cfHomeDir)
 	if err != nil {
@@ -115,24 +131,63 @@ func NewFromCFHomeDir(cfHomeDir string) (*Config, error) {
 		return nil, err
 	}
 	cfg.Token = cfHomeConfig.AccessToken
-	cfg.skipSSLValidation = cfHomeConfig.SSLDisabled
+	cfg.skipTLSValidation = cfHomeConfig.SSLDisabled
 
 	return cfg, nil
 }
 
-func (c *Config) HTTPClient(httpClient *http.Client) {
-	c.BaseHTTPClient = httpClient
-	c.setHTTPClientSSLConfig()
+// WithHTTPClient overrides the default http.Client to be used as the base for all requests
+//
+// # The TLS and Timeout values on the http.Client will be set to match the config
+//
+// This is useful if you need to configure advanced http.Client or http.Transport settings,
+// most consumers will not need to use this.
+func (c *Config) WithHTTPClient(httpClient *http.Client) {
+	c.baseHTTPClient = httpClient
+	c.baseHTTPClient.Timeout = c.requestTimeout
+	c.setTLSConfigOnHTTPClient()
 }
 
-func (c *Config) SkipSSLValidation(skip bool) {
-	c.skipSSLValidation = skip
-	c.setHTTPClientSSLConfig()
+// WithSkipTLSValidation sets the http.Client underlying transport InsecureSkipVerify
+func (c *Config) WithSkipTLSValidation(skip bool) {
+	c.skipTLSValidation = skip
+	c.setTLSConfigOnHTTPClient()
 }
 
-func (c *Config) setHTTPClientSSLConfig() {
+// WithRequestTimeout overrides the http.Client underlying transport request timeout
+func (c *Config) WithRequestTimeout(timeout time.Duration) {
+	c.requestTimeout = timeout
+	c.baseHTTPClient.Timeout = timeout
+}
+
+// HTTPClient returns the currently configured default base http.Client to be used as the base for all requests
+func (c *Config) HTTPClient() *http.Client {
+	return c.baseHTTPClient
+}
+
+// RequestTimeout returns the currently configured http.Client underlying transport request timeout
+func (c *Config) RequestTimeout() time.Duration {
+	return c.requestTimeout
+}
+
+// SkipTLSValidation returns the currently configured http.Client underlying transport InsecureSkipVerify
+func (c *Config) SkipTLSValidation() bool {
+	return c.skipTLSValidation
+}
+
+func (c *Config) setNewDefaultHTTPClient() {
+	// use a copy of the default transport and it's settings
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	c.baseHTTPClient = &http.Client{
+		Timeout:   c.requestTimeout,
+		Transport: transport,
+	}
+}
+
+func (c *Config) setTLSConfigOnHTTPClient() {
+	// it's possible the consumer provided an oauth2.Transport instead of a http.Transport
 	var tp *http.Transport
-	switch t := c.BaseHTTPClient.Transport.(type) {
+	switch t := c.baseHTTPClient.Transport.(type) {
 	case *http.Transport:
 		tp = t
 	case *oauth2.Transport:
@@ -141,11 +196,12 @@ func (c *Config) setHTTPClientSSLConfig() {
 		}
 	}
 
+	// if we found a supported transport, set InsecureSkipVerify
 	if tp != nil {
 		if tp.TLSClientConfig == nil {
 			tp.TLSClientConfig = &tls.Config{}
 		}
-		tp.TLSClientConfig.InsecureSkipVerify = c.skipSSLValidation
+		tp.TLSClientConfig.InsecureSkipVerify = c.skipTLSValidation
 	}
 }
 
@@ -154,24 +210,16 @@ func newDefault(apiRootURL string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRootURL, err)
 	}
+
 	c := &Config{
 		APIEndpointURL:    strings.TrimRight(u.String(), "/"),
-		UserAgent:         "Go-CF-client/2.0",
-		BaseHTTPClient:    http.DefaultClient,
-		skipSSLValidation: false,
+		UserAgent:         UserAgent,
+		skipTLSValidation: false,
+		requestTimeout:    30 * time.Second,
 	}
-	c.BaseHTTPClient.Transport = shallowDefaultTransport()
-	c.setHTTPClientSSLConfig()
+	c.setNewDefaultHTTPClient()
+	c.setTLSConfigOnHTTPClient()
 	return c, nil
-}
-
-func shallowDefaultTransport() *http.Transport {
-	defaultTransport := http.DefaultTransport.(*http.Transport)
-	return &http.Transport{
-		Proxy:                 defaultTransport.Proxy,
-		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
-		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
-	}
 }
 
 func loadCFHomeConfig(cfHomeDir string) (*cfHomeConfig, error) {
