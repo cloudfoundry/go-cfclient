@@ -41,6 +41,7 @@ func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
 	// it's possible the access token expired and the oauth subsystem could not obtain a new one because the
 	// refresh token is expired or revoked. Attempt to get a new refresh and access token and retry the request.
 	if r.StatusCode == http.StatusUnauthorized {
+		_ = r.Body.Close()
 		err = c.reAuthenticate()
 		if err != nil {
 			return nil, err
@@ -75,6 +76,10 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 	if request.contentLength != nil {
 		r.ContentLength = *request.contentLength
 	}
+	for k, v := range request.headers {
+		r.Header.Set(k, v)
+	}
+
 	return r, nil
 }
 
