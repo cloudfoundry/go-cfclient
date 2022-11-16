@@ -146,7 +146,7 @@ func (c *Client) SSHCode() (string, error) {
 	values.Set("grant_type", "authorization_code")
 	values.Set("client_id", r.Links.AppSSH.Meta.OauthClient) // client_id，used by cf server
 
-	token, err := c.authenticatedClientProvider.Token()
+	token, err := c.authenticatedClientProvider.AccessToken()
 	if err != nil {
 		return "", err
 	}
