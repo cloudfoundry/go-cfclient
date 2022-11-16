@@ -11,55 +11,87 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 	"net/http"
 	"net/url"
-	"time"
+	"sync"
 )
 
 // OAuthSessionManager creates and manages OAuth http client instances
 type OAuthSessionManager struct {
 	config *config.Config
 
-	tokenSource         oauth2.TokenSource
-	tokenSourceDeadline *time.Time
-
-	authenticatedHTTPClient *http.Client
+	oauthClient *http.Client
+	tokenSource oauth2.TokenSource
+	mutex       *sync.RWMutex
 }
 
 // NewOAuthSessionManager creates a new OAuth session manager
 func NewOAuthSessionManager(config *config.Config) *OAuthSessionManager {
 	return &OAuthSessionManager{
 		config: config,
+		mutex:  &sync.RWMutex{},
 	}
 }
 
 // Client returns an authenticated OAuth http client
 func (m *OAuthSessionManager) Client() (*http.Client, error) {
-	if m.shouldRenewToken() {
-		err := m.refreshAuthenticatedHTTPClient()
-		if err != nil {
-			return nil, err
-		}
+	err := m.init(context.Background())
+	if err != nil {
+		return nil, err
 	}
-	return m.authenticatedHTTPClient, nil
+
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	return m.oauthClient, nil
 }
 
-// Token returns the OAuth token in "bearer: <token>" format
-func (m *OAuthSessionManager) Token() (string, error) {
-	if m.shouldRenewToken() {
-		err := m.refreshAuthenticatedHTTPClient()
-		if err != nil {
-			return "", err
-		}
+// ReAuthenticate causes a new http.Client to be created with new a new authentication context,
+// likely in response to a 401
+//
+// This won't work for userTokenAuth since we have no credentials to exchange for a new token.
+func (m *OAuthSessionManager) ReAuthenticate() error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	// attempt to create a new token source
+	return m.newTokenSource(context.Background())
+}
+
+// AccessToken returns the raw OAuth access token
+func (m *OAuthSessionManager) AccessToken() (string, error) {
+	err := m.init(context.Background())
+	if err != nil {
+		return "", err
 	}
+
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
 
 	token, err := m.tokenSource.Token()
 	if err != nil {
 		return "", fmt.Errorf("error getting bearer token: %w", err)
 	}
-	return "bearer " + token.AccessToken, nil
+	return token.AccessToken, nil
 }
 
-// refreshAuthenticatedHTTPClient creates a new authenticated OAuth http client
-func (m *OAuthSessionManager) refreshAuthenticatedHTTPClient() error {
+func (m *OAuthSessionManager) init(ctx context.Context) error {
+	// get a reader lock and check to see if the token source has been initialized already
+	m.mutex.RLock()
+	if m.tokenSource != nil {
+		m.mutex.RUnlock()
+		return nil
+	}
+
+	// not initialized, upgrade to write lock
+	m.mutex.RUnlock()
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	// attempt to create a new token source
+	return m.newTokenSource(ctx)
+}
+
+// newTokenSource creates an appropriate OAuth token source based off the provided config
+func (m *OAuthSessionManager) newTokenSource(ctx context.Context) error {
 	if m.config.LoginEndpointURL == "" || m.config.UAAEndpointURL == "" {
 		return errors.New("login and UAA endpoints must not be empty")
 	}
@@ -67,19 +99,17 @@ func (m *OAuthSessionManager) refreshAuthenticatedHTTPClient() error {
 	loginEndpoint := path.Join(m.config.LoginEndpointURL, "/oauth/auth")
 	uaaEndpoint := path.Join(m.config.UAAEndpointURL, "/oauth/token")
 
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, m.config.BaseHTTPClient)
+	// this provides the http.Client instance that the oauth subsystem will use for token acquisition
+	// and copy the base http transport from for new clients
+	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, m.config.BaseHTTPClient)
 
 	switch {
 	case m.config.Token != "":
-		m.userTokenAuth(ctx, loginEndpoint, uaaEndpoint)
+		m.userTokenAuth(oauthCtx, loginEndpoint, uaaEndpoint)
 	case m.config.ClientID != "":
-		m.clientAuth(ctx, loginEndpoint)
+		m.clientAuth(oauthCtx, loginEndpoint)
 	default:
-		err := m.userAuth(ctx, loginEndpoint, uaaEndpoint)
-		if err != nil {
-			return err
-		}
+		return m.userAuth(oauthCtx, loginEndpoint, uaaEndpoint)
 	}
 
 	return nil
@@ -114,9 +144,8 @@ func (m *OAuthSessionManager) userAuth(ctx context.Context, loginEndpoint, uaaEn
 		return fmt.Errorf("error getting token for user auth: %w", err)
 	}
 
-	m.tokenSourceDeadline = &token.Expiry
-	m.tokenSource = authConfig.TokenSource(ctx, token)
-	m.authenticatedHTTPClient = oauth2.NewClient(ctx, m.tokenSource)
+	tokenSource := authConfig.TokenSource(ctx, token)
+	m.initOAuthClient(ctx, tokenSource)
 
 	return nil
 }
@@ -128,9 +157,8 @@ func (m *OAuthSessionManager) clientAuth(ctx context.Context, uaaEndpoint string
 		ClientSecret: m.config.ClientSecret,
 		TokenURL:     uaaEndpoint,
 	}
-
-	m.tokenSource = authConfig.TokenSource(ctx)
-	m.authenticatedHTTPClient = authConfig.Client(ctx)
+	tokenSource := authConfig.TokenSource(ctx)
+	m.initOAuthClient(ctx, tokenSource)
 }
 
 // userTokenAuth initializes client credentials from existing bearer token.
@@ -147,17 +175,27 @@ func (m *OAuthSessionManager) userTokenAuth(ctx context.Context, loginEndpoint, 
 	// Token is expected to have no "bearer" prefix
 	token := &oauth2.Token{
 		AccessToken: m.config.Token,
-		TokenType:   "Bearer"}
-
-	m.tokenSource = authConfig.TokenSource(ctx, token)
-	m.tokenSourceDeadline = &token.Expiry
-	m.authenticatedHTTPClient = oauth2.NewClient(ctx, m.tokenSource)
+		TokenType:   "Bearer",
+	}
+	tokenSource := authConfig.TokenSource(ctx, token)
+	m.initOAuthClient(ctx, tokenSource)
 }
 
-func (m *OAuthSessionManager) shouldRenewToken() bool {
-	if m.tokenSourceDeadline != nil {
-		expiresAt := time.Now()
-		return m.tokenSourceDeadline.Before(expiresAt)
+func (m *OAuthSessionManager) initOAuthClient(ctx context.Context, tokenSource oauth2.TokenSource) {
+	bc := m.config.BaseHTTPClient
+
+	// oauth2.NewClient copies the underlying transport only, so explicitly copy other client values over
+	// without modifying the oauth2 client that was returned (since that's unsupported)
+	// https://github.com/golang/oauth2/issues/368
+	oac := oauth2.NewClient(ctx, tokenSource)
+	oauthClient := &http.Client{
+		Transport:     oac.Transport,
+		Timeout:       bc.Timeout,
+		CheckRedirect: bc.CheckRedirect,
+		Jar:           bc.Jar,
 	}
-	return true
+
+	// cache the created client and token source
+	m.oauthClient = oauthClient
+	m.tokenSource = tokenSource
 }

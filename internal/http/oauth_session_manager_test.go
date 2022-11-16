@@ -5,11 +5,12 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/oauth2"
 	"testing"
 )
 
 func TestOAuthSessionManager(t *testing.T) {
-	uaaURL := testutil.SetupFakeUAAServer(3)
+	uaaURL := testutil.SetupFakeUAAServer(300)
 	defer testutil.Teardown()
 
 	// missing configuration
@@ -27,27 +28,44 @@ func TestOAuthSessionManager(t *testing.T) {
 	c.LoginEndpointURL = uaaURL
 	c.UAAEndpointURL = uaaURL
 
-	client, err := m.Client()
+	// we can create a client that utilizes oauth
+	client1, err := m.Client()
 	require.NoError(t, err)
-	require.NotNil(t, client)
+	require.NotNil(t, client1)
 
-	token, err := m.Token()
+	// the same access token is returned as long as it's not expired (which it's not - 300s)
+	token, err := m.AccessToken()
 	require.NoError(t, err)
-	require.Equal(t, "bearer foobar2", token)
+	require.Equal(t, "foobar1", token)
 	require.NoError(t, err)
-	token, err = m.Token()
-	require.Equal(t, "bearer foobar3", token)
+	token, err = m.AccessToken()
+	require.NoError(t, err)
+	require.Equal(t, "foobar1", token)
 
-	// it reuses the client transport as that's what re-uses TCP connections
+	// the same client is returned
 	client2, err := m.Client()
 	require.NoError(t, err)
-	require.NotNil(t, client)
-	require.Same(t, client.Transport, client2.Transport, "expect the same http transport")
+	require.Same(t, client1, client2)
 
-	// it can refresh when expired
-	//time.Sleep(3 * time.Second)
-	//client3, err := m.Client()
-	//require.NoError(t, err)
-	//require.NotNil(t, client)
-	//require.NotSame(t, client, client3, "expect a new http client when expired")
+	// we force new auth context
+	err = m.ReAuthenticate()
+	require.NoError(t, err)
+
+	// a different client is now returned
+	client3, err := m.Client()
+	require.NoError(t, err)
+	require.NotSame(t, client2, client3)
+
+	// a new token is also returned
+	token, err = m.AccessToken()
+	require.NoError(t, err)
+	require.Equal(t, "foobar2", token)
+
+	// however, it still reuses the client's underlying transport as that's what pools TCP connections
+	// even after re-establishing auth context
+	oauthTransport1 := client2.Transport.(*oauth2.Transport)
+	oauthTransport2 := client3.Transport.(*oauth2.Transport)
+
+	require.Same(t, oauthTransport1.Base, oauthTransport2.Base, "expect the same http transport between Client() calls")
+	require.Same(t, c.BaseHTTPClient.Transport, oauthTransport2.Base, "expect the same http transport from config")
 }
