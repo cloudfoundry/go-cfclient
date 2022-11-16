@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const UserAgent = "Go-CF-httpClient/3.0"
+const UserAgent = "Go-CF-Client/3.0"
 
 // Config is used to configure the creation of a client
 type Config struct {
