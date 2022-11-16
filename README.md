@@ -20,10 +20,11 @@ Will resolve and add the package to the current development module, along with i
 library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the Versioning section below.
 
 ## Usage
-Using go modules, import the client and resource packages:
+Using go modules import the client, config and resource packages:
 ```go
 import (
     "github.com/cloudfoundry-community/go-cfclient/v3/client"
+    "github.com/cloudfoundry-community/go-cfclient/v3/config"
     "github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 ```
@@ -33,13 +34,13 @@ Construct a new CF client configuration object. The configuration object configu
 CF API. There are various supported auth mechanisms, with the simplest being - use the existing CF CLI configuration and
 auth token:
 ```go
-config, _ := client.NewConfigFromCFHome()
-cf, _ := client.New(config)
+cfg, _ := config.NewFromCFHome()
+cf, _ := client.New(cfg)
 ```
 You may also use username/password
 ```go
-config, _ := client.NewUserPasswordConfig("https://api.example.org", "user", "pass")
-cf, _ := client.New(config)
+cfg, _ := config.NewUserPassword("https://api.example.org", "user", "pass")
+cf, _ := client.New(cfg)
 ```
 There is also client/secret and token config support.
 
