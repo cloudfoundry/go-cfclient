@@ -1,14 +1,15 @@
 //go:build integration
 // +build integration
 
-package e2e
+package test
 
 import (
-	"testing"
-
+	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 const (
@@ -18,9 +19,14 @@ const (
 
 func TestEndToEnd(t *testing.T) {
 	c := createClient(t)
-	org := getOrg(t, c)
-	space := getSpace(t, c)
 
+	// get the org with the access token
+	org := getOrg(t, c)
+	fmt.Println(org.Name)
+
+	// try to get the space
+	space := getSpace(t, c, org)
+	fmt.Println(space.Name)
 }
 
 func getOrg(t *testing.T, c *client.Client) *resource.Organization {
@@ -48,7 +54,7 @@ func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 	return org
 }
 
-func getSpace(t *testing.T, c *client.Client) *resource.Space {
+func getSpace(t *testing.T, c *client.Client, org *resource.Organization) *resource.Space {
 	opts := client.NewSpaceListOptions()
 	opts.Names = client.Filter{
 		Values: []string{SpaceName},
@@ -60,9 +66,7 @@ func getSpace(t *testing.T, c *client.Client) *resource.Space {
 	if len(spaces) > 0 {
 		space = spaces[0]
 	} else {
-		sc := &resource.SpaceCreate{
-			Name: SpaceName,
-		}
+		sc := resource.NewSpaceCreate(SpaceName, org.GUID)
 		space, err = c.Spaces.Create(sc)
 		require.NoError(t, err)
 	}
@@ -74,10 +78,10 @@ func getSpace(t *testing.T, c *client.Client) *resource.Space {
 }
 
 func createClient(t *testing.T) *client.Client {
-	config, err := client.NewConfigFromCFHome()
+	cfg, err := config.NewFromCFHome()
 	require.NoError(t, err)
-	config.SkipSSLValidation(true)
-	c, err := client.New(config)
+	cfg.SkipSSLValidation(true)
+	c, err := client.New(cfg)
 	require.NoError(t, err)
 	return c
 }
