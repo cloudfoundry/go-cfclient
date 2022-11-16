@@ -22,7 +22,7 @@ func runPush() error {
 	if err != nil {
 		return err
 	}
-	conf.SkipSSLValidation(true)
+	conf.WithSkipTLSValidation(true)
 	cf, err := client.New(conf)
 	if err != nil {
 		return err

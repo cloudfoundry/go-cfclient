@@ -2,9 +2,11 @@ package config_test
 
 import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"net/http"
 	"os"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -78,6 +80,47 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, "https://api.sys.example.com", cfg.APIEndpointURL)
+}
+
+func TestNewConfigBaseHTTPClient(t *testing.T) {
+	c, err := config.NewToken("https://api.example.com", "token-content")
+	require.NoError(t, err)
+
+	require.Equal(t, time.Second*30, c.HTTPClient().Timeout,
+		"expected the non-default request timeout of 30s")
+
+	tr := c.HTTPClient().Transport.(*http.Transport)
+	require.Equal(t, 100, tr.MaxIdleConns,
+		"expected the default number of 100 max idle connections")
+	require.Equal(t, 0, tr.MaxConnsPerHost,
+		"expected 0, or unlimited connections per host")
+	require.Equal(t, 0, tr.MaxIdleConnsPerHost,
+		"expected 0, as http.Transport uses DefaultMaxIdleConnsPerHost (e.g. 2) if zero")
+	require.Equal(t, 90*time.Second, tr.IdleConnTimeout,
+		"expected to use the default idle connection timeout of 90s")
+	require.Equal(t, 10*time.Second, tr.TLSHandshakeTimeout,
+		"expected to use the default TLS handshake timeout of 10s")
+}
+
+func TestNewConfigWithOverrides(t *testing.T) {
+	c, err := config.NewToken("https://api.example.com", "token-content")
+	require.NoError(t, err)
+
+	// setting the http client should also set the TLS config and timeout on the default client
+	c.WithSkipTLSValidation(true)
+	c.WithRequestTimeout(time.Second * 10)
+	require.Equal(t, time.Second*10, c.HTTPClient().Timeout)
+	tr := c.HTTPClient().Transport.(*http.Transport)
+	require.True(t, tr.TLSClientConfig.InsecureSkipVerify)
+
+	// setting the http client should also set the TLS config and timeout on the custom client
+	customClient := &http.Client{
+		Transport: http.DefaultTransport,
+	}
+	c.WithHTTPClient(customClient)
+	require.Equal(t, time.Second*10, c.HTTPClient().Timeout)
+	tr = c.HTTPClient().Transport.(*http.Transport)
+	require.True(t, tr.TLSClientConfig.InsecureSkipVerify)
 }
 
 const cfCLIConfig = `

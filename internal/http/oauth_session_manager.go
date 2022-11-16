@@ -101,7 +101,7 @@ func (m *OAuthSessionManager) newTokenSource(ctx context.Context) error {
 
 	// this provides the http.Client instance that the oauth subsystem will use for token acquisition
 	// and copy the base http transport from for new clients
-	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, m.config.BaseHTTPClient)
+	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, m.config.HTTPClient())
 
 	switch {
 	case m.config.Token != "":
@@ -182,7 +182,7 @@ func (m *OAuthSessionManager) userTokenAuth(ctx context.Context, loginEndpoint, 
 }
 
 func (m *OAuthSessionManager) initOAuthClient(ctx context.Context, tokenSource oauth2.TokenSource) {
-	bc := m.config.BaseHTTPClient
+	bc := m.config.HTTPClient()
 
 	// oauth2.NewClient copies the underlying transport only, so explicitly copy other client values over
 	// without modifying the oauth2 client that was returned (since that's unsupported)

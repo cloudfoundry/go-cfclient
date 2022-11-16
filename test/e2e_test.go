@@ -80,7 +80,7 @@ func getSpace(t *testing.T, c *client.Client, org *resource.Organization) *resou
 func createClient(t *testing.T) *client.Client {
 	cfg, err := config.NewFromCFHome()
 	require.NoError(t, err)
-	cfg.SkipSSLValidation(true)
+	cfg.WithSkipTLSValidation(true)
 	c, err := client.New(cfg)
 	require.NoError(t, err)
 	return c

@@ -126,7 +126,7 @@ func TestAppPush(t *testing.T) {
 	}, t)
 
 	c, _ := config.NewToken(serverURL, "foo")
-	c.SkipSSLValidation(true)
+	c.WithSkipTLSValidation(true)
 	cf, err := client.New(c)
 	require.NoError(t, err)
 

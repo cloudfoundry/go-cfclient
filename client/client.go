@@ -72,7 +72,7 @@ type commonClient struct {
 // New returns a new CF client
 func New(config *config.Config) (*Client, error) {
 	// construct an unauthenticated root client
-	unauthenticatedClientProvider := http.NewUnauthenticatedClientProvider(config.BaseHTTPClient)
+	unauthenticatedClientProvider := http.NewUnauthenticatedClientProvider(config.HTTPClient())
 	unauthenticatedHTTPExecutor := http.NewExecutor(unauthenticatedClientProvider, config.APIEndpointURL, config.UserAgent)
 	rootClient := NewRootClient(unauthenticatedHTTPExecutor)
 	err := authServiceDiscovery(config, rootClient)
@@ -158,8 +158,8 @@ func (c *Client) SSHCode() (string, error) {
 		CheckRedirect: func(req *http2.Request, _ []*http2.Request) error {
 			return ErrPreventRedirect
 		},
-		Timeout:   c.config.BaseHTTPClient.Timeout,
-		Transport: c.config.BaseHTTPClient.Transport,
+		Timeout:   c.config.HTTPClient().Timeout,
+		Transport: c.config.HTTPClient().Transport,
 	}
 
 	unauthenticatedClientProvider := http.NewUnauthenticatedClientProvider(nonRedirectingHTTPClient)
