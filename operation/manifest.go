@@ -1,7 +1,7 @@
 package operation
 
 type Manifest struct {
-	Applications []AppManifest `yaml:"applications"`
+	Applications []*AppManifest `yaml:"applications"`
 }
 
 type AppManifest struct {
