@@ -64,6 +64,26 @@ func (c *ServiceCredentialBindingClient) Get(guid string) (*resource.ServiceCred
 	return &d, nil
 }
 
+// GetDetails the specified service credential binding details
+func (c *ServiceCredentialBindingClient) GetDetails(guid string) (*resource.ServiceCredentialBindingDetails, error) {
+	var d resource.ServiceCredentialBindingDetails
+	err := c.client.get(path.Format("/v3/service_credential_bindings/%s/details", guid), &d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
+// GetParameters the specified service credential binding details
+func (c *ServiceCredentialBindingClient) GetParameters(guid string) (map[string]string, error) {
+	var p map[string]string
+	err := c.client.get(path.Format("/v3/service_credential_bindings/%s/parameters", guid), &p)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 // GetIncludeApp allows callers to fetch a service credential binding and include the associated app
 func (c *ServiceCredentialBindingClient) GetIncludeApp(guid string) (*resource.ServiceCredentialBinding, *resource.App, error) {
 	var r resource.ServiceCredentialBindingWithIncluded

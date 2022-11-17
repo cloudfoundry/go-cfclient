@@ -87,6 +87,22 @@ for _, app := range apps {
 }
 ```
 
+### Error handling
+All client methods will return a `resource.CloudFoundryError` or sub-type for any response that isn't a 200 level
+status code. All CF errors have a corresponding error code and the client uses those codes to construct a specific
+client side error type. This allows you to easily branch your logic based off specific API error codes using one of
+the many `resource.IsSomeTypeOfError(err error)` functions, for example:
+```go
+params, err := cf.ServiceCredentialBindings.GetParameters(guid)
+if resource.IsServiceFetchBindingParametersNotSupportedError(err) {
+    fmt.Println(err.(resource.CloudFoundryError).Detail)
+} else if err != nil {
+    return err // all other errors
+} else {
+    fmt.Printf("Parameters: %v\n", params)
+}
+```
+
 ## Versioning
 In general, go-cfclient follows [semver](https://go.dev/doc/modules/version-number) as closely as we can for [tagging
 releases](https://go.dev/doc/modules/publishing) of the package. We've adopted the following versioning policy:
