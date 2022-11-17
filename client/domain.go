@@ -38,10 +38,9 @@ func (c *DomainClient) Create(r *resource.DomainCreate) (*resource.Domain, error
 	return &d, nil
 }
 
-// Delete the specified app
-func (c *DomainClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/domains/%s", guid))
-	return err
+// Delete the specified domain asynchronously and return a jobGUID.
+func (c *DomainClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/domains/%s", guid))
 }
 
 // Get the specified domain

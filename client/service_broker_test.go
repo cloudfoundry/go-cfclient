@@ -108,7 +108,7 @@ func TestServiceBrokers(t *testing.T) {
 				RedirectLocation: "https://api.example.org/v3/jobs/af5c57f6-8769-41fa-a499-2c84ed896788",
 			},
 			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
-			Action: func(c *Client, t *testing.T) (any, error) {
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				r := resource.NewServiceBrokerUpdate().
 					WithName("my_service_broker").
 					WithURL("https://example.service-broker.com").

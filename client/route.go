@@ -47,10 +47,9 @@ func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
 	return &Route, nil
 }
 
-// Delete the specified route
-func (c *RouteClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/routes/%s", guid))
-	return err
+// Delete the specified route asynchronously and return a jobGUID
+func (c *RouteClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/routes/%s", guid))
 }
 
 // Get the specified route

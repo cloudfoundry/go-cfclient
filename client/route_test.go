@@ -51,12 +51,14 @@ func TestRoutes(t *testing.T) {
 		{
 			Description: "Delete route",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Routes.Delete("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.Delete("5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{

@@ -163,12 +163,14 @@ func TestDroplets(t *testing.T) {
 		{
 			Description: "Delete droplet",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Droplets.Delete("59c3d133-2b83-46f3-960e-7765a129aea4")
+				return c.Droplets.Delete("59c3d133-2b83-46f3-960e-7765a129aea4")
 			},
 		},
 		{

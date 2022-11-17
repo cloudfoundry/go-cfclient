@@ -56,12 +56,14 @@ func TestSecurityGroups(t *testing.T) {
 		{
 			Description: "Delete security group",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.SecurityGroups.Delete("12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
+				return c.SecurityGroups.Delete("12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
 			},
 		},
 		{

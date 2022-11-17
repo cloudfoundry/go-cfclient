@@ -28,19 +28,12 @@ func (o ServiceBrokerListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// Create a new service broker
-//
-// Results:
-// string - the async Job GUID
+// Create a new service broker asynchronously and return a jobGUID
 func (c *ServiceBrokerClient) Create(r *resource.ServiceBrokerCreate) (string, error) {
-	jobGUID, err := c.client.post("/v3/service_brokers", r, nil)
-	if err != nil {
-		return "", err
-	}
-	return jobGUID, nil
+	return c.client.post("/v3/service_brokers", r, nil)
 }
 
-// Delete the specified service broker
+// Delete the specified service broker asynchronously and return a jobGUID
 func (c *ServiceBrokerClient) Delete(guid string) (string, error) {
 	return c.client.delete(path.Format("/v3/service_brokers/%s", guid))
 }
@@ -80,12 +73,13 @@ func (c *ServiceBrokerClient) ListAll(opts *ServiceBrokerListOptions) ([]*resour
 	})
 }
 
-// Update the specified attributes of the service_broker
-func (c *ServiceBrokerClient) Update(guid string, r *resource.ServiceBrokerUpdate) (string, error) {
+// Update the specified attributes of the service broker returning either a jobGUID or a service broker instance.
+// Only metadata updates synchronously and return a service broker instance, all other updates return a jobGUID
+func (c *ServiceBrokerClient) Update(guid string, r *resource.ServiceBrokerUpdate) (string, *resource.ServiceBroker, error) {
 	var sb resource.ServiceBroker
 	jobGUID, err := c.client.patch(path.Format("/v3/service_brokers/%s", guid), r, &sb)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
-	return jobGUID, nil
+	return jobGUID, &sb, nil
 }

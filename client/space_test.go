@@ -60,12 +60,14 @@ func TestSpaces(t *testing.T) {
 		{
 			Description: "Delete space",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Spaces.Delete("000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.Delete("000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{

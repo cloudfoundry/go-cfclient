@@ -18,7 +18,36 @@ func TestServiceRouteBindings(t *testing.T) {
 
 	tests := []RouteTest{
 		{
-			Description: "Create route binding",
+			Description: "Create route binding to managed service instance",
+			Route: testutil.MockRoute{
+				Method:           "POST",
+				Endpoint:         "/v3/service_route_bindings",
+				Status:           http.StatusCreated,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+				PostForm: `{
+					"relationships": {
+					  "route": {
+						"data": {
+						  "guid": "7304bc3c-7010-11ea-8840-48bf6bec2d78"
+						}
+					  },
+					  "service_instance": {
+						"data": {
+						  "guid": "e0e4417c-74ee-11ea-a604-48bf6bec2d78"
+						}
+					  }
+					}
+				  }`,
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				r := resource.NewServiceRouteBindingCreate("7304bc3c-7010-11ea-8840-48bf6bec2d78",
+					"e0e4417c-74ee-11ea-a604-48bf6bec2d78")
+				return c.ServiceRouteBindings.Create(r)
+			},
+		},
+		{
+			Description: "Create route binding to user provided service instance",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_route_bindings",
@@ -39,23 +68,37 @@ func TestServiceRouteBindings(t *testing.T) {
 					}
 				  }`,
 			},
-			Expected: svcRouteBinding,
-			Action: func(c *Client, t *testing.T) (any, error) {
+			Expected:  "",
+			Expected2: svcRouteBinding,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				r := resource.NewServiceRouteBindingCreate("7304bc3c-7010-11ea-8840-48bf6bec2d78",
 					"e0e4417c-74ee-11ea-a604-48bf6bec2d78")
 				return c.ServiceRouteBindings.Create(r)
 			},
 		},
 		{
-			Description: "Delete service plan",
+			Description: "Delete user provided service instance route binding",
 			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
 				Status:   http.StatusNoContent,
 			},
+			Expected: "",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.ServiceRouteBindings.Delete("3458647f-8358-4427-9a64-9f90392b02f7")
-				return nil, err
+				return c.ServiceRouteBindings.Delete("3458647f-8358-4427-9a64-9f90392b02f7")
+			},
+		},
+		{
+			Description: "Delete managed service instance route binding",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/service_route_bindings/3458647f-8358-4427-9a64-9f90392b02f7",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceRouteBindings.Delete("3458647f-8358-4427-9a64-9f90392b02f7")
 			},
 		},
 		{

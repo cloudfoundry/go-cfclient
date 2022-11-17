@@ -33,12 +33,14 @@ func TestUsers(t *testing.T) {
 		{
 			Description: "Delete user",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/users/3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Users.Delete("3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
+				return c.Users.Delete("3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
 			},
 		},
 		{

@@ -82,6 +82,19 @@ func TestRoles(t *testing.T) {
 			},
 		},
 		{
+			Description: "Delete role",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Roles.Delete("211cc662-f86d-4559-a85d-fbfb010c480c")
+			},
+		},
+		{
 			Description: "Get role",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -139,17 +152,6 @@ func TestRoles(t *testing.T) {
 			Expected2: g.Array(user, user2, user3),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				return c.Roles.GetIncludeUsers("211cc662-f86d-4559-a85d-fbfb010c480c")
-			},
-		},
-		{
-			Description: "Delete role",
-			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
-				Status:   http.StatusAccepted,
-			},
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Roles.Delete("211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{

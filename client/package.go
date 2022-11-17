@@ -56,10 +56,9 @@ func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, er
 	return &p, nil
 }
 
-// Delete the specified package
-func (c *PackageClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/packages/%s", guid))
-	return err
+// Delete the specified package asynchronously and return a jobGUID
+func (c *PackageClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/packages/%s", guid))
 }
 
 // Download the bits of an existing package

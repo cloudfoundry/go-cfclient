@@ -313,21 +313,21 @@ func (c *Client) handleError(resp *http2.Response) error {
 	return errs.Errors[0]
 }
 
-// decodeBodyOrJobID returns the jobID if specified in the Location response header, otherwise it
+// decodeBodyOrJobID returns the jobGUID if specified in the Location response header, otherwise it
 // unmarshalls the JSON response to result
 func (c *Client) decodeBodyOrJobID(resp *http2.Response, result any) (string, error) {
-	var jobID string
+	var jobGUID string
 	location, err := resp.Location()
 	if err == nil && strings.Contains(location.Path, "jobs") {
 		p := strings.Split(location.Path, "/")
-		jobID = p[len(p)-1]
+		jobGUID = p[len(p)-1]
 	} else if result != nil {
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			return "", fmt.Errorf("error decoding response JSON: %w", err)
 		}
 	}
-	return jobID, nil
+	return jobGUID, nil
 }
 
 // authServiceDiscovery sets the UAA and Login endpoint if the user didn't configure these manually

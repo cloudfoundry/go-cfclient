@@ -50,9 +50,8 @@ func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 }
 
 // Delete the specified user
-func (c *UserClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/users/%s", guid))
-	return err
+func (c *UserClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/users/%s", guid))
 }
 
 // Get the specified user

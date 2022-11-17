@@ -49,10 +49,9 @@ func (c *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organizati
 	return &org, nil
 }
 
-// Delete the specified organization
-func (c *OrgClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/organizations/%s", guid))
-	return err
+// Delete the specified organization asynchronously and return a jobGUID
+func (c *OrgClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/organizations/%s", guid))
 }
 
 // Get the specified organization

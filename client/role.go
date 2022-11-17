@@ -105,10 +105,9 @@ func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType r
 	return &r, nil
 }
 
-// Delete the specified role
-func (c *RoleClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/roles/%s", guid))
-	return err
+// Delete the specified role asynchronously and return a jobGUID
+func (c *RoleClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/roles/%s", guid))
 }
 
 // Get the specified role

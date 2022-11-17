@@ -76,12 +76,14 @@ func TestSpaceOrgs(t *testing.T) {
 		{
 			Description: "Delete space quota",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/space_quotas/8a5955c0-d6fd-4f46-8e43-72a4dc35fb04",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.SpaceQuotas.Delete("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
+				return c.SpaceQuotas.Delete("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
 			},
 		},
 		{

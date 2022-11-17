@@ -33,7 +33,7 @@ func (o ServiceInstanceListOptions) ToQueryString() url.Values {
 }
 
 // CreateManaged requests a new service instance asynchronously from a broker. The result
-// of this call is an error or the job GUID.
+// of this call is an error or the jobGUID.
 func (c *ServiceInstanceClient) CreateManaged(r *resource.ServiceInstanceCreate) (string, error) {
 	var si resource.ServiceInstance
 	jobGUID, err := c.client.post("/v3/service_instances", r, &si)
@@ -54,7 +54,7 @@ func (c *ServiceInstanceClient) CreateUserProvided(r *resource.ServiceInstanceCr
 	return &si, nil
 }
 
-// Delete the specified service instance returning the async deletion job GUID
+// Delete the specified service instance returning the async deletion jobGUID
 func (c *ServiceInstanceClient) Delete(guid string) (string, error) {
 	return c.client.delete(path.Format("/v3/service_instances/%s", guid))
 }
