@@ -27,13 +27,14 @@ func NewExecutor(clientProvider ClientProvider, apiAddress, userAgent string) *E
 
 // ExecuteRequest executes the specified request using the http.Client provided by the client provider
 func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
+	followRedirects := request.followRedirects
 	req, err := c.newHTTPRequest(request)
 	if err != nil {
 		return nil, err
 	}
 
 	// do the request to the remote API
-	r, err := c.do(req)
+	r, err := c.do(req, followRedirects)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
 		if err != nil {
 			return nil, err
 		}
-		r, err = c.do(req)
+		r, err = c.do(req, followRedirects)
 	}
 
 	return r, err
@@ -84,8 +85,8 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 }
 
 // do the proper http.Client and calls Do on it using the specified http.Request
-func (c *Executor) do(request *http.Request) (*http.Response, error) {
-	client, err := c.clientProvider.Client()
+func (c *Executor) do(request *http.Request, followRedirects bool) (*http.Response, error) {
+	client, err := c.clientProvider.Client(followRedirects)
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed to get the underlying HTTP client: %w", err)
 	}

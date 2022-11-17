@@ -20,7 +20,7 @@ func TestOAuthSessionManager(t *testing.T) {
 	require.Empty(t, c.UAAEndpointURL)
 	m := http.NewOAuthSessionManager(c)
 
-	_, err = m.Client()
+	_, err = m.Client(true)
 	require.Error(t, err, "expected an error when UAA or Login endpoint is empty")
 	require.Equal(t, "login and UAA endpoints must not be empty", err.Error())
 
@@ -29,7 +29,7 @@ func TestOAuthSessionManager(t *testing.T) {
 	c.UAAEndpointURL = uaaURL
 
 	// we can create a client that utilizes oauth
-	client1, err := m.Client()
+	client1, err := m.Client(true)
 	require.NoError(t, err)
 	require.NotNil(t, client1)
 
@@ -43,7 +43,7 @@ func TestOAuthSessionManager(t *testing.T) {
 	require.Equal(t, "foobar1", token)
 
 	// the same client is returned
-	client2, err := m.Client()
+	client2, err := m.Client(true)
 	require.NoError(t, err)
 	require.Same(t, client1, client2)
 
@@ -52,7 +52,7 @@ func TestOAuthSessionManager(t *testing.T) {
 	require.NoError(t, err)
 
 	// a different client is now returned
-	client3, err := m.Client()
+	client3, err := m.Client(true)
 	require.NoError(t, err)
 	require.NotSame(t, client2, client3)
 
