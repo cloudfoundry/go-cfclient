@@ -81,5 +81,8 @@ func (c *ServiceBrokerClient) Update(guid string, r *resource.ServiceBrokerUpdat
 	if err != nil {
 		return "", nil, err
 	}
-	return jobGUID, &sb, nil
+	if jobGUID != "" {
+		return jobGUID, nil, nil
+	}
+	return "", &sb, nil
 }
