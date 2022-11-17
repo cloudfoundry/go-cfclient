@@ -330,6 +330,11 @@ func (o ObjectJSONGenerator) ServiceCredentialBinding() *JSONResource {
 	return o.renderTemplate(r, "service_credential_binding.json")
 }
 
+func (o ObjectJSONGenerator) ServiceCredentialBindingDetails() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "service_credential_binding_detail.json")
+}
+
 func (o ObjectJSONGenerator) ServiceInstance() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),

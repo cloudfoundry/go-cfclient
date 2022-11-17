@@ -13,6 +13,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 	scb2 := g.ServiceCredentialBinding().JSON
 	scb3 := g.ServiceCredentialBinding().JSON
 	scb4 := g.ServiceCredentialBinding().JSON
+	scbd := g.ServiceCredentialBindingDetails().JSON
 	app := g.Application().JSON
 	app2 := g.Application().JSON
 	app3 := g.Application().JSON
@@ -81,6 +82,30 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.ServiceCredentialBindings.Get("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+			},
+		},
+		{
+			Description: "Get service credential binding detail",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d/details",
+				Output:   g.Single(scbd),
+				Status:   http.StatusOK},
+			Expected: scbd,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceCredentialBindings.GetDetails("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+			},
+		},
+		{
+			Description: "Get service credential binding parameters",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d/parameters",
+				Output:   g.Single(`{ "foo": "bar", "foz": "baz" }`),
+				Status:   http.StatusOK},
+			Expected: `{ "foo": "bar", "foz": "baz" }`,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceCredentialBindings.GetParameters("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{

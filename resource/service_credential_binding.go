@@ -20,6 +20,12 @@ type ServiceCredentialBinding struct {
 	Links         map[string]Link                       `json:"links"`
 }
 
+type ServiceCredentialBindingDetails struct {
+	Credentials    map[string]any `json:"credentials"`
+	SyslogDrainURL string         `json:"syslog_drain_url"`
+	VolumeMounts   []string       `json:"volume_mounts"`
+}
+
 type ServiceCredentialBindingCreate struct {
 	Type          string                                `json:"type"`          // Type of the service credential binding. Valid values are key and app
 	Relationships ServiceCredentialBindingRelationships `json:"relationships"` // The service instance to be bound
