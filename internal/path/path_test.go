@@ -50,6 +50,10 @@ func TestPathJoin(t *testing.T) {
 			parts:    []string{"https://api.example.org/v3/apps/", "/GUID/env"},
 			expected: "https://api.example.org/v3/apps/GUID/env",
 		},
+		{
+			parts:    []string{"https://api.example.org/v3/apps/", ""},
+			expected: "https://api.example.org/v3/apps",
+		},
 	}
 	for _, tt := range tests {
 		require.Equal(t, tt.expected, Join(tt.parts...))
