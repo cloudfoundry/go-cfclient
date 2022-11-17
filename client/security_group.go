@@ -42,10 +42,9 @@ func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource
 	return &d, nil
 }
 
-// Delete the specified security group
-func (c *SecurityGroupClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/security_groups/%s", guid))
-	return err
+// Delete the specified security group asynchronously and return a jobGUID
+func (c *SecurityGroupClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/security_groups/%s", guid))
 }
 
 // Get the specified security group

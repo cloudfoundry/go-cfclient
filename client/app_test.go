@@ -39,6 +39,19 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
+			Description: "Delete app",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Delete("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
 			Description: "Get app",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -122,79 +135,6 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
-			Description: "Start app",
-			Route: testutil.MockRoute{
-				Method:   "POST",
-				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
-				Output:   g.Single(app1),
-				Status:   http.StatusOK,
-			},
-			Expected: app1,
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Start("1cb006ee-fb05-47e1-b541-c34179ddc446")
-			},
-		},
-		{
-			Description: "Stop app",
-			Route: testutil.MockRoute{
-				Method:   "POST",
-				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
-				Output:   g.Single(app1),
-				Status:   http.StatusOK,
-			},
-			Expected: app1,
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Stop("1cb006ee-fb05-47e1-b541-c34179ddc446")
-			},
-		},
-		{
-			Description: "Restart app",
-			Route: testutil.MockRoute{
-				Method:   "POST",
-				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
-				Output:   g.Single(app1),
-				Status:   http.StatusOK,
-			},
-			Expected: app1,
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Restart("1cb006ee-fb05-47e1-b541-c34179ddc446")
-			},
-		},
-		{
-			Description: "Delete app",
-			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Status:   http.StatusAccepted,
-			},
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Applications.Delete("1cb006ee-fb05-47e1-b541-c34179ddc446")
-			},
-		},
-		{
-			Description: "Update app",
-			Route: testutil.MockRoute{
-				Method:   "PATCH",
-				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
-				Output:   g.Single(app1),
-				Status:   http.StatusOK,
-				PostForm: `{ "name": "new_name", "lifecycle": { "type": "buildpack", "data": { "buildpacks": ["java_offline"] }}}`,
-			},
-			Expected: app1,
-			Action: func(c *Client, t *testing.T) (any, error) {
-				r := &resource.AppUpdate{
-					Name: "new_name",
-					Lifecycle: &resource.Lifecycle{
-						Type: "buildpack",
-						BuildpackData: resource.BuildpackLifecycle{
-							Buildpacks: []string{"java_offline"},
-						},
-					},
-				}
-				return c.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", r)
-			},
-		},
-		{
 			Description: "List all apps",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -248,6 +188,68 @@ func TestApps(t *testing.T) {
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
 				return c.Applications.ListIncludeSpacesAndOrgsAll(nil)
+			},
+		},
+		{
+			Description: "Start app",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/start",
+				Output:   g.Single(app1),
+				Status:   http.StatusOK,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Start("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Stop app",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/stop",
+				Output:   g.Single(app1),
+				Status:   http.StatusOK,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Stop("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Restart app",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/restart",
+				Output:   g.Single(app1),
+				Status:   http.StatusOK,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.Restart("1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Update app",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446",
+				Output:   g.Single(app1),
+				Status:   http.StatusOK,
+				PostForm: `{ "name": "new_name", "lifecycle": { "type": "buildpack", "data": { "buildpacks": ["java_offline"] }}}`,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := &resource.AppUpdate{
+					Name: "new_name",
+					Lifecycle: &resource.Lifecycle{
+						Type: "buildpack",
+						BuildpackData: resource.BuildpackLifecycle{
+							Buildpacks: []string{"java_offline"},
+						},
+					},
+				}
+				return c.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", r)
 			},
 		},
 	}

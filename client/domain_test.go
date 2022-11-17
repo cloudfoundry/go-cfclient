@@ -34,6 +34,19 @@ func TestDomains(t *testing.T) {
 			},
 		},
 		{
+			Description: "Delete domain",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Domains.Delete("f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
+			},
+		},
+		{
 			Description: "Get domain",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -107,17 +120,6 @@ func TestDomains(t *testing.T) {
 					},
 				}
 				return c.Domains.Update("f666ffc5-106e-4fda-b56f-568b5cf3ae9f", r)
-			},
-		},
-		{
-			Description: "Delete domain",
-			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f",
-				Status:   http.StatusAccepted,
-			},
-			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Domains.Delete("f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
 			},
 		},
 		{

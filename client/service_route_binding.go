@@ -31,20 +31,21 @@ func (o ServiceRouteBindingListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// Create a new service route binding
-func (c *ServiceRouteBindingClient) Create(r *resource.ServiceRouteBindingCreate) (*resource.ServiceRouteBinding, error) {
+// Create a new service route binding returning the jobGUID for managed service instances or the
+// service route binding object for user provided service instances
+func (c *ServiceRouteBindingClient) Create(r *resource.ServiceRouteBindingCreate) (string, *resource.ServiceRouteBinding, error) {
 	var srb resource.ServiceRouteBinding
-	_, err := c.client.post("/v3/service_route_bindings", r, &srb)
+	jobGUID, err := c.client.post("/v3/service_route_bindings", r, &srb)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	return &srb, nil
+	return jobGUID, &srb, nil
 }
 
-// Delete the specified service route binding
-func (c *ServiceRouteBindingClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/service_route_bindings/%s", guid))
-	return err
+// Delete the specified service route binding returning the jobGUID for managed service instances or empty string
+// for user provided service instances
+func (c *ServiceRouteBindingClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/service_route_bindings/%s", guid))
 }
 
 // Get the specified service route binding

@@ -106,12 +106,14 @@ func TestOrgs(t *testing.T) {
 		{
 			Description: "Delete org",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Organizations.Delete("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				return c.Organizations.Delete("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 			},
 		},
 		{

@@ -36,6 +36,11 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 	return buf.String(), nil
 }
 
+// ApplyManifest applies the changes specified in a manifest to the named apps and their underlying processes
+// asynchronously and returns a jobGUID.
+//
+// The apps must reside in the space. These changes are additive and will not modify any unspecified
+// properties or remove any existing environment variables, routes, or services.
 func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (string, error) {
 	reader := strings.NewReader(manifest)
 	req := http.NewRequest("POST", path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
@@ -53,9 +58,9 @@ func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (strin
 		return "", c.client.handleError(resp)
 	}
 
-	jobID, err := c.client.decodeBodyOrJobID(resp, nil)
+	jobGUID, err := c.client.decodeBodyOrJobID(resp, nil)
 	if err != nil {
-		return "", fmt.Errorf("error reading jobID: %w", err)
+		return "", fmt.Errorf("error reading jobGUID: %w", err)
 	}
-	return jobID, nil
+	return jobGUID, nil
 }

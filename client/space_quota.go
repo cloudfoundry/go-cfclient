@@ -55,10 +55,9 @@ func (c *SpaceQuotaClient) Create(r *resource.SpaceQuotaCreateOrUpdate) (*resour
 	return &q, nil
 }
 
-// Delete the specified space quota
-func (c *SpaceQuotaClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/space_quotas/%s", guid))
-	return err
+// Delete the specified space quota asynchronously and return a jobGUID
+func (c *SpaceQuotaClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/space_quotas/%s", guid))
 }
 
 // Get the specified space quota

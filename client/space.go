@@ -54,10 +54,9 @@ func (c *SpaceClient) Create(r *resource.SpaceCreate) (*resource.Space, error) {
 	return &space, nil
 }
 
-// Delete the specified space
-func (c *SpaceClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/spaces/%s", guid))
-	return err
+// Delete the specified space asynchronously and return a jobGUID
+func (c *SpaceClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/spaces/%s", guid))
 }
 
 // Get the specified space

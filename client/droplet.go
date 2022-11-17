@@ -94,10 +94,9 @@ func (c *DropletClient) Create(r *resource.DropletCreate) (*resource.Droplet, er
 	return &d, nil
 }
 
-// Delete the specified droplet
-func (c *DropletClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/droplets/%s", guid))
-	return err
+// Delete the specified droplet asynchronously and return a jobGUID.
+func (c *DropletClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/droplets/%s", guid))
 }
 
 // Download a gzip compressed tarball file containing a Cloud Foundry compatible droplet

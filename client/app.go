@@ -44,10 +44,9 @@ func (c *AppClient) Create(r *resource.AppCreate) (*resource.App, error) {
 	return &app, nil
 }
 
-// Delete the specified app
-func (c *AppClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/apps/%s", guid))
-	return err
+// Delete the specified app asynchronously and return a jobGUID.
+func (c *AppClient) Delete(guid string) (string, error) {
+	return c.client.delete(path.Format("/v3/apps/%s", guid))
 }
 
 // Get the specified app
