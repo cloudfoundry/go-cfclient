@@ -16,6 +16,7 @@ import (
 
 // Client used to communicate with Cloud Foundry
 type Client struct {
+	Admin                     *AdminClient
 	Applications              *AppClient
 	AppFeatures               *AppFeatureClient
 	AppUsageEvents            *AppUsageClient
@@ -94,6 +95,7 @@ func New(config *config.Config) (*Client, error) {
 	// populate sub-clients
 	client.common.client = client
 	client.Root = rootClient
+	client.Admin = (*AdminClient)(&client.common)
 	client.Applications = (*AppClient)(&client.common)
 	client.AppFeatures = (*AppFeatureClient)(&client.common)
 	client.AppUsageEvents = (*AppUsageClient)(&client.common)
