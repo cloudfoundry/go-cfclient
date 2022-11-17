@@ -73,7 +73,11 @@ func (p *AppPushOperation) pushApp(space *resource.Space, manifest *AppManifest,
 }
 
 func (p *AppPushOperation) applySpaceManifest(space *resource.Space, manifest *AppManifest) error {
-	manifestBytes, err := yaml.Marshal(&manifest)
+	// wrap it in a manifest that has an applications array as required by the API
+	multiAppsManifest := &Manifest{
+		Applications: []*AppManifest{manifest},
+	}
+	manifestBytes, err := yaml.Marshal(&multiAppsManifest)
 	if err != nil {
 		return fmt.Errorf("error marshalling application manifest: %w", err)
 	}

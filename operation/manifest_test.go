@@ -8,7 +8,7 @@ import (
 
 func TestManifestMarshalling(t *testing.T) {
 	m := &Manifest{
-		Applications: []AppManifest{
+		Applications: []*AppManifest{
 			{
 				Name:       "spring-music",
 				Buildpacks: []string{"java_buildpack_offline"},
@@ -39,7 +39,7 @@ func TestManifestMarshalling(t *testing.T) {
 	require.Equal(t, fullSpringMusicYaml, string(b))
 
 	m = &Manifest{
-		Applications: []AppManifest{
+		Applications: []*AppManifest{
 			{
 				Name:       "spring-music",
 				Buildpacks: []string{"java_buildpack_offline"},
