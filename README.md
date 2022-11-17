@@ -87,6 +87,28 @@ for _, app := range apps {
 }
 ```
 
+### Asynchronous Jobs
+Some API calls are long-running so immediately return a JobID (GUID) instead of waiting and returning a resource. In
+those cases you only know if the job was accepted. You will need to poll the Job API to find out when the job
+finishes. There's a `PollComplete` method to block until the job finishes:
+```go
+jobGUID, err := cf.Manifests.ApplyManifest(spaceGUID, manifest))
+if err != nil {
+    return err
+}
+opts := client.NewPollingOptions()
+err = cf.Jobs.PollComplete(jobGUID, opts)
+if err != nil {
+    return err
+}
+```
+The timeout and polling interval can be configured using the PollingOptions struct.
+
+The PollComplete method will return a nil err if the job completes successfully. If PollComplete
+times out waiting for the job to complete a `client.AsyncProcessTimeoutError` is returned. If the job itself
+failed then the job API is queried for the job error which is then returned as a `resource.CloudFoundryError`
+which can be inspected to find the failure cause.
+
 ### Error handling
 All client methods will return a `resource.CloudFoundryError` or sub-type for any response that isn't a 200 level
 status code. All CF errors have a corresponding error code and the client uses those codes to construct a specific
