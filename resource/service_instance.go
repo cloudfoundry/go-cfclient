@@ -37,6 +37,39 @@ type ServiceInstanceCreate struct {
 	Tags          []string                     `json:"tags,omitempty"`
 }
 
+type ServiceInstanceManagedUpdate struct {
+	Name            *string                         `json:"name,omitempty"`
+	Relationships   *ServiceInstanceRelationships   `json:"relationships,omitempty"`
+	MaintenanceInfo *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
+	Parameters      *json.RawMessage                `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
+	Tags            []string                        `json:"tags,omitempty"`
+	Metadata        *Metadata                       `json:"metadata,omitempty"`
+}
+
+type ServiceInstanceUserProvidedUpdate struct {
+	Name            *string          `json:"name,omitempty"`
+	SyslogDrainURL  *string          `json:"syslog_drain_url,omitempty"`
+	RouteServiceURL *string          `json:"route_service_url,omitempty"`
+	Credentials     *json.RawMessage `json:"credentials,omitempty"` // A JSON object
+	Tags            []string         `json:"tags,omitempty"`
+	Metadata        *Metadata        `json:"metadata,omitempty"`
+}
+
+type ServiceInstanceUsageSummary struct {
+	UsageSummary []ServiceInstanceSpaceUsageSummary `json:"usage_summary"`
+	Links        map[string]Link                    `json:"links,omitempty"`
+}
+
+type ServiceInstanceSharedSpaceRelationships struct {
+	Data  []Relationship  `json:"data"`
+	Links map[string]Link `json:"links,omitempty"`
+}
+
+type ServiceInstanceUserPermissions struct {
+	Read   bool `json:"read"`
+	Manage bool `json:"manage"`
+}
+
 type ServiceInstanceList struct {
 	Pagination Pagination         `json:"pagination"`
 	Resources  []*ServiceInstance `json:"resources"`
@@ -57,7 +90,12 @@ type ServiceInstanceRelationships struct {
 	ServicePlan *ToOneRelationship `json:"service_plan,omitempty"`
 
 	// The space the service instance is contained in
-	Space ToOneRelationship `json:"space"`
+	Space *ToOneRelationship `json:"space,omitempty"`
+}
+
+type ServiceInstanceSpaceUsageSummary struct {
+	Space         Relationship `json:"space"`
+	BoundAppCount int          `json:"bound_app_count"`
 }
 
 func NewServiceInstanceCreateManaged(name, spaceGUID, servicePlanGUID string) *ServiceInstanceCreate {
@@ -70,7 +108,7 @@ func NewServiceInstanceCreateManaged(name, spaceGUID, servicePlanGUID string) *S
 					GUID: servicePlanGUID,
 				},
 			},
-			Space: ToOneRelationship{
+			Space: &ToOneRelationship{
 				Data: &Relationship{
 					GUID: spaceGUID,
 				},
@@ -84,11 +122,78 @@ func NewServiceInstanceCreateUserProvided(name, spaceGUID string) *ServiceInstan
 		Type: "user-provided",
 		Name: name,
 		Relationships: ServiceInstanceRelationships{
-			Space: ToOneRelationship{
+			Space: &ToOneRelationship{
 				Data: &Relationship{
 					GUID: spaceGUID,
 				},
 			},
 		},
 	}
+}
+
+func NewServiceInstanceManagedUpdate() *ServiceInstanceManagedUpdate {
+	return &ServiceInstanceManagedUpdate{}
+}
+
+func (u *ServiceInstanceManagedUpdate) WithName(name string) *ServiceInstanceManagedUpdate {
+	u.Name = &name
+	return u
+}
+
+func (u *ServiceInstanceManagedUpdate) WithTags(tags []string) *ServiceInstanceManagedUpdate {
+	u.Tags = tags
+	return u
+}
+
+func (u *ServiceInstanceManagedUpdate) WithParameters(parameters json.RawMessage) *ServiceInstanceManagedUpdate {
+	u.Parameters = &parameters
+	return u
+}
+
+func (u *ServiceInstanceManagedUpdate) WithServicePlan(servicePlanGUID string) *ServiceInstanceManagedUpdate {
+	u.Relationships = &ServiceInstanceRelationships{
+		ServicePlan: &ToOneRelationship{
+			Data: &Relationship{
+				GUID: servicePlanGUID,
+			},
+		},
+	}
+	return u
+}
+
+func (u *ServiceInstanceManagedUpdate) WithMaintenanceInfo(version, description string) *ServiceInstanceManagedUpdate {
+	u.MaintenanceInfo = &ServiceInstanceMaintenanceInfo{
+		Version:     version,
+		Description: description,
+	}
+	return u
+}
+
+func NewServiceInstanceUserProvidedUpdate() *ServiceInstanceUserProvidedUpdate {
+	return &ServiceInstanceUserProvidedUpdate{}
+}
+
+func (u *ServiceInstanceUserProvidedUpdate) WithName(name string) *ServiceInstanceUserProvidedUpdate {
+	u.Name = &name
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedUpdate) WithTags(tags []string) *ServiceInstanceUserProvidedUpdate {
+	u.Tags = tags
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedUpdate) WithCredentials(credentials json.RawMessage) *ServiceInstanceUserProvidedUpdate {
+	u.Credentials = &credentials
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedUpdate) WithSyslogDrainURL(url string) *ServiceInstanceUserProvidedUpdate {
+	u.SyslogDrainURL = &url
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedUpdate) WithRouteServiceURL(url string) *ServiceInstanceUserProvidedUpdate {
+	u.RouteServiceURL = &url
+	return u
 }

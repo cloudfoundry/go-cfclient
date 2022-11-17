@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -69,6 +70,65 @@ func (c *ServiceInstanceClient) Get(guid string) (*resource.ServiceInstance, err
 	return &si, nil
 }
 
+// GetUserPermissions retrieves the current user’s permissions for the given service instance
+//
+// If a user can get a service instance then they can ‘read’ it. Users who can update a service instance can ‘manage’ it.
+//
+// This endpoint’s primary purpose is to enable third-party service dashboards to determine the permissions of a
+// given Cloud Foundry user that has authenticated with the dashboard via single sign-on (SSO). For more information,
+// see the Cloud Foundry documentation on Dashboard Single Sign-On.
+func (c *ServiceInstanceClient) GetUserPermissions(guid string) (*resource.ServiceInstanceUserPermissions, error) {
+	var permissions resource.ServiceInstanceUserPermissions
+	err := c.client.get(path.Format("/v3/service_instances/%s/permissions", guid), &permissions)
+	if err != nil {
+		return nil, err
+	}
+	return &permissions, nil
+}
+
+// GetManagedParameters queries the service broker for the parameters associated with this managed service instance
+//
+// The broker catalog must have enabled the instances_retrievable feature for the Service Offering.
+// Check the Service Offering object for the value of this feature flag.
+func (c *ServiceInstanceClient) GetManagedParameters(guid string) (*json.RawMessage, error) {
+	var parameters json.RawMessage
+	err := c.client.get(path.Format("/v3/service_instances/%s/parameters", guid), &parameters)
+	if err != nil {
+		return nil, err
+	}
+	return &parameters, nil
+}
+
+// GetUserProvidedCredentials the specified user provided service instance credentials
+func (c *ServiceInstanceClient) GetUserProvidedCredentials(guid string) (*json.RawMessage, error) {
+	var credentials json.RawMessage
+	err := c.client.get(path.Format("/v3/service_instances/%s/credentials", guid), &credentials)
+	if err != nil {
+		return nil, err
+	}
+	return &credentials, nil
+}
+
+// GetSharedSpaceRelationships lists the spaces that the service instance has been shared to
+func (c *ServiceInstanceClient) GetSharedSpaceRelationships(guid string) (*resource.ServiceInstanceSharedSpaceRelationships, error) {
+	var relations resource.ServiceInstanceSharedSpaceRelationships
+	err := c.client.get(path.Format("/v3/service_instances/%s/relationships/shared_spaces", guid), &relations)
+	if err != nil {
+		return nil, err
+	}
+	return &relations, nil
+}
+
+// GetSharedSpaceUsageSummary retrieves the number of bound apps in spaces where the service instance has been shared to
+func (c *ServiceInstanceClient) GetSharedSpaceUsageSummary(guid string) (*resource.ServiceInstanceUsageSummary, error) {
+	var usage resource.ServiceInstanceUsageSummary
+	err := c.client.get(path.Format("/v3/service_instances/%s/relationships/shared_spaces/usage_summary", guid), &usage)
+	if err != nil {
+		return nil, err
+	}
+	return &usage, nil
+}
+
 // List pages all service instances the user has access to
 func (c *ServiceInstanceClient) List(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
 	if opts == nil {
@@ -91,4 +151,75 @@ func (c *ServiceInstanceClient) ListAll(opts *ServiceInstanceListOptions) ([]*re
 	return AutoPage[*ServiceInstanceListOptions, *resource.ServiceInstance](opts, func(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
 		return c.List(opts)
 	})
+}
+
+// ShareWithSpace shares the service instance with the specified space
+//
+// In order to share into a space the requesting user must be a space developer in the target space
+func (c *ServiceInstanceClient) ShareWithSpace(guid string, spaceGUID string) (*resource.ServiceInstanceSharedSpaceRelationships, error) {
+	return c.ShareWithSpaces(guid, []string{spaceGUID})
+}
+
+// ShareWithSpaces shares the service instance with the specified spaces
+//
+// In order to share into a space the requesting user must be a space developer in the target space
+func (c *ServiceInstanceClient) ShareWithSpaces(guid string, spaceGUIDs []string) (*resource.ServiceInstanceSharedSpaceRelationships, error) {
+	req := resource.NewToManyRelationships(spaceGUIDs)
+	var relationships resource.ServiceInstanceSharedSpaceRelationships
+	_, err := c.client.post(path.Format("/v3/service_instances/%s/relationships/shared_spaces", guid), req, &relationships)
+	if err != nil {
+		return nil, err
+	}
+	return &relationships, nil
+}
+
+// UnShareWithSpace un=shares the service instance with the specified space
+//
+// This will automatically unbind any applications bound to this service instance in the specified space
+// Un-sharing a service instance from a space will not delete any service keys
+func (c *ServiceInstanceClient) UnShareWithSpace(guid string, spaceGUID string) error {
+	_, err := c.client.delete(path.Format("/v3/service_instances/%s/relationships/shared_spaces/%s", guid, spaceGUID))
+	return err
+}
+
+// UnShareWithSpaces un-shares the service instance with the specified spaces
+//
+// This will automatically unbind any applications bound to this service instance in the specified space
+// Un-sharing a service instance from a space will not delete any service keys
+func (c *ServiceInstanceClient) UnShareWithSpaces(guid string, spaceGUIDs []string) error {
+	for _, s := range spaceGUIDs {
+		err := c.UnShareWithSpace(guid, s)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// UpdateManaged updates the specified attributes of the managed service instance returning either a jobGUID or a
+// service instance object
+//
+// Only metadata, tags, and name (when allow_context_updates feature disabled) updates synchronously and return a service
+// instance object, all other updates return a jobGUID
+func (c *ServiceInstanceClient) UpdateManaged(guid string, r *resource.ServiceInstanceManagedUpdate) (string, *resource.ServiceInstance, error) {
+	var si resource.ServiceInstance
+	jobGUID, err := c.client.patch(path.Format("/v3/service_instances/%s", guid), r, &si)
+	if err != nil {
+		return "", nil, err
+	}
+	if jobGUID != "" {
+		return jobGUID, nil, nil
+	}
+	return "", &si, nil
+}
+
+// UpdateUserProvided updates the specified attributes of the user-provided service instance returning a
+// service instance object
+func (c *ServiceInstanceClient) UpdateUserProvided(guid string, r *resource.ServiceInstanceUserProvidedUpdate) (*resource.ServiceInstance, error) {
+	var si resource.ServiceInstance
+	_, err := c.client.patch(path.Format("/v3/service_instances/%s", guid), r, &si)
+	if err != nil {
+		return nil, err
+	}
+	return &si, nil
 }
