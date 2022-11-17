@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -17,6 +18,12 @@ func TestDroplets(t *testing.T) {
 	droplet3 := g.Droplet().JSON
 	droplet4 := g.Droplet().JSON
 	dropletAssociation := g.DropletAssociation().JSON
+
+	blobstoreServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		_, _ = w.Write([]byte("droplet bits..."))
+	}))
+	defer blobstoreServer.Close()
 
 	tests := []RouteTest{
 		{
@@ -195,10 +202,10 @@ func TestDroplets(t *testing.T) {
 		{
 			Description: "Download droplet",
 			Route: testutil.MockRoute{
-				Method:   "GET",
-				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4/download",
-				Output:   []string{"droplet bits..."},
-				Status:   http.StatusOK,
+				Method:           "GET",
+				Endpoint:         "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4/download",
+				Status:           http.StatusFound,
+				RedirectLocation: blobstoreServer.URL,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				reader, err := c.Droplets.Download("59c3d133-2b83-46f3-960e-7765a129aea4")

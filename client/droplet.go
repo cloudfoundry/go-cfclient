@@ -103,8 +103,9 @@ func (c *DropletClient) Delete(guid string) error {
 // Download a gzip compressed tarball file containing a Cloud Foundry compatible droplet
 // It is the caller's responsibility to close the io.ReadCloser
 func (c *DropletClient) Download(guid string) (io.ReadCloser, error) {
-	// This is the initial request, which will redirect to the internal blobstore location.
-	// The client should automatically follow this redirect. External blob stores are untested.
+	// This is the initial request, which will redirect to the blobstore location.
+	// The client will not automatically follow this redirect and uses a secondary
+	// unauthenticated client to download the bits
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-droplet-bits
 	p := path.Format("/v3/droplets/%s/download", guid)
 	req := http.NewRequest("GET", p).WithFollowRedirects(false)
