@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -53,6 +54,12 @@ func TestPackages(t *testing.T) {
 	pkg3 := g.Package("PROCESSING_UPLOAD").JSON
 	pkg4 := g.Package("PROCESSING_UPLOAD").JSON
 
+	blobstoreServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		_, _ = w.Write([]byte("package bits..."))
+	}))
+	defer blobstoreServer.Close()
+
 	tests := []RouteTest{
 		{
 			Description: "Create package",
@@ -98,10 +105,10 @@ func TestPackages(t *testing.T) {
 		{
 			Description: "Download package",
 			Route: testutil.MockRoute{
-				Method:   "GET",
-				Endpoint: "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b/download",
-				Output:   []string{"package bits..."},
-				Status:   http.StatusOK,
+				Method:           "GET",
+				Endpoint:         "/v3/packages/66e89f29-475e-4baf-9675-40c6096c017b/download",
+				Status:           http.StatusFound,
+				RedirectLocation: blobstoreServer.URL,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				reader, err := c.Packages.Download("66e89f29-475e-4baf-9675-40c6096c017b")
