@@ -18,7 +18,9 @@ import (
 type OAuthSessionManager struct {
 	config *config.Config
 
-	oauthClient *http.Client
+	oauthClient               *http.Client
+	oauthClientNonRedirecting *http.Client
+
 	tokenSource oauth2.TokenSource
 	mutex       *sync.RWMutex
 }
@@ -32,7 +34,7 @@ func NewOAuthSessionManager(config *config.Config) *OAuthSessionManager {
 }
 
 // Client returns an authenticated OAuth http client
-func (m *OAuthSessionManager) Client() (*http.Client, error) {
+func (m *OAuthSessionManager) Client(followRedirects bool) (*http.Client, error) {
 	err := m.init(context.Background())
 	if err != nil {
 		return nil, err
@@ -41,7 +43,10 @@ func (m *OAuthSessionManager) Client() (*http.Client, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
-	return m.oauthClient, nil
+	if followRedirects {
+		return m.oauthClient, nil
+	}
+	return m.oauthClientNonRedirecting, nil
 }
 
 // ReAuthenticate causes a new http.Client to be created with new a new authentication context,
@@ -191,11 +196,21 @@ func (m *OAuthSessionManager) initOAuthClient(ctx context.Context, tokenSource o
 	oauthClient := &http.Client{
 		Transport:     oac.Transport,
 		Timeout:       bc.Timeout,
-		CheckRedirect: bc.CheckRedirect,
 		Jar:           bc.Jar,
+		CheckRedirect: bc.CheckRedirect,
+	}
+
+	oauthClientNonRedirecting := &http.Client{
+		Transport: oac.Transport,
+		Timeout:   bc.Timeout,
+		Jar:       bc.Jar,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	// cache the created client and token source
+	m.oauthClientNonRedirecting = oauthClientNonRedirecting
 	m.oauthClient = oauthClient
 	m.tokenSource = tokenSource
 }

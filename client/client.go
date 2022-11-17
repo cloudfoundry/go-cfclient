@@ -14,8 +14,6 @@ import (
 	"strings"
 )
 
-var ErrPreventRedirect = errors.New("prevent-redirect")
-
 // Client used to communicate with Cloud Foundry
 type Client struct {
 	Applications              *AppClient
@@ -61,8 +59,10 @@ type Client struct {
 	common commonClient // Reuse a single struct instead of allocating one for each commonClient on the heap.
 	config *config.Config
 
-	authenticatedHTTPExecutor   *http.Executor
-	authenticatedClientProvider *http.OAuthSessionManager
+	unauthenticatedClientProvider *http.UnauthenticatedClientProvider
+	unauthenticatedHTTPExecutor   *http.Executor
+	authenticatedHTTPExecutor     *http.Executor
+	authenticatedClientProvider   *http.OAuthSessionManager
 }
 
 type commonClient struct {
@@ -84,9 +84,11 @@ func New(config *config.Config) (*Client, error) {
 	authenticatedClientProvider := http.NewOAuthSessionManager(config)
 	authenticatedHTTPExecutor := http.NewExecutor(authenticatedClientProvider, config.APIEndpointURL, config.UserAgent)
 	client := &Client{
-		config:                      config,
-		authenticatedHTTPExecutor:   authenticatedHTTPExecutor,
-		authenticatedClientProvider: authenticatedClientProvider,
+		config:                        config,
+		unauthenticatedHTTPExecutor:   unauthenticatedHTTPExecutor,
+		unauthenticatedClientProvider: unauthenticatedClientProvider,
+		authenticatedHTTPExecutor:     authenticatedHTTPExecutor,
+		authenticatedClientProvider:   authenticatedClientProvider,
 	}
 
 	// populate sub-clients
@@ -143,7 +145,6 @@ func (c *Client) SSHCode() (string, error) {
 
 	values := url.Values{}
 	values.Set("response_type", "code")
-	values.Set("grant_type", "authorization_code")
 	values.Set("client_id", r.Links.AppSSH.Meta.OauthClient) // client_id，used by cf server
 
 	token, err := c.authenticatedClientProvider.AccessToken()
@@ -151,35 +152,27 @@ func (c *Client) SSHCode() (string, error) {
 		return "", err
 	}
 
-	req := http.NewRequest("GET", path.Format("/oauth/authorize", values)).
-		WithHeader("authorization", token)
+	req := http.NewRequest("GET", path.Format("/oauth/authorize?%s", values)).
+		WithHeader("Authorization", fmt.Sprintf("bearer %s", token)).
+		WithFollowRedirects(false)
 
-	nonRedirectingHTTPClient := &http2.Client{
-		CheckRedirect: func(req *http2.Request, _ []*http2.Request) error {
-			return ErrPreventRedirect
-		},
-		Timeout:   c.config.HTTPClient().Timeout,
-		Transport: c.config.HTTPClient().Transport,
-	}
-
-	unauthenticatedClientProvider := http.NewUnauthenticatedClientProvider(nonRedirectingHTTPClient)
-	unauthenticatedHTTPExecutor := http.NewExecutor(unauthenticatedClientProvider, c.config.UAAEndpointURL, c.config.UserAgent)
-	resp, err := unauthenticatedHTTPExecutor.ExecuteRequest(req)
-	if err == nil {
-		return "", errors.New("authorization server did not redirect with one time code")
+	uaaHTTPExecutor := http.NewExecutor(c.unauthenticatedClientProvider, c.config.UAAEndpointURL, c.config.UserAgent)
+	resp, err := uaaHTTPExecutor.ExecuteRequest(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to get one-time code: %w", err)
 	}
 	defer func(b io.ReadCloser) {
 		_ = b.Close()
 	}(resp.Body)
-	if netErr, ok := err.(*url.Error); !ok || netErr.Err != ErrPreventRedirect {
-		return "", fmt.Errorf("error requesting one time code from server: %w", err)
+	if resp.StatusCode != http2.StatusFound {
+		return "", fmt.Errorf(
+			"expected UAA to return a 302 location that contains the code, but instead got a %d", resp.StatusCode)
 	}
 
 	loc, err := resp.Location()
 	if err != nil {
 		return "", fmt.Errorf("error getting the redirected location: %w", err)
 	}
-
 	codes := loc.Query()["code"]
 	if len(codes) != 1 {
 		return "", errors.New("unable to acquire one time code from authorization response")

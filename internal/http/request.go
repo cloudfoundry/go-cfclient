@@ -6,10 +6,11 @@ const DefaultContentType = "application/json"
 
 // Request is used to help build up an HTTP request
 type Request struct {
-	method        string
-	pathAndQuery  string
-	contentType   string
-	contentLength *int64
+	method          string
+	pathAndQuery    string
+	contentType     string
+	contentLength   *int64
+	followRedirects bool
 
 	// can set one or the other but not both
 	body   io.Reader
@@ -22,9 +23,10 @@ type Request struct {
 // NewRequest creates a new minimally configured HTTP request instance
 func NewRequest(method, pathAndQuery string) *Request {
 	return &Request{
-		method:       method,
-		pathAndQuery: pathAndQuery,
-		headers:      make(map[string]string),
+		method:          method,
+		pathAndQuery:    pathAndQuery,
+		headers:         make(map[string]string),
+		followRedirects: true,
 	}
 }
 
@@ -65,5 +67,11 @@ func (r *Request) WithContentLength(len int64) *Request {
 // WithHeader sets an arbitrary header on the request
 func (r *Request) WithHeader(name, value string) *Request {
 	r.headers[name] = value
+	return r
+}
+
+// WithFollowRedirects sets the content type of the request body
+func (r *Request) WithFollowRedirects(follow bool) *Request {
+	r.followRedirects = follow
 	return r
 }
