@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
@@ -64,18 +65,37 @@ func (c *PackageClient) Delete(guid string) error {
 // Download the bits of an existing package
 // It is the caller's responsibility to close the io.ReadCloser
 func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
-	// This is the initial request, which will redirect to the internal blobstore location.
-	// The client should automatically follow this redirect. External blob stores are untested.
-	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-package-bits
+	// This is the initial request, which will redirect to the blobstore location.
+	// The client will not automatically follow this redirect and uses a secondary
+	// unauthenticated client to download the bits
+	// https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#download-package-bits
 	p := path.Format("/v3/packages/%s/download", guid)
-	req := http.NewRequest("GET", p)
+	req := http.NewRequest("GET", p).WithFollowRedirects(false)
 	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("error getting %s: %w", p, err)
 	}
-	if resp.StatusCode != http2.StatusOK {
-		return nil, fmt.Errorf("error getting %s, response code: %d", p, resp.StatusCode)
+	if !http.IsResponseRedirect(resp.StatusCode) {
+		return nil, fmt.Errorf("error downloading package %s bits, expected redirect to blobstore", guid)
 	}
+
+	// get the full URL to the blobstore via the Location header
+	blobStoreLocation := resp.Header.Get("Location")
+	if blobStoreLocation == "" {
+		return nil, errors.New("response redirect Location header was empty")
+	}
+
+	// directly download the bits from blobstore using an unauthenticated client as
+	// some blob stores will return a 400 if an Authorization header is sent
+	req = http.NewRequest("GET", "")
+	blobstoreHTTPExecutor := http.NewExecutor(
+		c.client.unauthenticatedClientProvider, blobStoreLocation, c.client.config.UserAgent)
+
+	resp, err = blobstoreHTTPExecutor.ExecuteRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("error downloading package %s bits from blobstore", guid)
+	}
+
 	return resp.Body, nil
 }
 
