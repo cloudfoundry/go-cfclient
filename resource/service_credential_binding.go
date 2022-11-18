@@ -46,8 +46,8 @@ type ServiceCredentialBindingList struct {
 }
 
 type ServiceCredentialBindingRelationships struct {
-	App             ToOneRelationship `json:"app"`
-	ServiceInstance ToOneRelationship `json:"service_instance"`
+	App             *ToOneRelationship `json:"app,omitempty"`
+	ServiceInstance *ToOneRelationship `json:"service_instance,omitempty"`
 }
 
 type ServiceCredentialBindingWithIncluded struct {
@@ -83,12 +83,12 @@ func NewServiceCredentialBindingCreateApp(serviceInstanceGUID, appGUID string) *
 	return &ServiceCredentialBindingCreate{
 		Type: "app",
 		Relationships: ServiceCredentialBindingRelationships{
-			App: ToOneRelationship{
+			App: &ToOneRelationship{
 				Data: &Relationship{
 					GUID: appGUID,
 				},
 			},
-			ServiceInstance: ToOneRelationship{
+			ServiceInstance: &ToOneRelationship{
 				Data: &Relationship{
 					GUID: serviceInstanceGUID,
 				},
@@ -102,7 +102,7 @@ func NewServiceCredentialBindingCreateKey(serviceInstanceGUID, bindingName strin
 		Type: "key",
 		Name: &bindingName,
 		Relationships: ServiceCredentialBindingRelationships{
-			ServiceInstance: ToOneRelationship{
+			ServiceInstance: &ToOneRelationship{
 				Data: &Relationship{
 					GUID: serviceInstanceGUID,
 				},
