@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/check"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -207,6 +208,10 @@ func (c *Client) delete(path string) (string, error) {
 // get does an HTTP GET to the specified endpoint and automatically handles unmarshalling
 // the result JSON body
 func (c *Client) get(path string, result any) error {
+	if !check.IsNil(result) && !check.IsPointer(result) {
+		return errors.New("expected result to be nil or a pointer type")
+	}
+
 	req := http.NewRequest("GET", path)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
@@ -237,6 +242,10 @@ func (c *Client) get(path string, result any) error {
 // response body, then the body won't be unmarshalled and the function returns the job GUID
 // which the caller can reference via the job endpoint.
 func (c *Client) patch(path string, params any, result any) (string, error) {
+	if !check.IsNil(result) && !check.IsPointer(result) {
+		return "", errors.New("expected result to be nil or a pointer type")
+	}
+
 	req := http.NewRequest("PATCH", path).WithObject(params)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
@@ -246,10 +255,10 @@ func (c *Client) patch(path string, params any, result any) (string, error) {
 		_ = b.Close()
 	}(resp.Body)
 
-	if resp.StatusCode != http2.StatusOK && resp.StatusCode != http2.StatusAccepted {
+	if resp.StatusCode != http2.StatusOK && resp.StatusCode != http2.StatusAccepted && resp.StatusCode != http2.StatusNoContent {
 		return "", c.handleError(resp)
 	}
-	return c.decodeBodyOrJobID(resp, &result)
+	return c.decodeBodyOrJobID(resp, result)
 }
 
 // post does an HTTP POST to the specified endpoint and automatically handles the result
@@ -260,6 +269,10 @@ func (c *Client) patch(path string, params any, result any) (string, error) {
 // response body, then the body won't be unmarshalled and the function returns the job GUID
 // which the caller can reference via the job endpoint.
 func (c *Client) post(path string, params, result any) (string, error) {
+	if !check.IsNil(result) && !check.IsPointer(result) {
+		return "", errors.New("expected result to be nil or a pointer type")
+	}
+
 	req := http.NewRequest("POST", path).WithObject(params)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
