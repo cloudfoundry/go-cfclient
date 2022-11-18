@@ -39,13 +39,13 @@ func (o ServiceCredentialBindingListOptions) ToQueryString() url.Values {
 }
 
 // Create a new service credential binding
-func (c *ServiceCredentialBindingClient) Create(r *resource.ServiceCredentialBindingCreate) (*resource.ServiceCredentialBinding, error) {
+func (c *ServiceCredentialBindingClient) Create(r *resource.ServiceCredentialBindingCreate) (*resource.ServiceCredentialBinding, string, error) {
 	var d resource.ServiceCredentialBinding
-	_, err := c.client.post("/v3/service_credential_bindings", r, &d)
+	jobId, err := c.client.post("/v3/service_credential_bindings", r, &d)
 	if err != nil {
-		return nil, err
+		return nil, jobId, err
 	}
-	return &d, nil
+	return &d, jobId, nil
 }
 
 // Delete the specified service credential binding
