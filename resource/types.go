@@ -6,7 +6,7 @@ type Meta struct {
 	GUID      string    `json:"guid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Url       string    `json:"url"`
+	URL       string    `json:"url"`
 }
 
 // Pagination is used by the apis to page list results

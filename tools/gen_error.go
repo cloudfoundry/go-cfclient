@@ -83,18 +83,23 @@ func main() {
 	}
 }
 
-// destutter ensures that s does not end in "Error".
-func destutter(s string) string {
-	return strings.TrimSuffix(s, "Error")
+// cleanGoName ensures that s does not end in "Error" and makes URL upper case
+func cleanGoName(s string) string {
+	s = strings.TrimSuffix(s, "Error")
+	s = strings.Replace(s, "Url", "URL", -1)
+	s = strings.Replace(s, "Uaa", "UAA", -1)
+	s = strings.Replace(s, "Id", "ID", -1)
+	return s
 }
 
 // cleanMessage removes any characters which will cause go generate to fail
 func cleanMessage(s string) string {
-	return strings.Replace(s, "\n", "", -1)
+	s = strings.Replace(s, "\n", "", -1)
+	return s
 }
 
 var packageTemplate = template.Must(template.New("").Funcs(template.FuncMap{
-	"destutter":    destutter,
+	"cleanGoName":  cleanGoName,
 	"cleanMessage": cleanMessage,
 }).Parse(`
 package resource
@@ -108,8 +113,8 @@ import (
 )
 
 {{- range .Definitions }}
-{{$isMethod := printf "Is%sError" (.Name | destutter) }}
-{{$newMethod := printf "New%sError" (.Name | destutter) }}
+{{$isMethod := printf "Is%sError" (.Name | cleanGoName) }}
+{{$newMethod := printf "New%sError" (.Name | cleanGoName) }}
 // {{ $newMethod }} returns a new CloudFoundryError
 // that {{ $isMethod }} will return true for
 func {{ $newMethod }}() CloudFoundryError {
@@ -125,7 +130,7 @@ func {{ $newMethod }}() CloudFoundryError {
 // - Cloud Foundry code: {{ .CFCode }}
 // - HTTP code: {{ .HTTPCode }}
 // - message: {{ printf "%q" .Message }}
-func Is{{ .Name | destutter }}Error(err error) bool {
+func Is{{ .Name | cleanGoName }}Error(err error) bool {
 	cferr, ok := cloudFoundryError(err)
 	if !ok {
 		return false

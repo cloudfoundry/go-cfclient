@@ -3,7 +3,7 @@ package resource
 import "time"
 
 type Route struct {
-	Guid         string             `json:"guid"`
+	GUID         string             `json:"guid"`
 	CreatedAt    time.Time          `json:"created_at"`
 	UpdatedAt    time.Time          `json:"updated_at"`
 	Host         string             `json:"host"`

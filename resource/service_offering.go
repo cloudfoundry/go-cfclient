@@ -22,7 +22,7 @@ type ServiceOffering struct {
 	// Whether service Instances of this service offering can be shared across organizations and spaces
 	Shareable bool `json:"shareable"`
 
-	// Url that points to a documentation page for the service offering,
+	// URL that points to a documentation page for the service offering,
 	// if provided by the service broker as part of the metadata field
 	DocumentationURL string `json:"documentation_url"`
 
