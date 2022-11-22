@@ -78,7 +78,7 @@ func New(config *config.Config) (*Client, error) {
 	unauthenticatedClientProvider := http.NewUnauthenticatedClientProvider(config.HTTPClient())
 	unauthenticatedHTTPExecutor := http.NewExecutor(unauthenticatedClientProvider, config.APIEndpointURL, config.UserAgent)
 	rootClient := NewRootClient(unauthenticatedHTTPExecutor)
-	err := authServiceDiscovery(config, rootClient)
+	err := authServiceDiscovery(context.Background(), config, rootClient)
 	if err != nil {
 		return nil, err
 	}
@@ -345,11 +345,11 @@ func (c *Client) decodeBodyOrJobID(resp *http2.Response, result any) (string, er
 }
 
 // authServiceDiscovery sets the UAA and Login endpoint if the user didn't configure these manually
-func authServiceDiscovery(config *config.Config, rootClient *RootClient) error {
+func authServiceDiscovery(ctx context.Context, config *config.Config, rootClient *RootClient) error {
 	if config.UAAEndpointURL != "" && config.LoginEndpointURL != "" {
 		return nil
 	}
-	root, err := rootClient.Get(context.Background())
+	root, err := rootClient.Get(ctx)
 	if err != nil {
 		return err
 	}
