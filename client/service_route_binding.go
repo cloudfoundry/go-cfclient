@@ -39,7 +39,10 @@ func (c *ServiceRouteBindingClient) Create(r *resource.ServiceRouteBindingCreate
 	if err != nil {
 		return "", nil, err
 	}
-	return jobGUID, &srb, nil
+	if jobGUID != "" {
+		return jobGUID, nil, nil
+	}
+	return "", &srb, nil
 }
 
 // Delete the specified service route binding returning the jobGUID for managed service instances or empty string
