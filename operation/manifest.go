@@ -12,7 +12,7 @@ type AppManifest struct {
 	Docker                  *AppManifestDocker  `yaml:"docker,omitempty"`
 	Env                     map[string]string   `yaml:"env,omitempty"`
 	HealthCheckType         string              `yaml:"health-check-type,omitempty"`
-	HealthCheckHTTPEndpoint string              `yaml:"health-check-http-endpoint,omitempty"`
+	HealthCheckHTTPEndpoint string              `yaml:"health-check-http-endpoint"` // required
 	Instances               int                 `yaml:"instances,omitempty"`
 	LogRateLimit            string              `yaml:"log-rate-limit,omitempty"`
 	Memory                  string              `yaml:"memory,omitempty"`
@@ -30,4 +30,14 @@ type AppManifestDocker struct {
 
 type AppManifestRoutes struct {
 	Route string `yaml:"route,omitempty"`
+}
+
+func NewAppManifest(appName string) *AppManifest {
+	return &AppManifest{
+		Name:                    appName,
+		HealthCheckType:         "port",
+		HealthCheckHTTPEndpoint: "/",
+		Instances:               1,
+		Memory:                  "256M",
+	}
 }

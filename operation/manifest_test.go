@@ -38,16 +38,14 @@ func TestManifestMarshalling(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, fullSpringMusicYaml, string(b))
 
+	a := NewAppManifest("spring-music")
+	a.Buildpacks = []string{"java_buildpack_offline"}
+	a.Memory = "1G"
+	a.NoRoute = true
+	a.Stack = "cflinuxfs3"
+
 	m = &Manifest{
-		Applications: []*AppManifest{
-			{
-				Name:       "spring-music",
-				Buildpacks: []string{"java_buildpack_offline"},
-				Memory:     "1G",
-				NoRoute:    true,
-				Stack:      "cflinuxfs3",
-			},
-		},
+		Applications: []*AppManifest{a},
 	}
 	b, err = yaml.Marshal(&m)
 	require.NoError(t, err)
@@ -79,6 +77,9 @@ const minimalSpringMusicYaml = `applications:
 - name: spring-music
   buildpacks:
   - java_buildpack_offline
+  health-check-type: port
+  health-check-http-endpoint: /
+  instances: 1
   memory: 1G
   no-route: true
   stack: cflinuxfs3
