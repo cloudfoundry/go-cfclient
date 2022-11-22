@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -39,15 +40,15 @@ func (o ServicePlanListOptions) ToQueryString() url.Values {
 }
 
 // Delete the specified service plan
-func (c *ServicePlanClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/service_plans/%s", guid))
+func (c *ServicePlanClient) Delete(ctx context.Context, guid string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/service_plans/%s", guid))
 	return err
 }
 
 // Get the specified service plan
-func (c *ServicePlanClient) Get(guid string) (*resource.ServicePlan, error) {
+func (c *ServicePlanClient) Get(ctx context.Context, guid string) (*resource.ServicePlan, error) {
 	var ServicePlan resource.ServicePlan
-	err := c.client.get(path.Format("/v3/service_plans/%s", guid), &ServicePlan)
+	err := c.client.get(ctx, path.Format("/v3/service_plans/%s", guid), &ServicePlan)
 	if err != nil {
 		return nil, err
 	}
@@ -55,9 +56,9 @@ func (c *ServicePlanClient) Get(guid string) (*resource.ServicePlan, error) {
 }
 
 // GetIncludeServicePlan allows callers to fetch a service plan and include the associated service offering
-func (c *ServicePlanClient) GetIncludeServicePlan(guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
+func (c *ServicePlanClient) GetIncludeServicePlan(ctx context.Context, guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
 	var servicePlan resource.ServicePlanWithIncluded
-	err := c.client.get(path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
+	err := c.client.get(ctx, path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,9 +66,9 @@ func (c *ServicePlanClient) GetIncludeServicePlan(guid string) (*resource.Servic
 }
 
 // GetIncludeSpaceAndOrg allows callers to fetch a service plan and include the parent space and org
-func (c *ServicePlanClient) GetIncludeSpaceAndOrg(guid string) (*resource.ServicePlan, *resource.Space, *resource.Organization, error) {
+func (c *ServicePlanClient) GetIncludeSpaceAndOrg(ctx context.Context, guid string) (*resource.ServicePlan, *resource.Space, *resource.Organization, error) {
 	var servicePlan resource.ServicePlanWithIncluded
-	err := c.client.get(path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeSpaceOrganization), &servicePlan)
+	err := c.client.get(ctx, path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeSpaceOrganization), &servicePlan)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -75,13 +76,13 @@ func (c *ServicePlanClient) GetIncludeSpaceAndOrg(guid string) (*resource.Servic
 }
 
 // List pages service plans the user has access to
-func (c *ServicePlanClient) List(opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
+func (c *ServicePlanClient) List(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
 
 	var res resource.ServicePlanList
-	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -90,24 +91,24 @@ func (c *ServicePlanClient) List(opts *ServicePlanListOptions) ([]*resource.Serv
 }
 
 // ListAll retrieves all service plans the user has access to
-func (c *ServicePlanClient) ListAll(opts *ServicePlanListOptions) ([]*resource.ServicePlan, error) {
+func (c *ServicePlanClient) ListAll(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
 	return AutoPage[*ServicePlanListOptions, *resource.ServicePlan](opts, func(opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListIncludeServiceOffering page all service plans the user has access to and include the associated service offerings
-func (c *ServicePlanClient) ListIncludeServiceOffering(opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.ServiceOffering, *Pager, error) {
+func (c *ServicePlanClient) ListIncludeServiceOffering(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.ServiceOffering, *Pager, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
 	opts.Include = resource.ServicePlanIncludeServiceOffering
 
 	var res resource.ServicePlanList
-	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -116,7 +117,7 @@ func (c *ServicePlanClient) ListIncludeServiceOffering(opts *ServicePlanListOpti
 }
 
 // ListIncludeServiceOfferingAll retrieves all service plans the user has access to and include the associated service offerings
-func (c *ServicePlanClient) ListIncludeServiceOfferingAll(opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.ServiceOffering, error) {
+func (c *ServicePlanClient) ListIncludeServiceOfferingAll(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.ServiceOffering, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
@@ -124,7 +125,7 @@ func (c *ServicePlanClient) ListIncludeServiceOfferingAll(opts *ServicePlanListO
 	var all []*resource.ServicePlan
 	var allServiceOfferings []*resource.ServiceOffering
 	for {
-		page, serviceOfferings, pager, err := c.ListIncludeServiceOffering(opts)
+		page, serviceOfferings, pager, err := c.ListIncludeServiceOffering(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -139,14 +140,14 @@ func (c *ServicePlanClient) ListIncludeServiceOfferingAll(opts *ServicePlanListO
 }
 
 // ListIncludeSpacesAndOrgs page all service plans the user has access to and include the associated spaces and orgs
-func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, *Pager, error) {
+func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
 	opts.Include = resource.ServicePlanIncludeSpaceOrganization
 
 	var res resource.ServicePlanList
-	err := c.client.get(path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -155,7 +156,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(opts *ServicePlanListOption
 }
 
 // ListIncludeSpacesAndOrgsAll retrieves all service plans the user has access to and include the associated spaces and orgs
-func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, error) {
+func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
@@ -164,7 +165,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(opts *ServicePlanListOpt
 	var allSpaces []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(opts)
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(ctx, opts)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -180,9 +181,9 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(opts *ServicePlanListOpt
 }
 
 // Update the specified attributes of the service plan
-func (c *ServicePlanClient) Update(guid string, r *resource.ServicePlanUpdate) (*resource.ServicePlan, error) {
+func (c *ServicePlanClient) Update(ctx context.Context, guid string, r *resource.ServicePlanUpdate) (*resource.ServicePlan, error) {
 	var res resource.ServicePlan
-	_, err := c.client.patch(path.Format("/v3/service_plans/%s", guid), r, &res)
+	_, err := c.client.patch(ctx, path.Format("/v3/service_plans/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

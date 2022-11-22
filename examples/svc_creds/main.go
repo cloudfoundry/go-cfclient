@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -18,6 +19,7 @@ func main() {
 }
 
 func execute() error {
+	ctx := context.Background()
 	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
@@ -28,18 +30,18 @@ func execute() error {
 		return err
 	}
 
-	bindings, err := cf.ServiceCredentialBindings.ListAll(nil)
+	bindings, err := cf.ServiceCredentialBindings.ListAll(ctx, nil)
 	if err != nil {
 		return err
 	}
 	for _, b := range bindings {
 		fmt.Printf("GUID=%s, App=%s\n", b.GUID, b.Relationships.App.Data.GUID)
-		details, err := cf.ServiceCredentialBindings.GetDetails(b.GUID)
+		details, err := cf.ServiceCredentialBindings.GetDetails(ctx, b.GUID)
 		if err != nil {
 			return err
 		}
 		fmt.Printf("%s\n", details.Credentials)
-		params, err := cf.ServiceCredentialBindings.GetParameters(b.GUID)
+		params, err := cf.ServiceCredentialBindings.GetParameters(ctx, b.GUID)
 		if resource.IsServiceFetchBindingParametersNotSupportedError(err) {
 			fmt.Println(err.(resource.CloudFoundryError).Detail)
 		} else if err != nil {

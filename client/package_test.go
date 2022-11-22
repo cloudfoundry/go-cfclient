@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
@@ -73,7 +74,7 @@ func TestPackages(t *testing.T) {
 			Expected: pkg,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewPackageCreate("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
-				return c.Packages.Create(r)
+				return c.Packages.Create(context.Background(), r)
 			},
 		},
 		{
@@ -88,7 +89,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: pkg,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.Copy("66e89f29-475e-4baf-9675-40c6096c017b", "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
+				return c.Packages.Copy(context.Background(), "66e89f29-475e-4baf-9675-40c6096c017b", "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
 			},
 		},
 		{
@@ -101,7 +102,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.Delete("66e89f29-475e-4baf-9675-40c6096c017b")
+				return c.Packages.Delete(context.Background(), "66e89f29-475e-4baf-9675-40c6096c017b")
 			},
 		},
 		{
@@ -113,7 +114,7 @@ func TestPackages(t *testing.T) {
 				RedirectLocation: blobstoreServer.URL,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				reader, err := c.Packages.Download("66e89f29-475e-4baf-9675-40c6096c017b")
+				reader, err := c.Packages.Download(context.Background(), "66e89f29-475e-4baf-9675-40c6096c017b")
 				require.NoError(t, err)
 				buf := new(strings.Builder)
 				_, err = io.Copy(buf, reader)
@@ -132,7 +133,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: pkg,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.Get("66e89f29-475e-4baf-9675-40c6096c017b")
+				return c.Packages.Get(context.Background(), "66e89f29-475e-4baf-9675-40c6096c017b")
 			},
 		},
 		{
@@ -145,7 +146,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: g.Array(pkg),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				ds, _, err := c.Packages.List(nil)
+				ds, _, err := c.Packages.List(context.Background(), nil)
 				return ds, err
 			},
 		},
@@ -158,7 +159,7 @@ func TestPackages(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(pkg, pkg2, pkg3, pkg4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.ListAll(nil)
+				return c.Packages.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -171,7 +172,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: g.Array(pkg),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				ds, _, err := c.Packages.ListForApp("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
+				ds, _, err := c.Packages.ListForApp(context.Background(), "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
 				return ds, err
 			},
 		},
@@ -185,7 +186,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: g.Array(pkg, pkg2, pkg3),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.ListForAppAll("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
+				return c.Packages.ListForAppAll(context.Background(), "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", nil)
 			},
 		},
 		{
@@ -198,7 +199,7 @@ func TestPackages(t *testing.T) {
 			},
 			Expected: pkg,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Packages.Update("8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", &resource.PackageUpdate{})
+				return c.Packages.Update(context.Background(), "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", &resource.PackageUpdate{})
 			},
 		},
 	}

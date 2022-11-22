@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -31,7 +32,7 @@ func TestSpaceOrgs(t *testing.T) {
 			},
 			Expected: `["ac79b04c-c9a2-488d-b830-3e5f26e600d1", "284d7b6e-8447-40b3-8ab6-2b4926fca12d"]`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SpaceQuotas.Apply("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", []string{
+				return c.SpaceQuotas.Apply(context.Background(), "8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", []string{
 					"ac79b04c-c9a2-488d-b830-3e5f26e600d1", "284d7b6e-8447-40b3-8ab6-2b4926fca12d",
 				})
 			},
@@ -57,7 +58,7 @@ func TestSpaceOrgs(t *testing.T) {
 			Expected: spaceQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewSpaceQuotaCreate("my-space-quota", "d6f5727f-c8a1-4f8e-93fb-440888b3bef1")
-				return c.SpaceQuotas.Create(r)
+				return c.SpaceQuotas.Create(context.Background(), r)
 			},
 		},
 		{
@@ -70,7 +71,7 @@ func TestSpaceOrgs(t *testing.T) {
 			},
 			Expected: spaceQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SpaceQuotas.Get("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
+				return c.SpaceQuotas.Get(context.Background(), "8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
 			},
 		},
 		{
@@ -83,7 +84,7 @@ func TestSpaceOrgs(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SpaceQuotas.Delete("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
+				return c.SpaceQuotas.Delete(context.Background(), "8a5955c0-d6fd-4f46-8e43-72a4dc35fb04")
 			},
 		},
 		{
@@ -96,7 +97,7 @@ func TestSpaceOrgs(t *testing.T) {
 			},
 			Expected: g.Array(spaceQuota, spaceQuota2, spaceQuota3, spaceQuota4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SpaceQuotas.ListAll(nil)
+				return c.SpaceQuotas.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -107,7 +108,7 @@ func TestSpaceOrgs(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.SpaceQuotas.Remove("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", "ac79b04c-c9a2-488d-b830-3e5f26e600d1")
+				return nil, c.SpaceQuotas.Remove(context.Background(), "8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", "ac79b04c-c9a2-488d-b830-3e5f26e600d1")
 			},
 		},
 		{
@@ -151,7 +152,7 @@ func TestSpaceOrgs(t *testing.T) {
 					WithTotalServiceKeys(20).
 					WithTotalRoutes(8).
 					WithTotalReservedPorts(4)
-				return c.SpaceQuotas.Update("8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", r)
+				return c.SpaceQuotas.Update(context.Background(), "8a5955c0-d6fd-4f46-8e43-72a4dc35fb04", r)
 			},
 		},
 	}

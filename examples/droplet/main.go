@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
@@ -19,6 +20,7 @@ func main() {
 }
 
 func execute() error {
+	ctx := context.Background()
 	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
@@ -29,7 +31,7 @@ func execute() error {
 		return err
 	}
 
-	droplets, err := cf.Droplets.ListAll(nil)
+	droplets, err := cf.Droplets.ListAll(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func execute() error {
 	}
 	droplet := droplets[0]
 
-	reader, err := cf.Droplets.Download(droplet.GUID)
+	reader, err := cf.Droplets.Download(ctx, droplet.GUID)
 	if err != nil {
 		return err
 	}

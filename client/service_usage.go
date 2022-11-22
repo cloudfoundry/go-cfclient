@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -30,9 +31,9 @@ func (o ServiceUsageOptions) ToQueryString() url.Values {
 }
 
 // Get retrieves the specified service event
-func (c *ServiceUsageClient) Get(guid string) (*resource.ServiceUsage, error) {
+func (c *ServiceUsageClient) Get(ctx context.Context, guid string) (*resource.ServiceUsage, error) {
 	var a resource.ServiceUsage
-	err := c.client.get(path.Format("/v3/service_usage_events/%s", guid), &a)
+	err := c.client.get(ctx, path.Format("/v3/service_usage_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +41,12 @@ func (c *ServiceUsageClient) Get(guid string) (*resource.ServiceUsage, error) {
 }
 
 // List pages all service usage events
-func (c *ServiceUsageClient) List(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
+func (c *ServiceUsageClient) List(ctx context.Context, opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
 	if opts == nil {
 		opts = NewServiceUsageOptions()
 	}
 	var res resource.ServiceUsageList
-	err := c.client.get(path.Format("/v3/service_usage_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_usage_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -54,12 +55,12 @@ func (c *ServiceUsageClient) List(opts *ServiceUsageOptions) ([]*resource.Servic
 }
 
 // ListAll retrieves all service usage events
-func (c *ServiceUsageClient) ListAll(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, error) {
+func (c *ServiceUsageClient) ListAll(ctx context.Context, opts *ServiceUsageOptions) ([]*resource.ServiceUsage, error) {
 	if opts == nil {
 		opts = NewServiceUsageOptions()
 	}
 	return AutoPage[*ServiceUsageOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
@@ -68,7 +69,7 @@ func (c *ServiceUsageClient) ListAll(opts *ServiceUsageOptions) ([]*resource.Ser
 //
 // There is the potential race condition if service instances are currently being created or deleted.
 // The seeded usage events will have the same guid as the service instance.
-func (c *ServiceUsageClient) Purge() error {
-	_, err := c.client.post("/v3/service_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
+func (c *ServiceUsageClient) Purge(ctx context.Context) error {
+	_, err := c.client.post(ctx, "/v3/service_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
 	return err
 }

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -20,7 +21,7 @@ func TestManifests(t *testing.T) {
 				Output:   g.Single(manifest),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				actual, err := c.Manifests.Generate("389f0d73-04ee-455b-b63c-513c7c78d5ff")
+				actual, err := c.Manifests.Generate(context.Background(), "389f0d73-04ee-455b-b63c-513c7c78d5ff")
 				require.NoError(t, err)
 				require.Equal(t, manifest, actual)
 				return nil, nil

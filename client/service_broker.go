@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -29,19 +30,19 @@ func (o ServiceBrokerListOptions) ToQueryString() url.Values {
 }
 
 // Create a new service broker asynchronously and return a jobGUID
-func (c *ServiceBrokerClient) Create(r *resource.ServiceBrokerCreate) (string, error) {
-	return c.client.post("/v3/service_brokers", r, nil)
+func (c *ServiceBrokerClient) Create(ctx context.Context, r *resource.ServiceBrokerCreate) (string, error) {
+	return c.client.post(ctx, "/v3/service_brokers", r, nil)
 }
 
 // Delete the specified service broker asynchronously and return a jobGUID
-func (c *ServiceBrokerClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/service_brokers/%s", guid))
+func (c *ServiceBrokerClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/service_brokers/%s", guid))
 }
 
 // Get the specified service broker
-func (c *ServiceBrokerClient) Get(guid string) (*resource.ServiceBroker, error) {
+func (c *ServiceBrokerClient) Get(ctx context.Context, guid string) (*resource.ServiceBroker, error) {
 	var sb resource.ServiceBroker
-	err := c.client.get(path.Format("/v3/service_brokers/%s", guid), &sb)
+	err := c.client.get(ctx, path.Format("/v3/service_brokers/%s", guid), &sb)
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +50,13 @@ func (c *ServiceBrokerClient) Get(guid string) (*resource.ServiceBroker, error) 
 }
 
 // List pages all the service brokers the user has access to
-func (c *ServiceBrokerClient) List(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
+func (c *ServiceBrokerClient) List(ctx context.Context, opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
 	if opts == nil {
 		opts = NewServiceBrokerListOptions()
 	}
 
 	var res resource.ServiceBrokerList
-	err := c.client.get(path.Format("/v3/service_brokers?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_brokers?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,20 +65,20 @@ func (c *ServiceBrokerClient) List(opts *ServiceBrokerListOptions) ([]*resource.
 }
 
 // ListAll retrieves all service_brokers the user has access to
-func (c *ServiceBrokerClient) ListAll(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, error) {
+func (c *ServiceBrokerClient) ListAll(ctx context.Context, opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, error) {
 	if opts == nil {
 		opts = NewServiceBrokerListOptions()
 	}
 	return AutoPage[*ServiceBrokerListOptions, *resource.ServiceBroker](opts, func(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the service broker returning either a jobGUID or a service broker instance.
 // Only metadata updates synchronously and return a service broker instance, all other updates return a jobGUID
-func (c *ServiceBrokerClient) Update(guid string, r *resource.ServiceBrokerUpdate) (string, *resource.ServiceBroker, error) {
+func (c *ServiceBrokerClient) Update(ctx context.Context, guid string, r *resource.ServiceBrokerUpdate) (string, *resource.ServiceBroker, error) {
 	var sb resource.ServiceBroker
-	jobGUID, err := c.client.patch(path.Format("/v3/service_brokers/%s", guid), r, &sb)
+	jobGUID, err := c.client.patch(ctx, path.Format("/v3/service_brokers/%s", guid), r, &sb)
 	if err != nil {
 		return "", nil, err
 	}

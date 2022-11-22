@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
@@ -30,7 +31,7 @@ func TestOrgs(t *testing.T) {
 				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.Organizations.AssignDefaultIsoSegment("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				err := c.Organizations.AssignDefaultIsoSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
 				return nil, err
 			},
 		},
@@ -46,7 +47,7 @@ func TestOrgs(t *testing.T) {
 			Expected: org,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewOrganizationCreate("my-organization")
-				return c.Organizations.Create(r)
+				return c.Organizations.Create(context.Background(), r)
 			},
 		},
 		{
@@ -59,7 +60,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: org,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.Get("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				return c.Organizations.Get(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 			},
 		},
 		{
@@ -71,7 +72,7 @@ func TestOrgs(t *testing.T) {
 				Status:   http.StatusOK,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				iso, err := c.Organizations.GetDefaultIsoSegment("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				iso, err := c.Organizations.GetDefaultIsoSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 				require.NoError(t, err)
 				require.Equal(t, "443a1ea0-2403-4f0f-8c74-023a320bd1f2", iso)
 				return nil, nil
@@ -87,7 +88,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: domain,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.GetDefaultDomain("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				return c.Organizations.GetDefaultDomain(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 			},
 		},
 		{
@@ -100,7 +101,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: orgUsageSummary,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.GetUsageSummary("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				return c.Organizations.GetUsageSummary(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 			},
 		},
 		{
@@ -113,7 +114,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.Delete("3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				return c.Organizations.Delete(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 			},
 		},
 		{
@@ -126,7 +127,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: g.Array(org, org2, org3, org4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.ListAll(nil)
+				return c.Organizations.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -139,7 +140,7 @@ func TestOrgs(t *testing.T) {
 			},
 			Expected: g.Array(org, org2, org3, org4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.ListForIsoSegmentAll("571de34f-8067-44f0-8bec-4ac17bf8750f", nil)
+				return c.Organizations.ListForIsoSegmentAll(context.Background(), "571de34f-8067-44f0-8bec-4ac17bf8750f", nil)
 			},
 		},
 		{
@@ -151,7 +152,7 @@ func TestOrgs(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(user, user2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.ListUsersAll("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", nil)
+				return c.Organizations.ListUsersAll(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5", nil)
 			},
 		},
 		{
@@ -168,7 +169,7 @@ func TestOrgs(t *testing.T) {
 				r := &resource.OrganizationUpdate{
 					Name: "new_name",
 				}
-				return c.Organizations.Update("3691e277-eb88-4ddc-bec3-0111d9dd4ef5", r)
+				return c.Organizations.Update(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5", r)
 			},
 		},
 	}

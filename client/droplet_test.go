@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
@@ -37,7 +38,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: dropletAssociation,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.SetCurrentAssociationForApp("bf75e72f-f1ed-4815-9e28-048595a35b6c", "3fc0916f-2cea-4f3a-ae53-048388baa6bd")
+				return c.Droplets.SetCurrentAssociationForApp(context.Background(), "bf75e72f-f1ed-4815-9e28-048595a35b6c", "3fc0916f-2cea-4f3a-ae53-048388baa6bd")
 			},
 		},
 		{
@@ -50,7 +51,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: dropletAssociation,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.GetCurrentAssociationForApp("bf75e72f-f1ed-4815-9e28-048595a35b6c")
+				return c.Droplets.GetCurrentAssociationForApp(context.Background(), "bf75e72f-f1ed-4815-9e28-048595a35b6c")
 			},
 		},
 		{
@@ -63,7 +64,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.GetCurrentForApp("bf75e72f-f1ed-4815-9e28-048595a35b6c")
+				return c.Droplets.GetCurrentForApp(context.Background(), "bf75e72f-f1ed-4815-9e28-048595a35b6c")
 			},
 		},
 		{
@@ -76,7 +77,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.Get("59c3d133-2b83-46f3-960e-7765a129aea4")
+				return c.Droplets.Get(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4")
 			},
 		},
 		{
@@ -89,7 +90,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: g.Array(droplet),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				ds, _, err := c.Droplets.List(NewDropletListOptions())
+				ds, _, err := c.Droplets.List(context.Background(), NewDropletListOptions())
 				return ds, err
 			},
 		},
@@ -102,7 +103,7 @@ func TestDroplets(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(droplet, droplet2, droplet3, droplet4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.ListAll(nil)
+				return c.Droplets.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -115,7 +116,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: g.Array(droplet),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				ds, _, err := c.Droplets.ListForPackage("8222f76a-9e09-4360-b3aa-1ed329945e92", NewDropletPackageListOptions())
+				ds, _, err := c.Droplets.ListForPackage(context.Background(), "8222f76a-9e09-4360-b3aa-1ed329945e92", NewDropletPackageListOptions())
 				return ds, err
 			},
 		},
@@ -129,7 +130,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: g.Array(droplet, droplet2, droplet3),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.ListForPackageAll("8222f76a-9e09-4360-b3aa-1ed329945e92", nil)
+				return c.Droplets.ListForPackageAll(context.Background(), "8222f76a-9e09-4360-b3aa-1ed329945e92", nil)
 			},
 		},
 		{
@@ -142,7 +143,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: g.Array(droplet),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				ds, _, err := c.Droplets.ListForApp("bf75e72f-f1ed-4815-9e28-048595a35b6c", NewDropletAppListOptions())
+				ds, _, err := c.Droplets.ListForApp(context.Background(), "bf75e72f-f1ed-4815-9e28-048595a35b6c", NewDropletAppListOptions())
 				return ds, err
 			},
 		},
@@ -157,7 +158,7 @@ func TestDroplets(t *testing.T) {
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewDropletCreate("bf75e72f-f1ed-4815-9e28-048595a35b6c")
-				return c.Droplets.Create(r)
+				return c.Droplets.Create(context.Background(), r)
 			},
 		},
 		{
@@ -170,7 +171,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.Delete("59c3d133-2b83-46f3-960e-7765a129aea4")
+				return c.Droplets.Delete(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4")
 			},
 		},
 		{
@@ -183,7 +184,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.Update("59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{})
+				return c.Droplets.Update(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{})
 			},
 		},
 		{
@@ -198,7 +199,7 @@ func TestDroplets(t *testing.T) {
 			},
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.Copy("59c3d133-2b83-46f3-960e-7765a129aea4", "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
+				return c.Droplets.Copy(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b")
 			},
 		},
 		{
@@ -210,7 +211,7 @@ func TestDroplets(t *testing.T) {
 				RedirectLocation: blobstoreServer.URL,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				reader, err := c.Droplets.Download("59c3d133-2b83-46f3-960e-7765a129aea4")
+				reader, err := c.Droplets.Download(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4")
 				require.NoError(t, err)
 				buf := new(strings.Builder)
 				_, err = io.Copy(buf, reader)

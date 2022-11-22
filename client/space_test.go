@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -29,7 +30,7 @@ func TestSpaces(t *testing.T) {
 				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.Spaces.AssignIsoSegment("000d1e0c-218e-470b-b5db-84481b89fa92", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				err := c.Spaces.AssignIsoSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
 				return nil, err
 			},
 		},
@@ -54,7 +55,7 @@ func TestSpaces(t *testing.T) {
 			Expected: space,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewSpaceCreate("my-space", "70c727ac-eef9-4e2a-aac3-975d5a0a0f15")
-				return c.Spaces.Create(r)
+				return c.Spaces.Create(context.Background(), r)
 			},
 		},
 		{
@@ -67,7 +68,7 @@ func TestSpaces(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.Delete("000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.Delete(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -79,7 +80,7 @@ func TestSpaces(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: space,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.Get("000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.Get(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -103,7 +104,7 @@ func TestSpaces(t *testing.T) {
 				Status: http.StatusOK},
 			Expected: "e4c91047-3b29-4fda-b7f9-04033e5a9c9f",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.GetAssignedIsoSegment("000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.GetAssignedIsoSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -120,7 +121,7 @@ func TestSpaces(t *testing.T) {
 			Expected:  space,
 			Expected2: org,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Spaces.GetIncludeOrg("000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.GetIncludeOrg(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -132,7 +133,7 @@ func TestSpaces(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(space, space2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.ListAll(nil)
+				return c.Spaces.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -154,7 +155,7 @@ func TestSpaces(t *testing.T) {
 			Expected:  g.Array(space, space2, space3, space4),
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Spaces.ListIncludeOrgsAll(nil)
+				return c.Spaces.ListIncludeOrgsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -166,7 +167,7 @@ func TestSpaces(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(user, user2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.ListUsersAll("000d1e0c-218e-470b-b5db-84481b89fa92", nil)
+				return c.Spaces.ListUsersAll(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", nil)
 			},
 		},
 		{
@@ -183,7 +184,7 @@ func TestSpaces(t *testing.T) {
 				r := &resource.SpaceUpdate{
 					Name: "new-space-name",
 				}
-				return c.Spaces.Update("000d1e0c-218e-470b-b5db-84481b89fa92", r)
+				return c.Spaces.Update(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", r)
 			},
 		},
 	}

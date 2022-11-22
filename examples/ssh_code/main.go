@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -17,6 +18,7 @@ func main() {
 }
 
 func execute() error {
+	ctx := context.Background()
 	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
@@ -27,7 +29,7 @@ func execute() error {
 		return err
 	}
 
-	code, err := cf.SSHCode()
+	code, err := cf.SSHCode(ctx)
 	if err != nil {
 		return err
 	}

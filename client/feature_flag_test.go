@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -24,7 +25,7 @@ func TestFeatureFlags(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: ff,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.FeatureFlags.Get(resource.FeatureFlagResourceMatching)
+				return c.FeatureFlags.Get(context.Background(), resource.FeatureFlagResourceMatching)
 			},
 		},
 		{
@@ -36,7 +37,7 @@ func TestFeatureFlags(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(ff, ff2, ff3, ff4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.FeatureFlags.ListAll(nil)
+				return c.FeatureFlags.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -53,7 +54,7 @@ func TestFeatureFlags(t *testing.T) {
 				r := resource.NewFeatureFlagUpdate().
 					WithEnabled(true).
 					WithCustomErrorMessage("error message the user sees")
-				return c.FeatureFlags.Update(resource.FeatureFlagResourceMatching, r)
+				return c.FeatureFlags.Update(context.Background(), resource.FeatureFlagResourceMatching, r)
 			},
 		},
 	}

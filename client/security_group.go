@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -33,9 +34,9 @@ func (o SecurityGroupListOptions) ToQueryString() url.Values {
 }
 
 // Create a new domain
-func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource.SecurityGroup, error) {
+func (c *SecurityGroupClient) Create(ctx context.Context, r *resource.SecurityGroupCreate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	_, err := c.client.post("/v3/security_groups", r, &d)
+	_, err := c.client.post(ctx, "/v3/security_groups", r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -43,14 +44,14 @@ func (c *SecurityGroupClient) Create(r *resource.SecurityGroupCreate) (*resource
 }
 
 // Delete the specified security group asynchronously and return a jobGUID
-func (c *SecurityGroupClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/security_groups/%s", guid))
+func (c *SecurityGroupClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/security_groups/%s", guid))
 }
 
 // Get the specified security group
-func (c *SecurityGroupClient) Get(guid string) (*resource.SecurityGroup, error) {
+func (c *SecurityGroupClient) Get(ctx context.Context, guid string) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	err := c.client.get(path.Format("/v3/security_groups/%s", guid), &d)
+	err := c.client.get(ctx, path.Format("/v3/security_groups/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +59,9 @@ func (c *SecurityGroupClient) Get(guid string) (*resource.SecurityGroup, error) 
 }
 
 // List pages SecurityGroups the user has access to
-func (c *SecurityGroupClient) List(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
+func (c *SecurityGroupClient) List(ctx context.Context, opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
 	var res resource.SecurityGroupList
-	err := c.client.get(path.Format("/v3/security_groups?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/security_groups?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -69,19 +70,19 @@ func (c *SecurityGroupClient) List(opts *SecurityGroupListOptions) ([]*resource.
 }
 
 // ListAll retrieves all SecurityGroups the user has access to
-func (c *SecurityGroupClient) ListAll(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, error) {
+func (c *SecurityGroupClient) ListAll(ctx context.Context, opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, error) {
 	if opts == nil {
 		opts = NewSecurityGroupListOptions()
 	}
 	return AutoPage[*SecurityGroupListOptions, *resource.SecurityGroup](opts, func(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the app
-func (c *SecurityGroupClient) Update(guid string, r *resource.SecurityGroupUpdate) (*resource.SecurityGroup, error) {
+func (c *SecurityGroupClient) Update(ctx context.Context, guid string, r *resource.SecurityGroupUpdate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
-	_, err := c.client.patch(path.Format("/v3/security_groups/%s", guid), r, &d)
+	_, err := c.client.patch(ctx, path.Format("/v3/security_groups/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

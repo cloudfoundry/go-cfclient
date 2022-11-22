@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -26,7 +27,7 @@ func TestProcesses(t *testing.T) {
 			},
 			Expected: process,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Processes.Get("ec4ff362-60c5-47a0-8246-2a134537c606")
+				return c.Processes.Get(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606")
 			},
 		},
 		{
@@ -39,7 +40,7 @@ func TestProcesses(t *testing.T) {
 			},
 			Expected: processStats,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Processes.GetStats("ec4ff362-60c5-47a0-8246-2a134537c606")
+				return c.Processes.GetStats(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606")
 			},
 		},
 		{
@@ -52,7 +53,7 @@ func TestProcesses(t *testing.T) {
 			},
 			Expected: g.Array(process, process2, process3, process4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Processes.ListAll(nil)
+				return c.Processes.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -65,7 +66,7 @@ func TestProcesses(t *testing.T) {
 			},
 			Expected: g.Array(process, process2, process3, process4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Processes.ListForAppAll("2a550283-9245-493e-af36-5e4b8703f896", nil)
+				return c.Processes.ListForAppAll(context.Background(), "2a550283-9245-493e-af36-5e4b8703f896", nil)
 			},
 		},
 		{
@@ -89,7 +90,7 @@ func TestProcesses(t *testing.T) {
 					WithMemoryInMB(256).
 					WithDiskInMB(1024).
 					WithLogRateLimitInBytesPerSecond(1024)
-				return c.Processes.Scale("ec4ff362-60c5-47a0-8246-2a134537c606", r)
+				return c.Processes.Scale(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606", r)
 			},
 		},
 		{
@@ -115,7 +116,7 @@ func TestProcesses(t *testing.T) {
 					WithCommand("rackup").
 					WithHealthCheckType("http").
 					WithHealthCheckTimeout(60)
-				return c.Processes.Update("ec4ff362-60c5-47a0-8246-2a134537c606", r)
+				return c.Processes.Update(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606", r)
 			},
 		},
 		{
@@ -126,7 +127,7 @@ func TestProcesses(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Processes.Terminate("ec4ff362-60c5-47a0-8246-2a134537c606", 0)
+				return nil, c.Processes.Terminate(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606", 0)
 			},
 		},
 	}

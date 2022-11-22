@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -81,10 +82,10 @@ func (o *RoleListOptions) SpaceRoleType(roleType resource.SpaceRoleType) *RoleLi
 //
 // For a user to be assigned a space role, the user must already
 // have an organization role in the parent organization.
-func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID string, roleType resource.SpaceRoleType) (*resource.Role, error) {
+func (c *RoleClient) CreateSpaceRole(ctx context.Context, spaceGUID, userGUID string, roleType resource.SpaceRoleType) (*resource.Role, error) {
 	req := resource.NewRoleSpaceCreate(spaceGUID, userGUID, roleType)
 	var r resource.Role
-	_, err := c.client.post("/v3/roles", req, &r)
+	_, err := c.client.post(ctx, "/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}
@@ -95,10 +96,10 @@ func (c *RoleClient) CreateSpaceRole(spaceGUID, userGUID string, roleType resour
 //
 // To create an organization role you must be an admin or organization
 // manager in the organization associated with the role.
-func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
+func (c *RoleClient) CreateOrganizationRole(ctx context.Context, orgGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
 	req := resource.NewRoleOrganizationCreate(orgGUID, userGUID, roleType)
 	var r resource.Role
-	_, err := c.client.post("/v3/roles", req, &r)
+	_, err := c.client.post(ctx, "/v3/roles", req, &r)
 	if err != nil {
 		return nil, err
 	}
@@ -106,14 +107,14 @@ func (c *RoleClient) CreateOrganizationRole(orgGUID, userGUID string, roleType r
 }
 
 // Delete the specified role asynchronously and return a jobGUID
-func (c *RoleClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/roles/%s", guid))
+func (c *RoleClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/roles/%s", guid))
 }
 
 // Get the specified role
-func (c *RoleClient) Get(guid string) (*resource.Role, error) {
+func (c *RoleClient) Get(ctx context.Context, guid string) (*resource.Role, error) {
 	var r resource.Role
-	err := c.client.get(path.Format("/v3/roles/%s", guid), &r)
+	err := c.client.get(ctx, path.Format("/v3/roles/%s", guid), &r)
 	if err != nil {
 		return nil, err
 	}
@@ -121,9 +122,9 @@ func (c *RoleClient) Get(guid string) (*resource.Role, error) {
 }
 
 // GetIncludeOrgs allows callers to fetch a role and include any assigned orgs
-func (c *RoleClient) GetIncludeOrgs(guid string) (*resource.Role, []*resource.Organization, error) {
+func (c *RoleClient) GetIncludeOrgs(ctx context.Context, guid string) (*resource.Role, []*resource.Organization, error) {
 	var role resource.RoleWithIncluded
-	err := c.client.get(path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeOrganization), &role)
+	err := c.client.get(ctx, path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeOrganization), &role)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -131,9 +132,9 @@ func (c *RoleClient) GetIncludeOrgs(guid string) (*resource.Role, []*resource.Or
 }
 
 // GetIncludeSpaces allows callers to fetch a role and include any assigned spaces
-func (c *RoleClient) GetIncludeSpaces(guid string) (*resource.Role, []*resource.Space, error) {
+func (c *RoleClient) GetIncludeSpaces(ctx context.Context, guid string) (*resource.Role, []*resource.Space, error) {
 	var role resource.RoleWithIncluded
-	err := c.client.get(path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeSpace), &role)
+	err := c.client.get(ctx, path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeSpace), &role)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -141,9 +142,9 @@ func (c *RoleClient) GetIncludeSpaces(guid string) (*resource.Role, []*resource.
 }
 
 // GetIncludeUsers allows callers to fetch a role and include any assigned users
-func (c *RoleClient) GetIncludeUsers(guid string) (*resource.Role, []*resource.User, error) {
+func (c *RoleClient) GetIncludeUsers(ctx context.Context, guid string) (*resource.Role, []*resource.User, error) {
 	var role resource.RoleWithIncluded
-	err := c.client.get(path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeUser), &role)
+	err := c.client.get(ctx, path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeUser), &role)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -151,12 +152,12 @@ func (c *RoleClient) GetIncludeUsers(guid string) (*resource.Role, []*resource.U
 }
 
 // List all roles the user has access to in paged results
-func (c *RoleClient) List(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
+func (c *RoleClient) List(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
 	var res resource.RoleList
-	err := c.client.get(path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -165,24 +166,24 @@ func (c *RoleClient) List(opts *RoleListOptions) ([]*resource.Role, *Pager, erro
 }
 
 // ListAll retrieves all roles the user has access to
-func (c *RoleClient) ListAll(opts *RoleListOptions) ([]*resource.Role, error) {
+func (c *RoleClient) ListAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
 	return AutoPage[*RoleListOptions, *resource.Role](opts, func(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListIncludeOrgs pages all roles and specified and includes orgs that have the roles
-func (c *RoleClient) ListIncludeOrgs(opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, *Pager, error) {
+func (c *RoleClient) ListIncludeOrgs(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
 	opts.Include = resource.RoleIncludeOrganization
 
 	var res resource.RoleList
-	err := c.client.get(path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -191,7 +192,7 @@ func (c *RoleClient) ListIncludeOrgs(opts *RoleListOptions) ([]*resource.Role, [
 }
 
 // ListIncludeOrgsAll retrieves all roles and specified and includes orgs that have the roles
-func (c *RoleClient) ListIncludeOrgsAll(opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, error) {
+func (c *RoleClient) ListIncludeOrgsAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
@@ -200,7 +201,7 @@ func (c *RoleClient) ListIncludeOrgsAll(opts *RoleListOptions) ([]*resource.Role
 	var all []*resource.Role
 	var allOrgs []*resource.Organization
 	for {
-		page, orgs, pager, err := c.ListIncludeOrgs(opts)
+		page, orgs, pager, err := c.ListIncludeOrgs(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -215,14 +216,14 @@ func (c *RoleClient) ListIncludeOrgsAll(opts *RoleListOptions) ([]*resource.Role
 }
 
 // ListIncludeSpaces pages all roles and specified and includes spaces that have the roles
-func (c *RoleClient) ListIncludeSpaces(opts *RoleListOptions) ([]*resource.Role, []*resource.Space, *Pager, error) {
+func (c *RoleClient) ListIncludeSpaces(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Space, *Pager, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
 	opts.Include = resource.RoleIncludeSpace
 
 	var res resource.RoleList
-	err := c.client.get(path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -231,7 +232,7 @@ func (c *RoleClient) ListIncludeSpaces(opts *RoleListOptions) ([]*resource.Role,
 }
 
 // ListIncludeSpacesAll retrieves all roles and specified and includes spaces that have the roles
-func (c *RoleClient) ListIncludeSpacesAll(opts *RoleListOptions) ([]*resource.Role, []*resource.Space, error) {
+func (c *RoleClient) ListIncludeSpacesAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Space, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
@@ -240,7 +241,7 @@ func (c *RoleClient) ListIncludeSpacesAll(opts *RoleListOptions) ([]*resource.Ro
 	var all []*resource.Role
 	var allSpaces []*resource.Space
 	for {
-		page, spaces, pager, err := c.ListIncludeSpaces(opts)
+		page, spaces, pager, err := c.ListIncludeSpaces(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -255,14 +256,14 @@ func (c *RoleClient) ListIncludeSpacesAll(opts *RoleListOptions) ([]*resource.Ro
 }
 
 // ListIncludeUsers pages all roles and specified and includes users that belong to the roles
-func (c *RoleClient) ListIncludeUsers(opts *RoleListOptions) ([]*resource.Role, []*resource.User, *Pager, error) {
+func (c *RoleClient) ListIncludeUsers(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.User, *Pager, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
 	opts.Include = resource.RoleIncludeUser
 
 	var res resource.RoleList
-	err := c.client.get(path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/roles?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -271,7 +272,7 @@ func (c *RoleClient) ListIncludeUsers(opts *RoleListOptions) ([]*resource.Role, 
 }
 
 // ListIncludeUsersAll retrieves all roles and all the users that belong to those roles
-func (c *RoleClient) ListIncludeUsersAll(opts *RoleListOptions) ([]*resource.Role, []*resource.User, error) {
+func (c *RoleClient) ListIncludeUsersAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.User, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
@@ -280,7 +281,7 @@ func (c *RoleClient) ListIncludeUsersAll(opts *RoleListOptions) ([]*resource.Rol
 	var all []*resource.Role
 	var allUsers []*resource.User
 	for {
-		page, users, pager, err := c.ListIncludeUsers(opts)
+		page, users, pager, err := c.ListIncludeUsers(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}

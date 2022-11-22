@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
@@ -12,9 +13,9 @@ import (
 type ManifestClient commonClient
 
 // Generate the specified app manifest as a yaml text string
-func (c *ManifestClient) Generate(appGUID string) (string, error) {
+func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, error) {
 	p := path.Format("/v3/apps/%s/manifest", appGUID)
-	req := http.NewRequest("GET", p)
+	req := http.NewRequest(ctx, http2.MethodGet, p)
 
 	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
@@ -41,9 +42,9 @@ func (c *ManifestClient) Generate(appGUID string) (string, error) {
 //
 // The apps must reside in the space. These changes are additive and will not modify any unspecified
 // properties or remove any existing environment variables, routes, or services.
-func (c *ManifestClient) ApplyManifest(spaceGUID string, manifest string) (string, error) {
+func (c *ManifestClient) ApplyManifest(ctx context.Context, spaceGUID string, manifest string) (string, error) {
 	reader := strings.NewReader(manifest)
-	req := http.NewRequest("POST", path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
+	req := http.NewRequest(ctx, http2.MethodPost, path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
 		WithContentType("application/x-yaml").
 		WithBody(reader)
 

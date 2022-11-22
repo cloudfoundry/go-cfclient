@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -27,9 +28,9 @@ func (o RevisionListOptions) ToQueryString() url.Values {
 }
 
 // Get the specified revision
-func (c *RevisionClient) Get(guid string) (*resource.Revision, error) {
+func (c *RevisionClient) Get(ctx context.Context, guid string) (*resource.Revision, error) {
 	var res resource.Revision
-	err := c.client.get(path.Format("/v3/revisions/%s", guid), &res)
+	err := c.client.get(ctx, path.Format("/v3/revisions/%s", guid), &res)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +38,9 @@ func (c *RevisionClient) Get(guid string) (*resource.Revision, error) {
 }
 
 // GetEnvironmentVariables retrieves the specified revision's environment variables
-func (c *RevisionClient) GetEnvironmentVariables(guid string) (map[string]*string, error) {
+func (c *RevisionClient) GetEnvironmentVariables(ctx context.Context, guid string) (map[string]*string, error) {
 	var res resource.EnvVarResponse
-	err := c.client.get(path.Format("/v3/revisions/%s/environment_variables", guid), &res)
+	err := c.client.get(ctx, path.Format("/v3/revisions/%s/environment_variables", guid), &res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,12 +48,12 @@ func (c *RevisionClient) GetEnvironmentVariables(guid string) (map[string]*strin
 }
 
 // List pages revisions that are associated with the specified app
-func (c *RevisionClient) List(appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+func (c *RevisionClient) List(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	var res resource.RevisionList
-	err := c.client.get(path.Format("/v3/apps/%s/revisions?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/revisions?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,22 +62,22 @@ func (c *RevisionClient) List(appGUID string, opts *RevisionListOptions) ([]*res
 }
 
 // ListAll retrieves all revisions that are associated with the specified app
-func (c *RevisionClient) ListAll(appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
+func (c *RevisionClient) ListAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	return AutoPage[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
-		return c.List(appGUID, opts)
+		return c.List(ctx, appGUID, opts)
 	})
 }
 
 // ListDeployed pages deployed revisions that are associated with the specified app
-func (c *RevisionClient) ListDeployed(appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+func (c *RevisionClient) ListDeployed(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	var res resource.RevisionList
-	err := c.client.get(path.Format("/v3/apps/%s/revisions/deployed?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/revisions/deployed?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -85,19 +86,19 @@ func (c *RevisionClient) ListDeployed(appGUID string, opts *RevisionListOptions)
 }
 
 // ListDeployedAll pages deployed revisions that are associated with the specified app
-func (c *RevisionClient) ListDeployedAll(appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
+func (c *RevisionClient) ListDeployedAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	return AutoPage[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
-		return c.ListDeployed(appGUID, opts)
+		return c.ListDeployed(ctx, appGUID, opts)
 	})
 }
 
 // Update the specified attributes of the deployment
-func (c *RevisionClient) Update(guid string, r *resource.RevisionUpdate) (*resource.Revision, error) {
+func (c *RevisionClient) Update(ctx context.Context, guid string, r *resource.RevisionUpdate) (*resource.Revision, error) {
 	var res resource.Revision
-	_, err := c.client.patch(path.Format("/v3/revisions/%s", guid), r, &res)
+	_, err := c.client.patch(ctx, path.Format("/v3/revisions/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
@@ -31,20 +32,20 @@ func (o DeploymentListOptions) ToQueryString() url.Values {
 }
 
 // Cancel the ongoing deployment
-func (c *DeploymentClient) Cancel(guid string) error {
-	_, err := c.client.post(path.Format("/v3/deployments/%s/actions/cancel", guid), nil, nil)
+func (c *DeploymentClient) Cancel(ctx context.Context, guid string) error {
+	_, err := c.client.post(ctx, path.Format("/v3/deployments/%s/actions/cancel", guid), nil, nil)
 	return err
 }
 
 // Create a new deployment
-func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deployment, error) {
+func (c *DeploymentClient) Create(ctx context.Context, r *resource.DeploymentCreate) (*resource.Deployment, error) {
 	// validate the params
 	if r.Droplet != nil && r.Revision != nil {
 		return nil, errors.New("droplet and revision cannot both be set")
 	}
 
 	var d resource.Deployment
-	_, err := c.client.post("/v3/deployments", r, &d)
+	_, err := c.client.post(ctx, "/v3/deployments", r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +53,9 @@ func (c *DeploymentClient) Create(r *resource.DeploymentCreate) (*resource.Deplo
 }
 
 // Get the specified deployment
-func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
+func (c *DeploymentClient) Get(ctx context.Context, guid string) (*resource.Deployment, error) {
 	var d resource.Deployment
-	err := c.client.get(path.Format("/v3/deployments/%s", guid), &d)
+	err := c.client.get(ctx, path.Format("/v3/deployments/%s", guid), &d)
 	if err != nil {
 		return nil, err
 	}
@@ -62,12 +63,12 @@ func (c *DeploymentClient) Get(guid string) (*resource.Deployment, error) {
 }
 
 // List pages deployments the user has access to
-func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+func (c *DeploymentClient) List(ctx context.Context, opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
 	if opts == nil {
 		opts = NewDeploymentListOptions()
 	}
 	var res resource.DeploymentList
-	err := c.client.get(path.Format("/v3/deployments?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/deployments?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,19 +77,19 @@ func (c *DeploymentClient) List(opts *DeploymentListOptions) ([]*resource.Deploy
 }
 
 // ListAll retrieves all deployments the user has access to
-func (c *DeploymentClient) ListAll(opts *DeploymentListOptions) ([]*resource.Deployment, error) {
+func (c *DeploymentClient) ListAll(ctx context.Context, opts *DeploymentListOptions) ([]*resource.Deployment, error) {
 	if opts == nil {
 		opts = NewDeploymentListOptions()
 	}
 	return AutoPage[*DeploymentListOptions, *resource.Deployment](opts, func(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the deployment
-func (c *DeploymentClient) Update(guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
+func (c *DeploymentClient) Update(ctx context.Context, guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
 	var d resource.Deployment
-	_, err := c.client.patch(path.Format("/v3/deployments/%s", guid), r, &d)
+	_, err := c.client.patch(ctx, path.Format("/v3/deployments/%s", guid), r, &d)
 	if err != nil {
 		return nil, err
 	}

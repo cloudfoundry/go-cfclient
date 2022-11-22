@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
@@ -31,7 +32,7 @@ func TestDeployments(t *testing.T) {
 				r.Droplet = &resource.Relationship{
 					GUID: "c2941033-4575-486d-bf2c-3ae49e8b4ca1",
 				}
-				return c.Deployments.Create(r)
+				return c.Deployments.Create(context.Background(), r)
 			},
 		},
 		{
@@ -49,7 +50,7 @@ func TestDeployments(t *testing.T) {
 				r.Revision = &resource.DeploymentRevision{
 					GUID: "d95d8024-8665-4aac-97ea-3c08373e233e",
 				}
-				return c.Deployments.Create(r)
+				return c.Deployments.Create(context.Background(), r)
 			},
 		},
 		{
@@ -62,7 +63,7 @@ func TestDeployments(t *testing.T) {
 				r.Droplet = &resource.Relationship{
 					GUID: "c2941033-4575-486d-bf2c-3ae49e8b4ca1",
 				}
-				_, err := c.Deployments.Create(r)
+				_, err := c.Deployments.Create(context.Background(), r)
 				require.Error(t, err)
 				require.ErrorContains(t, err, "droplet and revision cannot both be set")
 				return nil, nil
@@ -76,7 +77,7 @@ func TestDeployments(t *testing.T) {
 				Status:   http.StatusOK,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Deployments.Cancel("2b56dc7b-2a14-49ea-be29-ca182b14a998")
+				return nil, c.Deployments.Cancel(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998")
 			},
 		},
 		{
@@ -89,7 +90,7 @@ func TestDeployments(t *testing.T) {
 			},
 			Expected: deployment,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Deployments.Get("2b56dc7b-2a14-49ea-be29-ca182b14a998")
+				return c.Deployments.Get(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998")
 			},
 		},
 		{
@@ -102,7 +103,7 @@ func TestDeployments(t *testing.T) {
 			},
 			Expected: g.Array(deployment),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Deployments.List(nil)
+				apps, _, err := c.Deployments.List(context.Background(), nil)
 				return apps, err
 			},
 		},
@@ -115,7 +116,7 @@ func TestDeployments(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(deployment, deployment2, deployment3, deployment4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Deployments.ListAll(nil)
+				return c.Deployments.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -139,7 +140,7 @@ func TestDeployments(t *testing.T) {
 						},
 					},
 				}
-				return c.Deployments.Update("2b56dc7b-2a14-49ea-be29-ca182b14a998", r)
+				return c.Deployments.Update(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998", r)
 			},
 		},
 	}

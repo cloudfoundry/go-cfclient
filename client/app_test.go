@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -35,7 +36,7 @@ func TestApps(t *testing.T) {
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewAppCreate("my-app", "space-guid")
 				r.EnvironmentVariables = map[string]string{"FOO": "BAR"}
-				return c.Applications.Create(r)
+				return c.Applications.Create(context.Background(), r)
 			},
 		},
 		{
@@ -48,7 +49,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Delete("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Delete(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -60,7 +61,7 @@ func TestApps(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Get("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Get(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -73,7 +74,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: appEnvironment,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.GetEnvironment("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.GetEnvironment(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -87,7 +88,8 @@ func TestApps(t *testing.T) {
 			Expected: `{ "RAILS_ENV": "production", "DEBUG": "false" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				falseVar := "false"
-				return c.Applications.SetEnvironmentVariables("1cb006ee-fb05-47e1-b541-c34179ddc446",
+				return c.Applications.SetEnvironmentVariables(context.Background(),
+					"1cb006ee-fb05-47e1-b541-c34179ddc446",
 					map[string]*string{
 						"DEBUG": &falseVar,
 						"USER":  nil,
@@ -105,7 +107,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.GetEnvironmentVariables("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.GetEnvironmentVariables(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -118,7 +120,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: appSSH,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.SSHEnabled("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.SSHEnabled(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -131,7 +133,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: appPermission,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Permissions("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Permissions(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -143,7 +145,7 @@ func TestApps(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(app1, app2, app3, app4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.ListAll(nil)
+				return c.Applications.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -164,7 +166,7 @@ func TestApps(t *testing.T) {
 			Expected:  g.Array(app1, app2, app3, app4),
 			Expected2: g.Array(space1, space2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Applications.ListIncludeSpacesAll(nil)
+				return c.Applications.ListIncludeSpacesAll(context.Background(), nil)
 			},
 		},
 		{
@@ -187,7 +189,7 @@ func TestApps(t *testing.T) {
 			Expected2: g.Array(space1, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Applications.ListIncludeSpacesAndOrgsAll(nil)
+				return c.Applications.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -200,7 +202,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Start("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Start(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -213,7 +215,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Stop("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Stop(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -226,7 +228,7 @@ func TestApps(t *testing.T) {
 			},
 			Expected: app1,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Applications.Restart("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.Applications.Restart(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -249,7 +251,7 @@ func TestApps(t *testing.T) {
 						},
 					},
 				}
-				return c.Applications.Update("1cb006ee-fb05-47e1-b541-c34179ddc446", r)
+				return c.Applications.Update(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", r)
 			},
 		},
 	}

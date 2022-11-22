@@ -1,6 +1,7 @@
 package operation_test
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -131,6 +132,6 @@ func TestAppPush(t *testing.T) {
 	require.NoError(t, err)
 
 	pusher := operation.NewAppPushOperation(cf, org.Name, space.Name)
-	_, err = pusher.Push(manifest, fakeAppZipReader)
+	_, err = pusher.Push(context.Background(), manifest, fakeAppZipReader)
 	require.NoError(t, err)
 }

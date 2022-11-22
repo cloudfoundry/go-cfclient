@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -25,7 +26,7 @@ func TestRevisions(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: revision,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.Get("5a49a370-92cd-4091-bb62-e0914460f7b2")
+				return c.Revisions.Get(context.Background(), "5a49a370-92cd-4091-bb62-e0914460f7b2")
 			},
 		},
 		{
@@ -38,7 +39,7 @@ func TestRevisions(t *testing.T) {
 			},
 			Expected: `{ "RAILS_ENV": "production" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.GetEnvironmentVariables("5a49a370-92cd-4091-bb62-e0914460f7b2")
+				return c.Revisions.GetEnvironmentVariables(context.Background(), "5a49a370-92cd-4091-bb62-e0914460f7b2")
 			},
 		},
 		{
@@ -50,7 +51,7 @@ func TestRevisions(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(revision, revision2, revision3, revision4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.ListAll("487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
+				return c.Revisions.ListAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
 			},
 		},
 		{
@@ -62,7 +63,7 @@ func TestRevisions(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(revision, revision2, revision3, revision4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.ListDeployedAll("487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
+				return c.Revisions.ListDeployedAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
 			},
 		},
 		{
@@ -86,7 +87,7 @@ func TestRevisions(t *testing.T) {
 						},
 					},
 				}
-				return c.Revisions.Update("5a49a370-92cd-4091-bb62-e0914460f7b2", r)
+				return c.Revisions.Update(context.Background(), "5a49a370-92cd-4091-bb62-e0914460f7b2", r)
 			},
 		},
 	}

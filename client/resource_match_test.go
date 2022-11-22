@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -58,7 +59,7 @@ func TestResourceMatches(t *testing.T) {
 						},
 					},
 				}
-				return c.ResourceMatches.Create(toMatch)
+				return c.ResourceMatches.Create(context.Background(), toMatch)
 			},
 		},
 	}

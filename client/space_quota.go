@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -31,10 +32,10 @@ func (o SpaceQuotaListOptions) ToQueryString() url.Values {
 }
 
 // Apply the quota to the specified spaces
-func (c *SpaceQuotaClient) Apply(guid string, spaceGUIDs []string) ([]string, error) {
+func (c *SpaceQuotaClient) Apply(ctx context.Context, guid string, spaceGUIDs []string) ([]string, error) {
 	req := resource.NewToManyRelationships(spaceGUIDs)
 	var relation resource.ToManyRelationships
-	_, err := c.client.post(path.Format("/v3/space_quotas/%s/relationships/spaces", guid), req, &relation)
+	_, err := c.client.post(ctx, path.Format("/v3/space_quotas/%s/relationships/spaces", guid), req, &relation)
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +47,9 @@ func (c *SpaceQuotaClient) Apply(guid string, spaceGUIDs []string) ([]string, er
 }
 
 // Create a new space quota
-func (c *SpaceQuotaClient) Create(r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
+func (c *SpaceQuotaClient) Create(ctx context.Context, r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota
-	_, err := c.client.post("/v3/space_quotas", r, &q)
+	_, err := c.client.post(ctx, "/v3/space_quotas", r, &q)
 	if err != nil {
 		return nil, err
 	}
@@ -56,14 +57,14 @@ func (c *SpaceQuotaClient) Create(r *resource.SpaceQuotaCreateOrUpdate) (*resour
 }
 
 // Delete the specified space quota asynchronously and return a jobGUID
-func (c *SpaceQuotaClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/space_quotas/%s", guid))
+func (c *SpaceQuotaClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/space_quotas/%s", guid))
 }
 
 // Get the specified space quota
-func (c *SpaceQuotaClient) Get(guid string) (*resource.SpaceQuota, error) {
+func (c *SpaceQuotaClient) Get(ctx context.Context, guid string) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota
-	err := c.client.get(path.Format("/v3/space_quotas/%s", guid), &q)
+	err := c.client.get(ctx, path.Format("/v3/space_quotas/%s", guid), &q)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +72,13 @@ func (c *SpaceQuotaClient) Get(guid string) (*resource.SpaceQuota, error) {
 }
 
 // List pages all space quotas the user has access to
-func (c *SpaceQuotaClient) List(opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, *Pager, error) {
+func (c *SpaceQuotaClient) List(ctx context.Context, opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, *Pager, error) {
 	if opts == nil {
 		opts = NewSpaceQuotaListOptions()
 	}
 
 	var res resource.SpaceQuotaList
-	err := c.client.get(path.Format("/v3/space_quotas?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/space_quotas?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,25 +87,25 @@ func (c *SpaceQuotaClient) List(opts *SpaceQuotaListOptions) ([]*resource.SpaceQ
 }
 
 // ListAll retrieves all space quotas the user has access to
-func (c *SpaceQuotaClient) ListAll(opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, error) {
+func (c *SpaceQuotaClient) ListAll(ctx context.Context, opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, error) {
 	if opts == nil {
 		opts = NewSpaceQuotaListOptions()
 	}
 	return AutoPage[*SpaceQuotaListOptions, *resource.SpaceQuota](opts, func(opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Remove the space quota from the specified space
-func (c *SpaceQuotaClient) Remove(guid, spaceGUID string) error {
-	_, err := c.client.delete(path.Format("/v3/space_quotas/%s/relationships/spaces/%s", guid, spaceGUID))
+func (c *SpaceQuotaClient) Remove(ctx context.Context, guid, spaceGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/space_quotas/%s/relationships/spaces/%s", guid, spaceGUID))
 	return err
 }
 
 // Update the specified attributes of the org quota
-func (c *SpaceQuotaClient) Update(guid string, r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
+func (c *SpaceQuotaClient) Update(ctx context.Context, guid string, r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota
-	_, err := c.client.patch(path.Format("/v3/space_quotas/%s", guid), r, &q)
+	_, err := c.client.patch(ctx, path.Format("/v3/space_quotas/%s", guid), r, &q)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -28,9 +29,9 @@ func (o BuildpackListOptions) ToQueryString() url.Values {
 }
 
 // Create a new buildpack
-func (c *BuildpackClient) Create(r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
+func (c *BuildpackClient) Create(ctx context.Context, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	_, err := c.client.post("/v3/buildpacks", r, &bp)
+	_, err := c.client.post(ctx, "/v3/buildpacks", r, &bp)
 	if err != nil {
 		return nil, err
 	}
@@ -38,15 +39,15 @@ func (c *BuildpackClient) Create(r *resource.BuildpackCreateOrUpdate) (*resource
 }
 
 // Delete the specified buildpack
-func (c *BuildpackClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/buildpacks/%s", guid))
+func (c *BuildpackClient) Delete(ctx context.Context, guid string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/buildpacks/%s", guid))
 	return err
 }
 
 // Get retrieves the specified buildpack
-func (c *BuildpackClient) Get(guid string) (*resource.Buildpack, error) {
+func (c *BuildpackClient) Get(ctx context.Context, guid string) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	err := c.client.get(path.Format("/v3/buildpacks/%s", guid), &bp)
+	err := c.client.get(ctx, path.Format("/v3/buildpacks/%s", guid), &bp)
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +55,12 @@ func (c *BuildpackClient) Get(guid string) (*resource.Buildpack, error) {
 }
 
 // List pages all buildpacks the user has access to
-func (c *BuildpackClient) List(opts *BuildpackListOptions) ([]*resource.Buildpack, *Pager, error) {
+func (c *BuildpackClient) List(ctx context.Context, opts *BuildpackListOptions) ([]*resource.Buildpack, *Pager, error) {
 	if opts == nil {
 		opts = NewBuildpackListOptions()
 	}
 	var res resource.BuildpackList
-	err := c.client.get(path.Format("/v3/buildpacks?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/buildpacks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -68,14 +69,14 @@ func (c *BuildpackClient) List(opts *BuildpackListOptions) ([]*resource.Buildpac
 }
 
 // ListAll retrieves all buildpacks the user has access to
-func (c *BuildpackClient) ListAll(opts *BuildpackListOptions) ([]*resource.Buildpack, error) {
+func (c *BuildpackClient) ListAll(ctx context.Context, opts *BuildpackListOptions) ([]*resource.Buildpack, error) {
 	if opts == nil {
 		opts = NewBuildpackListOptions()
 	}
 
 	var all []*resource.Buildpack
 	for {
-		page, pager, err := c.List(opts)
+		page, pager, err := c.List(ctx, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -89,9 +90,9 @@ func (c *BuildpackClient) ListAll(opts *BuildpackListOptions) ([]*resource.Build
 }
 
 // Update the specified attributes of the buildpack
-func (c *BuildpackClient) Update(guid string, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
+func (c *BuildpackClient) Update(ctx context.Context, guid string, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack
-	_, err := c.client.patch(path.Format("/v3/buildpacks/%s", guid), r, &bp)
+	_, err := c.client.patch(ctx, path.Format("/v3/buildpacks/%s", guid), r, &bp)
 	if err != nil {
 		return nil, err
 	}

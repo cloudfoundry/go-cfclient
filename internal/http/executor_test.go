@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
@@ -20,7 +21,7 @@ func TestExecuteRequest(t *testing.T) {
 	}
 	clientProvider := http.NewUnauthenticatedClientProvider(httpClient)
 	e := http.NewExecutor(clientProvider, serverURL, config.UserAgent)
-	req := http.NewRequest("GET", "/v3/organizations")
+	req := http.NewRequest(context.Background(), "GET", "/v3/organizations")
 	r, err := e.ExecuteRequest(req)
 	require.NoError(t, err)
 	require.Equal(t, 200, r.StatusCode)
@@ -46,7 +47,7 @@ func TestExecuteRequestWithAuthFailure(t *testing.T) {
 	}
 	clientProvider := http.NewUnauthenticatedClientProvider(httpClient)
 	e := http.NewExecutor(clientProvider, server.URL, config.UserAgent)
-	req := http.NewRequest("GET", "/does_not_matter")
+	req := http.NewRequest(context.Background(), "GET", "/does_not_matter")
 	r, err := e.ExecuteRequest(req)
 	require.NoError(t, err)
 	require.Equal(t, 200, r.StatusCode)
@@ -65,7 +66,7 @@ func TestExecuteRequestCreatesHTTPRequest(t *testing.T) {
 	expectedJSON := `{"id":12,"name":"Shenanigans"}
 `
 
-	// use a custom httptest server so we can validate the server was passed all the right info via the request
+	// use a custom httptest server so that we can validate the server was passed all the right info via the request
 	server := httptest.NewServer(http2.HandlerFunc(func(w http2.ResponseWriter, r *http2.Request) {
 		require.Equal(t, "POST", r.Method)
 		require.Equal(t, "application/json", r.Header.Get("Content-Type"))
@@ -85,7 +86,7 @@ func TestExecuteRequestCreatesHTTPRequest(t *testing.T) {
 	}
 	clientProvider := http.NewUnauthenticatedClientProvider(httpClient)
 	e := http.NewExecutor(clientProvider, server.URL, config.UserAgent)
-	req := http.NewRequest("POST", "/does_not_matter").WithObject(obj).WithHeader("foo", "bar")
+	req := http.NewRequest(context.Background(), "POST", "/does_not_matter").WithObject(obj).WithHeader("foo", "bar")
 	r, err := e.ExecuteRequest(req)
 	require.NoError(t, err)
 	require.Equal(t, 200, r.StatusCode)

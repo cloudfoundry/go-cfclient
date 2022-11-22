@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -26,9 +27,9 @@ func (o SidecarListOptions) ToQueryString() url.Values {
 }
 
 // Create a new app sidecar
-func (c *SidecarClient) Create(appGUID string, r *resource.SidecarCreate) (*resource.Sidecar, error) {
+func (c *SidecarClient) Create(ctx context.Context, appGUID string, r *resource.SidecarCreate) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	_, err := c.client.post(path.Format("/v3/apps/%s/sidecars", appGUID), r, &sc)
+	_, err := c.client.post(ctx, path.Format("/v3/apps/%s/sidecars", appGUID), r, &sc)
 	if err != nil {
 		return nil, err
 	}
@@ -36,15 +37,15 @@ func (c *SidecarClient) Create(appGUID string, r *resource.SidecarCreate) (*reso
 }
 
 // Delete the specified sidecar
-func (c *SidecarClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/sidecars/%s", guid))
+func (c *SidecarClient) Delete(ctx context.Context, guid string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/sidecars/%s", guid))
 	return err
 }
 
 // Get the specified app
-func (c *SidecarClient) Get(guid string) (*resource.Sidecar, error) {
+func (c *SidecarClient) Get(ctx context.Context, guid string) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	err := c.client.get(path.Format("/v3/sidecars/%s", guid), &sc)
+	err := c.client.get(ctx, path.Format("/v3/sidecars/%s", guid), &sc)
 	if err != nil {
 		return nil, err
 	}
@@ -52,12 +53,12 @@ func (c *SidecarClient) Get(guid string) (*resource.Sidecar, error) {
 }
 
 // ListForApp pages all sidecars associated with the specified app
-func (c *SidecarClient) ListForApp(appGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+func (c *SidecarClient) ListForApp(ctx context.Context, appGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
 	if opts == nil {
 		opts = NewSidecarListOptions()
 	}
 	var res resource.SidecarList
-	err := c.client.get(path.Format("/v3/apps/%s/sidecars?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/sidecars?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,22 +67,22 @@ func (c *SidecarClient) ListForApp(appGUID string, opts *SidecarListOptions) ([]
 }
 
 // ListForAppAll retrieves all sidecars associated with the specified app
-func (c *SidecarClient) ListForAppAll(appGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, error) {
+func (c *SidecarClient) ListForAppAll(ctx context.Context, appGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, error) {
 	if opts == nil {
 		opts = NewSidecarListOptions()
 	}
 	return AutoPage[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
-		return c.ListForApp(appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
 // ListForProcess pages all sidecars associated with the specified process
-func (c *SidecarClient) ListForProcess(processGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+func (c *SidecarClient) ListForProcess(ctx context.Context, processGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
 	if opts == nil {
 		opts = NewSidecarListOptions()
 	}
 	var res resource.SidecarList
-	err := c.client.get(path.Format("/v3/processes/%s/sidecars?%s", processGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/processes/%s/sidecars?%s", processGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -90,19 +91,19 @@ func (c *SidecarClient) ListForProcess(processGUID string, opts *SidecarListOpti
 }
 
 // ListForProcessAll retrieves all sidecars associated with the specified process
-func (c *SidecarClient) ListForProcessAll(processGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, error) {
+func (c *SidecarClient) ListForProcessAll(ctx context.Context, processGUID string, opts *SidecarListOptions) ([]*resource.Sidecar, error) {
 	if opts == nil {
 		opts = NewSidecarListOptions()
 	}
 	return AutoPage[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
-		return c.ListForProcess(processGUID, opts)
+		return c.ListForProcess(ctx, processGUID, opts)
 	})
 }
 
 // Update the specified attributes of the app
-func (c *SidecarClient) Update(guid string, r *resource.SidecarUpdate) (*resource.Sidecar, error) {
+func (c *SidecarClient) Update(ctx context.Context, guid string, r *resource.SidecarUpdate) (*resource.Sidecar, error) {
 	var sc resource.Sidecar
-	_, err := c.client.patch(path.Format("/v3/sidecars/%s", guid), r, &sc)
+	_, err := c.client.patch(ctx, path.Format("/v3/sidecars/%s", guid), r, &sc)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -27,7 +28,7 @@ func TestUsers(t *testing.T) {
 				r := &resource.UserCreate{
 					GUID: "3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
 				}
-				return c.Users.Create(r)
+				return c.Users.Create(context.Background(), r)
 			},
 		},
 		{
@@ -40,7 +41,7 @@ func TestUsers(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Users.Delete("3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
+				return c.Users.Delete(context.Background(), "3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
 			},
 		},
 		{
@@ -52,7 +53,7 @@ func TestUsers(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: user,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Users.Get("3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
+				return c.Users.Get(context.Background(), "3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
 			},
 		},
 		{
@@ -64,7 +65,7 @@ func TestUsers(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(user, user2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Users.ListAll(nil)
+				return c.Users.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -88,7 +89,7 @@ func TestUsers(t *testing.T) {
 						},
 					},
 				}
-				return c.Users.Update("3ebeaa8b-fd55-4724-a764-9f2231d8f7db", r)
+				return c.Users.Update(context.Background(), "3ebeaa8b-fd55-4724-a764-9f2231d8f7db", r)
 			},
 		},
 	}

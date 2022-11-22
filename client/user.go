@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -40,9 +41,9 @@ func (o UserListOptions) ToQueryString() url.Values {
 }
 
 // Create a new user
-func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
+func (c *UserClient) Create(ctx context.Context, r *resource.UserCreate) (*resource.User, error) {
 	var user resource.User
-	_, err := c.client.post("/v3/users", r, &user)
+	_, err := c.client.post(ctx, "/v3/users", r, &user)
 	if err != nil {
 		return nil, err
 	}
@@ -50,14 +51,14 @@ func (c *UserClient) Create(r *resource.UserCreate) (*resource.User, error) {
 }
 
 // Delete the specified user
-func (c *UserClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/users/%s", guid))
+func (c *UserClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/users/%s", guid))
 }
 
 // Get the specified user
-func (c *UserClient) Get(guid string) (*resource.User, error) {
+func (c *UserClient) Get(ctx context.Context, guid string) (*resource.User, error) {
 	var user resource.User
-	err := c.client.get(path.Format("/v3/users/%s", guid), &user)
+	err := c.client.get(ctx, path.Format("/v3/users/%s", guid), &user)
 	if err != nil {
 		return nil, err
 	}
@@ -65,12 +66,12 @@ func (c *UserClient) Get(guid string) (*resource.User, error) {
 }
 
 // List pages all users the user has access to
-func (c *UserClient) List(opts *UserListOptions) ([]*resource.User, *Pager, error) {
+func (c *UserClient) List(ctx context.Context, opts *UserListOptions) ([]*resource.User, *Pager, error) {
 	if opts == nil {
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(path.Format("/v3/users?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/users?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,19 +80,19 @@ func (c *UserClient) List(opts *UserListOptions) ([]*resource.User, *Pager, erro
 }
 
 // ListAll retrieves all users the user has access to
-func (c *UserClient) ListAll(opts *UserListOptions) ([]*resource.User, error) {
+func (c *UserClient) ListAll(ctx context.Context, opts *UserListOptions) ([]*resource.User, error) {
 	if opts == nil {
 		opts = NewUserListOptions()
 	}
 	return AutoPage[*UserListOptions, *resource.User](opts, func(opts *UserListOptions) ([]*resource.User, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of a user
-func (c *UserClient) Update(guid string, r *resource.UserUpdate) (*resource.User, error) {
+func (c *UserClient) Update(ctx context.Context, guid string, r *resource.UserUpdate) (*resource.User, error) {
 	var user resource.User
-	_, err := c.client.patch(path.Format("/v3/users/%s", guid), r, &user)
+	_, err := c.client.patch(ctx, path.Format("/v3/users/%s", guid), r, &user)
 	if err != nil {
 		return nil, err
 	}

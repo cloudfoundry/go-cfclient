@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -58,7 +59,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 					  "key1": "value1",
 					  "key2": "value2"
 					}`)
-				_, binding, err := c.ServiceCredentialBindings.Create(r)
+				_, binding, err := c.ServiceCredentialBindings.Create(context.Background(), r)
 				return binding, err
 			},
 		},
@@ -100,7 +101,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 					  "key1": "value1",
 					  "key2": "value2"
 					}`)
-				return c.ServiceCredentialBindings.Create(r)
+				return c.ServiceCredentialBindings.Create(context.Background(), r)
 			},
 		},
 		{
@@ -111,7 +112,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.ServiceCredentialBindings.Delete("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return nil, c.ServiceCredentialBindings.Delete(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -123,7 +124,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceCredentialBindings.Get("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.Get(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -135,7 +136,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: scbd,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceCredentialBindings.GetDetails("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.GetDetails(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -147,7 +148,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: `{ "foo": "bar", "foz": "baz" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceCredentialBindings.GetParameters("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.GetParameters(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -164,7 +165,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected:  scb,
 			Expected2: app,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.ServiceCredentialBindings.GetIncludeApp("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.GetIncludeApp(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -181,7 +182,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected:  scb,
 			Expected2: si,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.ServiceCredentialBindings.GetIncludeServiceInstance("59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.GetIncludeServiceInstance(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
 			},
 		},
 		{
@@ -193,7 +194,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(scb, scb2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceCredentialBindings.ListAll(nil)
+				return c.ServiceCredentialBindings.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -215,7 +216,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected:  g.Array(scb, scb2, scb3, scb4),
 			Expected2: g.Array(app, app2, app3, app4),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.ServiceCredentialBindings.ListIncludeAppsAll(nil)
+				return c.ServiceCredentialBindings.ListIncludeAppsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -236,7 +237,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected:  g.Array(scb, scb2, scb3, scb4),
 			Expected2: g.Array(si),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.ServiceCredentialBindings.ListIncludeServiceInstancesAll(nil)
+				return c.ServiceCredentialBindings.ListIncludeServiceInstancesAll(context.Background(), nil)
 			},
 		},
 		{
@@ -260,7 +261,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 						},
 					},
 				}
-				return c.ServiceCredentialBindings.Update("59ba6d78-6a21-4321-83a9-f7eacd88b08d", r)
+				return c.ServiceCredentialBindings.Update(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d", r)
 			},
 		},
 	}

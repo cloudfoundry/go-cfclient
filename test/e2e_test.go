@@ -4,6 +4,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -18,23 +19,24 @@ const (
 )
 
 func TestEndToEnd(t *testing.T) {
+	ctx := context.Background()
 	c := createClient(t)
 
 	// get the org with the access token
-	org := getOrg(t, c)
+	org := getOrg(t, ctx, c)
 	fmt.Println(org.Name)
 
 	// try to get the space
-	space := getSpace(t, c, org)
+	space := getSpace(t, ctx, c, org)
 	fmt.Println(space.Name)
 }
 
-func getOrg(t *testing.T, c *client.Client) *resource.Organization {
+func getOrg(t *testing.T, ctx context.Context, c *client.Client) *resource.Organization {
 	opts := client.NewOrgListOptions()
 	opts.Names = client.Filter{
 		Values: []string{OrgName},
 	}
-	orgs, _, err := c.Organizations.List(opts)
+	orgs, _, err := c.Organizations.List(ctx, opts)
 	require.NoError(t, err)
 
 	var org *resource.Organization
@@ -44,7 +46,7 @@ func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 		oc := &resource.OrganizationCreate{
 			Name: OrgName,
 		}
-		org, err = c.Organizations.Create(oc)
+		org, err = c.Organizations.Create(ctx, oc)
 		require.NoError(t, err)
 	}
 	require.Equal(t, OrgName, org.Name)
@@ -54,12 +56,12 @@ func getOrg(t *testing.T, c *client.Client) *resource.Organization {
 	return org
 }
 
-func getSpace(t *testing.T, c *client.Client, org *resource.Organization) *resource.Space {
+func getSpace(t *testing.T, ctx context.Context, c *client.Client, org *resource.Organization) *resource.Space {
 	opts := client.NewSpaceListOptions()
 	opts.Names = client.Filter{
 		Values: []string{SpaceName},
 	}
-	spaces, _, err := c.Spaces.List(opts)
+	spaces, _, err := c.Spaces.List(ctx, opts)
 	require.NoError(t, err)
 
 	var space *resource.Space
@@ -67,7 +69,7 @@ func getSpace(t *testing.T, c *client.Client, org *resource.Organization) *resou
 		space = spaces[0]
 	} else {
 		sc := resource.NewSpaceCreate(SpaceName, org.GUID)
-		space, err = c.Spaces.Create(sc)
+		space, err = c.Spaces.Create(ctx, sc)
 		require.NoError(t, err)
 	}
 	require.Equal(t, SpaceName, space.Name)

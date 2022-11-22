@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -25,9 +26,9 @@ func (o AppUsageOptions) ToQueryString() url.Values {
 }
 
 // Get retrieves the specified app event
-func (c *AppUsageClient) Get(guid string) (*resource.AppUsage, error) {
+func (c *AppUsageClient) Get(ctx context.Context, guid string) (*resource.AppUsage, error) {
 	var a resource.AppUsage
-	err := c.client.get(path.Format("/v3/app_usage_events/%s", guid), &a)
+	err := c.client.get(ctx, path.Format("/v3/app_usage_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +36,12 @@ func (c *AppUsageClient) Get(guid string) (*resource.AppUsage, error) {
 }
 
 // List pages all app usage events
-func (c *AppUsageClient) List(opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
+func (c *AppUsageClient) List(ctx context.Context, opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
 	if opts == nil {
 		opts = NewAppUsageOptions()
 	}
 	var res resource.AppUsageList
-	err := c.client.get(path.Format("/v3/app_usage_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/app_usage_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,12 +50,12 @@ func (c *AppUsageClient) List(opts *AppUsageOptions) ([]*resource.AppUsage, *Pag
 }
 
 // ListAll retrieves all app usage events
-func (c *AppUsageClient) ListAll(opts *AppUsageOptions) ([]*resource.AppUsage, error) {
+func (c *AppUsageClient) ListAll(ctx context.Context, opts *AppUsageOptions) ([]*resource.AppUsage, error) {
 	if opts == nil {
 		opts = NewAppUsageOptions()
 	}
 	return AutoPage[*AppUsageOptions, *resource.AppUsage](opts, func(opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
@@ -63,7 +64,7 @@ func (c *AppUsageClient) ListAll(opts *AppUsageOptions) ([]*resource.AppUsage, e
 //
 // There is the potential race condition if apps are currently being started, stopped, or scaled.
 // The seeded usage events will have the same guid as the app.
-func (c *AppUsageClient) Purge() error {
-	_, err := c.client.post("/v3/app_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
+func (c *AppUsageClient) Purge(ctx context.Context) error {
+	_, err := c.client.post(ctx, "/v3/app_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
 	return err
 }

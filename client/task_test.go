@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -25,7 +26,7 @@ func TestTasks(t *testing.T) {
 			},
 			Expected: task,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Tasks.Cancel("d9442132-4669-49f7-a3c5-8fa8d1150504")
+				return c.Tasks.Cancel(context.Background(), "d9442132-4669-49f7-a3c5-8fa8d1150504")
 			},
 		},
 		{
@@ -40,7 +41,7 @@ func TestTasks(t *testing.T) {
 			Expected: task,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewTaskCreateWithCommand("rake db:migrate")
-				return c.Tasks.Create("631b46a1-c3b6-4599-9659-72c9fd54817f", r)
+				return c.Tasks.Create(context.Background(), "631b46a1-c3b6-4599-9659-72c9fd54817f", r)
 			},
 		},
 		{
@@ -52,7 +53,7 @@ func TestTasks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: task,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Tasks.Get("d9442132-4669-49f7-a3c5-8fa8d1150504")
+				return c.Tasks.Get(context.Background(), "d9442132-4669-49f7-a3c5-8fa8d1150504")
 			},
 		},
 		{
@@ -64,7 +65,7 @@ func TestTasks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(task, task2, task3, task4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Tasks.ListAll(nil)
+				return c.Tasks.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -76,7 +77,7 @@ func TestTasks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(task, task2, task3, task4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Tasks.ListForAppAll("631b46a1-c3b6-4599-9659-72c9fd54817f", nil)
+				return c.Tasks.ListForAppAll(context.Background(), "631b46a1-c3b6-4599-9659-72c9fd54817f", nil)
 			},
 		},
 		{
@@ -100,7 +101,7 @@ func TestTasks(t *testing.T) {
 						},
 					},
 				}
-				return c.Tasks.Update("d9442132-4669-49f7-a3c5-8fa8d1150504", r)
+				return c.Tasks.Update(context.Background(), "d9442132-4669-49f7-a3c5-8fa8d1150504", r)
 			},
 		},
 	}

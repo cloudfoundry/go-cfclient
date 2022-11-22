@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -33,7 +34,7 @@ func TestSidecars(t *testing.T) {
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewSidecarCreate("auth-sidecar", "bundle exec rackup", []string{"web", "worker"}).
 					WithMemoryInMB(300)
-				return c.Sidecars.Create("631b46a1-c3b6-4599-9659-72c9fd54817f", r)
+				return c.Sidecars.Create(context.Background(), "631b46a1-c3b6-4599-9659-72c9fd54817f", r)
 			},
 		},
 		{
@@ -44,7 +45,7 @@ func TestSidecars(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Sidecars.Delete("319ac7e8-e34a-4b6f-89da-1753ad3ece93")
+				return nil, c.Sidecars.Delete(context.Background(), "319ac7e8-e34a-4b6f-89da-1753ad3ece93")
 			},
 		},
 		{
@@ -56,7 +57,7 @@ func TestSidecars(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: sidecar,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Sidecars.Get("319ac7e8-e34a-4b6f-89da-1753ad3ece93")
+				return c.Sidecars.Get(context.Background(), "319ac7e8-e34a-4b6f-89da-1753ad3ece93")
 			},
 		},
 		{
@@ -68,7 +69,7 @@ func TestSidecars(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(sidecar, sidecar2, sidecar3, sidecar4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Sidecars.ListForAppAll("631b46a1-c3b6-4599-9659-72c9fd54817f", nil)
+				return c.Sidecars.ListForAppAll(context.Background(), "631b46a1-c3b6-4599-9659-72c9fd54817f", nil)
 			},
 		},
 		{
@@ -80,7 +81,7 @@ func TestSidecars(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(sidecar, sidecar2, sidecar3, sidecar4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Sidecars.ListForProcessAll("0d2da177-c801-42a0-a6ca-ee4b10334954", nil)
+				return c.Sidecars.ListForProcessAll(context.Background(), "0d2da177-c801-42a0-a6ca-ee4b10334954", nil)
 			},
 		},
 	}

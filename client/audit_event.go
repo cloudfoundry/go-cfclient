@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -30,9 +31,9 @@ func (o AuditEventListOptions) ToQueryString() url.Values {
 }
 
 // Get retrieves the specified audit event
-func (c *AuditEventClient) Get(guid string) (*resource.AuditEvent, error) {
+func (c *AuditEventClient) Get(ctx context.Context, guid string) (*resource.AuditEvent, error) {
 	var a resource.AuditEvent
-	err := c.client.get(path.Format("/v3/audit_events/%s", guid), &a)
+	err := c.client.get(ctx, path.Format("/v3/audit_events/%s", guid), &a)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +41,12 @@ func (c *AuditEventClient) Get(guid string) (*resource.AuditEvent, error) {
 }
 
 // List pages all audit events the user has access to
-func (c *AuditEventClient) List(opts *AuditEventListOptions) ([]*resource.AuditEvent, *Pager, error) {
+func (c *AuditEventClient) List(ctx context.Context, opts *AuditEventListOptions) ([]*resource.AuditEvent, *Pager, error) {
 	if opts == nil {
 		opts = NewAuditEventListOptions()
 	}
 	var res resource.AuditEventList
-	err := c.client.get(path.Format("/v3/audit_events?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/audit_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -54,14 +55,14 @@ func (c *AuditEventClient) List(opts *AuditEventListOptions) ([]*resource.AuditE
 }
 
 // ListAll retrieves all audit events the user has access to
-func (c *AuditEventClient) ListAll(opts *AuditEventListOptions) ([]*resource.AuditEvent, error) {
+func (c *AuditEventClient) ListAll(ctx context.Context, opts *AuditEventListOptions) ([]*resource.AuditEvent, error) {
 	if opts == nil {
 		opts = NewAuditEventListOptions()
 	}
 
 	var all []*resource.AuditEvent
 	for {
-		page, pager, err := c.List(opts)
+		page, pager, err := c.List(ctx, opts)
 		if err != nil {
 			return nil, err
 		}

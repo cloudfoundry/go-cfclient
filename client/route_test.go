@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -48,7 +49,7 @@ func TestRoutes(t *testing.T) {
 					"a-hostname",
 					"/some_path",
 					6666)
-				return c.Routes.Create(r)
+				return c.Routes.Create(context.Background(), r)
 			},
 		},
 		{
@@ -61,7 +62,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.Delete("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.Delete(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -75,7 +76,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.DeleteUnmappedRoutesForSpace("cad48e84-5a48-421e-be07-f7b4f016f581")
+				return c.Routes.DeleteUnmappedRoutesForSpace(context.Background(), "cad48e84-5a48-421e-be07-f7b4f016f581")
 			},
 		},
 		{
@@ -88,7 +89,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: route,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.Get("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.Get(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -101,7 +102,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: routeDestinations,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.GetDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetDestinations(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -114,7 +115,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: routeSpaceRelationships,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.GetSharedSpacesRelationships("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetSharedSpacesRelationships(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -131,7 +132,7 @@ func TestRoutes(t *testing.T) {
 			Expected:  route,
 			Expected2: domain,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Routes.GetIncludeDomain("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetIncludeDomain(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -148,7 +149,7 @@ func TestRoutes(t *testing.T) {
 			Expected:  route,
 			Expected2: space,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Routes.GetIncludeSpace("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetIncludeSpace(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -167,7 +168,7 @@ func TestRoutes(t *testing.T) {
 			Expected2: space,
 			Expected3: org,
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Routes.GetIncludeSpaceAndOrg("5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetIncludeSpaceAndOrg(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -180,7 +181,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: "true",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.IsRouteReserved("f666ffc5-106e-4fda-b56f-568b5cf3ae9f", nil)
+				return c.Routes.IsRouteReserved(context.Background(), "f666ffc5-106e-4fda-b56f-568b5cf3ae9f", nil)
 			},
 		},
 		{
@@ -217,7 +218,7 @@ func TestRoutes(t *testing.T) {
 					resource.NewRouteDestinationInsertOrReplace("01856e12-8ee8-11e9-98a5-bb397dbc818f").
 						WithPort(9000).WithProtocol("http1").WithProcessType("api"),
 				}
-				return c.Routes.InsertDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82", d)
+				return c.Routes.InsertDestinations(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", d)
 			},
 		},
 		{
@@ -230,7 +231,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: g.Array(route, route2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.ListAll(nil)
+				return c.Routes.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -243,7 +244,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: g.Array(route, route2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.ListForAppAll("758c78dc-60bc-4f84-999b-247bdc2c37fe", nil)
+				return c.Routes.ListForAppAll(context.Background(), "758c78dc-60bc-4f84-999b-247bdc2c37fe", nil)
 			},
 		},
 		{
@@ -264,7 +265,7 @@ func TestRoutes(t *testing.T) {
 			Expected:  g.Array(route, route2),
 			Expected2: g.Array(domain),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Routes.ListIncludeDomainsAll(nil)
+				return c.Routes.ListIncludeDomainsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -286,7 +287,7 @@ func TestRoutes(t *testing.T) {
 			Expected:  g.Array(route, route2),
 			Expected2: g.Array(space, space2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Routes.ListIncludeSpacesAll(nil)
+				return c.Routes.ListIncludeSpacesAll(context.Background(), nil)
 			},
 		},
 		{
@@ -310,7 +311,7 @@ func TestRoutes(t *testing.T) {
 			Expected2: g.Array(space, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Routes.ListIncludeSpacesAndOrgsAll(nil)
+				return c.Routes.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -321,7 +322,7 @@ func TestRoutes(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Routes.RemoveDestination("5a85c020-3e3d-42a5-a475-5084c5357e82",
+				return nil, c.Routes.RemoveDestination(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82",
 					"1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
@@ -365,7 +366,7 @@ func TestRoutes(t *testing.T) {
 						WithProcessType("api").
 						WithWeight(39),
 				}
-				return c.Routes.ReplaceDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82", d)
+				return c.Routes.ReplaceDestinations(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", d)
 			},
 		},
 		{
@@ -379,7 +380,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: routeSpaceRelationships,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.ShareWithSpace("5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
+				return c.Routes.ShareWithSpace(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
 			},
 		},
 		{
@@ -390,7 +391,7 @@ func TestRoutes(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Routes.UnShareWithSpaces("5a85c020-3e3d-42a5-a475-5084c5357e82", []string{"68d54d31-9b3a-463b-ba94-e8e4c32edbac"})
+				return nil, c.Routes.UnShareWithSpaces(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", []string{"68d54d31-9b3a-463b-ba94-e8e4c32edbac"})
 			},
 		},
 		{
@@ -402,7 +403,7 @@ func TestRoutes(t *testing.T) {
 				PostForm: `{ "data": { "guid": "68d54d31-9b3a-463b-ba94-e8e4c32edbac"} }`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Routes.TransferOwnership("5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
+				return nil, c.Routes.TransferOwnership(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
 			},
 		},
 		{
@@ -416,7 +417,7 @@ func TestRoutes(t *testing.T) {
 			},
 			Expected: routeDestinationWithLinks,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Routes.UpdateDestinationProtocol(
+				return c.Routes.UpdateDestinationProtocol(context.Background(),
 					"5a85c020-3e3d-42a5-a475-5084c5357e82",
 					"6e2123df-db4f-4d89-941b-5c79a0b0aa4a",
 					"http2")
@@ -443,7 +444,7 @@ func TestRoutes(t *testing.T) {
 						},
 					},
 				}
-				return c.Routes.Update("5a85c020-3e3d-42a5-a475-5084c5357e82", r)
+				return c.Routes.Update(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", r)
 			},
 		},
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
@@ -22,7 +23,7 @@ func TestServiceUsages(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: serviceUsage,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceUsageEvents.Get("cb4fb5eb-9b72-4696-b7bc-666696dec1b3")
+				return c.ServiceUsageEvents.Get(context.Background(), "cb4fb5eb-9b72-4696-b7bc-666696dec1b3")
 			},
 		},
 		{
@@ -34,7 +35,7 @@ func TestServiceUsages(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(serviceUsage, serviceUsage2, serviceUsage3),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceUsageEvents.ListAll(nil)
+				return c.ServiceUsageEvents.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -44,7 +45,7 @@ func TestServiceUsages(t *testing.T) {
 				Endpoint: "/v3/service_usage_events/actions/destructively_purge_all_and_reseed",
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.ServiceUsageEvents.Purge()
+				err := c.ServiceUsageEvents.Purge(context.Background())
 				return nil, err
 			},
 		},
