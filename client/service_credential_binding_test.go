@@ -22,7 +22,7 @@ func TestServiceCredentialBindings(t *testing.T) {
 
 	tests := []RouteTest{
 		{
-			Description: "Create service credential binding",
+			Description: "Create app service credential binding for user provided service",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_credential_bindings",
@@ -51,6 +51,48 @@ func TestServiceCredentialBindings(t *testing.T) {
 			},
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewServiceCredentialBindingCreateApp(
+					"7304bc3c-7010-11ea-8840-48bf6bec2d78", "e0e4417c-74ee-11ea-a604-48bf6bec2d78").
+					WithName("some-binding-name").
+					WithJSONParameters(`{
+					  "key1": "value1",
+					  "key2": "value2"
+					}`)
+				_, binding, err := c.ServiceCredentialBindings.Create(r)
+				return binding, err
+			},
+		},
+		{
+			Description: "Create app service credential binding for managed service instance",
+			Route: testutil.MockRoute{
+				Method:           "POST",
+				Endpoint:         "/v3/service_credential_bindings",
+				Output:           g.Single(scb),
+				Status:           http.StatusCreated,
+				RedirectLocation: "https://api.example.org/v3/jobs/af5c57f6-8769-41fa-a499-2c84ed896788",
+				PostForm: `{
+					"type": "app",
+					"name": "some-binding-name",
+					"relationships": {
+					  "service_instance": {
+						"data": {
+						  "guid": "7304bc3c-7010-11ea-8840-48bf6bec2d78"
+						}
+					  },
+					  "app": {
+						"data": {
+						  "guid": "e0e4417c-74ee-11ea-a604-48bf6bec2d78"
+						}
+					  }
+					},
+					"parameters": {
+					  "key1": "value1",
+					  "key2": "value2"
+					}
+				  }`,
+			},
+			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				r := resource.NewServiceCredentialBindingCreateApp(
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78", "e0e4417c-74ee-11ea-a604-48bf6bec2d78").
 					WithName("some-binding-name").
