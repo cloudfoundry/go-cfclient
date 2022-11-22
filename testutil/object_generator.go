@@ -306,6 +306,21 @@ func (o ObjectJSONGenerator) Route() *JSONResource {
 	return o.renderTemplate(r, "route.json")
 }
 
+func (o ObjectJSONGenerator) RouteSpaceRelationships() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "route_space_relationships.json")
+}
+
+func (o ObjectJSONGenerator) RouteDestinations() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "route_destinations.json")
+}
+
+func (o ObjectJSONGenerator) RouteDestinationWithLinks() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "route_destination_with_links.json")
+}
+
 func (o ObjectJSONGenerator) ServiceBroker() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),

@@ -13,9 +13,9 @@ type Route struct {
 	Port         int                `json:"port"`
 	Destinations []RouteDestination `json:"destinations"`
 
-	Metadata      Metadata                   `json:"metadata"`
-	Relationships ToSpaceDomainRelationships `json:"relationships"`
-	Links         map[string]Link            `json:"links"`
+	Metadata      Metadata           `json:"metadata"`
+	Relationships RouteRelationships `json:"relationships"`
+	Links         map[string]Link    `json:"links"`
 }
 
 type RouteCreate struct {
@@ -36,26 +36,52 @@ type RouteList struct {
 	Included   *RouteIncluded `json:"included"`
 }
 
+type RouteSharedSpaceRelationships struct {
+	Data  []Relationship  `json:"data"`
+	Links map[string]Link `json:"links"`
+}
+
+type RouteDestinations struct {
+	Destinations []*RouteDestination `json:"destinations"`
+	Links        map[string]Link     `json:"links,omitempty"`
+}
+
+type RouteDestinationsInsertOrReplace struct {
+	Destinations []*RouteDestinationInsertOrReplace `json:"destinations"`
+}
+
 type RouteDestination struct {
-	GUID     string              `json:"guid"`
-	Route    RouteDestinationApp `json:"app"`
+	GUID     *string             `json:"guid,omitempty"`
+	App      RouteDestinationApp `json:"app"`
 	Weight   *int                `json:"weight"`
-	Port     int                 `json:"port"`
-	Protocol string              `json:"protocol"`
+	Port     *int                `json:"port,omitempty"`
+	Protocol *string             `json:"protocol,omitempty"`
+}
+
+type RouteDestinationInsertOrReplace struct {
+	GUID     *string             `json:"guid,omitempty"`
+	App      RouteDestinationApp `json:"app"`
+	Weight   *int                `json:"weight,omitempty"`
+	Port     *int                `json:"port,omitempty"`
+	Protocol *string             `json:"protocol,omitempty"`
+}
+
+type RouteDestinationWithLinks struct {
+	RouteDestination
+	Links map[string]Link `json:"links"`
+}
+
+type RouteDestinationProtocolUpdate struct {
+	Protocol *string `json:"protocol"`
 }
 
 type RouteDestinationApp struct {
-	GUID    string                     `json:"guid"`
-	Process RouteDestinationAppProcess `json:"process"`
+	GUID    *string                     `json:"guid,omitempty"`
+	Process *RouteDestinationAppProcess `json:"process,omitempty"`
 }
 
 type RouteDestinationAppProcess struct {
 	Type string `json:"type"`
-}
-
-type ToSpaceDomainRelationships struct {
-	Space  ToOneRelationship `json:"space"`
-	Domain ToOneRelationship `json:"domain"`
 }
 
 type RouteRelationships struct {
@@ -119,4 +145,35 @@ func NewRouteCreateWithHost(domainGUID, spaceGUID, host, path string, port int) 
 	rc.Path = &path
 	rc.Port = &port
 	return rc
+}
+
+func NewRouteDestinationInsertOrReplace(appGUID string) *RouteDestinationInsertOrReplace {
+	return &RouteDestinationInsertOrReplace{
+		App: RouteDestinationApp{
+			GUID: &appGUID,
+		},
+	}
+}
+
+func (r *RouteDestinationInsertOrReplace) WithProcessType(processType string) *RouteDestinationInsertOrReplace {
+	if r.App.Process == nil {
+		r.App.Process = &RouteDestinationAppProcess{}
+	}
+	r.App.Process.Type = processType
+	return r
+}
+
+func (r *RouteDestinationInsertOrReplace) WithPort(port int) *RouteDestinationInsertOrReplace {
+	r.Port = &port
+	return r
+}
+
+func (r *RouteDestinationInsertOrReplace) WithWeight(weight int) *RouteDestinationInsertOrReplace {
+	r.Weight = &weight
+	return r
+}
+
+func (r *RouteDestinationInsertOrReplace) WithProtocol(protocol string) *RouteDestinationInsertOrReplace {
+	r.Protocol = &protocol
+	return r
 }
