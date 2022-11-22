@@ -49,7 +49,7 @@ The services of a client divide the API into logical chunks and correspond to th
 at https://v3-apidocs.cloudfoundry.org. In other words each major resource type has its own service client that
 is accessible via the main client instance.
 ```go
-apps, _ := cf.Applications.ListAll(nil)
+apps, _ := cf.Applications.ListAll(context.Background(), nil)
 for _, app := range apps {
     fmt.Printf("Application %s is %s\n", app.Name, app.State)
 }
@@ -57,6 +57,10 @@ for _, app := range apps {
 All clients and their functions that interact with the CF API live in the `client` package. The client package
 is responsible for making HTTP requests using the resources defined in the `resource` package. All generic serializable
 resource definitions live in the `resource` package and could be reused with other client's outside this library.
+
+__NOTE__ - Using the context package you can easily pass cancellation signals and deadlines to various client calls
+for handling a request. In case there is no context available, then `context.Background()` can be used as a starting
+point.
 
 ### Pagination
 All requests for resource collections (apps, orgs, spaces etc) support pagination. Pagination options are described
@@ -67,7 +71,7 @@ Example iterating through all apps one page at a time:
 ```go
 opts := client.NewAppListOptions()
 for {
-    apps, pager, _ := cf.Applications.List(opts)
+    apps, pager, _ := cf.Applications.List(context.Background(), opts)
     for _, app := range apps {
         fmt.Printf("Application %s is %s\n", app.Name, app.State)
     }  
@@ -81,7 +85,7 @@ If you'd rather have your code get _all_ of the resources in one go and not worr
 has a corresponding `All` method that gathers all the resources from every page before returning.
 ```go
 opts := client.NewAppListOptions()
-apps, _ := cf.Applications.ListAll(opts)
+apps, _ := cf.Applications.ListAll(context.Background(), opts)
 for _, app := range apps {
     fmt.Printf("Application %s is %s\n", app.Name, app.State)
 }
@@ -92,12 +96,12 @@ Some API calls are long-running so immediately return a JobID (GUID) instead of 
 those cases you only know if the job was accepted. You will need to poll the Job API to find out when the job
 finishes. There's a `PollComplete` method to block until the job finishes:
 ```go
-jobGUID, err := cf.Manifests.ApplyManifest(spaceGUID, manifest))
+jobGUID, err := cf.Manifests.ApplyManifest(context.Background(), spaceGUID, manifest))
 if err != nil {
     return err
 }
 opts := client.NewPollingOptions()
-err = cf.Jobs.PollComplete(jobGUID, opts)
+err = cf.Jobs.PollComplete(context.Background(), jobGUID, opts)
 if err != nil {
     return err
 }
