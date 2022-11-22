@@ -15,6 +15,9 @@ func TestRoutes(t *testing.T) {
 	space := g.Space().JSON
 	space2 := g.Space().JSON
 	org := g.Organization().JSON
+	routeSpaceRelationships := g.RouteSpaceRelationships().JSON
+	routeDestinations := g.RouteDestinations().JSON
+	routeDestinationWithLinks := g.RouteDestinationWithLinks().JSON
 
 	tests := []RouteTest{
 		{
@@ -62,6 +65,20 @@ func TestRoutes(t *testing.T) {
 			},
 		},
 		{
+			Description: "Delete unmapped routes for space",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/spaces/cad48e84-5a48-421e-be07-f7b4f016f581/routes",
+				QueryString:      "unmapped=true",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.DeleteUnmappedRoutesForSpace("cad48e84-5a48-421e-be07-f7b4f016f581")
+			},
+		},
+		{
 			Description: "Get route",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -72,6 +89,32 @@ func TestRoutes(t *testing.T) {
 			Expected: route,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Routes.Get("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get route destinations",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/destinations",
+				Output:   g.Single(routeDestinations),
+				Status:   http.StatusOK,
+			},
+			Expected: routeDestinations,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.GetDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Get shared spaces relationships",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/relationships/shared_spaces",
+				Output:   g.Single(routeSpaceRelationships),
+				Status:   http.StatusOK,
+			},
+			Expected: routeSpaceRelationships,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.GetSharedSpacesRelationships("5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -125,6 +168,56 @@ func TestRoutes(t *testing.T) {
 			Expected3: org,
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
 				return c.Routes.GetIncludeSpaceAndOrg("5a85c020-3e3d-42a5-a475-5084c5357e82")
+			},
+		},
+		{
+			Description: "Check if the route is reserved",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/domains/f666ffc5-106e-4fda-b56f-568b5cf3ae9f/route_reservations",
+				Output:   g.Single(`{ "matching_route": true }`),
+				Status:   http.StatusOK,
+			},
+			Expected: "true",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.IsRouteReserved("f666ffc5-106e-4fda-b56f-568b5cf3ae9f", nil)
+			},
+		},
+		{
+			Description: "Insert route destinations",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/destinations",
+				Output:   g.Single(routeDestinations),
+				Status:   http.StatusCreated,
+				PostForm: `{
+					"destinations": [
+					  {
+						"app": {
+						  "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446"
+						}
+					  },
+					  {
+						"app": {
+						  "guid": "01856e12-8ee8-11e9-98a5-bb397dbc818f",
+						  "process": {
+							"type": "api"
+						  }
+						},
+						"port": 9000,
+						"protocol": "http1"
+					  }
+					]
+				  }`,
+			},
+			Expected: routeDestinations,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				d := []*resource.RouteDestinationInsertOrReplace{
+					resource.NewRouteDestinationInsertOrReplace("1cb006ee-fb05-47e1-b541-c34179ddc446"),
+					resource.NewRouteDestinationInsertOrReplace("01856e12-8ee8-11e9-98a5-bb397dbc818f").
+						WithPort(9000).WithProtocol("http1").WithProcessType("api"),
+				}
+				return c.Routes.InsertDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82", d)
 			},
 		},
 		{
@@ -218,6 +311,115 @@ func TestRoutes(t *testing.T) {
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
 				return c.Routes.ListIncludeSpacesAndOrgsAll(nil)
+			},
+		},
+		{
+			Description: "Remove destination for route",
+			Route: testutil.MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/destinations/1cb006ee-fb05-47e1-b541-c34179ddc446",
+				Status:   http.StatusNoContent,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Routes.RemoveDestination("5a85c020-3e3d-42a5-a475-5084c5357e82",
+					"1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
+			Description: "Replace route destinations",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/destinations",
+				Output:   g.Single(routeDestinations),
+				Status:   http.StatusOK,
+				PostForm: `{
+					"destinations": [
+					  {
+						"app": {
+						  "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446"
+						},
+ 						"weight": 61
+					  },
+					  {
+						"app": {
+						  "guid": "01856e12-8ee8-11e9-98a5-bb397dbc818f",
+						  "process": {
+							"type": "api"
+						  }
+						},
+						"weight": 39,
+						"port": 9000,
+						"protocol": "http1"
+					  }
+					]
+				  }`,
+			},
+			Expected: routeDestinations,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				d := []*resource.RouteDestinationInsertOrReplace{
+					resource.NewRouteDestinationInsertOrReplace("1cb006ee-fb05-47e1-b541-c34179ddc446").
+						WithWeight(61),
+					resource.NewRouteDestinationInsertOrReplace("01856e12-8ee8-11e9-98a5-bb397dbc818f").
+						WithPort(9000).
+						WithProtocol("http1").
+						WithProcessType("api").
+						WithWeight(39),
+				}
+				return c.Routes.ReplaceDestinations("5a85c020-3e3d-42a5-a475-5084c5357e82", d)
+			},
+		},
+		{
+			Description: "Share route with space",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/relationships/shared_spaces",
+				Output:   g.Single(routeSpaceRelationships),
+				Status:   http.StatusOK,
+				PostForm: `{ "data": [{ "guid":"68d54d31-9b3a-463b-ba94-e8e4c32edbac" }]}`,
+			},
+			Expected: routeSpaceRelationships,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.ShareWithSpace("5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
+			},
+		},
+		{
+			Description: "Un-Share route with spaces",
+			Route: testutil.MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/relationships/shared_spaces/68d54d31-9b3a-463b-ba94-e8e4c32edbac",
+				Status:   http.StatusNoContent,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Routes.UnShareWithSpaces("5a85c020-3e3d-42a5-a475-5084c5357e82", []string{"68d54d31-9b3a-463b-ba94-e8e4c32edbac"})
+			},
+		},
+		{
+			Description: "Transfer route ownership",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/relationships/space",
+				Status:   http.StatusNoContent,
+				PostForm: `{ "data": { "guid": "68d54d31-9b3a-463b-ba94-e8e4c32edbac"} }`,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Routes.TransferOwnership("5a85c020-3e3d-42a5-a475-5084c5357e82", "68d54d31-9b3a-463b-ba94-e8e4c32edbac")
+			},
+		},
+		{
+			Description: "Update destination protocol",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82/destinations/6e2123df-db4f-4d89-941b-5c79a0b0aa4a",
+				Output:   g.Single(routeDestinationWithLinks),
+				Status:   http.StatusOK,
+				PostForm: `{"protocol": "http2"}`,
+			},
+			Expected: routeDestinationWithLinks,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Routes.UpdateDestinationProtocol(
+					"5a85c020-3e3d-42a5-a475-5084c5357e82",
+					"6e2123df-db4f-4d89-941b-5c79a0b0aa4a",
+					"http2")
 			},
 		},
 		{
