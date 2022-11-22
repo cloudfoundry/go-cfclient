@@ -8,7 +8,7 @@ type Route struct {
 	UpdatedAt    time.Time          `json:"updated_at"`
 	Host         string             `json:"host"`
 	Path         string             `json:"path"`
-	Url          string             `json:"url"`
+	URL          string             `json:"url"`
 	Protocol     string             `json:"protocol"`
 	Port         int                `json:"port"`
 	Destinations []RouteDestination `json:"destinations"`

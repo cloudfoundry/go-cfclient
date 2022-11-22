@@ -1,0 +1,7 @@
+---
+applications:
+  - name: go-cfclient-hello-world
+    memory: 64M
+    buildpacks:
+      - go_buildpack
+
