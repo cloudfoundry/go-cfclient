@@ -1,8 +1,8 @@
 # go-cfclient
 
 [![build workflow](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml)
-[![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient?status.svg)](http://godoc.org/github.com/cloudfoundry-community/go-cfclient)
-[![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient)
+[![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3?status.svg)](http://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3)
+[![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient/v3)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient/v3)
 
 ## Overview
 `go-cfclient` is a go module library to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
