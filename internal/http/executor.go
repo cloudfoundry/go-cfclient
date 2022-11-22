@@ -3,11 +3,23 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"io"
 	"net/http"
 )
+
+var errNilContext = errors.New("context cannot be nil")
+
+// supportedHTTPMethods are the HTTP verbs this executor supports
+var supportedHTTPMethods = []string{
+	http.MethodGet,
+	http.MethodPost,
+	http.MethodPut,
+	http.MethodDelete,
+	http.MethodPatch,
+}
 
 // Executor handles executing HTTP requests
 type Executor struct {
@@ -55,6 +67,13 @@ func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
 
 // newHTTPRequest creates a new *http.Request instance from the internal model
 func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
+	if request.context == nil {
+		return nil, errNilContext
+	}
+	if !isSupportedHTTPMethod(request.method) {
+		return nil, fmt.Errorf("error executing request, found unsupport HTTP method %s", request.method)
+	}
+
 	// JSON encode the object and use that as the body if specified, otherwise use the body as-is
 	reqBody := request.body
 	if request.object != nil {
@@ -66,7 +85,7 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 	}
 	u := path.Join(c.apiAddress, request.pathAndQuery)
 
-	r, err := http.NewRequest(request.method, u, reqBody)
+	r, err := http.NewRequestWithContext(request.context, request.method, u, reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed to create a new underlying HTTP request: %w", err)
 	}
@@ -84,7 +103,7 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 	return r, nil
 }
 
-// do the proper http.Client and calls Do on it using the specified http.Request
+// do will get the proper http.Client and calls Do on it using the specified http.Request
 func (c *Executor) do(request *http.Request, followRedirects bool) (*http.Response, error) {
 	client, err := c.clientProvider.Client(followRedirects)
 	if err != nil {
@@ -92,6 +111,13 @@ func (c *Executor) do(request *http.Request, followRedirects bool) (*http.Respon
 	}
 	r, err := client.Do(request)
 	if err != nil {
+		// if we get an error because the context was cancelled, the context's error is more useful.
+		ctx := request.Context()
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
 		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
 	}
 	return r, nil
@@ -115,4 +141,14 @@ func encodeBody(obj any) (io.Reader, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// isSupportedHTTPMethod returns true if the executor supports this HTTP method
+func isSupportedHTTPMethod(method string) bool {
+	for _, v := range supportedHTTPMethods {
+		if v == method {
+			return true
+		}
+	}
+	return false
 }

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -36,9 +37,9 @@ func (o TaskListOptions) ToQueryString() url.Values {
 // Canceled tasks will initially be in state CANCELING and will move to state FAILED once the cancel request
 // has been processed. Cancel requests are idempotent and will be processed according to the state of the
 // task when the request is executed. Canceling a task that is in SUCCEEDED or FAILED state will return an error.
-func (c *TaskClient) Cancel(guid string) (*resource.Task, error) {
+func (c *TaskClient) Cancel(ctx context.Context, guid string) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.post(path.Format("/v3/tasks/%s/actions/cancel", guid), nil, &task)
+	_, err := c.client.post(ctx, path.Format("/v3/tasks/%s/actions/cancel", guid), nil, &task)
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +47,9 @@ func (c *TaskClient) Cancel(guid string) (*resource.Task, error) {
 }
 
 // Create a new task for the specified app
-func (c *TaskClient) Create(appGUID string, r *resource.TaskCreate) (*resource.Task, error) {
+func (c *TaskClient) Create(ctx context.Context, appGUID string, r *resource.TaskCreate) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.post(path.Format("/v3/apps/%s/tasks", appGUID), r, &task)
+	_, err := c.client.post(ctx, path.Format("/v3/apps/%s/tasks", appGUID), r, &task)
 	if err != nil {
 		return nil, err
 	}
@@ -56,9 +57,9 @@ func (c *TaskClient) Create(appGUID string, r *resource.TaskCreate) (*resource.T
 }
 
 // Get the specified task
-func (c *TaskClient) Get(guid string) (*resource.Task, error) {
+func (c *TaskClient) Get(ctx context.Context, guid string) (*resource.Task, error) {
 	var task resource.Task
-	err := c.client.get(path.Format("/v3/tasks/%s", guid), &task)
+	err := c.client.get(ctx, path.Format("/v3/tasks/%s", guid), &task)
 	if err != nil {
 		return nil, err
 	}
@@ -66,13 +67,13 @@ func (c *TaskClient) Get(guid string) (*resource.Task, error) {
 }
 
 // List pages all the tasks the user has access to. The command field is excluded in the response.
-func (c *TaskClient) List(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+func (c *TaskClient) List(ctx context.Context, opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
 	if opts == nil {
 		opts = NewTaskListOptions()
 	}
 
 	var res resource.TaskList
-	err := c.client.get(path.Format("/v3/tasks?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/tasks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,24 +82,24 @@ func (c *TaskClient) List(opts *TaskListOptions) ([]*resource.Task, *Pager, erro
 }
 
 // ListAll retrieves all tasks the user has access to. The command field is excluded in the response.
-func (c *TaskClient) ListAll(opts *TaskListOptions) ([]*resource.Task, error) {
+func (c *TaskClient) ListAll(ctx context.Context, opts *TaskListOptions) ([]*resource.Task, error) {
 	if opts == nil {
 		opts = NewTaskListOptions()
 	}
 	return AutoPage[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListForApp pages all the tasks for the specified app that the user has access to. The command field
 // may be excluded in the response based on the user’s role.
-func (c *TaskClient) ListForApp(appGUID string, opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+func (c *TaskClient) ListForApp(ctx context.Context, appGUID string, opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
 	if opts == nil {
 		opts = NewTaskListOptions()
 	}
 
 	var res resource.TaskList
-	err := c.client.get(path.Format("/v3/apps/%s/tasks?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/tasks?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -108,19 +109,19 @@ func (c *TaskClient) ListForApp(appGUID string, opts *TaskListOptions) ([]*resou
 
 // ListForAppAll retrieves all the tasks for the specified app that the user has access to. The command field
 // may be excluded in the response based on the user’s role.
-func (c *TaskClient) ListForAppAll(appGUID string, opts *TaskListOptions) ([]*resource.Task, error) {
+func (c *TaskClient) ListForAppAll(ctx context.Context, appGUID string, opts *TaskListOptions) ([]*resource.Task, error) {
 	if opts == nil {
 		opts = NewTaskListOptions()
 	}
 	return AutoPage[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
-		return c.ListForApp(appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
 // Update the specified attributes of the task
-func (c *TaskClient) Update(guid string, r *resource.TaskUpdate) (*resource.Task, error) {
+func (c *TaskClient) Update(ctx context.Context, guid string, r *resource.TaskUpdate) (*resource.Task, error) {
 	var task resource.Task
-	_, err := c.client.patch(path.Format("/v3/tasks/%s", guid), r, &task)
+	_, err := c.client.patch(ctx, path.Format("/v3/tasks/%s", guid), r, &task)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -47,7 +48,7 @@ func TestServiceBrokers(t *testing.T) {
 					"https://example.service-broker.com",
 					"us3rn4me", "p4ssw0rd")
 				r.WithSpace("2f35885d-0c9d-4423-83ad-fd05066f8576")
-				return c.ServiceBrokers.Create(r)
+				return c.ServiceBrokers.Create(context.Background(), r)
 			},
 		},
 		{
@@ -60,7 +61,7 @@ func TestServiceBrokers(t *testing.T) {
 			},
 			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceBrokers.Delete("c680ad12-1ada-4051-8f85-e859e3819c6a")
+				return c.ServiceBrokers.Delete(context.Background(), "c680ad12-1ada-4051-8f85-e859e3819c6a")
 			},
 		},
 		{
@@ -72,7 +73,7 @@ func TestServiceBrokers(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: sb,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceBrokers.Get("c680ad12-1ada-4051-8f85-e859e3819c6a")
+				return c.ServiceBrokers.Get(context.Background(), "c680ad12-1ada-4051-8f85-e859e3819c6a")
 			},
 		},
 		{
@@ -84,7 +85,7 @@ func TestServiceBrokers(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(sb, sb2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceBrokers.ListAll(nil)
+				return c.ServiceBrokers.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -113,7 +114,7 @@ func TestServiceBrokers(t *testing.T) {
 					WithName("my_service_broker").
 					WithURL("https://example.service-broker.com").
 					WithCredentials("us3rn4me", "p4ssw0rd")
-				return c.ServiceBrokers.Update("c680ad12-1ada-4051-8f85-e859e3819c6a", r)
+				return c.ServiceBrokers.Update(context.Background(), "c680ad12-1ada-4051-8f85-e859e3819c6a", r)
 			},
 		},
 	}

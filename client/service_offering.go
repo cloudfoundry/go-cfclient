@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -33,15 +34,15 @@ func (o ServiceOfferingListOptions) ToQueryString() url.Values {
 }
 
 // Delete the specified service offering
-func (c *ServiceOfferingClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/service_offerings/%s", guid))
+func (c *ServiceOfferingClient) Delete(ctx context.Context, guid string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/service_offerings/%s", guid))
 	return err
 }
 
 // Get the specified service offering
-func (c *ServiceOfferingClient) Get(guid string) (*resource.ServiceOffering, error) {
+func (c *ServiceOfferingClient) Get(ctx context.Context, guid string) (*resource.ServiceOffering, error) {
 	var ServiceOffering resource.ServiceOffering
-	err := c.client.get(path.Format("/v3/service_offerings/%s", guid), &ServiceOffering)
+	err := c.client.get(ctx, path.Format("/v3/service_offerings/%s", guid), &ServiceOffering)
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +50,13 @@ func (c *ServiceOfferingClient) Get(guid string) (*resource.ServiceOffering, err
 }
 
 // List pages service offerings the user has access to
-func (c *ServiceOfferingClient) List(opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, *Pager, error) {
+func (c *ServiceOfferingClient) List(ctx context.Context, opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, *Pager, error) {
 	if opts == nil {
 		opts = NewServiceOfferingListOptions()
 	}
 
 	var res resource.ServiceOfferingList
-	err := c.client.get(path.Format("/v3/service_offerings?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/service_offerings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,19 +65,19 @@ func (c *ServiceOfferingClient) List(opts *ServiceOfferingListOptions) ([]*resou
 }
 
 // ListAll retrieves all service offerings the user has access to
-func (c *ServiceOfferingClient) ListAll(opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, error) {
+func (c *ServiceOfferingClient) ListAll(ctx context.Context, opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, error) {
 	if opts == nil {
 		opts = NewServiceOfferingListOptions()
 	}
 	return AutoPage[*ServiceOfferingListOptions, *resource.ServiceOffering](opts, func(opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the service offering
-func (c *ServiceOfferingClient) Update(guid string, r *resource.ServiceOfferingUpdate) (*resource.ServiceOffering, error) {
+func (c *ServiceOfferingClient) Update(ctx context.Context, guid string, r *resource.ServiceOfferingUpdate) (*resource.ServiceOffering, error) {
 	var res resource.ServiceOffering
-	_, err := c.client.patch(path.Format("/v3/service_offerings/%s", guid), r, &res)
+	_, err := c.client.patch(ctx, path.Format("/v3/service_offerings/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}

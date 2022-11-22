@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -27,6 +28,7 @@ func main() {
 }
 
 func runPush(org, space, pathToZip string) error {
+	ctx := context.Background()
 	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
@@ -48,7 +50,7 @@ func runPush(org, space, pathToZip string) error {
 		return err
 	}
 	pushOp := operation.NewAppPushOperation(cf, org, space)
-	app, err := pushOp.Push(manifest.Applications[0], zipFile)
+	app, err := pushOp.Push(ctx, manifest.Applications[0], zipFile)
 	if err != nil {
 		return err
 	}

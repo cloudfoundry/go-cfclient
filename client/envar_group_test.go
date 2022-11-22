@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -21,7 +22,7 @@ func TestEnvVarGroups(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: envVarGroup,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.EnvVarGroups.GetRunning()
+				return c.EnvVarGroups.GetRunning(context.Background())
 			},
 		},
 		{
@@ -40,7 +41,7 @@ func TestEnvVarGroups(t *testing.T) {
 						"DEBUG": "false",
 					},
 				}
-				return c.EnvVarGroups.UpdateStaging(r)
+				return c.EnvVarGroups.UpdateStaging(context.Background(), r)
 			},
 		},
 	}

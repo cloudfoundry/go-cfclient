@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -29,20 +30,20 @@ func (o OrgListOptions) ToQueryString() url.Values {
 // AssignDefaultIsoSegment assigns a default iso segment to the specified org
 //
 // Apps will not run in the new default isolation segment until they are restarted
-func (c *OrgClient) AssignDefaultIsoSegment(guid, isoSegmentGUID string) error {
+func (c *OrgClient) AssignDefaultIsoSegment(ctx context.Context, guid, isoSegmentGUID string) error {
 	r := &resource.ToOneRelationship{
 		Data: &resource.Relationship{
 			GUID: isoSegmentGUID,
 		},
 	}
-	_, err := c.client.patch(path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
+	_, err := c.client.patch(ctx, path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
 	return err
 }
 
 // Create an organization
-func (c *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organization, error) {
+func (c *OrgClient) Create(ctx context.Context, r *resource.OrganizationCreate) (*resource.Organization, error) {
 	var org resource.Organization
-	_, err := c.client.post("/v3/organizations", r, &org)
+	_, err := c.client.post(ctx, "/v3/organizations", r, &org)
 	if err != nil {
 		return nil, err
 	}
@@ -50,14 +51,14 @@ func (c *OrgClient) Create(r *resource.OrganizationCreate) (*resource.Organizati
 }
 
 // Delete the specified organization asynchronously and return a jobGUID
-func (c *OrgClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/organizations/%s", guid))
+func (c *OrgClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/organizations/%s", guid))
 }
 
 // Get the specified organization
-func (c *OrgClient) Get(guid string) (*resource.Organization, error) {
+func (c *OrgClient) Get(ctx context.Context, guid string) (*resource.Organization, error) {
 	var org resource.Organization
-	err := c.client.get(path.Format("/v3/organizations/%s", guid), &org)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s", guid), &org)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +66,9 @@ func (c *OrgClient) Get(guid string) (*resource.Organization, error) {
 }
 
 // GetDefaultIsoSegment gets the specified organization's default iso segment GUID if any
-func (c *OrgClient) GetDefaultIsoSegment(guid string) (string, error) {
+func (c *OrgClient) GetDefaultIsoSegment(ctx context.Context, guid string) (string, error) {
 	var relation resource.ToOneRelationship
-	err := c.client.get(path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), &relation)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), &relation)
 	if err != nil {
 		return "", err
 	}
@@ -75,9 +76,9 @@ func (c *OrgClient) GetDefaultIsoSegment(guid string) (string, error) {
 }
 
 // GetDefaultDomain gets the specified organization's default domain if any
-func (c *OrgClient) GetDefaultDomain(guid string) (*resource.Domain, error) {
+func (c *OrgClient) GetDefaultDomain(ctx context.Context, guid string) (*resource.Domain, error) {
 	var domain resource.Domain
-	err := c.client.get(path.Format("/v3/organizations/%s/domains/default", guid), &domain)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s/domains/default", guid), &domain)
 	if err != nil {
 		return nil, err
 	}
@@ -85,9 +86,9 @@ func (c *OrgClient) GetDefaultDomain(guid string) (*resource.Domain, error) {
 }
 
 // GetUsageSummary gets the specified organization's usage summary
-func (c *OrgClient) GetUsageSummary(guid string) (*resource.OrganizationUsageSummary, error) {
+func (c *OrgClient) GetUsageSummary(ctx context.Context, guid string) (*resource.OrganizationUsageSummary, error) {
 	var summary resource.OrganizationUsageSummary
-	err := c.client.get(path.Format("/v3/organizations/%s/usage_summary", guid), &summary)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s/usage_summary", guid), &summary)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +96,12 @@ func (c *OrgClient) GetUsageSummary(guid string) (*resource.OrganizationUsageSum
 }
 
 // List pages all organizations the user has access to
-func (c *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+func (c *OrgClient) List(ctx context.Context, opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewOrgListOptions()
 	}
 	var res resource.OrganizationList
-	err := c.client.get(path.Format("/v3/organizations?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/organizations?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -109,22 +110,22 @@ func (c *OrgClient) List(opts *OrgListOptions) ([]*resource.Organization, *Pager
 }
 
 // ListAll retrieves all organizations the user has access to
-func (c *OrgClient) ListAll(opts *OrgListOptions) ([]*resource.Organization, error) {
+func (c *OrgClient) ListAll(ctx context.Context, opts *OrgListOptions) ([]*resource.Organization, error) {
 	if opts == nil {
 		opts = NewOrgListOptions()
 	}
 	return AutoPage[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListForIsoSegment pages all organizations for the specified isolation segment
-func (c *OrgClient) ListForIsoSegment(isoSegmentGUID string, opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+func (c *OrgClient) ListForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewOrgListOptions()
 	}
 	var res resource.OrganizationList
-	err := c.client.get(path.Format("/v3/isolation_segments/%s/organizations?%s", isoSegmentGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/isolation_segments/%s/organizations?%s", isoSegmentGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -133,22 +134,22 @@ func (c *OrgClient) ListForIsoSegment(isoSegmentGUID string, opts *OrgListOption
 }
 
 // ListForIsoSegmentAll retrieves all organizations for the specified isolation segment
-func (c *OrgClient) ListForIsoSegmentAll(isoSegmentGUID string, opts *OrgListOptions) ([]*resource.Organization, error) {
+func (c *OrgClient) ListForIsoSegmentAll(ctx context.Context, isoSegmentGUID string, opts *OrgListOptions) ([]*resource.Organization, error) {
 	if opts == nil {
 		opts = NewOrgListOptions()
 	}
 	return AutoPage[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
-		return c.ListForIsoSegment(isoSegmentGUID, opts)
+		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
 	})
 }
 
 // ListUsers pages of all users that are members of the specified org
-func (c *OrgClient) ListUsers(guid string, opts *UserListOptions) ([]*resource.User, *Pager, error) {
+func (c *OrgClient) ListUsers(ctx context.Context, guid string, opts *UserListOptions) ([]*resource.User, *Pager, error) {
 	if opts == nil {
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(path.Format("/v3/organizations/%s/users?%s", guid, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s/users?%s", guid, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -157,19 +158,19 @@ func (c *OrgClient) ListUsers(guid string, opts *UserListOptions) ([]*resource.U
 }
 
 // ListUsersAll retrieves all users that are members of the specified org
-func (c *OrgClient) ListUsersAll(guid string, opts *UserListOptions) ([]*resource.User, error) {
+func (c *OrgClient) ListUsersAll(ctx context.Context, guid string, opts *UserListOptions) ([]*resource.User, error) {
 	if opts == nil {
 		opts = NewUserListOptions()
 	}
 	return AutoPage[*UserListOptions, *resource.User](opts, func(opts *UserListOptions) ([]*resource.User, *Pager, error) {
-		return c.ListUsers(guid, opts)
+		return c.ListUsers(ctx, guid, opts)
 	})
 }
 
 // Update the organization's specified attributes
-func (c *OrgClient) Update(guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
+func (c *OrgClient) Update(ctx context.Context, guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
 	var org resource.Organization
-	_, err := c.client.patch(path.Format("/v3/organizations/%s", guid), r, &org)
+	_, err := c.client.patch(ctx, path.Format("/v3/organizations/%s", guid), r, &org)
 	if err != nil {
 		return nil, err
 	}

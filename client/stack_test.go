@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -31,7 +32,7 @@ func TestStacks(t *testing.T) {
 					Name:        "my-stack",
 					Description: &stackDescription,
 				}
-				return c.Stacks.Create(r)
+				return c.Stacks.Create(context.Background(), r)
 			},
 		},
 		{
@@ -42,7 +43,7 @@ func TestStacks(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Stacks.Delete("88db2b75-671f-4e4b-a19a-7db992366595")
+				return nil, c.Stacks.Delete(context.Background(), "88db2b75-671f-4e4b-a19a-7db992366595")
 			},
 		},
 		{
@@ -54,7 +55,7 @@ func TestStacks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: stack,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Stacks.Get("88db2b75-671f-4e4b-a19a-7db992366595")
+				return c.Stacks.Get(context.Background(), "88db2b75-671f-4e4b-a19a-7db992366595")
 			},
 		},
 		{
@@ -66,7 +67,7 @@ func TestStacks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(stack, stack2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Stacks.ListAll(nil)
+				return c.Stacks.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -78,7 +79,7 @@ func TestStacks(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(app, app2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Stacks.ListAppsOnStackAll("88db2b75-671f-4e4b-a19a-7db992366595", nil)
+				return c.Stacks.ListAppsOnStackAll(context.Background(), "88db2b75-671f-4e4b-a19a-7db992366595", nil)
 			},
 		},
 		{
@@ -102,7 +103,7 @@ func TestStacks(t *testing.T) {
 						},
 					},
 				}
-				return c.Stacks.Update("88db2b75-671f-4e4b-a19a-7db992366595", r)
+				return c.Stacks.Update(context.Background(), "88db2b75-671f-4e4b-a19a-7db992366595", r)
 			},
 		},
 	}

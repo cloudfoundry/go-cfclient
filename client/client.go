@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -139,9 +140,9 @@ func New(config *config.Config) (*Client, error) {
 }
 
 // SSHCode generates an SSH code that can be used by generic SSH clients to SSH into app instances
-func (c *Client) SSHCode() (string, error) {
+func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	// need this to grab the SSH client id, should probably be cached in config
-	r, err := c.Root.Get()
+	r, err := c.Root.Get(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -155,7 +156,7 @@ func (c *Client) SSHCode() (string, error) {
 		return "", err
 	}
 
-	req := http.NewRequest("GET", path.Format("/oauth/authorize?%s", values)).
+	req := http.NewRequest(ctx, http2.MethodGet, path.Format("/oauth/authorize?%s", values)).
 		WithHeader("Authorization", fmt.Sprintf("bearer %s", token)).
 		WithFollowRedirects(false)
 
@@ -188,8 +189,8 @@ func (c *Client) SSHCode() (string, error) {
 //
 // This function takes the relative API resource path. If the resource returns an async job ID
 // then the function returns the job GUID which the caller can reference via the job endpoint.
-func (c *Client) delete(path string) (string, error) {
-	req := http.NewRequest("DELETE", path)
+func (c *Client) delete(ctx context.Context, path string) (string, error) {
+	req := http.NewRequest(ctx, http2.MethodDelete, path)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("error deleting %s: %w", path, err)
@@ -207,12 +208,12 @@ func (c *Client) delete(path string) (string, error) {
 
 // get does an HTTP GET to the specified endpoint and automatically handles unmarshalling
 // the result JSON body
-func (c *Client) get(path string, result any) error {
+func (c *Client) get(ctx context.Context, path string, result any) error {
 	if !check.IsNil(result) && !check.IsPointer(result) {
 		return errors.New("expected result to be nil or a pointer type")
 	}
 
-	req := http.NewRequest("GET", path)
+	req := http.NewRequest(ctx, http2.MethodGet, path)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return fmt.Errorf("error getting %s: %w", path, err)
@@ -241,12 +242,12 @@ func (c *Client) get(path string, result any) error {
 // struct to unmarshall the result body. If the resource returns an async job ID instead of a
 // response body, then the body won't be unmarshalled and the function returns the job GUID
 // which the caller can reference via the job endpoint.
-func (c *Client) patch(path string, params any, result any) (string, error) {
+func (c *Client) patch(ctx context.Context, path string, params any, result any) (string, error) {
 	if !check.IsNil(result) && !check.IsPointer(result) {
 		return "", errors.New("expected result to be nil or a pointer type")
 	}
 
-	req := http.NewRequest("PATCH", path).WithObject(params)
+	req := http.NewRequest(ctx, http2.MethodPatch, path).WithObject(params)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("error updating %s: %w", path, err)
@@ -268,12 +269,12 @@ func (c *Client) patch(path string, params any, result any) (string, error) {
 // struct to unmarshall the result body. If the resource returns an async job ID instead of a
 // response body, then the body won't be unmarshalled and the function returns the job GUID
 // which the caller can reference via the job endpoint.
-func (c *Client) post(path string, params, result any) (string, error) {
+func (c *Client) post(ctx context.Context, path string, params, result any) (string, error) {
 	if !check.IsNil(result) && !check.IsPointer(result) {
-		return "", errors.New("expected result to be nil or a pointer type")
+		return "", errors.New("expected result to be a pointer type, or nil")
 	}
 
-	req := http.NewRequest("POST", path).WithObject(params)
+	req := http.NewRequest(ctx, http2.MethodPost, path).WithObject(params)
 	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("error creating %s: %w", path, err)
@@ -348,7 +349,7 @@ func authServiceDiscovery(config *config.Config, rootClient *RootClient) error {
 	if config.UAAEndpointURL != "" && config.LoginEndpointURL != "" {
 		return nil
 	}
-	root, err := rootClient.Get()
+	root, err := rootClient.Get(context.Background())
 	if err != nil {
 		return err
 	}

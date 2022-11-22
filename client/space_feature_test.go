@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
@@ -22,7 +23,7 @@ func TestSpaceFeatures(t *testing.T) {
 				PostForm: `{ "enabled": true }`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.SpaceFeatures.EnableSSH("000d1e0c-218e-470b-b5db-84481b89fa92", true)
+				err := c.SpaceFeatures.EnableSSH(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", true)
 				return nil, err
 			},
 		},

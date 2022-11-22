@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -30,9 +31,9 @@ func (o ProcessOptions) ToQueryString() url.Values {
 }
 
 // Get the specified process
-func (c *ProcessClient) Get(guid string) (*resource.Process, error) {
+func (c *ProcessClient) Get(ctx context.Context, guid string) (*resource.Process, error) {
 	var iso resource.Process
-	err := c.client.get(path.Format("/v3/processes/%s", guid), &iso)
+	err := c.client.get(ctx, path.Format("/v3/processes/%s", guid), &iso)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +41,9 @@ func (c *ProcessClient) Get(guid string) (*resource.Process, error) {
 }
 
 // GetStats for the specified process
-func (c *ProcessClient) GetStats(guid string) (*resource.ProcessStats, error) {
+func (c *ProcessClient) GetStats(ctx context.Context, guid string) (*resource.ProcessStats, error) {
 	var stats resource.ProcessStats
-	err := c.client.get(path.Format("/v3/processes/%s/stats", guid), &stats)
+	err := c.client.get(ctx, path.Format("/v3/processes/%s/stats", guid), &stats)
 	if err != nil {
 		return nil, err
 	}
@@ -50,13 +51,13 @@ func (c *ProcessClient) GetStats(guid string) (*resource.ProcessStats, error) {
 }
 
 // List pages all processes
-func (c *ProcessClient) List(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+func (c *ProcessClient) List(ctx context.Context, opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
 
 	var isos resource.ProcessList
-	err := c.client.get(path.Format("/v3/processes?%s", opts.ToQueryString()), &isos)
+	err := c.client.get(ctx, path.Format("/v3/processes?%s", opts.ToQueryString()), &isos)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,23 +66,23 @@ func (c *ProcessClient) List(opts *ProcessOptions) ([]*resource.Process, *Pager,
 }
 
 // ListAll retrieves all processes
-func (c *ProcessClient) ListAll(opts *ProcessOptions) ([]*resource.Process, error) {
+func (c *ProcessClient) ListAll(ctx context.Context, opts *ProcessOptions) ([]*resource.Process, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
 	return AutoPage[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListForApp pages all processes for the specified app
-func (c *ProcessClient) ListForApp(appGUID string, opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+func (c *ProcessClient) ListForApp(ctx context.Context, appGUID string, opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
 
 	var processes resource.ProcessList
-	err := c.client.get(path.Format("/v3/apps/%s/processes?%s", appGUID, opts.ToQueryString()), &processes)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes?%s", appGUID, opts.ToQueryString()), &processes)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -90,19 +91,19 @@ func (c *ProcessClient) ListForApp(appGUID string, opts *ProcessOptions) ([]*res
 }
 
 // ListForAppAll retrieves all processes for the specified app
-func (c *ProcessClient) ListForAppAll(appGUID string, opts *ProcessOptions) ([]*resource.Process, error) {
+func (c *ProcessClient) ListForAppAll(ctx context.Context, appGUID string, opts *ProcessOptions) ([]*resource.Process, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
 	return AutoPage[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
-		return c.ListForApp(appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
 // Scale the process using the specified scaling requirements
-func (c *ProcessClient) Scale(guid string, scale *resource.ProcessScale) (*resource.Process, error) {
+func (c *ProcessClient) Scale(ctx context.Context, guid string, scale *resource.ProcessScale) (*resource.Process, error) {
 	var process resource.Process
-	_, err := c.client.post(path.Format("/v3/processes/%s/actions/scale", guid), scale, &process)
+	_, err := c.client.post(ctx, path.Format("/v3/processes/%s/actions/scale", guid), scale, &process)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +111,9 @@ func (c *ProcessClient) Scale(guid string, scale *resource.ProcessScale) (*resou
 }
 
 // Update the specified attributes of the process
-func (c *ProcessClient) Update(guid string, r *resource.ProcessUpdate) (*resource.Process, error) {
+func (c *ProcessClient) Update(ctx context.Context, guid string, r *resource.ProcessUpdate) (*resource.Process, error) {
 	var process resource.Process
-	_, err := c.client.patch(path.Format("/v3/processes/%s", guid), r, &process)
+	_, err := c.client.patch(ctx, path.Format("/v3/processes/%s", guid), r, &process)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +121,7 @@ func (c *ProcessClient) Update(guid string, r *resource.ProcessUpdate) (*resourc
 }
 
 // Terminate an instance of a specific process. Health management will eventually restart the instance.
-func (c *ProcessClient) Terminate(guid string, index int) error {
-	_, err := c.client.delete(path.Format("/v3/processes/%s/instances/%d", guid, index))
+func (c *ProcessClient) Terminate(ctx context.Context, guid string, index int) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/processes/%s/instances/%d", guid, index))
 	return err
 }

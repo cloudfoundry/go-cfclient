@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -50,7 +51,7 @@ func TestSecurityGroups(t *testing.T) {
 							WithDescription("Allow ping requests to private services"),
 					},
 				}
-				return c.SecurityGroups.Create(r)
+				return c.SecurityGroups.Create(context.Background(), r)
 			},
 		},
 		{
@@ -63,7 +64,7 @@ func TestSecurityGroups(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SecurityGroups.Delete("12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
+				return c.SecurityGroups.Delete(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
 			},
 		},
 		{
@@ -75,7 +76,7 @@ func TestSecurityGroups(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: sg,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SecurityGroups.Get("12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
+				return c.SecurityGroups.Get(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26")
 			},
 		},
 		{
@@ -87,7 +88,7 @@ func TestSecurityGroups(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(sg, sg2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.SecurityGroups.ListAll(nil)
+				return c.SecurityGroups.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -134,7 +135,7 @@ func TestSecurityGroups(t *testing.T) {
 							WithDescription("Allow ping requests to private services"),
 					},
 				}
-				return c.SecurityGroups.Update("12e9eabb-5139-4377-a5c3-64e3cd1b6e26", r)
+				return c.SecurityGroups.Update(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", r)
 			},
 		},
 	}

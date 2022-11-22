@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -31,7 +32,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 			Expected: `["5ab8881d-b5d7-40da-9228-b0253a7a1570", "0610e399-1333-4d5f-b211-3a1135e0576e"]`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.OrganizationQuotas.Apply("e3bff602-f3d4-4c63-a85a-d7155aa2f1ff", []string{
+				return c.OrganizationQuotas.Apply(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff", []string{
 					"5ab8881d-b5d7-40da-9228-b0253a7a1570", "0610e399-1333-4d5f-b211-3a1135e0576e",
 				})
 			},
@@ -48,7 +49,7 @@ func TestQuotasOrgs(t *testing.T) {
 			Expected: orgQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewOrganizationQuotaCreate("my-org-quota")
-				return c.OrganizationQuotas.Create(r)
+				return c.OrganizationQuotas.Create(context.Background(), r)
 			},
 		},
 		{
@@ -61,7 +62,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 			Expected: orgQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.OrganizationQuotas.Get("e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
+				return c.OrganizationQuotas.Get(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
 			},
 		},
 		{
@@ -72,7 +73,7 @@ func TestQuotasOrgs(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.OrganizationQuotas.Delete("e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
+				return nil, c.OrganizationQuotas.Delete(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
 			},
 		},
 		{
@@ -85,7 +86,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 			Expected: g.Array(orgQuota, orgQuota2, orgQuota3, orgQuota4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.OrganizationQuotas.ListAll(nil)
+				return c.OrganizationQuotas.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -100,7 +101,7 @@ func TestQuotasOrgs(t *testing.T) {
 			Expected: orgQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewOrganizationQuotaUpdate().WithName("new_name").WithPerAppTasks(5)
-				return c.OrganizationQuotas.Update("e3bff602-f3d4-4c63-a85a-d7155aa2f1ff", r)
+				return c.OrganizationQuotas.Update(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff", r)
 			},
 		},
 	}

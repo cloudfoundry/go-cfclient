@@ -1,6 +1,9 @@
 package http
 
-import "io"
+import (
+	"context"
+	"io"
+)
 
 const DefaultContentType = "application/json"
 
@@ -11,6 +14,7 @@ type Request struct {
 	contentType     string
 	contentLength   *int64
 	followRedirects bool
+	context         context.Context
 
 	// can set one or the other but not both
 	body   io.Reader
@@ -21,8 +25,9 @@ type Request struct {
 }
 
 // NewRequest creates a new minimally configured HTTP request instance
-func NewRequest(method, pathAndQuery string) *Request {
+func NewRequest(ctx context.Context, method, pathAndQuery string) *Request {
 	return &Request{
+		context:         ctx,
 		method:          method,
 		pathAndQuery:    pathAndQuery,
 		headers:         make(map[string]string),

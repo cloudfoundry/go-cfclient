@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
@@ -36,10 +37,10 @@ func (o PackageListOptions) ToQueryString() url.Values {
 }
 
 // Copy the bits of a source package to a target package
-func (c *PackageClient) Copy(srcPackageGUID string, destAppGUID string) (*resource.Package, error) {
+func (c *PackageClient) Copy(ctx context.Context, srcPackageGUID string, destAppGUID string) (*resource.Package, error) {
 	var d resource.Package
 	r := resource.NewPackageCopy(destAppGUID)
-	_, err := c.client.post(path.Format("/v3/packages?source_guid=%s", srcPackageGUID), r, &d)
+	_, err := c.client.post(ctx, path.Format("/v3/packages?source_guid=%s", srcPackageGUID), r, &d)
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +48,9 @@ func (c *PackageClient) Copy(srcPackageGUID string, destAppGUID string) (*resour
 }
 
 // Create a new package
-func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, error) {
+func (c *PackageClient) Create(ctx context.Context, r *resource.PackageCreate) (*resource.Package, error) {
 	var p resource.Package
-	_, err := c.client.post("/v3/packages", r, &p)
+	_, err := c.client.post(ctx, "/v3/packages", r, &p)
 	if err != nil {
 		return nil, err
 	}
@@ -57,19 +58,19 @@ func (c *PackageClient) Create(r *resource.PackageCreate) (*resource.Package, er
 }
 
 // Delete the specified package asynchronously and return a jobGUID
-func (c *PackageClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/packages/%s", guid))
+func (c *PackageClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/packages/%s", guid))
 }
 
 // Download the bits of an existing package
 // It is the caller's responsibility to close the io.ReadCloser
-func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
+func (c *PackageClient) Download(ctx context.Context, guid string) (io.ReadCloser, error) {
 	// This is the initial request, which will redirect to the blobstore location.
 	// The client will not automatically follow this redirect and uses a secondary
 	// unauthenticated client to download the bits
 	// https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#download-package-bits
 	p := path.Format("/v3/packages/%s/download", guid)
-	req := http.NewRequest("GET", p).WithFollowRedirects(false)
+	req := http.NewRequest(ctx, http2.MethodGet, p).WithFollowRedirects(false)
 	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("error getting %s: %w", p, err)
@@ -86,7 +87,7 @@ func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
 
 	// directly download the bits from blobstore using an unauthenticated client as
 	// some blob stores will return a 400 if an Authorization header is sent
-	req = http.NewRequest("GET", "")
+	req = http.NewRequest(ctx, http2.MethodGet, "")
 	blobstoreHTTPExecutor := http.NewExecutor(
 		c.client.unauthenticatedClientProvider, blobStoreLocation, c.client.config.UserAgent)
 
@@ -99,9 +100,9 @@ func (c *PackageClient) Download(guid string) (io.ReadCloser, error) {
 }
 
 // Get the specified build
-func (c *PackageClient) Get(guid string) (*resource.Package, error) {
+func (c *PackageClient) Get(ctx context.Context, guid string) (*resource.Package, error) {
 	var p resource.Package
-	err := c.client.get(path.Format("/v3/packages/%s", guid), &p)
+	err := c.client.get(ctx, path.Format("/v3/packages/%s", guid), &p)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +110,12 @@ func (c *PackageClient) Get(guid string) (*resource.Package, error) {
 }
 
 // List pages all the packages the user has access to
-func (c *PackageClient) List(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+func (c *PackageClient) List(ctx context.Context, opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
 	if opts == nil {
 		opts = NewPackageListOptions()
 	}
 	var res resource.PackageList
-	err := c.client.get(path.Format("/v3/packages?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/packages?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -123,22 +124,22 @@ func (c *PackageClient) List(opts *PackageListOptions) ([]*resource.Package, *Pa
 }
 
 // ListAll retrieves all the packages the user has access to
-func (c *PackageClient) ListAll(opts *PackageListOptions) ([]*resource.Package, error) {
+func (c *PackageClient) ListAll(ctx context.Context, opts *PackageListOptions) ([]*resource.Package, error) {
 	if opts == nil {
 		opts = NewPackageListOptions()
 	}
 	return AutoPage[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListForApp pages all the packages the user has access to
-func (c *PackageClient) ListForApp(appGUID string, opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+func (c *PackageClient) ListForApp(ctx context.Context, appGUID string, opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
 	if opts == nil {
 		opts = NewPackageListOptions()
 	}
 	var res resource.PackageList
-	err := c.client.get(path.Format("/v3/apps/%s/packages?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/packages?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,19 +148,19 @@ func (c *PackageClient) ListForApp(appGUID string, opts *PackageListOptions) ([]
 }
 
 // ListForAppAll retrieves all the packages the user has access to
-func (c *PackageClient) ListForAppAll(appGUID string, opts *PackageListOptions) ([]*resource.Package, error) {
+func (c *PackageClient) ListForAppAll(ctx context.Context, appGUID string, opts *PackageListOptions) ([]*resource.Package, error) {
 	if opts == nil {
 		opts = NewPackageListOptions()
 	}
 	return AutoPage[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
-		return c.ListForApp(appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
 // PollReady waits until the package is ready, fails, or times out
-func (c *PackageClient) PollReady(guid string, opts *PollingOptions) error {
+func (c *PackageClient) PollReady(ctx context.Context, guid string, opts *PollingOptions) error {
 	return PollForStateOrTimeout(func() (string, error) {
-		pkg, err := c.Get(guid)
+		pkg, err := c.Get(ctx, guid)
 		if pkg != nil {
 			return string(pkg.State), err
 		}
@@ -168,9 +169,9 @@ func (c *PackageClient) PollReady(guid string, opts *PollingOptions) error {
 }
 
 // Update the specified attributes of the package
-func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resource.Package, error) {
+func (c *PackageClient) Update(ctx context.Context, guid string, r *resource.PackageUpdate) (*resource.Package, error) {
 	var p resource.Package
-	_, err := c.client.patch(path.Format("/v3/packages/%s", guid), r, &p)
+	_, err := c.client.patch(ctx, path.Format("/v3/packages/%s", guid), r, &p)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +179,7 @@ func (c *PackageClient) Update(guid string, r *resource.PackageUpdate) (*resourc
 }
 
 // UploadBits uploads an app's zip file contents
-func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
+func (c *PackageClient) UploadBits(ctx context.Context, guid string, zipFile io.Reader) error {
 	requestFile, err := os.CreateTemp("", "requests")
 	if err != nil {
 		return fmt.Errorf("could not create temp zipFile for package bits: %w", err)
@@ -213,7 +214,7 @@ func (c *PackageClient) UploadBits(guid string, zipFile io.Reader) error {
 		return fmt.Errorf("error uploading package %s bits, failed to stat temp zipFile: %w", guid, err)
 	}
 
-	req := http.NewRequest("POST", path.Format("/v3/packages/%s/upload", guid)).
+	req := http.NewRequest(ctx, http2.MethodPost, path.Format("/v3/packages/%s/upload", guid)).
 		WithContentType(fmt.Sprintf("multipart/form-data; boundary=%s", formWriter.Boundary())).
 		WithContentLength(fileStats.Size()).
 		WithBody(requestFile)

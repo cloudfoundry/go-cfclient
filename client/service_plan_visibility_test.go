@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
@@ -35,7 +36,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 						GUID: "0fc1ad4f-e1d7-4436-8e23-6b20f03c6482",
 					},
 				}
-				return c.ServicePlansVisibility.Apply("79aae221-b2a6-4aaa-a134-76f605af46c9", r)
+				return c.ServicePlansVisibility.Apply(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9", r)
 			},
 		},
 		{
@@ -46,7 +47,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.ServicePlansVisibility.Delete("79aae221-b2a6-4aaa-a134-76f605af46c9", "90a4d2ca-054b-4f15-9a44-cc94f845df9c")
+				err := c.ServicePlansVisibility.Delete(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9", "90a4d2ca-054b-4f15-9a44-cc94f845df9c")
 				return nil, err
 			},
 		},
@@ -58,7 +59,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 				Output:   g.Single(svcPlanVisibility),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				v, err := c.ServicePlansVisibility.Get("79aae221-b2a6-4aaa-a134-76f605af46c9")
+				v, err := c.ServicePlansVisibility.Get(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9")
 				require.NoError(t, err)
 				require.Equal(t, resource.ServicePlanVisibilityOrganization, v)
 				return nil, nil
@@ -86,7 +87,7 @@ func TestServicePlanVisibilities(t *testing.T) {
 						GUID: "0fc1ad4f-e1d7-4436-8e23-6b20f03c6482",
 					},
 				}
-				return c.ServicePlansVisibility.Update("79aae221-b2a6-4aaa-a134-76f605af46c9", r)
+				return c.ServicePlansVisibility.Update(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9", r)
 			},
 		},
 	}

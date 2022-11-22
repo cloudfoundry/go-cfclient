@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -31,7 +32,7 @@ func TestBuilds(t *testing.T) {
 						"foo": "bar",
 					},
 				}
-				return c.Builds.Create(r)
+				return c.Builds.Create(context.Background(), r)
 			},
 		},
 		{
@@ -44,7 +45,7 @@ func TestBuilds(t *testing.T) {
 			},
 			Expected: build,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Builds.Get("be9db090-ad79-41c1-9a01-6200d896f20f")
+				return c.Builds.Get(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f")
 			},
 		},
 		{
@@ -55,7 +56,7 @@ func TestBuilds(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Builds.Delete("be9db090-ad79-41c1-9a01-6200d896f20f")
+				return nil, c.Builds.Delete(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f")
 			},
 		},
 		{
@@ -72,7 +73,7 @@ func TestBuilds(t *testing.T) {
 				r := resource.NewBuildUpdate()
 				r.Metadata.Annotations["foo"] = "bar"
 				r.Metadata.Labels["env"] = "dev"
-				return c.Builds.Update("be9db090-ad79-41c1-9a01-6200d896f20f", r)
+				return c.Builds.Update(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f", r)
 			},
 		},
 		{
@@ -85,7 +86,7 @@ func TestBuilds(t *testing.T) {
 			},
 			Expected: g.Array(build),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				builds, _, err := c.Builds.List(NewBuildListOptions())
+				builds, _, err := c.Builds.List(context.Background(), NewBuildListOptions())
 				return builds, err
 			},
 		},
@@ -98,7 +99,7 @@ func TestBuilds(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(build, build2, build3, build4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Builds.ListAll(nil)
+				return c.Builds.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -111,7 +112,7 @@ func TestBuilds(t *testing.T) {
 			},
 			Expected: g.Array(build),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				builds, _, err := c.Builds.ListForApp("1cb006ee-fb05-47e1-b541-c34179ddc446", nil)
+				builds, _, err := c.Builds.ListForApp(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", nil)
 				return builds, err
 			},
 		},

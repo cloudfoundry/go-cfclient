@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -30,7 +31,7 @@ func TestDomains(t *testing.T) {
 				internal := true
 				r := resource.NewDomainCreate("foo.example.org")
 				r.Internal = &internal
-				return c.Domains.Create(r)
+				return c.Domains.Create(context.Background(), r)
 			},
 		},
 		{
@@ -43,7 +44,7 @@ func TestDomains(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Domains.Delete("f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
+				return c.Domains.Delete(context.Background(), "f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
 			},
 		},
 		{
@@ -55,7 +56,7 @@ func TestDomains(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: domain,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Domains.Get("f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
+				return c.Domains.Get(context.Background(), "f666ffc5-106e-4fda-b56f-568b5cf3ae9f")
 			},
 		},
 		{
@@ -68,7 +69,7 @@ func TestDomains(t *testing.T) {
 			},
 			Expected: g.Array(domain),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Domains.List(NewDomainListOptions())
+				apps, _, err := c.Domains.List(context.Background(), NewDomainListOptions())
 				return apps, err
 			},
 		},
@@ -81,7 +82,7 @@ func TestDomains(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(domain, domain2, domain3, domain4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Domains.ListAll(nil)
+				return c.Domains.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -94,7 +95,7 @@ func TestDomains(t *testing.T) {
 			},
 			Expected: g.Array(domain),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Domains.ListForOrg("3a5f687b-2ce8-4ade-be75-8eca99b0db8b", NewDomainListOptions())
+				apps, _, err := c.Domains.ListForOrg(context.Background(), "3a5f687b-2ce8-4ade-be75-8eca99b0db8b", NewDomainListOptions())
 				return apps, err
 			},
 		},
@@ -119,7 +120,7 @@ func TestDomains(t *testing.T) {
 						},
 					},
 				}
-				return c.Domains.Update("f666ffc5-106e-4fda-b56f-568b5cf3ae9f", r)
+				return c.Domains.Update(context.Background(), "f666ffc5-106e-4fda-b56f-568b5cf3ae9f", r)
 			},
 		},
 		{
@@ -132,7 +133,7 @@ func TestDomains(t *testing.T) {
 			},
 			Expected: sharedDomains,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Domains.Share("1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
+				return c.Domains.Share(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
 			},
 		},
 		{
@@ -143,7 +144,7 @@ func TestDomains(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Domains.Unshare("1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
+				return nil, c.Domains.Unshare(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
 			},
 		},
 	}

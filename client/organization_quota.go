@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -30,10 +31,10 @@ func (o OrgQuotaListOptions) ToQueryString() url.Values {
 }
 
 // Apply the specified org quota to the orgs
-func (c *OrgQuotaClient) Apply(guid string, orgGUIDs []string) ([]string, error) {
+func (c *OrgQuotaClient) Apply(ctx context.Context, guid string, orgGUIDs []string) ([]string, error) {
 	req := resource.NewToManyRelationships(orgGUIDs)
 	var relation resource.ToManyRelationships
-	_, err := c.client.post(path.Format("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
+	_, err := c.client.post(ctx, path.Format("/v3/organization_quotas/%s/relationships/organizations", guid), req, &relation)
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +46,9 @@ func (c *OrgQuotaClient) Apply(guid string, orgGUIDs []string) ([]string, error)
 }
 
 // Create a new org quota
-func (c *OrgQuotaClient) Create(r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
+func (c *OrgQuotaClient) Create(ctx context.Context, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota
-	_, err := c.client.post("/v3/organization_quotas", r, &q)
+	_, err := c.client.post(ctx, "/v3/organization_quotas", r, &q)
 	if err != nil {
 		return nil, err
 	}
@@ -55,15 +56,15 @@ func (c *OrgQuotaClient) Create(r *resource.OrganizationQuotaCreateOrUpdate) (*r
 }
 
 // Delete the specified org quota
-func (c *OrgQuotaClient) Delete(guid string) error {
-	_, err := c.client.delete(path.Format("/v3/organization_quotas/%s", guid))
+func (c *OrgQuotaClient) Delete(ctx context.Context, guid string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/organization_quotas/%s", guid))
 	return err
 }
 
 // Get the specified org quota
-func (c *OrgQuotaClient) Get(guid string) (*resource.OrganizationQuota, error) {
+func (c *OrgQuotaClient) Get(ctx context.Context, guid string) (*resource.OrganizationQuota, error) {
 	var app resource.OrganizationQuota
-	err := c.client.get(path.Format("/v3/organization_quotas/%s", guid), &app)
+	err := c.client.get(ctx, path.Format("/v3/organization_quotas/%s", guid), &app)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +72,13 @@ func (c *OrgQuotaClient) Get(guid string) (*resource.OrganizationQuota, error) {
 }
 
 // List pages all org quotas the user has access to
-func (c *OrgQuotaClient) List(opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, *Pager, error) {
+func (c *OrgQuotaClient) List(ctx context.Context, opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, *Pager, error) {
 	if opts == nil {
 		opts = NewOrgQuotaListOptions()
 	}
 
 	var res resource.OrganizationQuotaList
-	err := c.client.get(path.Format("/v3/organization_quotas?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/organization_quotas?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,19 +87,19 @@ func (c *OrgQuotaClient) List(opts *OrgQuotaListOptions) ([]*resource.Organizati
 }
 
 // ListAll retrieves all org quotas the user has access to
-func (c *OrgQuotaClient) ListAll(opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, error) {
+func (c *OrgQuotaClient) ListAll(ctx context.Context, opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, error) {
 	if opts == nil {
 		opts = NewOrgQuotaListOptions()
 	}
 	return AutoPage[*OrgQuotaListOptions, *resource.OrganizationQuota](opts, func(opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the org quota
-func (c *OrgQuotaClient) Update(guid string, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
+func (c *OrgQuotaClient) Update(ctx context.Context, guid string, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota
-	_, err := c.client.patch(path.Format("/v3/organization_quotas/%s", guid), r, &q)
+	_, err := c.client.patch(ctx, path.Format("/v3/organization_quotas/%s", guid), r, &q)
 	if err != nil {
 		return nil, err
 	}

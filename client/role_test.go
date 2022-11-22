@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -48,7 +49,7 @@ func TestRoles(t *testing.T) {
 			},
 			Expected: role,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Roles.CreateOrganizationRole("ea77cd9e-a072-41e8-9d0b-b2e9180c50bf",
+				return c.Roles.CreateOrganizationRole(context.Background(), "ea77cd9e-a072-41e8-9d0b-b2e9180c50bf",
 					"0c03442d-c5ae-4661-a929-68f0eeb9ed9a", resource.OrganizationRoleAuditor)
 			},
 		},
@@ -77,7 +78,7 @@ func TestRoles(t *testing.T) {
 			},
 			Expected: role,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Roles.CreateSpaceRole("c0c8988d-2f97-4768-832a-677557f18174",
+				return c.Roles.CreateSpaceRole(context.Background(), "c0c8988d-2f97-4768-832a-677557f18174",
 					"0c03442d-c5ae-4661-a929-68f0eeb9ed9a", resource.SpaceRoleDeveloper)
 			},
 		},
@@ -91,7 +92,7 @@ func TestRoles(t *testing.T) {
 			},
 			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Roles.Delete("211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.Delete(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -103,7 +104,7 @@ func TestRoles(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: role,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Roles.Get("211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.Get(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -119,7 +120,7 @@ func TestRoles(t *testing.T) {
 			Expected:  role,
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.GetIncludeOrgs("211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.GetIncludeOrgs(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -135,7 +136,7 @@ func TestRoles(t *testing.T) {
 			Expected:  role,
 			Expected2: g.Array(space, space2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.GetIncludeSpaces("211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.GetIncludeSpaces(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -151,7 +152,7 @@ func TestRoles(t *testing.T) {
 			Expected:  role,
 			Expected2: g.Array(user, user2, user3),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.GetIncludeUsers("211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.GetIncludeUsers(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -163,7 +164,7 @@ func TestRoles(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(role, role2, role3, role4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Roles.ListAll(nil)
+				return c.Roles.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -184,7 +185,7 @@ func TestRoles(t *testing.T) {
 			Expected:  g.Array(role, role2, role3, role4),
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.ListIncludeOrgsAll(nil)
+				return c.Roles.ListIncludeOrgsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -205,7 +206,7 @@ func TestRoles(t *testing.T) {
 			Expected:  g.Array(role, role2, role3, role4),
 			Expected2: g.Array(space, space2, space3),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.ListIncludeSpacesAll(nil)
+				return c.Roles.ListIncludeSpacesAll(context.Background(), nil)
 			},
 		},
 		{
@@ -226,7 +227,7 @@ func TestRoles(t *testing.T) {
 			Expected:  g.Array(role, role2, role3, role4),
 			Expected2: g.Array(user, user2, user3),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.ListIncludeUsersAll(nil)
+				return c.Roles.ListIncludeUsersAll(context.Background(), nil)
 			},
 		},
 	}

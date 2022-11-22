@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -21,7 +22,7 @@ func TestServiceOfferings(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.ServiceOfferings.Delete("928a32d9-8101-4b86-85a4-96e06f833c2d")
+				err := c.ServiceOfferings.Delete(context.Background(), "928a32d9-8101-4b86-85a4-96e06f833c2d")
 				return nil, err
 			},
 		},
@@ -34,7 +35,7 @@ func TestServiceOfferings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: so,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceOfferings.Get("928a32d9-8101-4b86-85a4-96e06f833c2d")
+				return c.ServiceOfferings.Get(context.Background(), "928a32d9-8101-4b86-85a4-96e06f833c2d")
 			},
 		},
 		{
@@ -46,7 +47,7 @@ func TestServiceOfferings(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(so, so2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceOfferings.ListAll(nil)
+				return c.ServiceOfferings.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -75,7 +76,7 @@ func TestServiceOfferings(t *testing.T) {
 						},
 					},
 				}
-				return c.ServiceOfferings.Update("928a32d9-8101-4b86-85a4-96e06f833c2d", r)
+				return c.ServiceOfferings.Update(context.Background(), "928a32d9-8101-4b86-85a4-96e06f833c2d", r)
 			},
 		},
 	}

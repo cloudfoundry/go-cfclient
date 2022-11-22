@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
@@ -20,7 +21,7 @@ func TestAppFeatures(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: appFeature,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.AppFeatures.GetSSH("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				return c.AppFeatures.GetSSH(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
 		},
 		{
@@ -32,7 +33,7 @@ func TestAppFeatures(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(appFeature),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				f, _, err := c.AppFeatures.List("1cb006ee-fb05-47e1-b541-c34179ddc446")
+				f, _, err := c.AppFeatures.List(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 				return f, err
 			},
 		},
@@ -47,7 +48,7 @@ func TestAppFeatures(t *testing.T) {
 			},
 			Expected: appFeature,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.AppFeatures.UpdateSSH("1cb006ee-fb05-47e1-b541-c34179ddc446", false)
+				return c.AppFeatures.UpdateSSH(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", false)
 			},
 		},
 	}

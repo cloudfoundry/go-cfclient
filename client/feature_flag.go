@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"net/url"
@@ -25,9 +26,9 @@ func (o FeatureFlagListOptions) ToQueryString() url.Values {
 }
 
 // Get the specified feature flag
-func (c *FeatureFlagClient) Get(featureFlag resource.FeatureFlagType) (*resource.FeatureFlag, error) {
+func (c *FeatureFlagClient) Get(ctx context.Context, featureFlag resource.FeatureFlagType) (*resource.FeatureFlag, error) {
 	var ff resource.FeatureFlag
-	err := c.client.get(path.Format("/v3/feature_flags/%s", featureFlag), &ff)
+	err := c.client.get(ctx, path.Format("/v3/feature_flags/%s", featureFlag), &ff)
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +36,12 @@ func (c *FeatureFlagClient) Get(featureFlag resource.FeatureFlagType) (*resource
 }
 
 // List pages feature flags
-func (c *FeatureFlagClient) List(opts *FeatureFlagListOptions) ([]*resource.FeatureFlag, *Pager, error) {
+func (c *FeatureFlagClient) List(ctx context.Context, opts *FeatureFlagListOptions) ([]*resource.FeatureFlag, *Pager, error) {
 	if opts == nil {
 		opts = NewFeatureFlagListOptions()
 	}
 	var res resource.FeatureFlagList
-	err := c.client.get(path.Format("/v3/feature_flags?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/feature_flags?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,19 +50,19 @@ func (c *FeatureFlagClient) List(opts *FeatureFlagListOptions) ([]*resource.Feat
 }
 
 // ListAll retrieves all feature flags
-func (c *FeatureFlagClient) ListAll(opts *FeatureFlagListOptions) ([]*resource.FeatureFlag, error) {
+func (c *FeatureFlagClient) ListAll(ctx context.Context, opts *FeatureFlagListOptions) ([]*resource.FeatureFlag, error) {
 	if opts == nil {
 		opts = NewFeatureFlagListOptions()
 	}
 	return AutoPage[*FeatureFlagListOptions, *resource.FeatureFlag](opts, func(opts *FeatureFlagListOptions) ([]*resource.FeatureFlag, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // Update the specified attributes of the feature flag
-func (c *FeatureFlagClient) Update(featureFlag resource.FeatureFlagType, r *resource.FeatureFlagUpdate) (*resource.FeatureFlag, error) {
+func (c *FeatureFlagClient) Update(ctx context.Context, featureFlag resource.FeatureFlagType, r *resource.FeatureFlagUpdate) (*resource.FeatureFlag, error) {
 	var d resource.FeatureFlag
-	_, err := c.client.patch(path.Format("/v3/feature_flags/%s", featureFlag), r, &d)
+	_, err := c.client.patch(ctx, path.Format("/v3/feature_flags/%s", featureFlag), r, &d)
 	if err != nil {
 		return nil, err
 	}

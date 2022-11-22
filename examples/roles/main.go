@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
@@ -18,6 +19,7 @@ func main() {
 }
 
 func execute() error {
+	ctx := context.Background()
 	conf, err := config.NewFromCFHome()
 	if err != nil {
 		return err
@@ -28,16 +30,16 @@ func execute() error {
 		return err
 	}
 
-	err = listSpaceDevsInSpace(cf)
+	err = listSpaceDevsInSpace(ctx, cf)
 	if err != nil {
 		return err
 	}
-	return listAllSpaceDevelopers(cf)
+	return listAllSpaceDevelopers(ctx, cf)
 }
 
-func listSpaceDevsInSpace(cf *client.Client) error {
+func listSpaceDevsInSpace(ctx context.Context, cf *client.Client) error {
 	// grab the first space
-	spaces, _, err := cf.Spaces.List(nil)
+	spaces, _, err := cf.Spaces.List(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -47,7 +49,7 @@ func listSpaceDevsInSpace(cf *client.Client) error {
 	opts := client.NewRoleListOptions()
 	opts.Space(space.GUID)
 	opts.SpaceRoleType(resource.SpaceRoleDeveloper)
-	roles, users, err := cf.Roles.ListIncludeUsersAll(opts)
+	roles, users, err := cf.Roles.ListIncludeUsersAll(ctx, opts)
 	if err != nil {
 		return err
 	}
@@ -61,10 +63,10 @@ func listSpaceDevsInSpace(cf *client.Client) error {
 	return nil
 }
 
-func listAllSpaceDevelopers(cf *client.Client) error {
+func listAllSpaceDevelopers(ctx context.Context, cf *client.Client) error {
 	opts := client.NewRoleListOptions()
 	opts.SpaceRoleType(resource.SpaceRoleDeveloper)
-	_, users, err := cf.Roles.ListIncludeUsersAll(opts)
+	_, users, err := cf.Roles.ListIncludeUsersAll(ctx, opts)
 	if err != nil {
 		return err
 	}

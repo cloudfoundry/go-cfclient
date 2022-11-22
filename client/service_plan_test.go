@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -27,7 +28,7 @@ func TestServicePlans(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.ServicePlans.Delete("79aae221-b2a6-4aaa-a134-76f605af46c9")
+				err := c.ServicePlans.Delete(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9")
 				return nil, err
 			},
 		},
@@ -40,7 +41,7 @@ func TestServicePlans(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: svcPlan,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServicePlans.Get("79aae221-b2a6-4aaa-a134-76f605af46c9")
+				return c.ServicePlans.Get(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9")
 			},
 		},
 		{
@@ -52,7 +53,7 @@ func TestServicePlans(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(svcPlan, svcPlan2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServicePlans.ListAll(nil)
+				return c.ServicePlans.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -72,7 +73,7 @@ func TestServicePlans(t *testing.T) {
 			Expected:  g.Array(svcPlan, svcPlan2, svcPlan3, svcPlan4),
 			Expected2: g.Array(svcOffering),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.ServicePlans.ListIncludeServiceOfferingAll(nil)
+				return c.ServicePlans.ListIncludeServiceOfferingAll(context.Background(), nil)
 			},
 		},
 		{
@@ -95,7 +96,7 @@ func TestServicePlans(t *testing.T) {
 			Expected2: g.Array(space, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.ServicePlans.ListIncludeSpacesAndOrgsAll(nil)
+				return c.ServicePlans.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
 			},
 		},
 		{
@@ -124,7 +125,7 @@ func TestServicePlans(t *testing.T) {
 						},
 					},
 				}
-				return c.ServicePlans.Update("79aae221-b2a6-4aaa-a134-76f605af46c9", r)
+				return c.ServicePlans.Update(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9", r)
 			},
 		},
 	}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
@@ -28,7 +29,7 @@ func TestIsolationSegments(t *testing.T) {
 			Expected: iso,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewIsolationSegmentCreate("my-iso")
-				return c.IsolationSegments.Create(r)
+				return c.IsolationSegments.Create(context.Background(), r)
 			},
 		},
 		{
@@ -39,7 +40,7 @@ func TestIsolationSegments(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.IsolationSegments.Delete("a45d5da8-67dc-4523-b34b-ffa68b8d8821")
+				return nil, c.IsolationSegments.Delete(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
 			},
 		},
 		{
@@ -53,7 +54,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 			Expected: isoRelations,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.EntitleOrg("a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
+				return c.IsolationSegments.EntitleOrg(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
 			},
 		},
 		{
@@ -65,7 +66,7 @@ func TestIsolationSegments(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: iso,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.Get("a45d5da8-67dc-4523-b34b-ffa68b8d8821")
+				return c.IsolationSegments.Get(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
 			},
 		},
 		{
@@ -77,7 +78,7 @@ func TestIsolationSegments(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(iso, iso2, iso3, iso4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.ListAll(nil)
+				return c.IsolationSegments.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -107,7 +108,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 			Expected: `["68d54d31-9b3a-463b-ba94-e8e4c32edbac", "b19f6525-cbd3-4155-b156-dc0c2a431b4c"]`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.ListOrgRelationships("a45d5da8-67dc-4523-b34b-ffa68b8d8821")
+				return c.IsolationSegments.ListOrgRelationships(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
 			},
 		},
 		{
@@ -137,7 +138,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 			Expected: `["885735b5-aea4-4cf5-8e44-961af0e41920", "d4c91047-7b29-4fda-b7f9-04033e5c9c9f"]`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.ListSpaceRelationships("a45d5da8-67dc-4523-b34b-ffa68b8d8821")
+				return c.IsolationSegments.ListSpaceRelationships(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
 			},
 		},
 		{
@@ -148,7 +149,7 @@ func TestIsolationSegments(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.IsolationSegments.RevokeOrg("a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
+				err := c.IsolationSegments.RevokeOrg(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
 				return nil, err
 			},
 		},
@@ -167,7 +168,7 @@ func TestIsolationSegments(t *testing.T) {
 				r := &resource.IsolationSegmentUpdate{
 					Name: &name,
 				}
-				return c.IsolationSegments.Update("a45d5da8-67dc-4523-b34b-ffa68b8d8821", r)
+				return c.IsolationSegments.Update(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", r)
 			},
 		},
 	}

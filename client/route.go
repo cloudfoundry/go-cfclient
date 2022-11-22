@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
 
@@ -58,9 +59,9 @@ func (o RouteReservationListOptions) ToQueryString() url.Values {
 }
 
 // Create a new route
-func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
+func (c *RouteClient) Create(ctx context.Context, r *resource.RouteCreate) (*resource.Route, error) {
 	var Route resource.Route
-	_, err := c.client.post("/v3/routes", r, &Route)
+	_, err := c.client.post(ctx, "/v3/routes", r, &Route)
 	if err != nil {
 		return nil, err
 	}
@@ -68,20 +69,20 @@ func (c *RouteClient) Create(r *resource.RouteCreate) (*resource.Route, error) {
 }
 
 // Delete the specified route asynchronously and return a jobGUID
-func (c *RouteClient) Delete(guid string) (string, error) {
-	return c.client.delete(path.Format("/v3/routes/%s", guid))
+func (c *RouteClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/routes/%s", guid))
 }
 
 // DeleteUnmappedRoutesForSpace deletes all routes in a space that are not mapped to any applications and not
 // bound to any service instances and returns the async JobGUID
-func (c *RouteClient) DeleteUnmappedRoutesForSpace(spaceGUID string) (string, error) {
-	return c.client.delete(path.Format("/v3/spaces/%s/routes?unmapped=true", spaceGUID))
+func (c *RouteClient) DeleteUnmappedRoutesForSpace(ctx context.Context, spaceGUID string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/spaces/%s/routes?unmapped=true", spaceGUID))
 }
 
 // Get the specified route
-func (c *RouteClient) Get(guid string) (*resource.Route, error) {
+func (c *RouteClient) Get(ctx context.Context, guid string) (*resource.Route, error) {
 	var r resource.Route
-	err := c.client.get(path.Format("/v3/routes/%s", guid), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s", guid), &r)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +90,9 @@ func (c *RouteClient) Get(guid string) (*resource.Route, error) {
 }
 
 // GetIncludeDomain allows callers to fetch a route and include the parent domain
-func (c *RouteClient) GetIncludeDomain(guid string) (*resource.Route, *resource.Domain, error) {
+func (c *RouteClient) GetIncludeDomain(ctx context.Context, guid string) (*resource.Route, *resource.Domain, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeDomain), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeDomain), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -99,9 +100,9 @@ func (c *RouteClient) GetIncludeDomain(guid string) (*resource.Route, *resource.
 }
 
 // GetIncludeSpace allows callers to fetch a route and include the parent space
-func (c *RouteClient) GetIncludeSpace(guid string) (*resource.Route, *resource.Space, error) {
+func (c *RouteClient) GetIncludeSpace(ctx context.Context, guid string) (*resource.Route, *resource.Space, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -109,9 +110,9 @@ func (c *RouteClient) GetIncludeSpace(guid string) (*resource.Route, *resource.S
 }
 
 // GetIncludeSpaceAndOrg allows callers to fetch a route and include the parent space and org
-func (c *RouteClient) GetIncludeSpaceAndOrg(guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
+func (c *RouteClient) GetIncludeSpaceAndOrg(ctx context.Context, guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
 	var r resource.RouteWithIncluded
-	err := c.client.get(path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -119,9 +120,9 @@ func (c *RouteClient) GetIncludeSpaceAndOrg(guid string) (*resource.Route, *reso
 }
 
 // GetSharedSpacesRelationships retrieves the spaces that the route has been shared to
-func (c *RouteClient) GetSharedSpacesRelationships(guid string) (*resource.RouteSharedSpaceRelationships, error) {
+func (c *RouteClient) GetSharedSpacesRelationships(ctx context.Context, guid string) (*resource.RouteSharedSpaceRelationships, error) {
 	var r resource.RouteSharedSpaceRelationships
-	err := c.client.get(path.Format("/v3/routes/%s/relationships/shared_spaces", guid), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s/relationships/shared_spaces", guid), &r)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +130,9 @@ func (c *RouteClient) GetSharedSpacesRelationships(guid string) (*resource.Route
 }
 
 // GetDestinations retrieves all destinations associated with a route
-func (c *RouteClient) GetDestinations(guid string) (*resource.RouteDestinations, error) {
+func (c *RouteClient) GetDestinations(ctx context.Context, guid string) (*resource.RouteDestinations, error) {
 	var r resource.RouteDestinations
-	err := c.client.get(path.Format("/v3/routes/%s/destinations", guid), &r)
+	err := c.client.get(ctx, path.Format("/v3/routes/%s/destinations", guid), &r)
 	if err != nil {
 		return nil, err
 	}
@@ -142,12 +143,12 @@ func (c *RouteClient) GetDestinations(guid string) (*resource.RouteDestinations,
 //
 // Note that weighted destinations cannot be added with this endpoint. To add weighted destinations, replace
 // all destinations for a route at once using the replace destinations endpoint.
-func (c *RouteClient) InsertDestinations(guid string, dest []*resource.RouteDestinationInsertOrReplace) (*resource.RouteDestinations, error) {
+func (c *RouteClient) InsertDestinations(ctx context.Context, guid string, dest []*resource.RouteDestinationInsertOrReplace) (*resource.RouteDestinations, error) {
 	destinations := &resource.RouteDestinationsInsertOrReplace{
 		Destinations: dest,
 	}
 	var r resource.RouteDestinations
-	_, err := c.client.post(path.Format("/v3/routes/%s/destinations", guid), destinations, &r)
+	_, err := c.client.post(ctx, path.Format("/v3/routes/%s/destinations", guid), destinations, &r)
 	if err != nil {
 		return nil, err
 	}
@@ -156,12 +157,12 @@ func (c *RouteClient) InsertDestinations(guid string, dest []*resource.RouteDest
 
 // IsRouteReserved checks if a specific route for a domain exists, regardless of the user’s visibility for the
 // route in case the route belongs to a space the user does not belong to
-func (c *RouteClient) IsRouteReserved(domainGUID string, opts *RouteReservationListOptions) (bool, error) {
+func (c *RouteClient) IsRouteReserved(ctx context.Context, domainGUID string, opts *RouteReservationListOptions) (bool, error) {
 	if opts == nil {
 		opts = NewRouteReservationListOptions()
 	}
 	var match map[string]bool
-	err := c.client.get(path.Format("/v3/domains/%s/route_reservations?%s", domainGUID, opts.ToQueryString()), &match)
+	err := c.client.get(ctx, path.Format("/v3/domains/%s/route_reservations?%s", domainGUID, opts.ToQueryString()), &match)
 	if err != nil {
 		return false, err
 	}
@@ -169,14 +170,14 @@ func (c *RouteClient) IsRouteReserved(domainGUID string, opts *RouteReservationL
 }
 
 // List pages routes the user has access to
-func (c *RouteClient) List(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+func (c *RouteClient) List(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	opts.Include = resource.RouteIncludeNone
 
 	var res resource.RouteList
-	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -185,24 +186,24 @@ func (c *RouteClient) List(opts *RouteListOptions) ([]*resource.Route, *Pager, e
 }
 
 // ListAll retrieves all routes the user has access to
-func (c *RouteClient) ListAll(opts *RouteListOptions) ([]*resource.Route, error) {
+func (c *RouteClient) ListAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	return AutoPage[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
-		return c.List(opts)
+		return c.List(ctx, opts)
 	})
 }
 
 // ListForApp pages routes for the specified app the user has access to
-func (c *RouteClient) ListForApp(appGUID string, opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+func (c *RouteClient) ListForApp(ctx context.Context, appGUID string, opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	opts.Include = resource.RouteIncludeNone
 
 	var res resource.RouteList
-	err := c.client.get(path.Format("/v3/apps/%s/routes?%s", appGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/routes?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -211,24 +212,24 @@ func (c *RouteClient) ListForApp(appGUID string, opts *RouteListOptions) ([]*res
 }
 
 // ListForAppAll retrieves all routes for the specified app the user has access to
-func (c *RouteClient) ListForAppAll(appGUID string, opts *RouteListOptions) ([]*resource.Route, error) {
+func (c *RouteClient) ListForAppAll(ctx context.Context, appGUID string, opts *RouteListOptions) ([]*resource.Route, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	return AutoPage[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
-		return c.ListForApp(appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
 // ListIncludeDomains page all routes the user has access to and include the parent domains
-func (c *RouteClient) ListIncludeDomains(opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, *Pager, error) {
+func (c *RouteClient) ListIncludeDomains(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	opts.Include = resource.RouteIncludeDomain
 
 	var res resource.RouteList
-	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -237,7 +238,7 @@ func (c *RouteClient) ListIncludeDomains(opts *RouteListOptions) ([]*resource.Ro
 }
 
 // ListIncludeDomainsAll retrieves all routes the user has access to and includes the parent domains
-func (c *RouteClient) ListIncludeDomainsAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, error) {
+func (c *RouteClient) ListIncludeDomainsAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Domain, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
@@ -245,7 +246,7 @@ func (c *RouteClient) ListIncludeDomainsAll(opts *RouteListOptions) ([]*resource
 	var all []*resource.Route
 	var allDomains []*resource.Domain
 	for {
-		page, domains, pager, err := c.ListIncludeDomains(opts)
+		page, domains, pager, err := c.ListIncludeDomains(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -260,14 +261,14 @@ func (c *RouteClient) ListIncludeDomainsAll(opts *RouteListOptions) ([]*resource
 }
 
 // ListIncludeSpaces page all routes the user has access to and include the parent spaces
-func (c *RouteClient) ListIncludeSpaces(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, *Pager, error) {
+func (c *RouteClient) ListIncludeSpaces(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	opts.Include = resource.RouteIncludeSpace
 
 	var res resource.RouteList
-	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -276,7 +277,7 @@ func (c *RouteClient) ListIncludeSpaces(opts *RouteListOptions) ([]*resource.Rou
 }
 
 // ListIncludeSpacesAll retrieves all routes the user has access to and includes the parent spaces
-func (c *RouteClient) ListIncludeSpacesAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, error) {
+func (c *RouteClient) ListIncludeSpacesAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
@@ -284,7 +285,7 @@ func (c *RouteClient) ListIncludeSpacesAll(opts *RouteListOptions) ([]*resource.
 	var all []*resource.Route
 	var allSpaces []*resource.Space
 	for {
-		page, spaces, pager, err := c.ListIncludeSpaces(opts)
+		page, spaces, pager, err := c.ListIncludeSpaces(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -299,14 +300,14 @@ func (c *RouteClient) ListIncludeSpacesAll(opts *RouteListOptions) ([]*resource.
 }
 
 // ListIncludeSpacesAndOrgs page all routes the user has access to and include the parent spaces and orgs
-func (c *RouteClient) ListIncludeSpacesAndOrgs(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, *Pager, error) {
+func (c *RouteClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
 	opts.Include = resource.RouteIncludeSpaceOrganization
 
 	var res resource.RouteList
-	err := c.client.get(path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/routes?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -315,7 +316,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgs(opts *RouteListOptions) ([]*resou
 }
 
 // ListIncludeSpacesAndOrgsAll retrieves all routes the user has access to and includes the parent spaces and org
-func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, error) {
+func (c *RouteClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
@@ -324,7 +325,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*re
 	var allSpaces []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(opts)
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(ctx, opts)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -340,8 +341,8 @@ func (c *RouteClient) ListIncludeSpacesAndOrgsAll(opts *RouteListOptions) ([]*re
 }
 
 // RemoveDestination removes a destination from a route
-func (c *RouteClient) RemoveDestination(guid, destinationGUID string) error {
-	_, err := c.client.delete(path.Format("/v3/routes/%s/destinations/%s", guid, destinationGUID))
+func (c *RouteClient) RemoveDestination(ctx context.Context, guid, destinationGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/routes/%s/destinations/%s", guid, destinationGUID))
 	return err
 }
 
@@ -350,12 +351,12 @@ func (c *RouteClient) RemoveDestination(guid, destinationGUID string) error {
 // If using weighted destinations, all destinations provided here must have a weight specified, and all weights for
 // this route must sum to 100. If not, all provided destinations must not have a weight. Mixing weighted and unweighted
 // destinations for a route is not allowed.
-func (c *RouteClient) ReplaceDestinations(guid string, dest []*resource.RouteDestinationInsertOrReplace) (*resource.RouteDestinations, error) {
+func (c *RouteClient) ReplaceDestinations(ctx context.Context, guid string, dest []*resource.RouteDestinationInsertOrReplace) (*resource.RouteDestinations, error) {
 	destinations := &resource.RouteDestinationsInsertOrReplace{
 		Destinations: dest,
 	}
 	var r resource.RouteDestinations
-	_, err := c.client.patch(path.Format("/v3/routes/%s/destinations", guid), destinations, &r)
+	_, err := c.client.patch(ctx, path.Format("/v3/routes/%s/destinations", guid), destinations, &r)
 	if err != nil {
 		return nil, err
 	}
@@ -365,17 +366,17 @@ func (c *RouteClient) ReplaceDestinations(guid string, dest []*resource.RouteDes
 // ShareWithSpace shares the route with the specified space
 //
 // In order to share into a space the requesting user must be a space developer in the target space
-func (c *RouteClient) ShareWithSpace(guid string, spaceGUID string) (*resource.RouteSharedSpaceRelationships, error) {
-	return c.ShareWithSpaces(guid, []string{spaceGUID})
+func (c *RouteClient) ShareWithSpace(ctx context.Context, guid string, spaceGUID string) (*resource.RouteSharedSpaceRelationships, error) {
+	return c.ShareWithSpaces(ctx, guid, []string{spaceGUID})
 }
 
 // ShareWithSpaces shares the route with the specified spaces
 //
 // In order to share into a space the requesting user must be a space developer in the target space
-func (c *RouteClient) ShareWithSpaces(guid string, spaceGUIDs []string) (*resource.RouteSharedSpaceRelationships, error) {
+func (c *RouteClient) ShareWithSpaces(ctx context.Context, guid string, spaceGUIDs []string) (*resource.RouteSharedSpaceRelationships, error) {
 	req := resource.NewToManyRelationships(spaceGUIDs)
 	var relationships resource.RouteSharedSpaceRelationships
-	_, err := c.client.post(path.Format("/v3/routes/%s/relationships/shared_spaces", guid), req, &relationships)
+	_, err := c.client.post(ctx, path.Format("/v3/routes/%s/relationships/shared_spaces", guid), req, &relationships)
 	if err != nil {
 		return nil, err
 	}
@@ -387,13 +388,13 @@ func (c *RouteClient) ShareWithSpaces(guid string, spaceGUIDs []string) (*resour
 // Users must have write access for both spaces to perform this action. The original owning space will still
 // retain access to the route as a shared space. To completely remove a space from a route, users will have
 // to un-share the route.
-func (c *RouteClient) TransferOwnership(guid string, spaceGUID string) error {
+func (c *RouteClient) TransferOwnership(ctx context.Context, guid string, spaceGUID string) error {
 	req := resource.ToOneRelationship{
 		Data: &resource.Relationship{
 			GUID: spaceGUID,
 		},
 	}
-	_, err := c.client.patch(path.Format("/v3/routes/%s/relationships/space", guid), req, nil)
+	_, err := c.client.patch(ctx, path.Format("/v3/routes/%s/relationships/space", guid), req, nil)
 	return err
 }
 
@@ -401,8 +402,8 @@ func (c *RouteClient) TransferOwnership(guid string, spaceGUID string) error {
 //
 // This will automatically unbind any applications bound to this route in the specified space
 // Un-sharing a route from a space will not delete any service keys
-func (c *RouteClient) UnShareWithSpace(guid string, spaceGUID string) error {
-	_, err := c.client.delete(path.Format("/v3/routes/%s/relationships/shared_spaces/%s", guid, spaceGUID))
+func (c *RouteClient) UnShareWithSpace(ctx context.Context, guid string, spaceGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/routes/%s/relationships/shared_spaces/%s", guid, spaceGUID))
 	return err
 }
 
@@ -410,9 +411,9 @@ func (c *RouteClient) UnShareWithSpace(guid string, spaceGUID string) error {
 //
 // This will automatically unbind any applications bound to this route in the specified space
 // Un-sharing a route from a space will not delete any service keys
-func (c *RouteClient) UnShareWithSpaces(guid string, spaceGUIDs []string) error {
+func (c *RouteClient) UnShareWithSpaces(ctx context.Context, guid string, spaceGUIDs []string) error {
 	for _, s := range spaceGUIDs {
-		err := c.UnShareWithSpace(guid, s)
+		err := c.UnShareWithSpace(ctx, guid, s)
 		if err != nil {
 			return err
 		}
@@ -421,9 +422,9 @@ func (c *RouteClient) UnShareWithSpaces(guid string, spaceGUIDs []string) error 
 }
 
 // Update the specified attributes of the app
-func (c *RouteClient) Update(guid string, r *resource.RouteUpdate) (*resource.Route, error) {
+func (c *RouteClient) Update(ctx context.Context, guid string, r *resource.RouteUpdate) (*resource.Route, error) {
 	var res resource.Route
-	_, err := c.client.patch(path.Format("/v3/routes/%s", guid), r, &res)
+	_, err := c.client.patch(ctx, path.Format("/v3/routes/%s", guid), r, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -434,7 +435,7 @@ func (c *RouteClient) Update(guid string, r *resource.RouteUpdate) (*resource.Ro
 //
 // Protocol the destination will use. Valid protocols are http1 or http2 if route protocol is http, tcp if route
 // protocol is tcp. An empty string will set it to either http1 or tcp based on the route protocol
-func (c *RouteClient) UpdateDestinationProtocol(guid, destinationGUID, protocol string) (*resource.RouteDestinationWithLinks, error) {
+func (c *RouteClient) UpdateDestinationProtocol(ctx context.Context, guid, destinationGUID, protocol string) (*resource.RouteDestinationWithLinks, error) {
 	// use nil/null for empty string
 	var p *string
 	if protocol != "" {
@@ -444,7 +445,7 @@ func (c *RouteClient) UpdateDestinationProtocol(guid, destinationGUID, protocol 
 		Protocol: p,
 	}
 	var r resource.RouteDestinationWithLinks
-	_, err := c.client.patch(path.Format("/v3/routes/%s/destinations/%s", guid, destinationGUID), u, &r)
+	_, err := c.client.patch(ctx, path.Format("/v3/routes/%s/destinations/%s", guid, destinationGUID), u, &r)
 	if err != nil {
 		return nil, err
 	}

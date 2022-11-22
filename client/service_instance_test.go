@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
@@ -48,7 +49,7 @@ func TestServiceInstances(t *testing.T) {
 				r := resource.NewServiceInstanceCreateManaged("my_service_instance",
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78", "e0e4417c-74ee-11ea-a604-48bf6bec2d78")
 				r.Tags = []string{"foo", "bar", "baz"}
-				return c.ServiceInstances.CreateManaged(r)
+				return c.ServiceInstances.CreateManaged(context.Background(), r)
 			},
 		},
 		{
@@ -76,7 +77,7 @@ func TestServiceInstances(t *testing.T) {
 				r := resource.NewServiceInstanceCreateUserProvided("my_service_instance",
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78")
 				r.Tags = []string{"foo", "bar", "baz"}
-				return c.ServiceInstances.CreateUserProvided(r)
+				return c.ServiceInstances.CreateUserProvided(context.Background(), r)
 			},
 		},
 		{
@@ -89,7 +90,7 @@ func TestServiceInstances(t *testing.T) {
 			},
 			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.Delete("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.Delete(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{
@@ -101,7 +102,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: si,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.Get("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.Get(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{
@@ -113,7 +114,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: siSpaceRelationships,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.GetSharedSpaceRelationships("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.GetSharedSpaceRelationships(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{
@@ -125,7 +126,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: siSharedSummary,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.GetSharedSpaceUsageSummary("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.GetSharedSpaceUsageSummary(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{
@@ -137,7 +138,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: `{ "read": true, "manage": false }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.GetUserPermissions("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				return c.ServiceInstances.GetUserPermissions(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 			},
 		},
 		{
@@ -148,7 +149,7 @@ func TestServiceInstances(t *testing.T) {
 				Output:   g.Single(`{ "key_1": "value_1", "key_2": "value_2" }`),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				credentials, err := c.ServiceInstances.GetManagedParameters("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				credentials, err := c.ServiceInstances.GetManagedParameters(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 				require.NoError(t, err)
 				b, err := credentials.MarshalJSON()
 				require.NoError(t, err)
@@ -164,7 +165,7 @@ func TestServiceInstances(t *testing.T) {
 				Output:   g.Single(`{ "username": "my-username", "password": "super-secret", "other": "credential" }`),
 				Status:   http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				credentials, err := c.ServiceInstances.GetUserProvidedCredentials("62a3c0fe-5751-4f8f-97c4-28de85962ef8")
+				credentials, err := c.ServiceInstances.GetUserProvidedCredentials(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8")
 				require.NoError(t, err)
 				b, err := credentials.MarshalJSON()
 				require.NoError(t, err)
@@ -181,7 +182,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(si, si2),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.ListAll(nil)
+				return c.ServiceInstances.ListAll(context.Background(), nil)
 			},
 		},
 		{
@@ -210,7 +211,7 @@ func TestServiceInstances(t *testing.T) {
 					WithTags([]string{"foo", "bar", "baz"}).
 					WithSyslogDrainURL("https://syslog.com/drain").
 					WithRouteServiceURL("https://route.com/service")
-				return c.ServiceInstances.UpdateUserProvided("62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
+				return c.ServiceInstances.UpdateUserProvided(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
 			},
 		},
 		{
@@ -243,7 +244,7 @@ func TestServiceInstances(t *testing.T) {
 					WithParameters(json.RawMessage(`{"foo": "bar", "baz": "qux"}`)).
 					WithTags([]string{"foo", "bar", "baz"}).
 					WithServicePlan("f2b6ba9c-a4d2-11ea-8ae6-48bf6bec2d78")
-				return c.ServiceInstances.UpdateManaged("62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
+				return c.ServiceInstances.UpdateManaged(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
 			},
 		},
 		{
@@ -260,7 +261,7 @@ func TestServiceInstances(t *testing.T) {
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				r := resource.NewServiceInstanceManagedUpdate().
 					WithName("my_service_instance")
-				return c.ServiceInstances.UpdateManaged("62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
+				return c.ServiceInstances.UpdateManaged(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
 			},
 		},
 		{
@@ -274,7 +275,7 @@ func TestServiceInstances(t *testing.T) {
 			},
 			Expected: siSpaceRelationships,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.ServiceInstances.ShareWithSpace("62a3c0fe-5751-4f8f-97c4-28de85962ef8", "000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.ServiceInstances.ShareWithSpace(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -285,7 +286,7 @@ func TestServiceInstances(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.ServiceInstances.UnShareWithSpaces("62a3c0fe-5751-4f8f-97c4-28de85962ef8", []string{"000d1e0c-218e-470b-b5db-84481b89fa92"})
+				return nil, c.ServiceInstances.UnShareWithSpaces(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", []string{"000d1e0c-218e-470b-b5db-84481b89fa92"})
 			},
 		},
 	}
