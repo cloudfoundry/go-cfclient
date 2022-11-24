@@ -202,6 +202,20 @@ func TestPackages(t *testing.T) {
 				return c.Packages.Update(context.Background(), "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", &resource.PackageUpdate{})
 			},
 		},
+		{
+			Description: "Upload package",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/packages/8d1f1d2e-08b1-4a10-a8df-471a1418cb8b/upload",
+				Output:   g.Single(pkg),
+				Status:   http.StatusOK,
+			},
+			Expected: pkg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				zipFile := strings.NewReader("package")
+				return c.Packages.Upload(context.Background(), "8d1f1d2e-08b1-4a10-a8df-471a1418cb8b", zipFile)
+			},
+		},
 	}
 	ExecuteTests(tests, t)
 }

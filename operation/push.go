@@ -116,7 +116,7 @@ func (p *AppPushOperation) uploadPackage(ctx context.Context, app *resource.App,
 		return nil, fmt.Errorf("error creating package for app %s: %w", app.Name, err)
 	}
 
-	err = p.client.Packages.UploadBits(ctx, pkg.GUID, zipFile)
+	_, err = p.client.Packages.Upload(ctx, pkg.GUID, zipFile)
 	if err != nil {
 		return nil, fmt.Errorf("error uploading package bits for app %s: %w", app.Name, err)
 	}
