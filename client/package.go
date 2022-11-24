@@ -8,10 +8,8 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
-	"mime/multipart"
 	http2 "net/http"
 	"net/url"
-	"os"
 )
 
 type PackageClient commonClient
@@ -178,59 +176,10 @@ func (c *PackageClient) Update(ctx context.Context, guid string, r *resource.Pac
 	return &p, nil
 }
 
-// UploadBits uploads an app's zip file contents
-func (c *PackageClient) UploadBits(ctx context.Context, guid string, zipFile io.Reader) error {
-	requestFile, err := os.CreateTemp("", "requests")
-	if err != nil {
-		return fmt.Errorf("could not create temp zipFile for package bits: %w", err)
-	}
-	defer func() {
-		_ = requestFile.Close()
-		_ = os.Remove(requestFile.Name())
-	}()
-
-	formWriter := multipart.NewWriter(requestFile)
-	part, err := formWriter.CreateFormFile("bits", "package.zip")
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
-	}
-
-	_, err = io.Copy(part, zipFile)
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits, failed to copy all bytes: %w", guid, err)
-	}
-
-	err = formWriter.Close()
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits, failed to close multipart formWriter: %w", guid, err)
-	}
-
-	_, err = requestFile.Seek(0, 0)
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits, failed to seek beginning of temp zipFile: %w", guid, err)
-	}
-	fileStats, err := requestFile.Stat()
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits, failed to stat temp zipFile: %w", guid, err)
-	}
-
-	req := http.NewRequest(ctx, http2.MethodPost, path.Format("/v3/packages/%s/upload", guid)).
-		WithContentType(fmt.Sprintf("multipart/form-data; boundary=%s", formWriter.Boundary())).
-		WithContentLength(fileStats.Size()).
-		WithBody(requestFile)
-
-	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
-	if err != nil {
-		return fmt.Errorf("error uploading package %s bits: %w", guid, err)
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	if resp.StatusCode != http2.StatusOK {
-		return c.client.decodeError(resp)
-	}
-
-	return nil
+// Upload an app's zip file contents
+func (c *PackageClient) Upload(ctx context.Context, guid string, zipFile io.Reader) (*resource.Package, error) {
+	p := path.Format("/v3/packages/%s/upload", guid)
+	var pkg resource.Package
+	_, err := c.client.postFileUpload(ctx, p, "bits", "package.zip", zipFile, &pkg)
+	return &pkg, err
 }
-
-// TODO Stage a package
