@@ -5,6 +5,7 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -89,6 +90,22 @@ func TestBuildpacks(t *testing.T) {
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewBuildpackUpdate().WithPosition(1)
 				return c.Buildpacks.Update(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb", r)
+			},
+		},
+		{
+			Description: "Upload buildpack",
+			Route: testutil.MockRoute{
+				Method:           "POST",
+				Endpoint:         "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb/upload",
+				Output:           g.Single(buildpack),
+				Status:           http.StatusOK,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected:  "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Expected2: buildpack,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				zipFile := strings.NewReader("bp")
+				return c.Buildpacks.Upload(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb", zipFile)
 			},
 		},
 	}

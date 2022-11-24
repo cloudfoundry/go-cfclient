@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"io"
 	"net/url"
 )
 
@@ -97,4 +98,15 @@ func (c *BuildpackClient) Update(ctx context.Context, guid string, r *resource.B
 		return nil, err
 	}
 	return &bp, nil
+}
+
+// Upload a gzip compressed (zip) file containing a Cloud Foundry compatible buildpack
+func (c *BuildpackClient) Upload(ctx context.Context, guid string, zipFile io.Reader) (string, *resource.Buildpack, error) {
+	p := path.Format("/v3/buildpacks/%s/upload", guid)
+	var b resource.Buildpack
+	jobGUID, err := c.client.postFileUpload(ctx, p, "bits", "buildpack.zip", zipFile, &b)
+	if err != nil {
+		return "", nil, err
+	}
+	return jobGUID, &b, nil
 }
