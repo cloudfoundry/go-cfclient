@@ -227,7 +227,7 @@ func (c *PackageClient) UploadBits(ctx context.Context, guid string, zipFile io.
 		_ = resp.Body.Close()
 	}()
 	if resp.StatusCode != http2.StatusOK {
-		return c.client.handleError(resp)
+		return c.client.decodeError(resp)
 	}
 
 	return nil

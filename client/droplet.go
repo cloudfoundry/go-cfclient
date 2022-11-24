@@ -260,3 +260,14 @@ func (c *DropletClient) Update(ctx context.Context, guid string, r *resource.Dro
 	}
 	return &d, nil
 }
+
+// Upload a gzip compressed tarball (tgz) file containing a Cloud Foundry compatible droplet
+func (c *DropletClient) Upload(ctx context.Context, guid string, tgzDroplet io.Reader) (string, *resource.Droplet, error) {
+	p := path.Format("/v3/droplets/%s/upload", guid)
+	var d resource.Droplet
+	jobGUID, err := c.client.postFileUpload(ctx, p, "bits", "droplet.tgz", tgzDroplet, &d)
+	if err != nil {
+		return "", nil, err
+	}
+	return jobGUID, &d, nil
+}
