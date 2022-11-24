@@ -220,6 +220,22 @@ func TestDroplets(t *testing.T) {
 				return nil, nil
 			},
 		},
+		{
+			Description: "Upload droplet",
+			Route: testutil.MockRoute{
+				Method:           "POST",
+				Endpoint:         "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4/upload",
+				Output:           g.Single(droplet),
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected:  "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Expected2: droplet,
+			Action2: func(c *Client, t *testing.T) (any, any, error) {
+				tgzFile := strings.NewReader("droplet")
+				return c.Droplets.Upload(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", tgzFile)
+			},
+		},
 	}
 	ExecuteTests(tests, t)
 }
