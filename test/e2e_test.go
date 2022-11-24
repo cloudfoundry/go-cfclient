@@ -27,28 +27,79 @@ const (
 	AppName   = "go-cfclient-hello-world"
 )
 
-func TestEndToEnd(t *testing.T) {
-	ctx := context.Background()
-	c := createClient(t)
+var t *testing.T
+var ctx context.Context
+var cf *client.Client
+
+func TestEndToEnd(tt *testing.T) {
+	t = tt
+	ctx = context.Background()
+	cf = createClient()
 
 	// get the org with the access token
-	org := getOrg(t, ctx, c)
+	org := getOrg()
 	fmt.Printf("Targeting org %s\n", org.Name)
 
 	// try to get the space
-	space := getSpace(t, ctx, c, org)
+	space := getSpace(org)
 	fmt.Printf("Targeting space %s\n", space.Name)
 
 	// push an app
-	app := pushApp(t, ctx, c, org, space)
+	app := pushApp(org, space)
 	fmt.Printf("Successfully pushed %s\n", app.Name)
 
 	// curl the app
-	curlApp(t, ctx, c, app)
+	curlApp(app)
+	fmt.Printf("Successfully curled %s\n", app.Name)
+
+	// download the current app droplet
+	dropletFile := downloadDroplet(app)
+	fmt.Printf("Successfully downloaded %s\n", dropletFile)
+
+	// create a new droplet
+	createNewDroplet(app, dropletFile)
+	fmt.Println("Successfully uploaded new droplet")
 }
 
-func curlApp(t *testing.T, ctx context.Context, c *client.Client, app *resource.App) {
-	routes, err := c.Routes.ListForAppAll(ctx, app.GUID, nil)
+func createNewDroplet(app *resource.App, dropletFile string) {
+	c := resource.NewDropletCreate(app.GUID)
+	d, err := cf.Droplets.Create(ctx, c)
+	require.NoError(t, err)
+
+	tgzFile, err := os.Open(dropletFile)
+	require.NoError(t, err)
+	defer tgzFile.Close()
+
+	jobGUID, _, err := cf.Droplets.Upload(ctx, d.GUID, tgzFile)
+	require.NoError(t, err)
+
+	err = cf.Jobs.PollComplete(ctx, jobGUID, nil)
+	require.NoError(t, err)
+}
+
+func downloadDroplet(app *resource.App) string {
+	opts := client.NewDropletAppListOptions()
+	opts.Current = true
+	droplets, err := cf.Droplets.ListForAppAll(ctx, app.GUID, opts)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(droplets))
+	droplet := droplets[0]
+
+	r, err := cf.Droplets.Download(ctx, droplet.GUID)
+	require.NoError(t, err)
+
+	f, err := os.CreateTemp("", "droplet-*.tgz")
+	require.NoError(t, err)
+	defer f.Close()
+
+	_, err = io.Copy(f, r)
+	require.NoError(t, err)
+
+	return f.Name()
+}
+
+func curlApp(app *resource.App) {
+	routes, err := cf.Routes.ListForAppAll(ctx, app.GUID, nil)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(routes), 1, "expected 1+ routes")
 	route := routes[0]
@@ -67,10 +118,10 @@ func curlApp(t *testing.T, ctx context.Context, c *client.Client, app *resource.
 	require.Equal(t, 200, resp.StatusCode)
 }
 
-func pushApp(t *testing.T, ctx context.Context, c *client.Client, org *resource.Organization, space *resource.Space) *resource.App {
-	appRoute := getAppRoute(t, ctx, c, org)
+func pushApp(org *resource.Organization, space *resource.Space) *resource.App {
+	appRoute := getAppRoute(org)
 
-	zipPath := createZipFile(t)
+	zipPath := createZipFile()
 	zipReader, err := os.Open(zipPath)
 	require.NoError(t, err)
 
@@ -86,14 +137,15 @@ func pushApp(t *testing.T, ctx context.Context, c *client.Client, org *resource.
 	manifest.HealthCheckType = "http"
 	manifest.Memory = "64M"
 
-	p := operation.NewAppPushOperation(c, org.Name, space.Name)
+	fmt.Printf("Pushing app %s...\n", AppName)
+	p := operation.NewAppPushOperation(cf, org.Name, space.Name)
 	app, err := p.Push(ctx, manifest, zipReader)
 	require.NoError(t, err)
 	return app
 }
 
-func getAppRoute(t *testing.T, ctx context.Context, c *client.Client, org *resource.Organization) string {
-	domains, err := c.Domains.ListForOrgAll(ctx, org.GUID, nil)
+func getAppRoute(org *resource.Organization) string {
+	domains, err := cf.Domains.ListForOrgAll(ctx, org.GUID, nil)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(domains), 1, "expected 1+ available domains for org %s", org.Name)
 
@@ -108,8 +160,8 @@ func getAppRoute(t *testing.T, ctx context.Context, c *client.Client, org *resou
 	return fmt.Sprintf("%s.%s", AppName, domain)
 }
 
-func createZipFile(t *testing.T) string {
-	fmt.Println("creating zip archive...")
+func createZipFile() string {
+	fmt.Println("Creating zip archive")
 	archive, err := os.CreateTemp("", "go-cfclient-hello-world-*.zip")
 	require.NoError(t, err)
 	defer archive.Close()
@@ -139,12 +191,12 @@ func writeFileToZip(zipWriter *zip.Writer, filename string) error {
 	return err
 }
 
-func getOrg(t *testing.T, ctx context.Context, c *client.Client) *resource.Organization {
+func getOrg() *resource.Organization {
 	opts := client.NewOrgListOptions()
 	opts.Names = client.Filter{
 		Values: []string{OrgName},
 	}
-	orgs, _, err := c.Organizations.List(ctx, opts)
+	orgs, _, err := cf.Organizations.List(ctx, opts)
 	require.NoError(t, err)
 
 	var org *resource.Organization
@@ -154,7 +206,7 @@ func getOrg(t *testing.T, ctx context.Context, c *client.Client) *resource.Organ
 		oc := &resource.OrganizationCreate{
 			Name: OrgName,
 		}
-		org, err = c.Organizations.Create(ctx, oc)
+		org, err = cf.Organizations.Create(ctx, oc)
 		require.NoError(t, err)
 	}
 	require.Equal(t, OrgName, org.Name)
@@ -162,12 +214,12 @@ func getOrg(t *testing.T, ctx context.Context, c *client.Client) *resource.Organ
 	return org
 }
 
-func getSpace(t *testing.T, ctx context.Context, c *client.Client, org *resource.Organization) *resource.Space {
+func getSpace(org *resource.Organization) *resource.Space {
 	opts := client.NewSpaceListOptions()
 	opts.Names = client.Filter{
 		Values: []string{SpaceName},
 	}
-	spaces, _, err := c.Spaces.List(ctx, opts)
+	spaces, _, err := cf.Spaces.List(ctx, opts)
 	require.NoError(t, err)
 
 	var space *resource.Space
@@ -175,7 +227,7 @@ func getSpace(t *testing.T, ctx context.Context, c *client.Client, org *resource
 		space = spaces[0]
 	} else {
 		sc := resource.NewSpaceCreate(SpaceName, org.GUID)
-		space, err = c.Spaces.Create(ctx, sc)
+		space, err = cf.Spaces.Create(ctx, sc)
 		require.NoError(t, err)
 	}
 	require.Equal(t, SpaceName, space.Name)
@@ -183,7 +235,7 @@ func getSpace(t *testing.T, ctx context.Context, c *client.Client, org *resource
 	return space
 }
 
-func createClient(t *testing.T) *client.Client {
+func createClient() *client.Client {
 	cfg, err := config.NewFromCFHome()
 	require.NoError(t, err)
 	cfg.WithSkipTLSValidation(true)

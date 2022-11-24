@@ -8,11 +8,14 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/check"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"io"
+	"mime/multipart"
 	http2 "net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -201,9 +204,9 @@ func (c *Client) delete(ctx context.Context, path string) (string, error) {
 
 	// some endpoints return accepted and others return no content
 	if resp.StatusCode != http2.StatusAccepted && resp.StatusCode != http2.StatusNoContent {
-		return "", c.handleError(resp)
+		return "", c.decodeError(resp)
 	}
-	return c.decodeBodyOrJobID(resp, nil)
+	return c.decodeJobIDOrBody(resp, nil)
 }
 
 // get does an HTTP GET to the specified endpoint and automatically handles unmarshalling
@@ -223,7 +226,7 @@ func (c *Client) get(ctx context.Context, path string, result any) error {
 	}(resp.Body)
 
 	if resp.StatusCode != http2.StatusOK {
-		return c.handleError(resp)
+		return c.decodeError(resp)
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(result)
@@ -257,18 +260,17 @@ func (c *Client) patch(ctx context.Context, path string, params any, result any)
 	}(resp.Body)
 
 	if resp.StatusCode != http2.StatusOK && resp.StatusCode != http2.StatusAccepted && resp.StatusCode != http2.StatusNoContent {
-		return "", c.handleError(resp)
+		return "", c.decodeError(resp)
 	}
-	return c.decodeBodyOrJobID(resp, result)
+	return c.decodeJobIDOrBody(resp, result)
 }
 
 // post does an HTTP POST to the specified endpoint and automatically handles the result
 // whether that's a JSON body or job ID.
 //
 // This function takes the relative API resource path, any parameters to POST and an optional
-// struct to unmarshall the result body. If the resource returns an async job ID instead of a
-// response body, then the body won't be unmarshalled and the function returns the job GUID
-// which the caller can reference via the job endpoint.
+// struct to unmarshall the result body. If the resource returns an async job ID in the Location
+// header then the job GUID is returned which the caller can reference via the job endpoint.
 func (c *Client) post(ctx context.Context, path string, params, result any) (string, error) {
 	if !check.IsNil(result) && !check.IsPointer(result) {
 		return "", errors.New("expected result to be a pointer type, or nil")
@@ -285,13 +287,68 @@ func (c *Client) post(ctx context.Context, path string, params, result any) (str
 
 	// Endpoints return different status codes for posts
 	if resp.StatusCode != http2.StatusCreated && resp.StatusCode != http2.StatusOK && resp.StatusCode != http2.StatusAccepted {
-		return "", c.handleError(resp)
+		return "", c.decodeError(resp)
 	}
-	return c.decodeBodyOrJobID(resp, result)
+	return c.decodeJobIDOrBody(resp, result)
 }
 
-// handleError attempts to unmarshall the response body as a CF error
-func (c *Client) handleError(resp *http2.Response) error {
+// postFileUpload does an HTTP POST to the specified endpoint and automatically handles uploading the specified file
+// and handling the result whether that's a JSON body or job ID.
+//
+// This function takes the relative API resource path, any parameters to POST and an optional
+// struct to unmarshall the result body. If the resource returns an async job ID in the Location
+// header then the job GUID is returned which the caller can reference via the job endpoint.
+func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName string, fileToUpload io.Reader, result any) (string, error) {
+	if !check.IsNil(result) && !check.IsPointer(result) {
+		return "", errors.New("expected result to be a pointer type, or nil")
+	}
+
+	requestFile, err := os.CreateTemp("", "upload-*.tmp")
+	if err != nil {
+		return "", fmt.Errorf("could not create temp file for %s upload form: %w", path, err)
+	}
+	defer ios.CleanupTempFile(requestFile)
+
+	formWriter := multipart.NewWriter(requestFile)
+	part, err := formWriter.CreateFormFile(fieldName, fileName)
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s: %w", path, err)
+	}
+	_, err = io.Copy(part, fileToUpload)
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s, failed on copy: %w", path, err)
+	}
+	err = formWriter.Close()
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s, failed to close multipart form writer: %w", path, err)
+	}
+	_, err = requestFile.Seek(0, 0)
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s, failed to seek beginning of temp file: %w", path, err)
+	}
+	fileStats, err := requestFile.Stat()
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s, failed to stat temp file: %w", path, err)
+	}
+
+	req := http.NewRequest(ctx, http2.MethodPost, path).
+		WithContentType(formWriter.FormDataContentType()).
+		WithContentLength(fileStats.Size()).
+		WithBody(requestFile)
+	resp, err := c.authenticatedHTTPExecutor.ExecuteRequest(req)
+	if err != nil {
+		return "", fmt.Errorf("error uploading file to %s: %w", path, err)
+	}
+	defer ios.CloseReaderIgnoreError(resp.Body)
+
+	if resp.StatusCode != http2.StatusOK && resp.StatusCode != http2.StatusAccepted {
+		return "", c.decodeError(resp)
+	}
+	return c.decodeJobIDAndBody(resp, result)
+}
+
+// decodeError attempts to unmarshall the response body as a CF error
+func (c *Client) decodeError(resp *http2.Response) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return CloudFoundryHTTPError{
@@ -327,21 +384,43 @@ func (c *Client) handleError(resp *http2.Response) error {
 	return errs.Errors[0]
 }
 
-// decodeBodyOrJobID returns the jobGUID if specified in the Location response header, otherwise it
-// unmarshalls the JSON response to result
-func (c *Client) decodeBodyOrJobID(resp *http2.Response, result any) (string, error) {
-	var jobGUID string
+// decodeJobIDAndBody returns the jobGUID if specified in the Location response header and
+// unmarshalls the JSON response body to result if available
+func (c *Client) decodeJobIDAndBody(resp *http2.Response, result any) (string, error) {
+	jobGUID := c.decodeJobID(resp)
+	err := c.decodeBody(resp, result)
+	return jobGUID, err
+}
+
+// decodeJobIDOrBody returns the jobGUID if specified in the Location response header or
+// unmarshalls the JSON response body if no job ID and result is non nil
+func (c *Client) decodeJobIDOrBody(resp *http2.Response, result any) (string, error) {
+	jobGUID := c.decodeJobID(resp)
+	if jobGUID != "" {
+		return jobGUID, nil
+	}
+	return "", c.decodeBody(resp, result)
+}
+
+// decodeJobID returns the jobGUID if specified in the Location response header
+func (c *Client) decodeJobID(resp *http2.Response) string {
 	location, err := resp.Location()
 	if err == nil && strings.Contains(location.Path, "jobs") {
 		p := strings.Split(location.Path, "/")
-		jobGUID = p[len(p)-1]
-	} else if result != nil {
-		err = json.NewDecoder(resp.Body).Decode(&result)
+		return p[len(p)-1]
+	}
+	return ""
+}
+
+// decodeBody unmarshalls the JSON response body if the result is non nil
+func (c *Client) decodeBody(resp *http2.Response, result any) error {
+	if result != nil && resp.StatusCode != http2.StatusNoContent {
+		err := json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
-			return "", fmt.Errorf("error decoding response JSON: %w", err)
+			return fmt.Errorf("error decoding response JSON: %w", err)
 		}
 	}
-	return jobGUID, nil
+	return nil
 }
 
 // authServiceDiscovery sets the UAA and Login endpoint if the user didn't configure these manually

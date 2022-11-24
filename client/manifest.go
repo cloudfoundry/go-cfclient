@@ -26,7 +26,7 @@ func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, 
 	}(resp.Body)
 
 	if resp.StatusCode != http2.StatusOK {
-		return "", c.client.handleError(resp)
+		return "", c.client.decodeError(resp)
 	}
 
 	buf := new(strings.Builder)
@@ -56,10 +56,10 @@ func (c *ManifestClient) ApplyManifest(ctx context.Context, spaceGUID string, ma
 		_ = resp.Body.Close()
 	}()
 	if resp.StatusCode != http2.StatusAccepted {
-		return "", c.client.handleError(resp)
+		return "", c.client.decodeError(resp)
 	}
 
-	jobGUID, err := c.client.decodeBodyOrJobID(resp, nil)
+	jobGUID, err := c.client.decodeJobIDOrBody(resp, nil)
 	if err != nil {
 		return "", fmt.Errorf("error reading jobGUID: %w", err)
 	}
