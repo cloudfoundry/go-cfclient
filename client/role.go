@@ -34,44 +34,18 @@ func (o *RoleListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// User returns only the specified user's roles
-func (o *RoleListOptions) User(userGUID string) *RoleListOptions {
-	o.UserGUIDs = Filter{
-		Values: []string{userGUID},
+// WithOrganizationRoleType returns only roles with the specified org roles type
+func (o *RoleListOptions) WithOrganizationRoleType(roleType ...resource.OrganizationRoleType) {
+	for _, r := range roleType {
+		o.Types.Values = append(o.Types.Values, r.String())
 	}
-	return o
 }
 
-// Space returns only the specified space's roles
-func (o *RoleListOptions) Space(spaceGUID string) *RoleListOptions {
-	o.SpaceGUIDs = Filter{
-		Values: []string{spaceGUID},
+// WithSpaceRoleType returns only roles with the specified space roles type
+func (o *RoleListOptions) WithSpaceRoleType(roleType ...resource.SpaceRoleType) {
+	for _, r := range roleType {
+		o.Types.Values = append(o.Types.Values, r.String())
 	}
-	return o
-}
-
-// Organization returns only the specified organization's roles
-func (o *RoleListOptions) Organization(orgGUID string) *RoleListOptions {
-	o.OrganizationGUIDs = Filter{
-		Values: []string{orgGUID},
-	}
-	return o
-}
-
-// OrganizationRoleType returns only roles with the specified org role type
-func (o *RoleListOptions) OrganizationRoleType(roleType resource.OrganizationRoleType) *RoleListOptions {
-	o.Types = Filter{
-		Values: []string{roleType.String()},
-	}
-	return o
-}
-
-// SpaceRoleType returns only roles with the specified space role type
-func (o *RoleListOptions) SpaceRoleType(roleType resource.SpaceRoleType) *RoleListOptions {
-	o.Types = Filter{
-		Values: []string{roleType.String()},
-	}
-	return o
 }
 
 // CreateSpaceRole creates a new role for a user in the space
