@@ -175,7 +175,7 @@ func (los *ListOptionsSerializer) reflectFilter(val reflect.Value, tag string, v
 
 func (los *ListOptionsSerializer) reflectTimestampFilter(val reflect.Value, tag string, values url.Values) error {
 	var timestamps []string
-	var relationalOperator RelationalOperator
+	var relationalOperator FilterModifier
 
 	for i := 0; i < val.Type().NumField(); i++ {
 		f := val.Field(i)
@@ -188,13 +188,13 @@ func (los *ListOptionsSerializer) reflectTimestampFilter(val reflect.Value, tag 
 				}
 			}
 		} else if f.Kind() == reflect.Int {
-			relationalOperator = f.Interface().(RelationalOperator)
+			relationalOperator = f.Interface().(FilterModifier)
 		}
 	}
 
 	if len(timestamps) > 0 {
 		key := tag
-		if relationalOperator != RelationalOperatorNone {
+		if relationalOperator != FilterModifierNone {
 			key = key + "[" + relationalOperator.String() + "]"
 		}
 		values.Add(key, strings.Join(timestamps, ","))

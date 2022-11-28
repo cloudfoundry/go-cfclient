@@ -4,25 +4,25 @@ import (
 	"time"
 )
 
-type RelationalOperator int
+type FilterModifier int
 
 const (
-	RelationalOperatorNone RelationalOperator = iota
-	GreaterThan
-	LessThan
-	GreaterThanOrEqual
-	LessThanOrEqual
+	FilterModifierNone FilterModifier = iota
+	FilterModifierGreaterThan
+	FilterModifierLessThan
+	FilterModifierGreaterThanOrEqual
+	FilterModifierLessThanOrEqual
 )
 
-func (r RelationalOperator) String() string {
+func (r FilterModifier) String() string {
 	switch r {
-	case GreaterThan:
+	case FilterModifierGreaterThan:
 		return "gt"
-	case GreaterThanOrEqual:
+	case FilterModifierGreaterThanOrEqual:
 		return "gte"
-	case LessThan:
+	case FilterModifierLessThan:
 		return "lt"
-	case LessThanOrEqual:
+	case FilterModifierLessThanOrEqual:
 		return "lte"
 	}
 	return ""
@@ -30,10 +30,51 @@ func (r RelationalOperator) String() string {
 
 type TimestampFilter struct {
 	Timestamp []time.Time
-	Operator  RelationalOperator
+	Operator  FilterModifier
+}
+
+func (t *TimestampFilter) EqualTo(createdAt ...time.Time) {
+	t.Timestamp = createdAt
+}
+
+func (t *TimestampFilter) Before(createdAt time.Time) {
+	t.Timestamp = []time.Time{
+		createdAt,
+	}
+	t.Operator = FilterModifierLessThan
+}
+
+func (t *TimestampFilter) BeforeOrEqualTo(createdAt time.Time) {
+	t.Timestamp = []time.Time{
+		createdAt,
+	}
+	t.Operator = FilterModifierLessThanOrEqual
+}
+
+func (t *TimestampFilter) After(createdAt time.Time) {
+	t.Timestamp = []time.Time{
+		createdAt,
+	}
+	t.Operator = FilterModifierGreaterThan
+}
+
+func (t *TimestampFilter) AfterOrEqualTo(createdAt time.Time) {
+	t.Timestamp = []time.Time{
+		createdAt,
+	}
+	t.Operator = FilterModifierGreaterThanOrEqual
 }
 
 type Filter struct {
 	Values []string
 	Not    bool
+}
+
+func (f *Filter) EqualTo(v ...string) {
+	f.Values = v
+}
+
+func (f *Filter) NotEqualTo(v ...string) {
+	f.Values = v
+	f.Not = true
 }
