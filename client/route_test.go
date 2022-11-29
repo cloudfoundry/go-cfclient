@@ -153,7 +153,7 @@ func TestRoutes(t *testing.T) {
 			},
 		},
 		{
-			Description: "Get route include space and org",
+			Description: "Get route include space and organization",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes/5a85c020-3e3d-42a5-a475-5084c5357e82",
@@ -168,7 +168,7 @@ func TestRoutes(t *testing.T) {
 			Expected2: space,
 			Expected3: org,
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Routes.GetIncludeSpaceAndOrg(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
+				return c.Routes.GetIncludeSpaceAndOrganization(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82")
 			},
 		},
 		{
@@ -291,7 +291,7 @@ func TestRoutes(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all routes and include spaces and orgs",
+			Description: "List all routes and include spaces and organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/routes",
@@ -311,7 +311,7 @@ func TestRoutes(t *testing.T) {
 			Expected2: g.Array(space, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Routes.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
+				return c.Routes.ListIncludeSpacesAndOrganizationsAll(context.Background(), nil)
 			},
 		},
 		{

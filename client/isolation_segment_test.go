@@ -44,7 +44,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 		},
 		{
-			Description: "Entitle isolation segment for org",
+			Description: "Entitle isolation segment for organization",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations",
@@ -54,7 +54,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 			Expected: isoRelations,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.EntitleOrg(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
+				return c.IsolationSegments.EntitleOrganization(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
 			},
 		},
 		{
@@ -82,7 +82,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all isolation segment related orgs",
+			Description: "List all isolation segment related organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations",
@@ -108,7 +108,7 @@ func TestIsolationSegments(t *testing.T) {
 			},
 			Expected: `["68d54d31-9b3a-463b-ba94-e8e4c32edbac", "b19f6525-cbd3-4155-b156-dc0c2a431b4c"]`,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.IsolationSegments.ListOrgRelationships(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
+				return c.IsolationSegments.ListOrganizationRelationships(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821")
 			},
 		},
 		{
@@ -142,14 +142,14 @@ func TestIsolationSegments(t *testing.T) {
 			},
 		},
 		{
-			Description: "Revoke isolation segment for org",
+			Description: "Revoke isolation segment for organization",
 			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/isolation_segments/a45d5da8-67dc-4523-b34b-ffa68b8d8821/relationships/organizations/5700e458-283d-4528-806f-c3509e038f05",
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.IsolationSegments.RevokeOrg(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
+				err := c.IsolationSegments.RevokeOrganization(context.Background(), "a45d5da8-67dc-4523-b34b-ffa68b8d8821", "5700e458-283d-4528-806f-c3509e038f05")
 				return nil, err
 			},
 		},

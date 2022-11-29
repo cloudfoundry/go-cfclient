@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestSpaceOrgs(t *testing.T) {
+func TestSpaceQuotas(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(15954)
 	spaceQuota := g.SpaceQuota().JSON
 	spaceQuota2 := g.SpaceQuota().JSON

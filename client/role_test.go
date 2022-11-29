@@ -25,7 +25,7 @@ func TestRoles(t *testing.T) {
 
 	tests := []RouteTest{
 		{
-			Description: "Create org role",
+			Description: "Create organization role",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/roles",
@@ -108,7 +108,7 @@ func TestRoles(t *testing.T) {
 			},
 		},
 		{
-			Description: "Get role with orgs",
+			Description: "Get role with organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles/211cc662-f86d-4559-a85d-fbfb010c480c",
@@ -120,7 +120,7 @@ func TestRoles(t *testing.T) {
 			Expected:  role,
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.GetIncludeOrgs(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
+				return c.Roles.GetIncludeOrganizations(context.Background(), "211cc662-f86d-4559-a85d-fbfb010c480c")
 			},
 		},
 		{
@@ -168,7 +168,7 @@ func TestRoles(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all roles include orgs",
+			Description: "List all roles include organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/roles",
@@ -185,7 +185,7 @@ func TestRoles(t *testing.T) {
 			Expected:  g.Array(role, role2, role3, role4),
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Roles.ListIncludeOrgsAll(context.Background(), nil)
+				return c.Roles.ListIncludeOrganizationsAll(context.Background(), nil)
 			},
 		},
 		{

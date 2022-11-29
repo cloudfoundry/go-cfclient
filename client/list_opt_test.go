@@ -39,11 +39,11 @@ func TestListOptions(t *testing.T) {
 	qs = opts.ToQueryString()
 	require.Equal(t, "names="+url.QueryEscape("app1"), qs.Encode())
 
-	// apps by org ids
+	// apps by organization ids
 	opts = newEmptyOpts()
-	opts.OrganizationGUIDs.EqualTo("org-guid-1", "org-guid-2")
+	opts.OrganizationGUIDs.EqualTo("organization-guid-1", "organization-guid-2")
 	qs = opts.ToQueryString()
-	require.Equal(t, "organization_guids="+url.QueryEscape("org-guid-1,org-guid-2"), qs.Encode())
+	require.Equal(t, "organization_guids="+url.QueryEscape("organization-guid-1,organization-guid-2"), qs.Encode())
 
 	// apps by space ids
 	opts = newEmptyOpts()

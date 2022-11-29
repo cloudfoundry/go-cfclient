@@ -51,10 +51,10 @@ func (c *DomainClient) First(ctx context.Context, opts *DomainListOptions) (*res
 	})
 }
 
-// FirstForOrg returns the first domain matching the options and org or an error when less than 1 match
-func (c *DomainClient) FirstForOrg(ctx context.Context, orgGUID string, opts *DomainListOptions) (*resource.Domain, error) {
+// FirstForOrganization returns the first domain matching the options and organization or an error when less than 1 match
+func (c *DomainClient) FirstForOrganization(ctx context.Context, organizationGUID string, opts *DomainListOptions) (*resource.Domain, error) {
 	return First[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
-		return c.ListForOrg(ctx, orgGUID, opts)
+		return c.ListForOrganization(ctx, organizationGUID, opts)
 	})
 }
 
@@ -89,13 +89,13 @@ func (c *DomainClient) ListAll(ctx context.Context, opts *DomainListOptions) ([]
 	})
 }
 
-// ListForOrg pages all domains for the specified org that the user has access to
-func (c *DomainClient) ListForOrg(ctx context.Context, orgGUID string, opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+// ListForOrganization pages all domains for the specified org that the user has access to
+func (c *DomainClient) ListForOrganization(ctx context.Context, organizationGUID string, opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
 	if opts == nil {
 		opts = NewDomainListOptions()
 	}
 	var res resource.DomainList
-	err := c.client.get(ctx, path.Format("/v3/organizations/%s/domains?%s", orgGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/organizations/%s/domains?%s", organizationGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -103,20 +103,20 @@ func (c *DomainClient) ListForOrg(ctx context.Context, orgGUID string, opts *Dom
 	return res.Resources, pager, nil
 }
 
-// ListForOrgAll retrieves all domains for the specified org that the user has access to
-func (c *DomainClient) ListForOrgAll(ctx context.Context, orgGUID string, opts *DomainListOptions) ([]*resource.Domain, error) {
+// ListForOrganizationAll retrieves all domains for the specified org that the user has access to
+func (c *DomainClient) ListForOrganizationAll(ctx context.Context, organizationGUID string, opts *DomainListOptions) ([]*resource.Domain, error) {
 	if opts == nil {
 		opts = NewDomainListOptions()
 	}
 	return AutoPage[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
-		return c.ListForOrg(ctx, orgGUID, opts)
+		return c.ListForOrganization(ctx, organizationGUID, opts)
 	})
 }
 
 // Share an organization-scoped domain to the organization specified by the org guid
 // This will allow the organization to use the organization-scoped domain
-func (c *DomainClient) Share(ctx context.Context, domainGUID, orgGUID string) (*resource.ToManyRelationships, error) {
-	r := resource.NewDomainShare(orgGUID)
+func (c *DomainClient) Share(ctx context.Context, domainGUID, organizationGUID string) (*resource.ToManyRelationships, error) {
+	r := resource.NewDomainShare(organizationGUID)
 	return c.ShareMany(ctx, domainGUID, r)
 }
 
@@ -138,17 +138,17 @@ func (c *DomainClient) Single(ctx context.Context, opts *DomainListOptions) (*re
 	})
 }
 
-// SingleForOrg returns a single domain matching the options and org or an error if not exactly 1 match
-func (c *DomainClient) SingleForOrg(ctx context.Context, orgGUID string, opts *DomainListOptions) (*resource.Domain, error) {
+// SingleForOrganization returns a single domain matching the options and org or an error if not exactly 1 match
+func (c *DomainClient) SingleForOrganization(ctx context.Context, organizationGUID string, opts *DomainListOptions) (*resource.Domain, error) {
 	return Single[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
-		return c.ListForOrg(ctx, orgGUID, opts)
+		return c.ListForOrganization(ctx, organizationGUID, opts)
 	})
 }
 
 // UnShare an organization-scoped domain to other organizations specified by a list of organization guids
 // This will allow any of the other organizations to use the organization-scoped domain.
-func (c *DomainClient) UnShare(ctx context.Context, domainGUID, orgGUID string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
+func (c *DomainClient) UnShare(ctx context.Context, domainGUID, organizationGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, organizationGUID))
 	return err
 }
 

@@ -16,7 +16,7 @@ type RoleListOptions struct {
 
 	GUIDs             Filter `qs:"guids"`              // list of role guids to filter by
 	Types             Filter `qs:"types"`              // list of role types to filter by
-	OrganizationGUIDs Filter `qs:"organization_guids"` // list of org guids to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"` // list of organization guids to filter by
 	SpaceGUIDs        Filter `qs:"space_guids"`        // list of space guids to filter by
 	UserGUIDs         Filter `qs:"user_guids"`         // list of user guids to filter by
 
@@ -34,7 +34,7 @@ func (o *RoleListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// WithOrganizationRoleType returns only roles with the specified org roles type
+// WithOrganizationRoleType returns only roles with the specified organization roles type
 func (o *RoleListOptions) WithOrganizationRoleType(roleType ...resource.OrganizationRoleType) {
 	for _, r := range roleType {
 		o.Types.Values = append(o.Types.Values, r.String())
@@ -70,8 +70,8 @@ func (c *RoleClient) CreateSpaceRole(ctx context.Context, spaceGUID, userGUID st
 //
 // To create an organization role you must be an admin or organization
 // manager in the organization associated with the role.
-func (c *RoleClient) CreateOrganizationRole(ctx context.Context, orgGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
-	req := resource.NewRoleOrganizationCreate(orgGUID, userGUID, roleType)
+func (c *RoleClient) CreateOrganizationRole(ctx context.Context, organizationGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
+	req := resource.NewRoleOrganizationCreate(organizationGUID, userGUID, roleType)
 	var r resource.Role
 	_, err := c.client.post(ctx, "/v3/roles", req, &r)
 	if err != nil {
@@ -102,8 +102,8 @@ func (c *RoleClient) Get(ctx context.Context, guid string) (*resource.Role, erro
 	return &r, nil
 }
 
-// GetIncludeOrgs allows callers to fetch a role and include any assigned orgs
-func (c *RoleClient) GetIncludeOrgs(ctx context.Context, guid string) (*resource.Role, []*resource.Organization, error) {
+// GetIncludeOrganizations allows callers to fetch a role and include any assigned organizations
+func (c *RoleClient) GetIncludeOrganizations(ctx context.Context, guid string) (*resource.Role, []*resource.Organization, error) {
 	var role resource.RoleWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/roles/%s?include=%s", guid, resource.RoleIncludeOrganization), &role)
 	if err != nil {
@@ -156,8 +156,8 @@ func (c *RoleClient) ListAll(ctx context.Context, opts *RoleListOptions) ([]*res
 	})
 }
 
-// ListIncludeOrgs pages all roles and specified and includes orgs that have the roles
-func (c *RoleClient) ListIncludeOrgs(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, *Pager, error) {
+// ListIncludeOrganizations pages all roles and specified and includes organizations that have the roles
+func (c *RoleClient) ListIncludeOrganizations(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
@@ -172,8 +172,8 @@ func (c *RoleClient) ListIncludeOrgs(ctx context.Context, opts *RoleListOptions)
 	return res.Resources, res.Included.Organizations, pager, nil
 }
 
-// ListIncludeOrgsAll retrieves all roles and specified and includes orgs that have the roles
-func (c *RoleClient) ListIncludeOrgsAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, error) {
+// ListIncludeOrganizationsAll retrieves all roles and specified and includes organizations that have the roles
+func (c *RoleClient) ListIncludeOrganizationsAll(ctx context.Context, opts *RoleListOptions) ([]*resource.Role, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewRoleListOptions()
 	}
@@ -182,7 +182,7 @@ func (c *RoleClient) ListIncludeOrgsAll(ctx context.Context, opts *RoleListOptio
 	var all []*resource.Role
 	var allOrgs []*resource.Organization
 	for {
-		page, orgs, pager, err := c.ListIncludeOrgs(ctx, opts)
+		page, orgs, pager, err := c.ListIncludeOrganizations(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}

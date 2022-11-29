@@ -121,7 +121,7 @@ func TestSpaces(t *testing.T) {
 			Expected:  space,
 			Expected2: org,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Spaces.GetIncludeOrg(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.GetIncludeOrganization(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
@@ -155,7 +155,7 @@ func TestSpaces(t *testing.T) {
 			Expected:  g.Array(space, space2, space3, space4),
 			Expected2: g.Array(org, org2),
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
-				return c.Spaces.ListIncludeOrgsAll(context.Background(), nil)
+				return c.Spaces.ListIncludeOrganizationsAll(context.Background(), nil)
 			},
 		},
 		{

@@ -77,7 +77,7 @@ func TestServicePlans(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all service plans include spaces and orgs",
+			Description: "List all service plans include spaces and organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/service_plans",
@@ -96,7 +96,7 @@ func TestServicePlans(t *testing.T) {
 			Expected2: g.Array(space, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.ServicePlans.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
+				return c.ServicePlans.ListIncludeSpacesAndOrganizationsAll(context.Background(), nil)
 			},
 		},
 		{

@@ -48,22 +48,22 @@ func (c *IsolationSegmentClient) Delete(ctx context.Context, guid string) error 
 	return err
 }
 
-// EntitleOrg entitles the specified organization for the isolation segment.
+// EntitleOrganization entitles the specified organization for the isolation segment.
 //
 // In the case where the specified isolation segment is the system-wide shared segment,
 // and if an organization is not already entitled for any other isolation segment, then
 // the shared isolation segment automatically gets assigned as the default for that organization.
-func (c *IsolationSegmentClient) EntitleOrg(ctx context.Context, guid string, orgGUID string) (*resource.IsolationSegmentRelationship, error) {
-	return c.EntitleOrgs(ctx, guid, []string{orgGUID})
+func (c *IsolationSegmentClient) EntitleOrganization(ctx context.Context, guid string, organizationGUID string) (*resource.IsolationSegmentRelationship, error) {
+	return c.EntitleOrganizations(ctx, guid, []string{organizationGUID})
 }
 
-// EntitleOrgs entitles the specified organizations for the isolation segment.
+// EntitleOrganizations entitles the specified organizations for the isolation segment.
 //
 // In the case where the specified isolation segment is the system-wide shared segment,
 // and if an organization is not already entitled for any other isolation segment, then
 // the shared isolation segment automatically gets assigned as the default for that organization.
-func (c *IsolationSegmentClient) EntitleOrgs(ctx context.Context, guid string, orgGUIDs []string) (*resource.IsolationSegmentRelationship, error) {
-	req := resource.NewToManyRelationships(orgGUIDs)
+func (c *IsolationSegmentClient) EntitleOrganizations(ctx context.Context, guid string, organizationGUIDs []string) (*resource.IsolationSegmentRelationship, error) {
+	req := resource.NewToManyRelationships(organizationGUIDs)
 	var iso resource.IsolationSegmentRelationship
 	_, err := c.client.post(ctx, path.Format("/v3/isolation_segments/%s/relationships/organizations", guid), req, &iso)
 	if err != nil {
@@ -120,27 +120,27 @@ func (c *IsolationSegmentClient) ListAll(ctx context.Context, opts *IsolationSeg
 	})
 }
 
-// ListOrgRelationships lists the organizations entitled for the isolation segment.
+// ListOrganizationRelationships lists the organizations entitled for the isolation segment.
 //
 // For an Admin, this will list all entitled organizations in the system. For any other user,
 // this will list only the entitled organizations to which the user belongs.
-func (c *IsolationSegmentClient) ListOrgRelationships(ctx context.Context, guid string) ([]string, error) {
+func (c *IsolationSegmentClient) ListOrganizationRelationships(ctx context.Context, guid string) ([]string, error) {
 	var relationships resource.IsolationSegmentRelationship
 	err := c.client.get(ctx, path.Format("/v3/isolation_segments/%s/relationships/organizations", guid), &relationships)
 	if err != nil {
 		return nil, err
 	}
 
-	var orgGUIDs []string
+	var organizationGUIDs []string
 	for _, relation := range relationships.Data {
-		orgGUIDs = append(orgGUIDs, relation.GUID)
+		organizationGUIDs = append(organizationGUIDs, relation.GUID)
 	}
-	return orgGUIDs, nil
+	return organizationGUIDs, nil
 }
 
 // ListSpaceRelationships lists the spaces to which the isolation segment is assigned.
 //
-// For an Admin, this will list all associated spaces in the system. For an org manager,
+// For an Admin, this will list all associated spaces in the system. For an organization manager,
 // this will list only those associated spaces belonging to orgs for which the user is a
 // manager. For any other user, this will list only those associated spaces to which the
 // user has access.
@@ -158,22 +158,22 @@ func (c *IsolationSegmentClient) ListSpaceRelationships(ctx context.Context, gui
 	return spaceGUIDs, nil
 }
 
-// RevokeOrg revokes the entitlement for the specified organization to the isolation segment
+// RevokeOrganization revokes the entitlement for the specified organization to the isolation segment
 //
 // If the isolation segment is assigned to a space within an organization, the entitlement cannot be revoked.
 // If the isolation segment is the organization’s default, the entitlement cannot be revoked.
-func (c *IsolationSegmentClient) RevokeOrg(ctx context.Context, guid string, orgGUID string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/isolation_segments/%s/relationships/organizations/%s", guid, orgGUID))
+func (c *IsolationSegmentClient) RevokeOrganization(ctx context.Context, guid string, organizationGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/isolation_segments/%s/relationships/organizations/%s", guid, organizationGUID))
 	return err
 }
 
-// RevokeOrgs revokes the entitlement for all the specified organizations to the isolation segment
+// RevokeOrganizations revokes the entitlement for all the specified organizations to the isolation segment
 //
 // If the isolation segment is assigned to a space within an organization, the entitlement cannot be revoked.
 // If the isolation segment is the organization’s default, the entitlement cannot be revoked.
-func (c *IsolationSegmentClient) RevokeOrgs(ctx context.Context, guid string, orgGUIDs []string) error {
-	for _, orgGUID := range orgGUIDs {
-		err := c.RevokeOrg(ctx, guid, orgGUID)
+func (c *IsolationSegmentClient) RevokeOrganizations(ctx context.Context, guid string, organizationGUIDs []string) error {
+	for _, organizationGUID := range organizationGUIDs {
+		err := c.RevokeOrganization(ctx, guid, organizationGUID)
 		if err != nil {
 			return err
 		}

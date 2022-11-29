@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestQuotasOrgs(t *testing.T) {
+func TestOrganizationQuotas(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(15)
 	orgQuota := g.OrganizationQuota().JSON
 	orgQuota2 := g.OrganizationQuota().JSON
@@ -17,7 +17,7 @@ func TestQuotasOrgs(t *testing.T) {
 
 	tests := []RouteTest{
 		{
-			Description: "Apply org quota to org",
+			Description: "Apply organization quota to org",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff/relationships/organizations",
@@ -38,7 +38,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 		{
-			Description: "Create org quota",
+			Description: "Create organization quota",
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/organization_quotas",
@@ -53,7 +53,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 		{
-			Description: "Get org quota",
+			Description: "Get organization quota",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
@@ -66,7 +66,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 		{
-			Description: "Delete org quota",
+			Description: "Delete organization quota",
 			Route: testutil.MockRoute{
 				Method:   "DELETE",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
@@ -77,7 +77,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all org quotas",
+			Description: "List all organization quotas",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organization_quotas",
@@ -90,7 +90,7 @@ func TestQuotasOrgs(t *testing.T) {
 			},
 		},
 		{
-			Description: "Update org quota",
+			Description: "Update organization quota",
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",

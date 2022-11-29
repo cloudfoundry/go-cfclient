@@ -36,8 +36,8 @@ type Client struct {
 	IsolationSegments         *IsolationSegmentClient
 	Jobs                      *JobClient
 	Manifests                 *ManifestClient
-	Organizations             *OrgClient
-	OrganizationQuotas        *OrgQuotaClient
+	Organizations             *OrganizationClient
+	OrganizationQuotas        *OrganizationQuotaClient
 	Packages                  *PackageClient
 	Processes                 *ProcessClient
 	Revisions                 *RevisionClient
@@ -115,8 +115,8 @@ func New(config *config.Config) (*Client, error) {
 	client.IsolationSegments = (*IsolationSegmentClient)(&client.common)
 	client.Jobs = (*JobClient)(&client.common)
 	client.Manifests = (*ManifestClient)(&client.common)
-	client.Organizations = (*OrgClient)(&client.common)
-	client.OrganizationQuotas = (*OrgQuotaClient)(&client.common)
+	client.Organizations = (*OrganizationClient)(&client.common)
+	client.OrganizationQuotas = (*OrganizationQuotaClient)(&client.common)
 	client.Packages = (*PackageClient)(&client.common)
 	client.Processes = (*ProcessClient)(&client.common)
 	client.Revisions = (*RevisionClient)(&client.common)
