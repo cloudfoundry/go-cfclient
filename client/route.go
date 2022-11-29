@@ -123,8 +123,8 @@ func (c *RouteClient) GetIncludeSpace(ctx context.Context, guid string) (*resour
 	return &r.Route, r.Included.Spaces[0], nil
 }
 
-// GetIncludeSpaceAndOrg allows callers to fetch a route and include the parent space and org
-func (c *RouteClient) GetIncludeSpaceAndOrg(ctx context.Context, guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
+// GetIncludeSpaceAndOrganization allows callers to fetch a route and include the parent space and organization
+func (c *RouteClient) GetIncludeSpaceAndOrganization(ctx context.Context, guid string) (*resource.Route, *resource.Space, *resource.Organization, error) {
 	var r resource.RouteWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/routes/%s?include=%s", guid, resource.RouteIncludeSpaceOrganization), &r)
 	if err != nil {
@@ -313,8 +313,8 @@ func (c *RouteClient) ListIncludeSpacesAll(ctx context.Context, opts *RouteListO
 	return all, allSpaces, nil
 }
 
-// ListIncludeSpacesAndOrgs page all routes the user has access to and include the parent spaces and orgs
-func (c *RouteClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, *Pager, error) {
+// ListIncludeSpacesAndOrganizations page all routes the user has access to and include the parent spaces and organizations
+func (c *RouteClient) ListIncludeSpacesAndOrganizations(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
@@ -329,8 +329,8 @@ func (c *RouteClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *RouteL
 	return res.Resources, res.Included.Spaces, res.Included.Organizations, pager, nil
 }
 
-// ListIncludeSpacesAndOrgsAll retrieves all routes the user has access to and includes the parent spaces and org
-func (c *RouteClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, error) {
+// ListIncludeSpacesAndOrganizationsAll retrieves all routes the user has access to and includes the parent spaces and organization
+func (c *RouteClient) ListIncludeSpacesAndOrganizationsAll(ctx context.Context, opts *RouteListOptions) ([]*resource.Route, []*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewRouteListOptions()
 	}
@@ -339,7 +339,7 @@ func (c *RouteClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *Rou
 	var allSpaces []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(ctx, opts)
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrganizations(ctx, opts)
 		if err != nil {
 			return nil, nil, nil, err
 		}

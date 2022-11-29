@@ -145,7 +145,7 @@ func pushApp(org *resource.Organization, space *resource.Space) *resource.App {
 }
 
 func getAppRoute(org *resource.Organization) string {
-	domains, err := cf.Domains.ListForOrgAll(ctx, org.GUID, nil)
+	domains, err := cf.Domains.ListForOrganizationAll(ctx, org.GUID, nil)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(domains), 1, "expected 1+ available domains for org %s", org.Name)
 
@@ -192,7 +192,7 @@ func writeFileToZip(zipWriter *zip.Writer, filename string) error {
 }
 
 func getOrg() *resource.Organization {
-	opts := client.NewOrgListOptions()
+	opts := client.NewOrganizationListOptions()
 	opts.Names = client.Filter{
 		Values: []string{OrgName},
 	}

@@ -77,8 +77,8 @@ func (c *AppClient) GetIncludeSpace(ctx context.Context, guid string) (*resource
 	return &app.App, app.Included.Spaces[0], nil
 }
 
-// GetIncludeSpaceAndOrg allows callers to fetch an app and include the parent space and org
-func (c *AppClient) GetIncludeSpaceAndOrg(ctx context.Context, guid string) (*resource.App, *resource.Space, *resource.Organization, error) {
+// GetIncludeSpaceAndOrganization allows callers to fetch an app and include the parent space and organizations
+func (c *AppClient) GetIncludeSpaceAndOrganization(ctx context.Context, guid string) (*resource.App, *resource.Space, *resource.Organization, error) {
 	var app resource.AppWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/apps/%s?include=%s", guid, resource.AppIncludeSpaceOrganization), &app)
 	if err != nil {
@@ -173,8 +173,8 @@ func (c *AppClient) ListIncludeSpacesAll(ctx context.Context, opts *AppListOptio
 	return all, allSpaces, nil
 }
 
-// ListIncludeSpacesAndOrgs page all apps the user has access to and include the associated spaces and orgs
-func (c *AppClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, *Pager, error) {
+// ListIncludeSpacesAndOrganizations page all apps the user has access to and include the associated spaces and organizations
+func (c *AppClient) ListIncludeSpacesAndOrganizations(ctx context.Context, opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewAppListOptions()
 	}
@@ -189,8 +189,8 @@ func (c *AppClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *AppListO
 	return res.Resources, res.Included.Spaces, res.Included.Organizations, pager, nil
 }
 
-// ListIncludeSpacesAndOrgsAll retrieves all apps the user has access to and include the associated spaces and orgs
-func (c *AppClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, error) {
+// ListIncludeSpacesAndOrganizationsAll retrieves all apps the user has access to and include the associated spaces and organizations
+func (c *AppClient) ListIncludeSpacesAndOrganizationsAll(ctx context.Context, opts *AppListOptions) ([]*resource.App, []*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewAppListOptions()
 	}
@@ -199,7 +199,7 @@ func (c *AppClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *AppLi
 	var allSpaces []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(ctx, opts)
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrganizations(ctx, opts)
 		if err != nil {
 			return nil, nil, nil, err
 		}

@@ -43,8 +43,8 @@ func (c *ServicePlanVisibilityClient) Apply(ctx context.Context, guid string, r 
 }
 
 // Delete an organization from a service plan visibility list of organizations
-// It is only defined for service plans which are org-restricted
-func (c *ServicePlanVisibilityClient) Delete(ctx context.Context, guid, orgGUID string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/service_plans/%s/visibility/%s", guid, orgGUID))
+// It is only defined for service plans which are organization restricted
+func (c *ServicePlanVisibilityClient) Delete(ctx context.Context, guid, organizationGUID string) error {
+	_, err := c.client.delete(ctx, path.Format("/v3/service_plans/%s/visibility/%s", guid, organizationGUID))
 	return err
 }

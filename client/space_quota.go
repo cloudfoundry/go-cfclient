@@ -116,7 +116,7 @@ func (c *SpaceQuotaClient) Single(ctx context.Context, opts *SpaceQuotaListOptio
 	})
 }
 
-// Update the specified attributes of the org quota
+// Update the specified attributes of the organization quota
 func (c *SpaceQuotaClient) Update(ctx context.Context, guid string, r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota
 	_, err := c.client.patch(ctx, path.Format("/v3/space_quotas/%s", guid), r, &q)

@@ -203,7 +203,7 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
-			Description: "List all apps include spaces and orgs",
+			Description: "List all apps include spaces and organizations",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps",
@@ -222,7 +222,7 @@ func TestApps(t *testing.T) {
 			Expected2: g.Array(space1, space2),
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
-				return c.Applications.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
+				return c.Applications.ListIncludeSpacesAndOrganizationsAll(context.Background(), nil)
 			},
 		},
 		{

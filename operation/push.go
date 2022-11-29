@@ -151,7 +151,7 @@ func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Packa
 }
 
 func (p *AppPushOperation) findOrg(ctx context.Context) (*resource.Organization, error) {
-	opts := client.NewOrgListOptions()
+	opts := client.NewOrganizationListOptions()
 	opts.Names.EqualTo(p.orgName)
 	org, err := p.client.Organizations.Single(ctx, opts)
 	if err != nil {

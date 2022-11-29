@@ -72,8 +72,8 @@ func (c *ServicePlanClient) GetIncludeServicePlan(ctx context.Context, guid stri
 	return &servicePlan.ServicePlan, servicePlan.Included.ServiceOfferings[0], nil
 }
 
-// GetIncludeSpaceAndOrg allows callers to fetch a service plan and include the parent space and org
-func (c *ServicePlanClient) GetIncludeSpaceAndOrg(ctx context.Context, guid string) (*resource.ServicePlan, *resource.Space, *resource.Organization, error) {
+// GetIncludeSpaceAndOrganization allows callers to fetch a service plan and include the parent space and organization
+func (c *ServicePlanClient) GetIncludeSpaceAndOrganization(ctx context.Context, guid string) (*resource.ServicePlan, *resource.Space, *resource.Organization, error) {
 	var servicePlan resource.ServicePlanWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeSpaceOrganization), &servicePlan)
 	if err != nil {
@@ -146,8 +146,8 @@ func (c *ServicePlanClient) ListIncludeServiceOfferingAll(ctx context.Context, o
 	return all, allServiceOfferings, nil
 }
 
-// ListIncludeSpacesAndOrgs page all service plans the user has access to and include the associated spaces and orgs
-func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, *Pager, error) {
+// ListIncludeSpacesAndOrganizations page all service plans the user has access to and include the associated spaces and organizations
+func (c *ServicePlanClient) ListIncludeSpacesAndOrganizations(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
@@ -162,8 +162,8 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgs(ctx context.Context, opts *
 	return res.Resources, res.Included.Spaces, res.Included.Organizations, pager, nil
 }
 
-// ListIncludeSpacesAndOrgsAll retrieves all service plans the user has access to and include the associated spaces and orgs
-func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, error) {
+// ListIncludeSpacesAndOrganizationsAll retrieves all service plans the user has access to and include the associated spaces and organizations
+func (c *ServicePlanClient) ListIncludeSpacesAndOrganizationsAll(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewServicePlanListOptions()
 	}
@@ -172,7 +172,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opt
 	var allSpaces []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrgs(ctx, opts)
+		page, spaces, orgs, pager, err := c.ListIncludeSpacesAndOrganizations(ctx, opts)
 		if err != nil {
 			return nil, nil, nil, err
 		}

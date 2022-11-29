@@ -90,8 +90,8 @@ func (c *SpaceClient) GetAssignedIsoSegment(ctx context.Context, guid string) (s
 	return relation.Data.GUID, nil
 }
 
-// GetIncludeOrg allows callers to fetch a space and include the parent org
-func (c *SpaceClient) GetIncludeOrg(ctx context.Context, guid string) (*resource.Space, *resource.Organization, error) {
+// GetIncludeOrganization allows callers to fetch a space and include the parent organization
+func (c *SpaceClient) GetIncludeOrganization(ctx context.Context, guid string) (*resource.Space, *resource.Organization, error) {
 	var space resource.SpaceWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/spaces/%s?include=%s", guid, resource.SpaceIncludeOrganization), &space)
 	if err != nil {
@@ -126,8 +126,8 @@ func (c *SpaceClient) ListAll(ctx context.Context, opts *SpaceListOptions) ([]*r
 	})
 }
 
-// ListIncludeOrgs page all spaces the user has access to and include the parent orgs
-func (c *SpaceClient) ListIncludeOrgs(ctx context.Context, opts *SpaceListOptions) ([]*resource.Space, []*resource.Organization, *Pager, error) {
+// ListIncludeOrganizations page all spaces the user has access to and include the parent organizations
+func (c *SpaceClient) ListIncludeOrganizations(ctx context.Context, opts *SpaceListOptions) ([]*resource.Space, []*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewSpaceListOptions()
 	}
@@ -142,8 +142,8 @@ func (c *SpaceClient) ListIncludeOrgs(ctx context.Context, opts *SpaceListOption
 	return res.Resources, res.Included.Organizations, pager, nil
 }
 
-// ListIncludeOrgsAll retrieves all spaces the user has access to and include the parent orgs
-func (c *SpaceClient) ListIncludeOrgsAll(ctx context.Context, opts *SpaceListOptions) ([]*resource.Space, []*resource.Organization, error) {
+// ListIncludeOrganizationsAll retrieves all spaces the user has access to and include the parent organizations
+func (c *SpaceClient) ListIncludeOrganizationsAll(ctx context.Context, opts *SpaceListOptions) ([]*resource.Space, []*resource.Organization, error) {
 	if opts == nil {
 		opts = NewSpaceListOptions()
 	}
@@ -151,7 +151,7 @@ func (c *SpaceClient) ListIncludeOrgsAll(ctx context.Context, opts *SpaceListOpt
 	var all []*resource.Space
 	var allOrgs []*resource.Organization
 	for {
-		page, orgs, pager, err := c.ListIncludeOrgs(ctx, opts)
+		page, orgs, pager, err := c.ListIncludeOrganizations(ctx, opts)
 		if err != nil {
 			return nil, nil, err
 		}

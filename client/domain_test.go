@@ -86,7 +86,7 @@ func TestDomains(t *testing.T) {
 			},
 		},
 		{
-			Description: "List first page of domains for org",
+			Description: "List first page of domains for organization",
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/organizations/3a5f687b-2ce8-4ade-be75-8eca99b0db8b/domains",
@@ -95,7 +95,7 @@ func TestDomains(t *testing.T) {
 			},
 			Expected: g.Array(domain),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				apps, _, err := c.Domains.ListForOrg(context.Background(), "3a5f687b-2ce8-4ade-be75-8eca99b0db8b", NewDomainListOptions())
+				apps, _, err := c.Domains.ListForOrganization(context.Background(), "3a5f687b-2ce8-4ade-be75-8eca99b0db8b", NewDomainListOptions())
 				return apps, err
 			},
 		},
