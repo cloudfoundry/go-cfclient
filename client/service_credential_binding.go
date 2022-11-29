@@ -58,6 +58,13 @@ func (c *ServiceCredentialBindingClient) Delete(ctx context.Context, guid string
 	return err
 }
 
+// First returns the first service credential binding matching the options or an error when less than 1 match
+func (c *ServiceCredentialBindingClient) First(ctx context.Context, opts *ServiceCredentialBindingListOptions) (*resource.ServiceCredentialBinding, error) {
+	return First[*ServiceCredentialBindingListOptions, *resource.ServiceCredentialBinding](opts, func(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service credential binding
 func (c *ServiceCredentialBindingClient) Get(ctx context.Context, guid string) (*resource.ServiceCredentialBinding, error) {
 	var d resource.ServiceCredentialBinding

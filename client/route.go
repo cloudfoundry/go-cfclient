@@ -79,6 +79,20 @@ func (c *RouteClient) DeleteUnmappedRoutesForSpace(ctx context.Context, spaceGUI
 	return c.client.delete(ctx, path.Format("/v3/spaces/%s/routes?unmapped=true", spaceGUID))
 }
 
+// First returns the first route matching the options or an error when less than 1 match
+func (c *RouteClient) First(ctx context.Context, opts *RouteListOptions) (*resource.Route, error) {
+	return First[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first route matching the options and app or an error when less than 1 match
+func (c *RouteClient) FirstForApp(ctx context.Context, appGUID string, opts *RouteListOptions) (*resource.Route, error) {
+	return First[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified route
 func (c *RouteClient) Get(ctx context.Context, guid string) (*resource.Route, error) {
 	var r resource.Route

@@ -30,6 +30,13 @@ func (o AuditEventListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
+// First returns the first audit event matching the options or an error when less than 1 match
+func (c *AuditEventClient) First(ctx context.Context, opts *AuditEventListOptions) (*resource.AuditEvent, error) {
+	return First[*AuditEventListOptions, *resource.AuditEvent](opts, func(opts *AuditEventListOptions) ([]*resource.AuditEvent, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get retrieves the specified audit event
 func (c *AuditEventClient) Get(ctx context.Context, guid string) (*resource.AuditEvent, error) {
 	var a resource.AuditEvent

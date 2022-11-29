@@ -63,6 +63,20 @@ func (c *BuildClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first build matching the options or an error when less than 1 match
+func (c *BuildClient) First(ctx context.Context, opts *BuildListOptions) (*resource.Build, error) {
+	return First[*BuildListOptions, *resource.Build](opts, func(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first build matching the options and app or an error when less than 1 match
+func (c *BuildClient) FirstForApp(ctx context.Context, appGUID string, opts *BuildAppListOptions) (*resource.Build, error) {
+	return First[*BuildAppListOptions, *resource.Build](opts, func(opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified build
 func (c *BuildClient) Get(ctx context.Context, guid string) (*resource.Build, error) {
 	var build resource.Build

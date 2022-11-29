@@ -60,6 +60,13 @@ func (c *SpaceClient) Delete(ctx context.Context, guid string) (string, error) {
 	return c.client.delete(ctx, path.Format("/v3/spaces/%s", guid))
 }
 
+// First returns the first space matching the options or an error when less than 1 match
+func (c *SpaceClient) First(ctx context.Context, opts *SpaceListOptions) (*resource.Space, error) {
+	return First[*SpaceListOptions, *resource.Space](opts, func(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified space
 func (c *SpaceClient) Get(ctx context.Context, guid string) (*resource.Space, error) {
 	var space resource.Space

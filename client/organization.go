@@ -55,6 +55,20 @@ func (c *OrgClient) Delete(ctx context.Context, guid string) (string, error) {
 	return c.client.delete(ctx, path.Format("/v3/organizations/%s", guid))
 }
 
+// First returns the first organization matching the options or an error when less than 1 match
+func (c *OrgClient) First(ctx context.Context, opts *OrgListOptions) (*resource.Organization, error) {
+	return First[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForIsoSegment returns the first organization matching the options and iso segment or an error when less than 1 match
+func (c *OrgClient) FirstForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrgListOptions) (*resource.Organization, error) {
+	return First[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
+	})
+}
+
 // Get the specified organization
 func (c *OrgClient) Get(ctx context.Context, guid string) (*resource.Organization, error) {
 	var org resource.Organization

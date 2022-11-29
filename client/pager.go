@@ -1,10 +1,13 @@
 package client
 
 import (
-	"fmt"
+	"errors"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
+
+var ErrNoResultsReturned = errors.New("expected 1 or more results, but got 0")
+var ErrExactlyOneResultNotReturned = errors.New("expected exactly 1 result, but got less or more than 1")
 
 type Pager struct {
 	NextPageURL     string
@@ -82,7 +85,19 @@ func Single[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
 		return *new(R), err
 	}
 	if len(matches) != 1 {
-		return *new(R), fmt.Errorf("expected exactly 1 matching result, but got %d", len(matches))
+		return *new(R), ErrExactlyOneResultNotReturned
+	}
+	return matches[0], nil
+}
+
+// First returns the first object from the call to list or an error if matches < 1
+func First[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
+	matches, _, err := list(opts)
+	if err != nil {
+		return *new(R), err
+	}
+	if len(matches) < 1 {
+		return *new(R), ErrNoResultsReturned
 	}
 	return matches[0], nil
 }

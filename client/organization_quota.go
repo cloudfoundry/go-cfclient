@@ -61,6 +61,13 @@ func (c *OrgQuotaClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first organization quota matching the options or an error when less than 1 match
+func (c *OrgQuotaClient) First(ctx context.Context, opts *OrgQuotaListOptions) (*resource.OrganizationQuota, error) {
+	return First[*OrgQuotaListOptions, *resource.OrganizationQuota](opts, func(opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified org quota
 func (c *OrgQuotaClient) Get(ctx context.Context, guid string) (*resource.OrganizationQuota, error) {
 	var app resource.OrganizationQuota

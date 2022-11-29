@@ -61,6 +61,13 @@ func (c *ServiceInstanceClient) Delete(ctx context.Context, guid string) (string
 	return c.client.delete(ctx, path.Format("/v3/service_instances/%s", guid))
 }
 
+// First returns the first service instance matching the options or an error when less than 1 match
+func (c *ServiceInstanceClient) First(ctx context.Context, opts *ServiceInstanceListOptions) (*resource.ServiceInstance, error) {
+	return First[*ServiceInstanceListOptions, *resource.ServiceInstance](opts, func(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service instance
 func (c *ServiceInstanceClient) Get(ctx context.Context, guid string) (*resource.ServiceInstance, error) {
 	var si resource.ServiceInstance

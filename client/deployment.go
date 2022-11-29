@@ -52,6 +52,13 @@ func (c *DeploymentClient) Create(ctx context.Context, r *resource.DeploymentCre
 	return &d, nil
 }
 
+// First returns the first deployment matching the options or an error when less than 1 match
+func (c *DeploymentClient) First(ctx context.Context, opts *DeploymentListOptions) (*resource.Deployment, error) {
+	return First[*DeploymentListOptions, *resource.Deployment](opts, func(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified deployment
 func (c *DeploymentClient) Get(ctx context.Context, guid string) (*resource.Deployment, error) {
 	var d resource.Deployment

@@ -45,6 +45,13 @@ func (c *BuildpackClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first buildpack matching the options or an error when less than 1 match
+func (c *BuildpackClient) First(ctx context.Context, opts *BuildpackListOptions) (*resource.Buildpack, error) {
+	return First[*BuildpackListOptions, *resource.Buildpack](opts, func(opts *BuildpackListOptions) ([]*resource.Buildpack, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get retrieves the specified buildpack
 func (c *BuildpackClient) Get(ctx context.Context, guid string) (*resource.Buildpack, error) {
 	var bp resource.Buildpack

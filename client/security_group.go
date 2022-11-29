@@ -48,6 +48,13 @@ func (c *SecurityGroupClient) Delete(ctx context.Context, guid string) (string, 
 	return c.client.delete(ctx, path.Format("/v3/security_groups/%s", guid))
 }
 
+// First returns the first security group matching the options or an error when less than 1 match
+func (c *SecurityGroupClient) First(ctx context.Context, opts *SecurityGroupListOptions) (*resource.SecurityGroup, error) {
+	return First[*SecurityGroupListOptions, *resource.SecurityGroup](opts, func(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified security group
 func (c *SecurityGroupClient) Get(ctx context.Context, guid string) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup

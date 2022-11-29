@@ -55,6 +55,13 @@ func (c *UserClient) Delete(ctx context.Context, guid string) (string, error) {
 	return c.client.delete(ctx, path.Format("/v3/users/%s", guid))
 }
 
+// First returns the first user matching the options or an error when less than 1 match
+func (c *UserClient) First(ctx context.Context, opts *UserListOptions) (*resource.User, error) {
+	return First[*UserListOptions, *resource.User](opts, func(opts *UserListOptions) ([]*resource.User, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified user
 func (c *UserClient) Get(ctx context.Context, guid string) (*resource.User, error) {
 	var user resource.User

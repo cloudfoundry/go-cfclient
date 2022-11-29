@@ -97,6 +97,20 @@ func (c *PackageClient) Download(ctx context.Context, guid string) (io.ReadClose
 	return resp.Body, nil
 }
 
+// First returns the first package matching the options or an error when less than 1 match
+func (c *PackageClient) First(ctx context.Context, opts *PackageListOptions) (*resource.Package, error) {
+	return First[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first package matching the options and app or an error when less than 1 match
+func (c *PackageClient) FirstForApp(ctx context.Context, appGUID string, opts *PackageListOptions) (*resource.Package, error) {
+	return First[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified build
 func (c *PackageClient) Get(ctx context.Context, guid string) (*resource.Package, error) {
 	var p resource.Package

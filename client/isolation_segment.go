@@ -72,6 +72,13 @@ func (c *IsolationSegmentClient) EntitleOrgs(ctx context.Context, guid string, o
 	return &iso, nil
 }
 
+// First returns the first isolation segment matching the options or an error when less than 1 match
+func (c *IsolationSegmentClient) First(ctx context.Context, opts *IsolationSegmentListOptions) (*resource.IsolationSegment, error) {
+	return First[*IsolationSegmentListOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentListOptions) ([]*resource.IsolationSegment, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified isolation segment
 func (c *IsolationSegmentClient) Get(ctx context.Context, guid string) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment

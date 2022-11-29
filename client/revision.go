@@ -27,6 +27,13 @@ func (o RevisionListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
+// FirstForApp returns the first revision matching the options and app or an error when less than 1 match
+func (c *RevisionClient) FirstForApp(ctx context.Context, appGUID string, opts *RevisionListOptions) (*resource.Revision, error) {
+	return First[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified revision
 func (c *RevisionClient) Get(ctx context.Context, guid string) (*resource.Revision, error) {
 	var res resource.Revision
