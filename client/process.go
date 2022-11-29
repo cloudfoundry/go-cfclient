@@ -10,8 +10,8 @@ import (
 
 type ProcessClient commonClient
 
-// ProcessOptions list filters
-type ProcessOptions struct {
+// ProcessListOptions list filters
+type ProcessListOptions struct {
 	*ListOptions
 
 	GUIDs             Filter `qs:"guids"`
@@ -20,13 +20,13 @@ type ProcessOptions struct {
 }
 
 // NewProcessOptions creates new options to pass to list
-func NewProcessOptions() *ProcessOptions {
-	return &ProcessOptions{
+func NewProcessOptions() *ProcessListOptions {
+	return &ProcessListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
-func (o ProcessOptions) ToQueryString() url.Values {
+func (o ProcessListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -51,7 +51,7 @@ func (c *ProcessClient) GetStats(ctx context.Context, guid string) (*resource.Pr
 }
 
 // List pages all processes
-func (c *ProcessClient) List(ctx context.Context, opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+func (c *ProcessClient) List(ctx context.Context, opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
@@ -66,17 +66,17 @@ func (c *ProcessClient) List(ctx context.Context, opts *ProcessOptions) ([]*reso
 }
 
 // ListAll retrieves all processes
-func (c *ProcessClient) ListAll(ctx context.Context, opts *ProcessOptions) ([]*resource.Process, error) {
+func (c *ProcessClient) ListAll(ctx context.Context, opts *ProcessListOptions) ([]*resource.Process, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
-	return AutoPage[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+	return AutoPage[*ProcessListOptions, *resource.Process](opts, func(opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
 
 // ListForApp pages all processes for the specified app
-func (c *ProcessClient) ListForApp(ctx context.Context, appGUID string, opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+func (c *ProcessClient) ListForApp(ctx context.Context, appGUID string, opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
@@ -91,11 +91,11 @@ func (c *ProcessClient) ListForApp(ctx context.Context, appGUID string, opts *Pr
 }
 
 // ListForAppAll retrieves all processes for the specified app
-func (c *ProcessClient) ListForAppAll(ctx context.Context, appGUID string, opts *ProcessOptions) ([]*resource.Process, error) {
+func (c *ProcessClient) ListForAppAll(ctx context.Context, appGUID string, opts *ProcessListOptions) ([]*resource.Process, error) {
 	if opts == nil {
 		opts = NewProcessOptions()
 	}
-	return AutoPage[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+	return AutoPage[*ProcessListOptions, *resource.Process](opts, func(opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
@@ -111,8 +111,8 @@ func (c *ProcessClient) Scale(ctx context.Context, guid string, scale *resource.
 }
 
 // SingleForApp returns a single package matching the options for the app or an error if not exactly 1 match
-func (c *ProcessClient) SingleForApp(ctx context.Context, appGUID string, opts *ProcessOptions) (*resource.Process, error) {
-	return Single[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+func (c *ProcessClient) SingleForApp(ctx context.Context, appGUID string, opts *ProcessListOptions) (*resource.Process, error) {
+	return Single[*ProcessListOptions, *resource.Process](opts, func(opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
