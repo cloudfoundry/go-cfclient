@@ -9,19 +9,19 @@ import (
 
 type AppUsageClient commonClient
 
-// AppUsageOptions list filters
-type AppUsageOptions struct {
+// AppUsageListOptions list filters
+type AppUsageListOptions struct {
 	*ListOptions
 }
 
 // NewAppUsageOptions creates new options to pass to list
-func NewAppUsageOptions() *AppUsageOptions {
-	return &AppUsageOptions{
+func NewAppUsageOptions() *AppUsageListOptions {
+	return &AppUsageListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
-func (o AppUsageOptions) ToQueryString() url.Values {
+func (o AppUsageListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -36,7 +36,7 @@ func (c *AppUsageClient) Get(ctx context.Context, guid string) (*resource.AppUsa
 }
 
 // List pages all app usage events
-func (c *AppUsageClient) List(ctx context.Context, opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
+func (c *AppUsageClient) List(ctx context.Context, opts *AppUsageListOptions) ([]*resource.AppUsage, *Pager, error) {
 	if opts == nil {
 		opts = NewAppUsageOptions()
 	}
@@ -50,11 +50,11 @@ func (c *AppUsageClient) List(ctx context.Context, opts *AppUsageOptions) ([]*re
 }
 
 // ListAll retrieves all app usage events
-func (c *AppUsageClient) ListAll(ctx context.Context, opts *AppUsageOptions) ([]*resource.AppUsage, error) {
+func (c *AppUsageClient) ListAll(ctx context.Context, opts *AppUsageListOptions) ([]*resource.AppUsage, error) {
 	if opts == nil {
 		opts = NewAppUsageOptions()
 	}
-	return AutoPage[*AppUsageOptions, *resource.AppUsage](opts, func(opts *AppUsageOptions) ([]*resource.AppUsage, *Pager, error) {
+	return AutoPage[*AppUsageListOptions, *resource.AppUsage](opts, func(opts *AppUsageListOptions) ([]*resource.AppUsage, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
