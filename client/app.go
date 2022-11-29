@@ -249,6 +249,13 @@ func (c *AppClient) SetEnvironmentVariables(ctx context.Context, guid string, en
 	return res.Var, nil
 }
 
+// Single returns a single app matching the options or an error if not exactly 1 match
+func (c *AppClient) Single(ctx context.Context, opts *AppListOptions) (*resource.App, error) {
+	return Single[*AppListOptions, *resource.App](opts, func(opts *AppListOptions) ([]*resource.App, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Start the app if not already started
 func (c *AppClient) Start(ctx context.Context, guid string) (*resource.App, error) {
 	var app resource.App

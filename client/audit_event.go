@@ -74,3 +74,10 @@ func (c *AuditEventClient) ListAll(ctx context.Context, opts *AuditEventListOpti
 	}
 	return all, nil
 }
+
+// Single returns a single audit event matching the options or an error if not exactly 1 match
+func (c *AuditEventClient) Single(ctx context.Context, opts *AuditEventListOptions) (*resource.AuditEvent, error) {
+	return Single[*AuditEventListOptions, *resource.AuditEvent](opts, func(opts *AuditEventListOptions) ([]*resource.AuditEvent, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}

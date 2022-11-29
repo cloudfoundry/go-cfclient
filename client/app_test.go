@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
@@ -190,6 +191,38 @@ func TestApps(t *testing.T) {
 			Expected3: g.Array(org),
 			Action3: func(c *Client, t *testing.T) (any, any, any, error) {
 				return c.Applications.ListIncludeSpacesAndOrgsAll(context.Background(), nil)
+			},
+		},
+		{
+			Description: "single app",
+			Route: testutil.MockRoute{
+				Method:      "GET",
+				Endpoint:    "/v3/apps",
+				QueryString: "names=spring-music-124&page=1&per_page=50",
+				Output:      g.Paged([]string{app1}),
+				Status:      http.StatusOK},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				opts := NewAppListOptions()
+				opts.Names.EqualTo("spring-music-124")
+				return c.Applications.Single(context.Background(), opts)
+			},
+		},
+		{
+			Description: "single app matches 2+ apps",
+			Route: testutil.MockRoute{
+				Method:      "GET",
+				Endpoint:    "/v3/apps",
+				QueryString: "names=spring-music&page=1&per_page=50",
+				Output:      g.Paged([]string{app1, app2}),
+				Status:      http.StatusOK},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				opts := NewAppListOptions()
+				opts.Names.EqualTo("spring-music")
+				app, err := c.Applications.Single(context.Background(), opts)
+				require.Nil(t, app)
+				require.EqualError(t, err, "expected exactly 1 matching result, but got 2")
+				return nil, nil
 			},
 		},
 		{

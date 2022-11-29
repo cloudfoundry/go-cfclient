@@ -118,6 +118,20 @@ func (c *TaskClient) ListForAppAll(ctx context.Context, appGUID string, opts *Ta
 	})
 }
 
+// Single returns a single task matching the options or an error if not exactly 1 match
+func (c *TaskClient) Single(ctx context.Context, opts *TaskListOptions) (*resource.Task, error) {
+	return Single[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForApp returns a single task matching the options or an error if not exactly 1 match
+func (c *TaskClient) SingleForApp(ctx context.Context, appGUID string, opts *TaskListOptions) (*resource.Task, error) {
+	return Single[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Update the specified attributes of the task
 func (c *TaskClient) Update(ctx context.Context, guid string, r *resource.TaskUpdate) (*resource.Task, error) {
 	var task resource.Task

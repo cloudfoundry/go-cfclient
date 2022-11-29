@@ -207,6 +207,13 @@ func (c *ServiceCredentialBindingClient) ListIncludeServiceInstancesAll(ctx cont
 	return all, allServiceInstances, nil
 }
 
+// Single returns a single service credential binding matching the options or an error if not exactly 1 match
+func (c *ServiceCredentialBindingClient) Single(ctx context.Context, opts *ServiceCredentialBindingListOptions) (*resource.ServiceCredentialBinding, error) {
+	return Single[*ServiceCredentialBindingListOptions, *resource.ServiceCredentialBinding](opts, func(opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the app
 func (c *ServiceCredentialBindingClient) Update(ctx context.Context, guid string, r *resource.ServiceCredentialBindingUpdate) (*resource.ServiceCredentialBinding, error) {
 	var d resource.ServiceCredentialBinding

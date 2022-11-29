@@ -100,6 +100,20 @@ func (c *SidecarClient) ListForProcessAll(ctx context.Context, processGUID strin
 	})
 }
 
+// SingleForApp returns a single sidecar matching the options and app or an error if not exactly 1 match
+func (c *SidecarClient) SingleForApp(ctx context.Context, appGUID string, opts *SidecarListOptions) (*resource.Sidecar, error) {
+	return Single[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
+// SingleForProcess returns a single sidecar matching the options and process or an error if not exactly 1 match
+func (c *SidecarClient) SingleForProcess(ctx context.Context, processGUID string, opts *SidecarListOptions) (*resource.Sidecar, error) {
+	return Single[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+		return c.ListForProcess(ctx, processGUID, opts)
+	})
+}
+
 // Update the specified attributes of the app
 func (c *SidecarClient) Update(ctx context.Context, guid string, r *resource.SidecarUpdate) (*resource.Sidecar, error) {
 	var sc resource.Sidecar

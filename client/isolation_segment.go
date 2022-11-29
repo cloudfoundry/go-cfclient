@@ -174,6 +174,13 @@ func (c *IsolationSegmentClient) RevokeOrgs(ctx context.Context, guid string, or
 	return nil
 }
 
+// Single returns a single iso segment matching the options or an error if not exactly 1 match
+func (c *IsolationSegmentClient) Single(ctx context.Context, opts *IsolationSegmentOptions) (*resource.IsolationSegment, error) {
+	return Single[*IsolationSegmentOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentOptions) ([]*resource.IsolationSegment, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the isolation segments
 func (c *IsolationSegmentClient) Update(ctx context.Context, guid string, r *resource.IsolationSegmentUpdate) (*resource.IsolationSegment, error) {
 	var iso resource.IsolationSegment

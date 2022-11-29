@@ -132,6 +132,20 @@ func (c *BuildClient) PollStaged(ctx context.Context, guid string, opts *Polling
 	}, string(resource.BuildStateStaged), opts)
 }
 
+// Single returns a single build matching the options or an error if not exactly 1 match
+func (c *BuildClient) Single(ctx context.Context, opts *BuildListOptions) (*resource.Build, error) {
+	return Single[*BuildListOptions, *resource.Build](opts, func(opts *BuildListOptions) ([]*resource.Build, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForApp returns a single build matching the options and app or an error if not exactly 1 match
+func (c *BuildClient) SingleForApp(ctx context.Context, appGUID string, opts *BuildAppListOptions) (*resource.Build, error) {
+	return Single[*BuildAppListOptions, *resource.Build](opts, func(opts *BuildAppListOptions) ([]*resource.Build, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Update the specified attributes of the build
 func (c *BuildClient) Update(ctx context.Context, guid string, r *resource.BuildUpdate) (*resource.Build, error) {
 	var build resource.Build

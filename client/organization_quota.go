@@ -96,6 +96,13 @@ func (c *OrgQuotaClient) ListAll(ctx context.Context, opts *OrgQuotaListOptions)
 	})
 }
 
+// Single returns a single org quota matching the options or an error if not exactly 1 match
+func (c *OrgQuotaClient) Single(ctx context.Context, opts *OrgQuotaListOptions) (*resource.OrganizationQuota, error) {
+	return Single[*OrgQuotaListOptions, *resource.OrganizationQuota](opts, func(opts *OrgQuotaListOptions) ([]*resource.OrganizationQuota, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the org quota
 func (c *OrgQuotaClient) Update(ctx context.Context, guid string, r *resource.OrganizationQuotaCreateOrUpdate) (*resource.OrganizationQuota, error) {
 	var q resource.OrganizationQuota

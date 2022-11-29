@@ -86,6 +86,13 @@ func (c *DeploymentClient) ListAll(ctx context.Context, opts *DeploymentListOpti
 	})
 }
 
+// Single returns a single deployment matching the options or an error if not exactly 1 match
+func (c *DeploymentClient) Single(ctx context.Context, opts *DeploymentListOptions) (*resource.Deployment, error) {
+	return Single[*DeploymentListOptions, *resource.Deployment](opts, func(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the deployment
 func (c *DeploymentClient) Update(ctx context.Context, guid string, r *resource.DeploymentUpdate) (*resource.Deployment, error) {
 	var d resource.Deployment

@@ -110,6 +110,13 @@ func (c *ProcessClient) Scale(ctx context.Context, guid string, scale *resource.
 	return &process, nil
 }
 
+// SingleForApp returns a single package matching the options for the app or an error if not exactly 1 match
+func (c *ProcessClient) SingleForApp(ctx context.Context, appGUID string, opts *ProcessOptions) (*resource.Process, error) {
+	return Single[*ProcessOptions, *resource.Process](opts, func(opts *ProcessOptions) ([]*resource.Process, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Update the specified attributes of the process
 func (c *ProcessClient) Update(ctx context.Context, guid string, r *resource.ProcessUpdate) (*resource.Process, error) {
 	var process resource.Process

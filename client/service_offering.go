@@ -74,6 +74,13 @@ func (c *ServiceOfferingClient) ListAll(ctx context.Context, opts *ServiceOfferi
 	})
 }
 
+// Single returns a single service offering matching the options or an error if not exactly 1 match
+func (c *ServiceOfferingClient) Single(ctx context.Context, opts *ServiceOfferingListOptions) (*resource.ServiceOffering, error) {
+	return Single[*ServiceOfferingListOptions, *resource.ServiceOffering](opts, func(opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the service offering
 func (c *ServiceOfferingClient) Update(ctx context.Context, guid string, r *resource.ServiceOfferingUpdate) (*resource.ServiceOffering, error) {
 	var res resource.ServiceOffering

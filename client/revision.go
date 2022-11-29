@@ -47,8 +47,8 @@ func (c *RevisionClient) GetEnvironmentVariables(ctx context.Context, guid strin
 	return res.Var, nil
 }
 
-// List pages revisions that are associated with the specified app
-func (c *RevisionClient) List(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+// ListForApp pages revisions that are associated with the specified app
+func (c *RevisionClient) ListForApp(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
@@ -61,18 +61,18 @@ func (c *RevisionClient) List(ctx context.Context, appGUID string, opts *Revisio
 	return res.Resources, pager, nil
 }
 
-// ListAll retrieves all revisions that are associated with the specified app
-func (c *RevisionClient) ListAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
+// ListForAppAll retrieves all revisions that are associated with the specified app
+func (c *RevisionClient) ListForAppAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	return AutoPage[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
-		return c.List(ctx, appGUID, opts)
+		return c.ListForApp(ctx, appGUID, opts)
 	})
 }
 
-// ListDeployed pages deployed revisions that are associated with the specified app
-func (c *RevisionClient) ListDeployed(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+// ListForAppDeployed pages deployed revisions that are associated with the specified app
+func (c *RevisionClient) ListForAppDeployed(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
@@ -85,13 +85,27 @@ func (c *RevisionClient) ListDeployed(ctx context.Context, appGUID string, opts 
 	return res.Resources, pager, nil
 }
 
-// ListDeployedAll pages deployed revisions that are associated with the specified app
-func (c *RevisionClient) ListDeployedAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
+// ListForAppDeployedAll pages deployed revisions that are associated with the specified app
+func (c *RevisionClient) ListForAppDeployedAll(ctx context.Context, appGUID string, opts *RevisionListOptions) ([]*resource.Revision, error) {
 	if opts == nil {
 		opts = NewRevisionListOptions()
 	}
 	return AutoPage[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
-		return c.ListDeployed(ctx, appGUID, opts)
+		return c.ListForAppDeployed(ctx, appGUID, opts)
+	})
+}
+
+// SingleForApp returns a single revision matching the options and app or an error if not exactly 1 match
+func (c *RevisionClient) SingleForApp(ctx context.Context, appGUID string, opts *RevisionListOptions) (*resource.Revision, error) {
+	return Single[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
+// SingleForAppDeployed returns a single deployed revision matching the options and app or an error if not exactly 1 match
+func (c *RevisionClient) SingleForAppDeployed(ctx context.Context, appGUID string, opts *RevisionListOptions) (*resource.Revision, error) {
+	return Single[*RevisionListOptions, *resource.Revision](opts, func(opts *RevisionListOptions) ([]*resource.Revision, *Pager, error) {
+		return c.ListForAppDeployed(ctx, appGUID, opts)
 	})
 }
 

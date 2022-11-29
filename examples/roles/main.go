@@ -39,11 +39,10 @@ func execute() error {
 
 func listSpaceDevsInSpace(ctx context.Context, cf *client.Client) error {
 	// grab the first space
-	spaces, _, err := cf.Spaces.List(ctx, nil)
+	space, err := cf.Spaces.Single(ctx, nil)
 	if err != nil {
 		return err
 	}
-	space := spaces[0]
 
 	// list space developer roles and users in the space
 	opts := client.NewRoleListOptions()

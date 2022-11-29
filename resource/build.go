@@ -4,6 +4,10 @@ import "time"
 
 type BuildState string
 
+func (b BuildState) String() string {
+	return string(b)
+}
+
 // The 3 lifecycle states
 const (
 	BuildStateStaging BuildState = "STAGING"

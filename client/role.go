@@ -268,3 +268,10 @@ func (c *RoleClient) ListIncludeUsersAll(ctx context.Context, opts *RoleListOpti
 	}
 	return all, allUsers, nil
 }
+
+// Single returns a single role matching the options or an error if not exactly 1 match
+func (c *RoleClient) Single(ctx context.Context, opts *RoleListOptions) (*resource.Role, error) {
+	return Single[*RoleListOptions, *resource.Role](opts, func(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}

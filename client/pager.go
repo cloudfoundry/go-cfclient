@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -72,4 +73,16 @@ func AutoPage[T ListOptioner, R any](opts T, list ListFunc[T, R]) ([]R, error) {
 		pager.NextPage(opts)
 	}
 	return all, nil
+}
+
+// Single returns a single object from the call to list or an error if matches > 1 or matches < 1
+func Single[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
+	matches, _, err := list(opts)
+	if err != nil {
+		return *new(R), err
+	}
+	if len(matches) != 1 {
+		return *new(R), fmt.Errorf("expected exactly 1 matching result, but got %d", len(matches))
+	}
+	return matches[0], nil
 }

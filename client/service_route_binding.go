@@ -198,6 +198,13 @@ func (c *ServiceRouteBindingClient) ListIncludeServiceInstancesAll(ctx context.C
 	return all, allSIs, nil
 }
 
+// Single returns a single service route binding matching the options or an error if not exactly 1 match
+func (c *ServiceRouteBindingClient) Single(ctx context.Context, opts *ServiceRouteBindingListOptions) (*resource.ServiceRouteBinding, error) {
+	return Single[*ServiceRouteBindingListOptions, *resource.ServiceRouteBinding](opts, func(opts *ServiceRouteBindingListOptions) ([]*resource.ServiceRouteBinding, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the service route binding
 func (c *ServiceRouteBindingClient) Update(ctx context.Context, guid string, r *resource.ServiceRouteBindingUpdate) (*resource.ServiceRouteBinding, error) {
 	var srb resource.ServiceRouteBinding
