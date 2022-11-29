@@ -166,6 +166,13 @@ func (c *PackageClient) PollReady(ctx context.Context, guid string, opts *Pollin
 	}, string(resource.PackageStateReady), opts)
 }
 
+// Single returns a single package matching the options or an error if not exactly 1 match
+func (c *PackageClient) Single(ctx context.Context, opts *PackageListOptions) (*resource.Package, error) {
+	return Single[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // SingleForApp returns a single package matching the options for the app or an error if not exactly 1 match
 func (c *PackageClient) SingleForApp(ctx context.Context, appGUID string, opts *PackageListOptions) (*resource.Package, error) {
 	return Single[*PackageListOptions, *resource.Package](opts, func(opts *PackageListOptions) ([]*resource.Package, *Pager, error) {
