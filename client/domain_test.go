@@ -144,7 +144,7 @@ func TestDomains(t *testing.T) {
 				Status:   http.StatusNoContent,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Domains.Unshare(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
+				return nil, c.Domains.UnShare(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", "3a5f687b-2ce8-4ade-be75-8eca99b0db8b")
 			},
 		},
 	}
