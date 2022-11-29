@@ -10,8 +10,8 @@ import (
 
 type IsolationSegmentClient commonClient
 
-// IsolationSegmentOptions list filters
-type IsolationSegmentOptions struct {
+// IsolationSegmentListOptions list filters
+type IsolationSegmentListOptions struct {
 	*ListOptions
 
 	GUIDs             Filter `qs:"guids"`
@@ -20,13 +20,13 @@ type IsolationSegmentOptions struct {
 }
 
 // NewIsolationSegmentOptions creates new options to pass to list
-func NewIsolationSegmentOptions() *IsolationSegmentOptions {
-	return &IsolationSegmentOptions{
+func NewIsolationSegmentOptions() *IsolationSegmentListOptions {
+	return &IsolationSegmentListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
-func (o IsolationSegmentOptions) ToQueryString() url.Values {
+func (o IsolationSegmentListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -86,7 +86,7 @@ func (c *IsolationSegmentClient) Get(ctx context.Context, guid string) (*resourc
 //
 // For admin, this is all the isolation segments in the system. For anyone else,  this is
 // the isolation segments in the allowed list for any organization to which the user belongs.
-func (c *IsolationSegmentClient) List(ctx context.Context, opts *IsolationSegmentOptions) ([]*resource.IsolationSegment, *Pager, error) {
+func (c *IsolationSegmentClient) List(ctx context.Context, opts *IsolationSegmentListOptions) ([]*resource.IsolationSegment, *Pager, error) {
 	if opts == nil {
 		opts = NewIsolationSegmentOptions()
 	}
@@ -104,11 +104,11 @@ func (c *IsolationSegmentClient) List(ctx context.Context, opts *IsolationSegmen
 //
 // For admin, this is all the isolation segments in the system. For anyone else,  this is
 // the isolation segments in the allowed list for any organization to which the user belongs.
-func (c *IsolationSegmentClient) ListAll(ctx context.Context, opts *IsolationSegmentOptions) ([]*resource.IsolationSegment, error) {
+func (c *IsolationSegmentClient) ListAll(ctx context.Context, opts *IsolationSegmentListOptions) ([]*resource.IsolationSegment, error) {
 	if opts == nil {
 		opts = NewIsolationSegmentOptions()
 	}
-	return AutoPage[*IsolationSegmentOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentOptions) ([]*resource.IsolationSegment, *Pager, error) {
+	return AutoPage[*IsolationSegmentListOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentListOptions) ([]*resource.IsolationSegment, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
@@ -175,8 +175,8 @@ func (c *IsolationSegmentClient) RevokeOrgs(ctx context.Context, guid string, or
 }
 
 // Single returns a single iso segment matching the options or an error if not exactly 1 match
-func (c *IsolationSegmentClient) Single(ctx context.Context, opts *IsolationSegmentOptions) (*resource.IsolationSegment, error) {
-	return Single[*IsolationSegmentOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentOptions) ([]*resource.IsolationSegment, *Pager, error) {
+func (c *IsolationSegmentClient) Single(ctx context.Context, opts *IsolationSegmentListOptions) (*resource.IsolationSegment, error) {
+	return Single[*IsolationSegmentListOptions, *resource.IsolationSegment](opts, func(opts *IsolationSegmentListOptions) ([]*resource.IsolationSegment, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
