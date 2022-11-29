@@ -251,6 +251,27 @@ func (c *DropletClient) SetCurrentAssociationForApp(ctx context.Context, appGUID
 	return &d, nil
 }
 
+// Single returns a single droplet matching the options or an error if not exactly 1 match
+func (c *DropletClient) Single(ctx context.Context, opts *DropletListOptions) (*resource.Droplet, error) {
+	return Single[*DropletListOptions, *resource.Droplet](opts, func(opts *DropletListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForApp returns a single droplet matching the options and app or an error if not exactly 1 match
+func (c *DropletClient) SingleForApp(ctx context.Context, appGUID string, opts *DropletAppListOptions) (*resource.Droplet, error) {
+	return Single[*DropletAppListOptions, *resource.Droplet](opts, func(opts *DropletAppListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
+// SingleForPackage returns a single droplet matching the options and package or an error if not exactly 1 match
+func (c *DropletClient) SingleForPackage(ctx context.Context, packageGUID string, opts *DropletPackageListOptions) (*resource.Droplet, error) {
+	return Single[*DropletPackageListOptions, *resource.Droplet](opts, func(opts *DropletPackageListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForPackage(ctx, packageGUID, opts)
+	})
+}
+
 // Update an existing droplet
 func (c *DropletClient) Update(ctx context.Context, guid string, r *resource.DropletUpdate) (*resource.Droplet, error) {
 	var d resource.Droplet

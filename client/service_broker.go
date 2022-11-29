@@ -64,12 +64,19 @@ func (c *ServiceBrokerClient) List(ctx context.Context, opts *ServiceBrokerListO
 	return res.Resources, pager, nil
 }
 
-// ListAll retrieves all service_brokers the user has access to
+// ListAll retrieves all service brokers the user has access to
 func (c *ServiceBrokerClient) ListAll(ctx context.Context, opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, error) {
 	if opts == nil {
 		opts = NewServiceBrokerListOptions()
 	}
 	return AutoPage[*ServiceBrokerListOptions, *resource.ServiceBroker](opts, func(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// Single returns a single service broker matching the options or an error if not exactly 1 match
+func (c *ServiceBrokerClient) Single(ctx context.Context, opts *ServiceBrokerListOptions) (*resource.ServiceBroker, error) {
+	return Single[*ServiceBrokerListOptions, *resource.ServiceBroker](opts, func(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }

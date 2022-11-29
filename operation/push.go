@@ -96,17 +96,13 @@ func (p *AppPushOperation) applySpaceManifest(ctx context.Context, space *resour
 
 func (p *AppPushOperation) findApp(ctx context.Context, appName string, space *resource.Space) (*resource.App, error) {
 	appOpts := client.NewAppListOptions()
-	appOpts.Names.Values = []string{appName}
-	appOpts.SpaceGUIDs.Values = []string{space.GUID}
-	apps, err := p.client.Applications.ListAll(ctx, appOpts)
+	appOpts.Names.EqualTo(appName)
+	appOpts.SpaceGUIDs.EqualTo(space.GUID)
+	app, err := p.client.Applications.Single(ctx, appOpts)
 	if err != nil {
 		return nil, err
 	}
-	if len(apps) != 1 {
-		return nil, fmt.Errorf("expected to find one application named %s in space %s, but found %d",
-			appName, space.Name, len(apps))
-	}
-	return apps[0], nil
+	return app, nil
 }
 
 func (p *AppPushOperation) uploadPackage(ctx context.Context, app *resource.App, zipFile io.Reader) (*resource.Package, error) {
@@ -146,40 +142,31 @@ func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Packa
 	}
 
 	opts := client.NewDropletPackageListOptions()
-	opts.States.Values = []string{string(resource.DropletStateStaged)}
-	droplets, err := p.client.Droplets.ListForPackageAll(ctx, pkg.GUID, opts)
+	opts.States.EqualTo(resource.DropletStateStaged.String())
+	droplet, err := p.client.Droplets.SingleForPackage(ctx, pkg.GUID, opts)
 	if err != nil {
 		return nil, fmt.Errorf("error finding droplet for app %s: %w", manifest.Name, err)
 	}
-	if len(droplets) != 1 {
-		return nil, fmt.Errorf("expected one droplet, but found %d", len(droplets))
-	}
-	return droplets[0], nil
+	return droplet, nil
 }
 
 func (p *AppPushOperation) findOrg(ctx context.Context) (*resource.Organization, error) {
 	opts := client.NewOrgListOptions()
-	opts.Names.Values = []string{p.orgName}
-	orgs, err := p.client.Organizations.ListAll(ctx, opts)
+	opts.Names.EqualTo(p.orgName)
+	org, err := p.client.Organizations.Single(ctx, opts)
 	if err != nil {
 		return nil, fmt.Errorf("could not find org %s: %w", p.orgName, err)
 	}
-	if len(orgs) != 1 {
-		return nil, fmt.Errorf("expected to find one org named %s, but found %d", p.orgName, len(orgs))
-	}
-	return orgs[0], nil
+	return org, nil
 }
 
 func (p *AppPushOperation) findSpace(ctx context.Context, orgGUID string) (*resource.Space, error) {
 	opts := client.NewSpaceListOptions()
-	opts.Names.Values = []string{p.spaceName}
-	opts.OrganizationGUIDs.Values = []string{orgGUID}
-	spaces, err := p.client.Spaces.ListAll(ctx, opts)
+	opts.Names.EqualTo(p.spaceName)
+	opts.OrganizationGUIDs.EqualTo(orgGUID)
+	space, err := p.client.Spaces.Single(ctx, opts)
 	if err != nil {
 		return nil, fmt.Errorf("could not find space %s: %w", p.spaceName, err)
 	}
-	if len(spaces) != 1 {
-		return nil, fmt.Errorf("expected to find one space named %s, but found %d", p.spaceName, len(spaces))
-	}
-	return spaces[0], nil
+	return space, nil
 }

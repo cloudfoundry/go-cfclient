@@ -73,3 +73,10 @@ func (c *ServiceUsageClient) Purge(ctx context.Context) error {
 	_, err := c.client.post(ctx, "/v3/service_usage_events/actions/destructively_purge_all_and_reseed", nil, nil)
 	return err
 }
+
+// Single returns a single service usage matching the options or an error if not exactly 1 match
+func (c *ServiceUsageClient) Single(ctx context.Context, opts *ServiceUsageOptions) (*resource.ServiceUsage, error) {
+	return Single[*ServiceUsageOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}

@@ -102,6 +102,13 @@ func (c *SpaceQuotaClient) Remove(ctx context.Context, guid, spaceGUID string) e
 	return err
 }
 
+// Single returns a single space quota matching the options or an error if not exactly 1 match
+func (c *SpaceQuotaClient) Single(ctx context.Context, opts *SpaceQuotaListOptions) (*resource.SpaceQuota, error) {
+	return Single[*SpaceQuotaListOptions, *resource.SpaceQuota](opts, func(opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the org quota
 func (c *SpaceQuotaClient) Update(ctx context.Context, guid string, r *resource.SpaceQuotaCreateOrUpdate) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota

@@ -117,6 +117,20 @@ func (c *DomainClient) ShareMany(ctx context.Context, guid string, r *resource.T
 	return &d, nil
 }
 
+// Single returns a single domain matching the options or an error if not exactly 1 match
+func (c *DomainClient) Single(ctx context.Context, opts *DomainListOptions) (*resource.Domain, error) {
+	return Single[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForOrg returns a single domain matching the options and org or an error if not exactly 1 match
+func (c *DomainClient) SingleForOrg(ctx context.Context, orgGUID string, opts *DomainListOptions) (*resource.Domain, error) {
+	return Single[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.ListForOrg(ctx, orgGUID, opts)
+	})
+}
+
 // Unshare an organization-scoped domain to other organizations specified by a list of organization guids
 // This will allow any of the other organizations to use the organization-scoped domain.
 func (c *DomainClient) Unshare(ctx context.Context, domainGUID, orgGUID string) error {

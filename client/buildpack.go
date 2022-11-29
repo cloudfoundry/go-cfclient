@@ -90,6 +90,13 @@ func (c *BuildpackClient) ListAll(ctx context.Context, opts *BuildpackListOption
 	return all, nil
 }
 
+// Single returns a single buildpack matching the options or an error if not exactly 1 match
+func (c *BuildpackClient) Single(ctx context.Context, opts *BuildpackListOptions) (*resource.Buildpack, error) {
+	return Single[*BuildpackListOptions, *resource.Buildpack](opts, func(opts *BuildpackListOptions) ([]*resource.Buildpack, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the buildpack
 func (c *BuildpackClient) Update(ctx context.Context, guid string, r *resource.BuildpackCreateOrUpdate) (*resource.Buildpack, error) {
 	var bp resource.Buildpack

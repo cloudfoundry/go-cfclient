@@ -167,6 +167,20 @@ func (c *OrgClient) ListUsersAll(ctx context.Context, guid string, opts *UserLis
 	})
 }
 
+// Single returns a single org matching the options or an error if not exactly 1 match
+func (c *OrgClient) Single(ctx context.Context, opts *OrgListOptions) (*resource.Organization, error) {
+	return Single[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForIsoSegment returns a single org matching the options and iso segment or an error if not exactly 1 match
+func (c *OrgClient) SingleForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrgListOptions) (*resource.Organization, error) {
+	return Single[*OrgListOptions, *resource.Organization](opts, func(opts *OrgListOptions) ([]*resource.Organization, *Pager, error) {
+		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
+	})
+}
+
 // Update the organization's specified attributes
 func (c *OrgClient) Update(ctx context.Context, guid string, r *resource.OrganizationUpdate) (*resource.Organization, error) {
 	var org resource.Organization

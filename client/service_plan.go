@@ -180,6 +180,13 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrgsAll(ctx context.Context, opt
 	return all, allSpaces, allOrgs, nil
 }
 
+// Single returns a single service plan matching the options or an error if not exactly 1 match
+func (c *ServicePlanClient) Single(ctx context.Context, opts *ServicePlanListOptions) (*resource.ServicePlan, error) {
+	return Single[*ServicePlanListOptions, *resource.ServicePlan](opts, func(opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the service plan
 func (c *ServicePlanClient) Update(ctx context.Context, guid string, r *resource.ServicePlanUpdate) (*resource.ServicePlan, error) {
 	var res resource.ServicePlan

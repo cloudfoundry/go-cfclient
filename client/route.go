@@ -383,6 +383,20 @@ func (c *RouteClient) ShareWithSpaces(ctx context.Context, guid string, spaceGUI
 	return &relationships, nil
 }
 
+// Single returns a single route matching the options or an error if not exactly 1 match
+func (c *RouteClient) Single(ctx context.Context, opts *RouteListOptions) (*resource.Route, error) {
+	return Single[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// SingleForApp returns a single route matching the options and app or an error if not exactly 1 match
+func (c *RouteClient) SingleForApp(ctx context.Context, appGUID string, opts *RouteListOptions) (*resource.Route, error) {
+	return Single[*RouteListOptions, *resource.Route](opts, func(opts *RouteListOptions) ([]*resource.Route, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // TransferOwnership transfers the ownership of a route to another space
 //
 // Users must have write access for both spaces to perform this action. The original owning space will still

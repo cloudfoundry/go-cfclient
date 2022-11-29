@@ -101,6 +101,13 @@ func (c *StackClient) ListAppsOnStackAll(ctx context.Context, guid string, opts 
 	})
 }
 
+// Single returns a single stack matching the options or an error if not exactly 1 match
+func (c *StackClient) Single(ctx context.Context, opts *StackListOptions) (*resource.Stack, error) {
+	return Single[*StackListOptions, *resource.Stack](opts, func(opts *StackListOptions) ([]*resource.Stack, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of a stack
 func (c *StackClient) Update(ctx context.Context, guid string, r *resource.StackUpdate) (*resource.Stack, error) {
 	var stack resource.Stack

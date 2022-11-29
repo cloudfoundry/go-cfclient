@@ -174,6 +174,13 @@ func (c *ServiceInstanceClient) ShareWithSpaces(ctx context.Context, guid string
 	return &relationships, nil
 }
 
+// Single returns a single service instance matching the options or an error if not exactly 1 match
+func (c *ServiceInstanceClient) Single(ctx context.Context, opts *ServiceInstanceListOptions) (*resource.ServiceInstance, error) {
+	return Single[*ServiceInstanceListOptions, *resource.ServiceInstance](opts, func(opts *ServiceInstanceListOptions) ([]*resource.ServiceInstance, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // UnShareWithSpace un=shares the service instance with the specified space
 //
 // This will automatically unbind any applications bound to this service instance in the specified space

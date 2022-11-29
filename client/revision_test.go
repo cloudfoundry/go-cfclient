@@ -51,7 +51,7 @@ func TestRevisions(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(revision, revision2, revision3, revision4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.ListAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
+				return c.Revisions.ListForAppAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
 			},
 		},
 		{
@@ -63,7 +63,7 @@ func TestRevisions(t *testing.T) {
 				Status:   http.StatusOK},
 			Expected: g.Array(revision, revision2, revision3, revision4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Revisions.ListDeployedAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
+				return c.Revisions.ListForAppDeployedAll(context.Background(), "487d2a80-3769-4ad8-8ef5-a02c363d017b", nil)
 			},
 		},
 		{

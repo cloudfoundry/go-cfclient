@@ -182,6 +182,13 @@ func (c *SpaceClient) ListUsersAll(ctx context.Context, spaceGUID string, opts *
 	})
 }
 
+// Single returns a single space matching the options or an error if not exactly 1 match
+func (c *SpaceClient) Single(ctx context.Context, opts *SpaceListOptions) (*resource.Space, error) {
+	return Single[*SpaceListOptions, *resource.Space](opts, func(opts *SpaceListOptions) ([]*resource.Space, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of a space
 func (c *SpaceClient) Update(ctx context.Context, guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space

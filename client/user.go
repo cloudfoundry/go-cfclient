@@ -89,6 +89,13 @@ func (c *UserClient) ListAll(ctx context.Context, opts *UserListOptions) ([]*res
 	})
 }
 
+// Single returns a single user matching the options or an error if not exactly 1 match
+func (c *UserClient) Single(ctx context.Context, opts *UserListOptions) (*resource.User, error) {
+	return Single[*UserListOptions, *resource.User](opts, func(opts *UserListOptions) ([]*resource.User, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of a user
 func (c *UserClient) Update(ctx context.Context, guid string, r *resource.UserUpdate) (*resource.User, error) {
 	var user resource.User

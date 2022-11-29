@@ -79,6 +79,13 @@ func (c *SecurityGroupClient) ListAll(ctx context.Context, opts *SecurityGroupLi
 	})
 }
 
+// Single returns a single security group matching the options or an error if not exactly 1 match
+func (c *SecurityGroupClient) Single(ctx context.Context, opts *SecurityGroupListOptions) (*resource.SecurityGroup, error) {
+	return Single[*SecurityGroupListOptions, *resource.SecurityGroup](opts, func(opts *SecurityGroupListOptions) ([]*resource.SecurityGroup, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Update the specified attributes of the app
 func (c *SecurityGroupClient) Update(ctx context.Context, guid string, r *resource.SecurityGroupUpdate) (*resource.SecurityGroup, error) {
 	var d resource.SecurityGroup
