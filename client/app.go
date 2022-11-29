@@ -50,6 +50,13 @@ func (c *AppClient) Delete(ctx context.Context, guid string) (string, error) {
 	return c.client.delete(ctx, path.Format("/v3/apps/%s", guid))
 }
 
+// First returns the first app matching the options or an error when less than 1 match
+func (c *AppClient) First(ctx context.Context, opts *AppListOptions) (*resource.App, error) {
+	return First[*AppListOptions, *resource.App](opts, func(opts *AppListOptions) ([]*resource.App, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified app
 func (c *AppClient) Get(ctx context.Context, guid string) (*resource.App, error) {
 	var app resource.App

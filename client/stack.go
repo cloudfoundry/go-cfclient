@@ -43,6 +43,13 @@ func (c *StackClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first stack matching the options or an error when less than 1 match
+func (c *StackClient) First(ctx context.Context, opts *StackListOptions) (*resource.Stack, error) {
+	return First[*StackListOptions, *resource.Stack](opts, func(opts *StackListOptions) ([]*resource.Stack, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified stack
 func (c *StackClient) Get(ctx context.Context, guid string) (*resource.Stack, error) {
 	var stack resource.Stack

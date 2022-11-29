@@ -45,6 +45,13 @@ func (c *ServicePlanClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first service plan matching the options or an error when less than 1 match
+func (c *ServicePlanClient) First(ctx context.Context, opts *ServicePlanListOptions) (*resource.ServicePlan, error) {
+	return First[*ServicePlanListOptions, *resource.ServicePlan](opts, func(opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service plan
 func (c *ServicePlanClient) Get(ctx context.Context, guid string) (*resource.ServicePlan, error) {
 	var ServicePlan resource.ServicePlan

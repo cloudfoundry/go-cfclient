@@ -85,6 +85,13 @@ func (c *RoleClient) Delete(ctx context.Context, guid string) (string, error) {
 	return c.client.delete(ctx, path.Format("/v3/roles/%s", guid))
 }
 
+// First returns the first role matching the options or an error when less than 1 match
+func (c *RoleClient) First(ctx context.Context, opts *RoleListOptions) (*resource.Role, error) {
+	return First[*RoleListOptions, *resource.Role](opts, func(opts *RoleListOptions) ([]*resource.Role, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified role
 func (c *RoleClient) Get(ctx context.Context, guid string) (*resource.Role, error) {
 	var r resource.Role

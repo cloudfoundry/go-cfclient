@@ -39,6 +39,13 @@ func (c *ServiceBrokerClient) Delete(ctx context.Context, guid string) (string, 
 	return c.client.delete(ctx, path.Format("/v3/service_brokers/%s", guid))
 }
 
+// First returns the first service broker matching the options or an error when less than 1 match
+func (c *ServiceBrokerClient) First(ctx context.Context, opts *ServiceBrokerListOptions) (*resource.ServiceBroker, error) {
+	return First[*ServiceBrokerListOptions, *resource.ServiceBroker](opts, func(opts *ServiceBrokerListOptions) ([]*resource.ServiceBroker, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service broker
 func (c *ServiceBrokerClient) Get(ctx context.Context, guid string) (*resource.ServiceBroker, error) {
 	var sb resource.ServiceBroker

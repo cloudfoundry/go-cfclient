@@ -138,6 +138,27 @@ func (c *DropletClient) Download(ctx context.Context, guid string) (io.ReadClose
 	return resp.Body, nil
 }
 
+// First returns the first droplet matching the options or an error when less than 1 match
+func (c *DropletClient) First(ctx context.Context, opts *DropletListOptions) (*resource.Droplet, error) {
+	return First[*DropletListOptions, *resource.Droplet](opts, func(opts *DropletListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first droplet matching the options and app or an error when less than 1 match
+func (c *DropletClient) FirstForApp(ctx context.Context, appGUID string, opts *DropletAppListOptions) (*resource.Droplet, error) {
+	return First[*DropletAppListOptions, *resource.Droplet](opts, func(opts *DropletAppListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
+// FirstForPackage returns the first droplet matching the options and package or an error when less than 1 match
+func (c *DropletClient) FirstForPackage(ctx context.Context, packageGUID string, opts *DropletPackageListOptions) (*resource.Droplet, error) {
+	return First[*DropletPackageListOptions, *resource.Droplet](opts, func(opts *DropletPackageListOptions) ([]*resource.Droplet, *Pager, error) {
+		return c.ListForPackage(ctx, packageGUID, opts)
+	})
+}
+
 // Get retrieves the droplet by ID
 func (c *DropletClient) Get(ctx context.Context, guid string) (*resource.Droplet, error) {
 	var d resource.Droplet

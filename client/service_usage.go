@@ -30,6 +30,13 @@ func (o ServiceUsageListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
+// First returns the first space matching the options or an error when less than 1 match
+func (c *ServiceUsageClient) First(ctx context.Context, opts *ServiceUsageListOptions) (*resource.ServiceUsage, error) {
+	return First[*ServiceUsageListOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageListOptions) ([]*resource.ServiceUsage, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get retrieves the specified service event
 func (c *ServiceUsageClient) Get(ctx context.Context, guid string) (*resource.ServiceUsage, error) {
 	var a resource.ServiceUsage

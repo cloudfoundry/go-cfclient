@@ -54,6 +54,38 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
+			Description: "first app",
+			Route: testutil.MockRoute{
+				Method:      "GET",
+				Endpoint:    "/v3/apps",
+				QueryString: "names=spring-music&page=1&per_page=50",
+				Output:      g.Paged([]string{app1, app2}),
+				Status:      http.StatusOK},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				opts := NewAppListOptions()
+				opts.Names.EqualTo("spring-music")
+				return c.Applications.First(context.Background(), opts)
+			},
+		},
+		{
+			Description: "first app matches 0 apps",
+			Route: testutil.MockRoute{
+				Method:      "GET",
+				Endpoint:    "/v3/apps",
+				QueryString: "names=spring-music&page=1&per_page=50",
+				Output:      g.Paged([]string{}),
+				Status:      http.StatusOK},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				opts := NewAppListOptions()
+				opts.Names.EqualTo("spring-music")
+				app, err := c.Applications.First(context.Background(), opts)
+				require.Nil(t, app)
+				require.Same(t, ErrNoResultsReturned, err)
+				return nil, nil
+			},
+		},
+		{
 			Description: "Get app",
 			Route: testutil.MockRoute{
 				Method:   "GET",
@@ -221,7 +253,7 @@ func TestApps(t *testing.T) {
 				opts.Names.EqualTo("spring-music")
 				app, err := c.Applications.Single(context.Background(), opts)
 				require.Nil(t, app)
-				require.EqualError(t, err, "expected exactly 1 matching result, but got 2")
+				require.Same(t, ErrExactlyOneResultNotReturned, err)
 				return nil, nil
 			},
 		},

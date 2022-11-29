@@ -30,6 +30,20 @@ func (o ProcessListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
+// First returns the first process matching the options or an error when less than 1 match
+func (c *ProcessClient) First(ctx context.Context, opts *ProcessListOptions) (*resource.Process, error) {
+	return First[*ProcessListOptions, *resource.Process](opts, func(opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first process matching the options and app or an error when less than 1 match
+func (c *ProcessClient) FirstForApp(ctx context.Context, appGUID string, opts *ProcessListOptions) (*resource.Process, error) {
+	return First[*ProcessListOptions, *resource.Process](opts, func(opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified process
 func (c *ProcessClient) Get(ctx context.Context, guid string) (*resource.Process, error) {
 	var iso resource.Process

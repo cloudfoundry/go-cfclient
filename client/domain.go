@@ -44,6 +44,20 @@ func (c *DomainClient) Delete(ctx context.Context, guid string) (string, error) 
 	return c.client.delete(ctx, path.Format("/v3/domains/%s", guid))
 }
 
+// First returns the first domain matching the options or an error when less than 1 match
+func (c *DomainClient) First(ctx context.Context, opts *DomainListOptions) (*resource.Domain, error) {
+	return First[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForOrg returns the first domain matching the options and org or an error when less than 1 match
+func (c *DomainClient) FirstForOrg(ctx context.Context, orgGUID string, opts *DomainListOptions) (*resource.Domain, error) {
+	return First[*DomainListOptions, *resource.Domain](opts, func(opts *DomainListOptions) ([]*resource.Domain, *Pager, error) {
+		return c.ListForOrg(ctx, orgGUID, opts)
+	})
+}
+
 // Get the specified domain
 func (c *DomainClient) Get(ctx context.Context, guid string) (*resource.Domain, error) {
 	var d resource.Domain

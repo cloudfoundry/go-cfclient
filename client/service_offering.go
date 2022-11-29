@@ -39,6 +39,13 @@ func (c *ServiceOfferingClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// First returns the first service offering matching the options or an error when less than 1 match
+func (c *ServiceOfferingClient) First(ctx context.Context, opts *ServiceOfferingListOptions) (*resource.ServiceOffering, error) {
+	return First[*ServiceOfferingListOptions, *resource.ServiceOffering](opts, func(opts *ServiceOfferingListOptions) ([]*resource.ServiceOffering, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service offering
 func (c *ServiceOfferingClient) Get(ctx context.Context, guid string) (*resource.ServiceOffering, error) {
 	var ServiceOffering resource.ServiceOffering

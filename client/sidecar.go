@@ -42,6 +42,20 @@ func (c *SidecarClient) Delete(ctx context.Context, guid string) error {
 	return err
 }
 
+// FirstForApp returns the first sidecar matching the options and app or an error when less than 1 match
+func (c *SidecarClient) FirstForApp(ctx context.Context, appGUID string, opts *SidecarListOptions) (*resource.Sidecar, error) {
+	return First[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
+// FirstForProcess returns the first sidecar matching the options and process or an error when less than 1 match
+func (c *SidecarClient) FirstForProcess(ctx context.Context, processGUID string, opts *SidecarListOptions) (*resource.Sidecar, error) {
+	return First[*SidecarListOptions, *resource.Sidecar](opts, func(opts *SidecarListOptions) ([]*resource.Sidecar, *Pager, error) {
+		return c.ListForProcess(ctx, processGUID, opts)
+	})
+}
+
 // Get the specified app
 func (c *SidecarClient) Get(ctx context.Context, guid string) (*resource.Sidecar, error) {
 	var sc resource.Sidecar

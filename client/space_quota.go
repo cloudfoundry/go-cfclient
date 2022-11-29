@@ -61,6 +61,13 @@ func (c *SpaceQuotaClient) Delete(ctx context.Context, guid string) (string, err
 	return c.client.delete(ctx, path.Format("/v3/space_quotas/%s", guid))
 }
 
+// First returns the first space quota matching the options or an error when less than 1 match
+func (c *SpaceQuotaClient) First(ctx context.Context, opts *SpaceQuotaListOptions) (*resource.SpaceQuota, error) {
+	return First[*SpaceQuotaListOptions, *resource.SpaceQuota](opts, func(opts *SpaceQuotaListOptions) ([]*resource.SpaceQuota, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified space quota
 func (c *SpaceQuotaClient) Get(ctx context.Context, guid string) (*resource.SpaceQuota, error) {
 	var q resource.SpaceQuota

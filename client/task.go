@@ -56,6 +56,20 @@ func (c *TaskClient) Create(ctx context.Context, appGUID string, r *resource.Tas
 	return &task, nil
 }
 
+// First returns the first task matching the options or an error when less than 1 match
+func (c *TaskClient) First(ctx context.Context, opts *TaskListOptions) (*resource.Task, error) {
+	return First[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
+// FirstForApp returns the first task matching the options and app or an error when less than 1 match
+func (c *TaskClient) FirstForApp(ctx context.Context, appGUID string, opts *TaskListOptions) (*resource.Task, error) {
+	return First[*TaskListOptions, *resource.Task](opts, func(opts *TaskListOptions) ([]*resource.Task, *Pager, error) {
+		return c.ListForApp(ctx, appGUID, opts)
+	})
+}
+
 // Get the specified task
 func (c *TaskClient) Get(ctx context.Context, guid string) (*resource.Task, error) {
 	var task resource.Task

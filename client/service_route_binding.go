@@ -52,6 +52,13 @@ func (c *ServiceRouteBindingClient) Delete(ctx context.Context, guid string) (st
 	return c.client.delete(ctx, path.Format("/v3/service_route_bindings/%s", guid))
 }
 
+// First returns the first service route binding matching the options or an error when less than 1 match
+func (c *ServiceRouteBindingClient) First(ctx context.Context, opts *ServiceRouteBindingListOptions) (*resource.ServiceRouteBinding, error) {
+	return First[*ServiceRouteBindingListOptions, *resource.ServiceRouteBinding](opts, func(opts *ServiceRouteBindingListOptions) ([]*resource.ServiceRouteBinding, *Pager, error) {
+		return c.List(ctx, opts)
+	})
+}
+
 // Get the specified service route binding
 func (c *ServiceRouteBindingClient) Get(ctx context.Context, guid string) (*resource.ServiceRouteBinding, error) {
 	var srb resource.ServiceRouteBinding
