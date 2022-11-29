@@ -145,9 +145,9 @@ func (c *DomainClient) SingleForOrg(ctx context.Context, orgGUID string, opts *D
 	})
 }
 
-// Unshare an organization-scoped domain to other organizations specified by a list of organization guids
+// UnShare an organization-scoped domain to other organizations specified by a list of organization guids
 // This will allow any of the other organizations to use the organization-scoped domain.
-func (c *DomainClient) Unshare(ctx context.Context, domainGUID, orgGUID string) error {
+func (c *DomainClient) UnShare(ctx context.Context, domainGUID, orgGUID string) error {
 	_, err := c.client.delete(ctx, path.Format("/v3/domains/%s/relationships/shared_organizations/%s", domainGUID, orgGUID))
 	return err
 }
