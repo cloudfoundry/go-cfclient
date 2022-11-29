@@ -9,8 +9,8 @@ import (
 
 type ServiceUsageClient commonClient
 
-// ServiceUsageOptions list filters
-type ServiceUsageOptions struct {
+// ServiceUsageListOptions list filters
+type ServiceUsageListOptions struct {
 	*ListOptions
 
 	AfterGUID            string `qs:"after_guid"`
@@ -20,13 +20,13 @@ type ServiceUsageOptions struct {
 }
 
 // NewServiceUsageOptions creates new options to pass to list
-func NewServiceUsageOptions() *ServiceUsageOptions {
-	return &ServiceUsageOptions{
+func NewServiceUsageOptions() *ServiceUsageListOptions {
+	return &ServiceUsageListOptions{
 		ListOptions: NewListOptions(),
 	}
 }
 
-func (o ServiceUsageOptions) ToQueryString() url.Values {
+func (o ServiceUsageListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -41,7 +41,7 @@ func (c *ServiceUsageClient) Get(ctx context.Context, guid string) (*resource.Se
 }
 
 // List pages all service usage events
-func (c *ServiceUsageClient) List(ctx context.Context, opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
+func (c *ServiceUsageClient) List(ctx context.Context, opts *ServiceUsageListOptions) ([]*resource.ServiceUsage, *Pager, error) {
 	if opts == nil {
 		opts = NewServiceUsageOptions()
 	}
@@ -55,11 +55,11 @@ func (c *ServiceUsageClient) List(ctx context.Context, opts *ServiceUsageOptions
 }
 
 // ListAll retrieves all service usage events
-func (c *ServiceUsageClient) ListAll(ctx context.Context, opts *ServiceUsageOptions) ([]*resource.ServiceUsage, error) {
+func (c *ServiceUsageClient) ListAll(ctx context.Context, opts *ServiceUsageListOptions) ([]*resource.ServiceUsage, error) {
 	if opts == nil {
 		opts = NewServiceUsageOptions()
 	}
-	return AutoPage[*ServiceUsageOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
+	return AutoPage[*ServiceUsageListOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageListOptions) ([]*resource.ServiceUsage, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
@@ -75,8 +75,8 @@ func (c *ServiceUsageClient) Purge(ctx context.Context) error {
 }
 
 // Single returns a single service usage matching the options or an error if not exactly 1 match
-func (c *ServiceUsageClient) Single(ctx context.Context, opts *ServiceUsageOptions) (*resource.ServiceUsage, error) {
-	return Single[*ServiceUsageOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageOptions) ([]*resource.ServiceUsage, *Pager, error) {
+func (c *ServiceUsageClient) Single(ctx context.Context, opts *ServiceUsageListOptions) (*resource.ServiceUsage, error) {
+	return Single[*ServiceUsageListOptions, *resource.ServiceUsage](opts, func(opts *ServiceUsageListOptions) ([]*resource.ServiceUsage, *Pager, error) {
 		return c.List(ctx, opts)
 	})
 }
