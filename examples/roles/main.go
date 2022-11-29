@@ -39,7 +39,7 @@ func execute() error {
 
 func listSpaceDevsInSpace(ctx context.Context, cf *client.Client) error {
 	// grab the first space
-	space, err := cf.Spaces.Single(ctx, nil)
+	space, err := cf.Spaces.First(ctx, nil)
 	if err != nil {
 		return err
 	}
