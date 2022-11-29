@@ -9,7 +9,8 @@
 Cloud Controller [v3 API](https://v3-apidocs.cloudfoundry.org). The v2 API is no longer supported, however if you _really_ 
 need to use the older API you may use the go-cfclient v2 branch and releases.
 
-__NOTE__ - The v3 version in the main branch is currently under development and will likely have **breaking changes** until a v3.0.0 release is cut.
+__NOTE__ - The v3 version in the main branch is currently under development and may have **breaking changes** until a v3.0.0 release is
+ cut. Until then, you may want to pin to a specific v3.0.0-alpha.x release.
 
 ## Installation
 go-cfclient is compatible with modern Go releases in module mode, with Go installed:
