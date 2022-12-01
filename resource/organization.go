@@ -10,7 +10,7 @@ type Organization struct {
 	Suspended     *bool             `json:"suspended,omitempty"`
 	Relationships QuotaRelationship `json:"relationships,omitempty"`
 	Links         map[string]Link   `json:"links,omitempty"`
-	Metadata      Metadata          `json:"metadata,omitempty"`
+	Metadata      *Metadata         `json:"metadata,omitempty"`
 }
 
 type OrganizationCreate struct {

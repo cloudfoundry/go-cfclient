@@ -13,7 +13,7 @@ type Route struct {
 	Port         int                `json:"port"`
 	Destinations []RouteDestination `json:"destinations"`
 
-	Metadata      Metadata           `json:"metadata"`
+	Metadata      *Metadata          `json:"metadata"`
 	Relationships RouteRelationships `json:"relationships"`
 	Links         map[string]Link    `json:"links"`
 }

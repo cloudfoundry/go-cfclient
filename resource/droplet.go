@@ -28,7 +28,7 @@ type Droplet struct {
 	Links             map[string]Link   `json:"links"`
 	ExecutionMetadata string            `json:"execution_metadata"`
 	ProcessTypes      map[string]string `json:"process_types"`
-	Metadata          Metadata          `json:"metadata"`
+	Metadata          *Metadata         `json:"metadata"`
 	Relationships     AppRelationship   `json:"relationships"`
 
 	// Only specified when the droplet is using the Docker lifecycle.

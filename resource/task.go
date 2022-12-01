@@ -36,7 +36,7 @@ type Task struct {
 	Relationships AppRelationship `json:"relationships"`
 
 	Links    map[string]Link `json:"links"`
-	Metadata Metadata        `json:"metadata"`
+	Metadata *Metadata       `json:"metadata"`
 }
 
 type TaskCreate struct {

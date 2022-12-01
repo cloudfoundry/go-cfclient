@@ -13,7 +13,7 @@ type Domain struct {
 	RouterGroup        *Relationship       `json:"router_group"`
 	SupportedProtocols []string            `json:"supported_protocols"`
 	Relationships      DomainRelationships `json:"relationships"`
-	Metadata           Metadata            `json:"metadata"`
+	Metadata           *Metadata           `json:"metadata"`
 	Links              map[string]Link     `json:"links"`
 }
 
