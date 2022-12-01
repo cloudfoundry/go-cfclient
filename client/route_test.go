@@ -435,14 +435,9 @@ func TestRoutes(t *testing.T) {
 			Expected: route,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.RouteUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Routes.Update(context.Background(), "5a85c020-3e3d-42a5-a475-5084c5357e82", r)
 			},

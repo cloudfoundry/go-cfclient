@@ -35,7 +35,7 @@ type ServiceRouteBindingCreate struct {
 }
 
 type ServiceRouteBindingUpdate struct {
-	Metadata Metadata `json:"metadata"`
+	Metadata *Metadata `json:"metadata"`
 }
 
 type ServiceRouteBindingWithIncluded struct {

@@ -80,14 +80,9 @@ func TestUsers(t *testing.T) {
 			Expected: user,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.UserUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Users.Update(context.Background(), "3ebeaa8b-fd55-4724-a764-9f2231d8f7db", r)
 			},

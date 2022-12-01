@@ -92,14 +92,9 @@ func TestTasks(t *testing.T) {
 			Expected: task,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.TaskUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Tasks.Update(context.Background(), "d9442132-4669-49f7-a3c5-8fa8d1150504", r)
 			},

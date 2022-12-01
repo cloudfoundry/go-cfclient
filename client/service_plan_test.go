@@ -116,14 +116,9 @@ func TestServicePlans(t *testing.T) {
 			Expected: svcPlan,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.ServicePlanUpdate{
-					Metadata: resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.ServicePlans.Update(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9", r)
 			},

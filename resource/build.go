@@ -68,10 +68,5 @@ func NewBuildCreate(packageGUID string) *BuildCreate {
 }
 
 func NewBuildUpdate() *BuildUpdate {
-	return &BuildUpdate{
-		Metadata: &Metadata{
-			Labels:      map[string]string{},
-			Annotations: map[string]string{},
-		},
-	}
+	return &BuildUpdate{}
 }

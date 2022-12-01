@@ -94,14 +94,9 @@ func TestStacks(t *testing.T) {
 			Expected: stack,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.StackUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Stacks.Update(context.Background(), "88db2b75-671f-4e4b-a19a-7db992366595", r)
 			},

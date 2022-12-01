@@ -234,14 +234,9 @@ func TestServiceRouteBindings(t *testing.T) {
 			Expected: svcRouteBinding,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.ServiceRouteBindingUpdate{
-					Metadata: resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.ServiceRouteBindings.Update(context.Background(), "3458647f-8358-4427-9a64-9f90392b02f7", r)
 			},
