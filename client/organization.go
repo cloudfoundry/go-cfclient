@@ -30,11 +30,15 @@ func (o OrganizationListOptions) ToQueryString() url.Values {
 // AssignDefaultIsolationSegment assigns a default iso segment to the specified organization
 //
 // Apps will not run in the new default isolation segment until they are restarted
+// An empty isolationSegmentGUID will un-assign the default isolation segment
 func (c *OrganizationClient) AssignDefaultIsolationSegment(ctx context.Context, guid, isolationSegmentGUID string) error {
-	r := &resource.ToOneRelationship{
-		Data: &resource.Relationship{
-			GUID: isolationSegmentGUID,
+	r := &resource.NullableToOneRelationship{
+		Data: &resource.NullableRelationship{
+			GUID: &isolationSegmentGUID,
 		},
+	}
+	if isolationSegmentGUID == "" {
+		r.Data.GUID = nil // set data to null to remove the relationship
 	}
 	_, err := c.client.patch(ctx, path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
 	return err
