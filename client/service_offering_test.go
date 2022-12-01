@@ -67,14 +67,9 @@ func TestServiceOfferings(t *testing.T) {
 			Expected: so,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.ServiceOfferingUpdate{
-					Metadata: resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.ServiceOfferings.Update(context.Background(), "928a32d9-8101-4b86-85a4-96e06f833c2d", r)
 			},

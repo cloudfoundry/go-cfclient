@@ -252,14 +252,9 @@ func TestServiceCredentialBindings(t *testing.T) {
 			Expected: scb,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.ServiceCredentialBindingUpdate{
-					Metadata: resource.Metadata{
-						Labels: map[string]string{
-							"foo": "bar",
-						},
-						Annotations: map[string]string{
-							"baz": "qux",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "foo", "bar").
+						WithAnnotation("", "baz", "qux"),
 				}
 				return c.ServiceCredentialBindings.Update(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d", r)
 			},

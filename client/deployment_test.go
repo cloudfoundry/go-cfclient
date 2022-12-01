@@ -131,14 +131,9 @@ func TestDeployments(t *testing.T) {
 			Expected: deployment,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.DeploymentUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Deployments.Update(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998", r)
 			},

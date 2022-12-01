@@ -27,11 +27,7 @@ func TestBuilds(t *testing.T) {
 			Expected: build,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewBuildCreate("993386e8-5f68-403c-b372-d4aba7c71dbc")
-				r.Metadata = &resource.Metadata{
-					Labels: map[string]string{
-						"foo": "bar",
-					},
-				}
+				r.Metadata = resource.NewMetadata().WithLabel("", "foo", "bar")
 				return c.Builds.Create(context.Background(), r)
 			},
 		},
@@ -71,8 +67,9 @@ func TestBuilds(t *testing.T) {
 			Expected: build,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewBuildUpdate()
-				r.Metadata.Annotations["foo"] = "bar"
-				r.Metadata.Labels["env"] = "dev"
+				r.Metadata = resource.NewMetadata().
+					WithAnnotation("", "foo", "bar").
+					WithLabel("", "env", "dev")
 				return c.Builds.Update(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f", r)
 			},
 		},

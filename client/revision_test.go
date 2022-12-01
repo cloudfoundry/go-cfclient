@@ -78,14 +78,9 @@ func TestRevisions(t *testing.T) {
 			Expected: revision,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.RevisionUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Revisions.Update(context.Background(), "5a49a370-92cd-4091-bb62-e0914460f7b2", r)
 			},

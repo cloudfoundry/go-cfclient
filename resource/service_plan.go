@@ -58,7 +58,7 @@ type ServicePlanIncluded struct {
 }
 
 type ServicePlanUpdate struct {
-	Metadata Metadata `json:"metadata,omitempty"`
+	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
 type ServicePlanCosts struct {

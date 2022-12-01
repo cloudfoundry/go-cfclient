@@ -40,7 +40,7 @@ type ServiceOfferingList struct {
 }
 
 type ServiceOfferingUpdate struct {
-	Metadata Metadata `json:"metadata,omitempty"`
+	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
 type ServiceOfferingBrokerCatalog struct {

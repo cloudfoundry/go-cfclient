@@ -36,7 +36,7 @@ type ServiceCredentialBindingCreate struct {
 }
 
 type ServiceCredentialBindingUpdate struct {
-	Metadata Metadata `json:"metadata,omitempty"`
+	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
 type ServiceCredentialBindingList struct {

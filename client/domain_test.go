@@ -111,14 +111,9 @@ func TestDomains(t *testing.T) {
 			Expected: domain,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := &resource.DomainUpdate{
-					Metadata: &resource.Metadata{
-						Labels: map[string]string{
-							"key": "value",
-						},
-						Annotations: map[string]string{
-							"note": "detailed information",
-						},
-					},
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
 				}
 				return c.Domains.Update(context.Background(), "f666ffc5-106e-4fda-b56f-568b5cf3ae9f", r)
 			},

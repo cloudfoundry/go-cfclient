@@ -1,6 +1,8 @@
 package resource
 
-import "time"
+import (
+	"time"
+)
 
 type Meta struct {
 	GUID      string    `json:"guid"`
@@ -49,11 +51,6 @@ type ToManyRelationships struct {
 
 type Relationship struct {
 	GUID string `json:"guid,omitempty"`
-}
-
-type Metadata struct {
-	Labels      map[string]string `json:"labels"`
-	Annotations map[string]string `json:"annotations"`
 }
 
 type LastOperation struct {
