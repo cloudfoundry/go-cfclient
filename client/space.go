@@ -32,13 +32,13 @@ func (o SpaceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// AssignIsoSegment assigns an isolation segment to the space
+// AssignIsolationSegment assigns an isolation segment to the space
 //
 // Apps will not run in the isolation segment until they are restarted
-func (c *SpaceClient) AssignIsoSegment(ctx context.Context, guid, isoSegmentGUID string) error {
+func (c *SpaceClient) AssignIsolationSegment(ctx context.Context, guid, isolationSegmentGUID string) error {
 	r := &resource.ToOneRelationship{
 		Data: &resource.Relationship{
-			GUID: isoSegmentGUID,
+			GUID: isolationSegmentGUID,
 		},
 	}
 	_, err := c.client.patch(ctx, path.Format("/v3/spaces/%s/relationships/isolation_segment", guid), r, nil)
@@ -77,8 +77,8 @@ func (c *SpaceClient) Get(ctx context.Context, guid string) (*resource.Space, er
 	return &space, nil
 }
 
-// GetAssignedIsoSegment gets the space's assigned isolation segment, if any
-func (c *SpaceClient) GetAssignedIsoSegment(ctx context.Context, guid string) (string, error) {
+// GetAssignedIsolationSegment gets the space's assigned isolation segment, if any
+func (c *SpaceClient) GetAssignedIsolationSegment(ctx context.Context, guid string) (string, error) {
 	var relation resource.ToOneRelationship
 	err := c.client.get(ctx, path.Format("/v3/spaces/%s/relationships/isolation_segment", guid), &relation)
 	if err != nil {

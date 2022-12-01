@@ -27,13 +27,13 @@ func (o OrganizationListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// AssignDefaultIsoSegment assigns a default iso segment to the specified organization
+// AssignDefaultIsolationSegment assigns a default iso segment to the specified organization
 //
 // Apps will not run in the new default isolation segment until they are restarted
-func (c *OrganizationClient) AssignDefaultIsoSegment(ctx context.Context, guid, isoSegmentGUID string) error {
+func (c *OrganizationClient) AssignDefaultIsolationSegment(ctx context.Context, guid, isolationSegmentGUID string) error {
 	r := &resource.ToOneRelationship{
 		Data: &resource.Relationship{
-			GUID: isoSegmentGUID,
+			GUID: isolationSegmentGUID,
 		},
 	}
 	_, err := c.client.patch(ctx, path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), r, nil)
@@ -62,10 +62,10 @@ func (c *OrganizationClient) First(ctx context.Context, opts *OrganizationListOp
 	})
 }
 
-// FirstForIsoSegment returns the first organization matching the options and iso segment or an error when less than 1 match
-func (c *OrganizationClient) FirstForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrganizationListOptions) (*resource.Organization, error) {
+// FirstForIsolationSegment returns the first organization matching the options and iso segment or an error when less than 1 match
+func (c *OrganizationClient) FirstForIsolationSegment(ctx context.Context, isolationSegmentGUID string, opts *OrganizationListOptions) (*resource.Organization, error) {
 	return First[*OrganizationListOptions, *resource.Organization](opts, func(opts *OrganizationListOptions) ([]*resource.Organization, *Pager, error) {
-		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
+		return c.ListForIsolationSegment(ctx, isolationSegmentGUID, opts)
 	})
 }
 
@@ -79,8 +79,8 @@ func (c *OrganizationClient) Get(ctx context.Context, guid string) (*resource.Or
 	return &org, nil
 }
 
-// GetDefaultIsoSegment gets the specified organization's default iso segment GUID if any
-func (c *OrganizationClient) GetDefaultIsoSegment(ctx context.Context, guid string) (string, error) {
+// GetDefaultIsolationSegment gets the specified organization's default iso segment GUID if any
+func (c *OrganizationClient) GetDefaultIsolationSegment(ctx context.Context, guid string) (string, error) {
 	var relation resource.ToOneRelationship
 	err := c.client.get(ctx, path.Format("/v3/organizations/%s/relationships/default_isolation_segment", guid), &relation)
 	if err != nil {
@@ -133,13 +133,13 @@ func (c *OrganizationClient) ListAll(ctx context.Context, opts *OrganizationList
 	})
 }
 
-// ListForIsoSegment pages all organizations for the specified isolation segment
-func (c *OrganizationClient) ListForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrganizationListOptions) ([]*resource.Organization, *Pager, error) {
+// ListForIsolationSegment pages all organizations for the specified isolation segment
+func (c *OrganizationClient) ListForIsolationSegment(ctx context.Context, isolationSegmentGUID string, opts *OrganizationListOptions) ([]*resource.Organization, *Pager, error) {
 	if opts == nil {
 		opts = NewOrganizationListOptions()
 	}
 	var res resource.OrganizationList
-	err := c.client.get(ctx, path.Format("/v3/isolation_segments/%s/organizations?%s", isoSegmentGUID, opts.ToQueryString()), &res)
+	err := c.client.get(ctx, path.Format("/v3/isolation_segments/%s/organizations?%s", isolationSegmentGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,13 +147,13 @@ func (c *OrganizationClient) ListForIsoSegment(ctx context.Context, isoSegmentGU
 	return res.Resources, pager, nil
 }
 
-// ListForIsoSegmentAll retrieves all organizations for the specified isolation segment
-func (c *OrganizationClient) ListForIsoSegmentAll(ctx context.Context, isoSegmentGUID string, opts *OrganizationListOptions) ([]*resource.Organization, error) {
+// ListForIsolationSegmentAll retrieves all organizations for the specified isolation segment
+func (c *OrganizationClient) ListForIsolationSegmentAll(ctx context.Context, isolationSegmentGUID string, opts *OrganizationListOptions) ([]*resource.Organization, error) {
 	if opts == nil {
 		opts = NewOrganizationListOptions()
 	}
 	return AutoPage[*OrganizationListOptions, *resource.Organization](opts, func(opts *OrganizationListOptions) ([]*resource.Organization, *Pager, error) {
-		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
+		return c.ListForIsolationSegment(ctx, isolationSegmentGUID, opts)
 	})
 }
 
@@ -188,10 +188,10 @@ func (c *OrganizationClient) Single(ctx context.Context, opts *OrganizationListO
 	})
 }
 
-// SingleForIsoSegment returns a single organization matching the options and iso segment or an error if not exactly 1 match
-func (c *OrganizationClient) SingleForIsoSegment(ctx context.Context, isoSegmentGUID string, opts *OrganizationListOptions) (*resource.Organization, error) {
+// SingleForIsolationSegment returns a single organization matching the options and iso segment or an error if not exactly 1 match
+func (c *OrganizationClient) SingleForIsolationSegment(ctx context.Context, isolationSegmentGUID string, opts *OrganizationListOptions) (*resource.Organization, error) {
 	return Single[*OrganizationListOptions, *resource.Organization](opts, func(opts *OrganizationListOptions) ([]*resource.Organization, *Pager, error) {
-		return c.ListForIsoSegment(ctx, isoSegmentGUID, opts)
+		return c.ListForIsolationSegment(ctx, isolationSegmentGUID, opts)
 	})
 }
 

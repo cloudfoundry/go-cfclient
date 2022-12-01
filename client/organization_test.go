@@ -31,7 +31,7 @@ func TestOrganizations(t *testing.T) {
 				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.Organizations.AssignDefaultIsoSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				err := c.Organizations.AssignDefaultIsolationSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
 				return nil, err
 			},
 		},
@@ -72,7 +72,7 @@ func TestOrganizations(t *testing.T) {
 				Status:   http.StatusOK,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				iso, err := c.Organizations.GetDefaultIsoSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				iso, err := c.Organizations.GetDefaultIsolationSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 				require.NoError(t, err)
 				require.Equal(t, "443a1ea0-2403-4f0f-8c74-023a320bd1f2", iso)
 				return nil, nil
@@ -140,7 +140,7 @@ func TestOrganizations(t *testing.T) {
 			},
 			Expected: g.Array(org, org2, org3, org4),
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Organizations.ListForIsoSegmentAll(context.Background(), "571de34f-8067-44f0-8bec-4ac17bf8750f", nil)
+				return c.Organizations.ListForIsolationSegmentAll(context.Background(), "571de34f-8067-44f0-8bec-4ac17bf8750f", nil)
 			},
 		},
 		{
