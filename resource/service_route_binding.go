@@ -18,7 +18,7 @@ type ServiceRouteBinding struct {
 	Relationships ServiceRouteBindingRelationships `json:"relationships"`
 
 	Links    map[string]Link `json:"links"`
-	Metadata Metadata        `json:"metadata"`
+	Metadata *Metadata       `json:"metadata"`
 }
 
 type ServiceRouteBindingList struct {

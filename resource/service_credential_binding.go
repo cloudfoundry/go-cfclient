@@ -14,7 +14,7 @@ type ServiceCredentialBinding struct {
 	Name          string        `json:"name"`
 	Type          string        `json:"type"`
 	LastOperation LastOperation `json:"last_operation"`
-	Metadata      Metadata      `json:"metadata"`
+	Metadata      *Metadata     `json:"metadata"`
 
 	Relationships ServiceCredentialBindingRelationships `json:"relationships"`
 	Links         map[string]Link                       `json:"links"`

@@ -32,7 +32,7 @@ type Build struct {
 	CreatedBy     CreatedBy       `json:"created_by"`
 	Links         map[string]Link `json:"links"`
 	Relationships AppRelationship `json:"relationships"`
-	Metadata      Metadata        `json:"metadata"`
+	Metadata      *Metadata       `json:"metadata"`
 }
 
 type BuildCreate struct {

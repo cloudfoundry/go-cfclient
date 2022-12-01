@@ -13,7 +13,7 @@ type Deployment struct {
 	CreatedAt       time.Time          `json:"created_at"`
 	UpdatedAt       time.Time          `json:"updated_at"`
 	Links           map[string]Link    `json:"links"`
-	Metadata        Metadata           `json:"metadata"`
+	Metadata        *Metadata          `json:"metadata"`
 	Relationships   AppRelationship    `json:"relationships"`
 }
 

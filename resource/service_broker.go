@@ -10,7 +10,7 @@ type ServiceBroker struct {
 	URL           string            `json:"url"`
 	Relationships SpaceRelationship `json:"relationships"`
 	Links         map[string]Link   `json:"links"`
-	Metadata      Metadata          `json:"metadata"`
+	Metadata      *Metadata         `json:"metadata"`
 }
 
 type ServiceBrokerList struct {

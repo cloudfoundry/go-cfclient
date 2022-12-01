@@ -36,7 +36,7 @@ type ServicePlan struct {
 	// The service offering that this service plan relates to
 	Relationships ServicePlanRelationship `json:"relationships"`
 
-	Metadata Metadata        `json:"metadata"`
+	Metadata *Metadata       `json:"metadata"`
 	Links    map[string]Link `json:"links"`
 }
 

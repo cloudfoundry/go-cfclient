@@ -27,7 +27,7 @@ type Package struct {
 	State         PackageState        `json:"state"`
 	Links         map[string]Link     `json:"links"`
 	Relationships AppRelationship     `json:"relationships"`
-	Metadata      Metadata            `json:"metadata"`
+	Metadata      *Metadata           `json:"metadata"`
 }
 
 type PackageCreate struct {
