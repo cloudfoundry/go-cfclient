@@ -49,6 +49,14 @@ type Relationship struct {
 	GUID string `json:"guid,omitempty"`
 }
 
+type NullableToOneRelationship struct {
+	Data *NullableRelationship `json:"data"`
+}
+
+type NullableRelationship struct {
+	GUID *string `json:"guid"`
+}
+
 type LastOperation struct {
 	Type        string    `json:"type"`
 	State       string    `json:"state"`

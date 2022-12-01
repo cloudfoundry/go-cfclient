@@ -35,11 +35,15 @@ func (o SpaceListOptions) ToQueryString() url.Values {
 // AssignIsolationSegment assigns an isolation segment to the space
 //
 // Apps will not run in the isolation segment until they are restarted
+// An empty isolationSegmentGUID will un-assign the isolation segment
 func (c *SpaceClient) AssignIsolationSegment(ctx context.Context, guid, isolationSegmentGUID string) error {
-	r := &resource.ToOneRelationship{
-		Data: &resource.Relationship{
-			GUID: isolationSegmentGUID,
+	r := &resource.NullableToOneRelationship{
+		Data: &resource.NullableRelationship{
+			GUID: &isolationSegmentGUID,
 		},
+	}
+	if isolationSegmentGUID == "" {
+		r.Data.GUID = nil // set data to null to remove the relationship
 	}
 	_, err := c.client.patch(ctx, path.Format("/v3/spaces/%s/relationships/isolation_segment", guid), r, nil)
 	return err
