@@ -30,7 +30,7 @@ func TestSpaces(t *testing.T) {
 				PostForm: `{ "data": { "guid": "443a1ea0-2403-4f0f-8c74-023a320bd1f2" }}`,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				err := c.Spaces.AssignIsoSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
+				err := c.Spaces.AssignIsolationSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", "443a1ea0-2403-4f0f-8c74-023a320bd1f2")
 				return nil, err
 			},
 		},
@@ -104,7 +104,7 @@ func TestSpaces(t *testing.T) {
 				Status: http.StatusOK},
 			Expected: "e4c91047-3b29-4fda-b7f9-04033e5a9c9f",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Spaces.GetAssignedIsoSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
+				return c.Spaces.GetAssignedIsolationSegment(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
