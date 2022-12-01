@@ -27,10 +27,6 @@ type Link struct {
 	Method string `json:"method,omitempty"`
 }
 
-type OrganizationRelationship struct {
-	Organization ToOneRelationship `json:"organization"`
-}
-
 type SpaceRelationship struct {
 	Space ToOneRelationship `json:"space"`
 }
