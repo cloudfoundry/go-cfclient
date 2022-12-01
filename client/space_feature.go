@@ -16,3 +16,13 @@ func (c *SpaceFeatureClient) EnableSSH(ctx context.Context, spaceGUID string, en
 	_, err := c.client.patch(ctx, path.Format("/v3/spaces/%s/features/ssh", spaceGUID), r, nil)
 	return err
 }
+
+// IsSSHEnabled returns true if SSH is enabled for the specified space
+func (c *SpaceFeatureClient) IsSSHEnabled(ctx context.Context, spaceGUID string) (bool, error) {
+	var sf resource.SpaceFeature
+	err := c.client.get(ctx, path.Format("/v3/spaces/%s/features/ssh", spaceGUID), &sf)
+	if err != nil {
+		return false, err
+	}
+	return sf.Enabled, nil
+}
