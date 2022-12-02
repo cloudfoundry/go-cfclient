@@ -9,13 +9,13 @@ import (
 type ServicePlanVisibilityClient commonClient
 
 // Get the specified service plan visibility
-func (c *ServicePlanVisibilityClient) Get(ctx context.Context, guid string) (resource.ServicePlanVisibilityType, error) {
+func (c *ServicePlanVisibilityClient) Get(ctx context.Context, guid string) (*resource.ServicePlanVisibility, error) {
 	var s resource.ServicePlanVisibility
 	err := c.client.get(ctx, path.Format("/v3/service_plans/%s/visibility", guid), &s)
 	if err != nil {
-		return resource.ServicePlanVisibilityNone, err
+		return nil, err
 	}
-	return resource.ParseServicePlanVisibilityType(s.Type)
+	return &s, nil
 }
 
 // Update a service plan visibility. It behaves similar to Apply service plan visibility endpoint

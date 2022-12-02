@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
@@ -57,12 +56,11 @@ func TestServicePlanVisibilities(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/service_plans/79aae221-b2a6-4aaa-a134-76f605af46c9/visibility",
 				Output:   g.Single(svcPlanVisibility),
-				Status:   http.StatusOK},
+				Status:   http.StatusOK,
+			},
+			Expected: svcPlanVisibility,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				v, err := c.ServicePlansVisibility.Get(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9")
-				require.NoError(t, err)
-				require.Equal(t, resource.ServicePlanVisibilityOrganization, v)
-				return nil, nil
+				return c.ServicePlansVisibility.Get(context.Background(), "79aae221-b2a6-4aaa-a134-76f605af46c9")
 			},
 		},
 		{
