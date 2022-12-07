@@ -190,7 +190,7 @@ func (s *SpaceQuotaCreateOrUpdate) WithTotalReservedPorts(count int) *SpaceQuota
 	return s
 }
 
-func (s *SpaceQuotaCreateOrUpdate) WithSpaces(spaceGUIDs []string) *SpaceQuotaCreateOrUpdate {
+func (s *SpaceQuotaCreateOrUpdate) WithSpaces(spaceGUIDs ...string) *SpaceQuotaCreateOrUpdate {
 	if s.Relationships == nil {
 		s.Relationships = &SpaceQuotaRelationships{
 			Spaces: &ToManyRelationships{},
