@@ -15,6 +15,58 @@ func TestSecurityGroups(t *testing.T) {
 
 	tests := []RouteTest{
 		{
+			Description: "Bind running security group",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/running_spaces",
+				Output: []string{`{
+					"data": [
+						{ "guid": "4ec12cde-e755-4220-9964-65c44c6362b1" },
+						{ "guid": "ef498123-7641-44f2-8591-e737c2f96207" }
+					],
+					"links": {
+						"self": {
+							"href": "https://api.example.org/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/running_spaces"
+						}
+					}
+				}`},
+				Status:   http.StatusOK,
+				PostForm: `{ "data": [{ "guid": "4ec12cde-e755-4220-9964-65c44c6362b1" }, { "guid": "ef498123-7641-44f2-8591-e737c2f96207" }] }`,
+			},
+			Expected: `["4ec12cde-e755-4220-9964-65c44c6362b1", "ef498123-7641-44f2-8591-e737c2f96207"]`,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.SecurityGroups.BindRunningSecurityGroup(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", []string{
+					"4ec12cde-e755-4220-9964-65c44c6362b1", "ef498123-7641-44f2-8591-e737c2f96207",
+				})
+			},
+		},
+		{
+			Description: "Bind staging security group",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/staging_spaces",
+				Output: []string{`{
+					"data": [
+						{ "guid": "4ec12cde-e755-4220-9964-65c44c6362b1" },
+						{ "guid": "ef498123-7641-44f2-8591-e737c2f96207" }
+					],
+					"links": {
+						"self": {
+							"href": "https://api.example.org/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/staging_spaces"
+						}
+					}
+				}`},
+				Status:   http.StatusOK,
+				PostForm: `{ "data": [{ "guid": "4ec12cde-e755-4220-9964-65c44c6362b1" }, { "guid": "ef498123-7641-44f2-8591-e737c2f96207" }] }`,
+			},
+			Expected: `["4ec12cde-e755-4220-9964-65c44c6362b1", "ef498123-7641-44f2-8591-e737c2f96207"]`,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.SecurityGroups.BindStagingSecurityGroup(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", []string{
+					"4ec12cde-e755-4220-9964-65c44c6362b1", "ef498123-7641-44f2-8591-e737c2f96207",
+				})
+			},
+		},
+		{
 			Description: "Create security group",
 			Route: testutil.MockRoute{
 				Method:   "POST",
@@ -85,10 +137,61 @@ func TestSecurityGroups(t *testing.T) {
 				Method:   "GET",
 				Endpoint: "/v3/security_groups",
 				Output:   g.Paged([]string{sg}, []string{sg2}),
-				Status:   http.StatusOK},
+				Status:   http.StatusOK,
+			},
 			Expected: g.Array(sg, sg2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.SecurityGroups.ListAll(context.Background(), nil)
+			},
+		},
+		{
+			Description: "List all running security groups for space",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces/4ec12cde-e755-4220-9964-65c44c6362b1/running_security_groups",
+				Output:   g.Paged([]string{sg}, []string{sg2}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(sg, sg2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.SecurityGroups.ListRunningForSpaceAll(context.Background(), "4ec12cde-e755-4220-9964-65c44c6362b1", nil)
+			},
+		},
+		{
+			Description: "List all staging security groups for space",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces/4ec12cde-e755-4220-9964-65c44c6362b1/staging_security_groups",
+				Output:   g.Paged([]string{sg}, []string{sg2}),
+				Status:   http.StatusOK,
+			},
+			Expected: g.Array(sg, sg2),
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.SecurityGroups.ListStagingForSpaceAll(context.Background(), "4ec12cde-e755-4220-9964-65c44c6362b1", nil)
+			},
+		},
+		{
+			Description: "Unbind running security group",
+			Route: testutil.MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/running_spaces/4ec12cde-e755-4220-9964-65c44c6362b1",
+				Status:   http.StatusNoContent,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				err := c.SecurityGroups.UnBindRunningSecurityGroup(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", "4ec12cde-e755-4220-9964-65c44c6362b1")
+				return nil, err
+			},
+		},
+		{
+			Description: "Unbind staging security group",
+			Route: testutil.MockRoute{
+				Method:   "DELETE",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26/relationships/staging_spaces/4ec12cde-e755-4220-9964-65c44c6362b1",
+				Status:   http.StatusNoContent,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				err := c.SecurityGroups.UnBindStagingSecurityGroup(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", "4ec12cde-e755-4220-9964-65c44c6362b1")
+				return nil, err
 			},
 		},
 		{
