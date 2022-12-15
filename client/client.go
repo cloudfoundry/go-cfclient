@@ -142,6 +142,15 @@ func New(config *config.Config) (*Client, error) {
 	return client, nil
 }
 
+// AccessToken returns the raw encoded OAuth access token without the bearer prefix
+func (c *Client) AccessToken(ignoredCtx context.Context) (string, error) {
+	token, err := c.authenticatedClientProvider.AccessToken()
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
 // SSHCode generates an SSH code that can be used by generic SSH clients to SSH into app instances
 func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	// need this to grab the SSH client id, should probably be cached in config
