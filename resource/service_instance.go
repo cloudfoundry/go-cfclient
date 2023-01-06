@@ -26,6 +26,12 @@ type ServiceInstance struct {
 
 	// The URL to the service instance dashboard (or null if there is none); only shown when type is managed
 	DashboardURL *string `json:"dashboard_url,omitempty"`
+
+	// The URL to the syslog drain (or null if there is none); only shown when type is user provided
+	SyslogDrainURL *string `json:"syslog_drain_url,omitempty"`
+
+	// The URL to the route service (or null if there is none); only shown when type is user provided
+	RouteServiceURL *string `json:"route_service_url,omitempty"`
 }
 
 type ServiceInstanceCreate struct {
