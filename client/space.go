@@ -18,7 +18,7 @@ type SpaceListOptions struct {
 	Names             Filter `qs:"names"`              // list of space names to filter by
 	OrganizationGUIDs Filter `qs:"organization_guids"` // list of organization guids to filter by
 
-	Include resource.SpaceIncludeType // include parent objects if any
+	Include resource.SpaceIncludeType `qs:"include"` // include parent objects if any
 }
 
 // NewSpaceListOptions creates new options to pass to list
