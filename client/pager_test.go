@@ -61,6 +61,9 @@ func TestPager(t *testing.T) {
 
 	// First page
 	pager := NewPager(paginationPage1)
+	require.Equal(t, 120, pager.TotalResults)
+	require.Equal(t, 3, pager.TotalPages)
+
 	require.True(t, pager.HasNextPage())
 	require.False(t, pager.HasPreviousPage())
 	pager.NextPage(listOpts)
