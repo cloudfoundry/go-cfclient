@@ -13,6 +13,9 @@ type Pager struct {
 	NextPageURL     string
 	PreviousPageURL string
 
+	TotalResults int
+	TotalPages   int
+
 	nextPageQSReader     *path.QuerystringReader
 	previousPageQSReader *path.QuerystringReader
 }
@@ -21,6 +24,8 @@ func NewPager(pagination resource.Pagination) *Pager {
 	return &Pager{
 		NextPageURL:     pagination.Next.Href,
 		PreviousPageURL: pagination.Previous.Href,
+		TotalResults:    pagination.TotalResults,
+		TotalPages:      pagination.TotalPages,
 	}
 }
 
