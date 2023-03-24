@@ -112,7 +112,7 @@ func (m *OAuthSessionManager) newTokenSource(ctx context.Context) error {
 	case m.config.Token != "":
 		m.userTokenAuth(oauthCtx, loginEndpoint, uaaEndpoint)
 	case m.config.ClientID != "":
-		m.clientAuth(oauthCtx, loginEndpoint)
+		m.clientAuth(oauthCtx, uaaEndpoint)
 	default:
 		return m.userAuth(oauthCtx, loginEndpoint, uaaEndpoint)
 	}
