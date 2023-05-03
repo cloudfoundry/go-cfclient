@@ -370,6 +370,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -379,7 +380,6 @@ func (c *Client) handleError(resp *http.Response) (*http.Response, error) {
 			Body:       body,
 		}
 	}
-	defer resp.Body.Close()
 
 	// Unmarshal V2 error response
 	if strings.HasPrefix(resp.Request.URL.Path, "/v2/") {
