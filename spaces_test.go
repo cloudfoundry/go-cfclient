@@ -100,6 +100,57 @@ func TestListSpaceSecGroups(t *testing.T) {
 	})
 }
 
+func TestListSpaceStagingSecGroups(t *testing.T) {
+	Convey("List Space Staging SecGroups", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/spaces/8efd7c5c-d83c-4786-b399-b7bd548839e1/staging_security_groups", []string{listSpaceStagingSecGroupsPayload}, "", 200, "inline-relations-depth=1", nil},
+			{"GET", "/v2/security_groupsPage2", []string{listSpaceStagingSecGroupsPayloadPage2}, "", 200, "", nil},
+			{"GET", "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/staging_spaces", []string{emptyResources}, "", 200, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		secGroups, err := client.ListSpaceStagingSecGroups("8efd7c5c-d83c-4786-b399-b7bd548839e1")
+		So(err, ShouldBeNil)
+
+		So(len(secGroups), ShouldEqual, 2)
+		So(secGroups[0].Guid, ShouldEqual, "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c")
+		So(secGroups[0].Name, ShouldEqual, "secgroup-test")
+		So(secGroups[0].Running, ShouldEqual, true)
+		So(secGroups[0].Staging, ShouldEqual, true)
+		So(secGroups[0].Rules[0].Protocol, ShouldEqual, "tcp")
+		So(secGroups[0].Rules[0].Ports, ShouldEqual, "443,4443")
+		So(secGroups[0].Rules[0].Destination, ShouldEqual, "1.1.1.1")
+		So(secGroups[0].Rules[1].Protocol, ShouldEqual, "udp")
+		So(secGroups[0].Rules[1].Ports, ShouldEqual, "1111")
+		So(secGroups[0].Rules[1].Destination, ShouldEqual, "1.2.3.4")
+		So(secGroups[0].StagingSpacesURL, ShouldEqual, "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/staging_spaces")
+		So(secGroups[0].StagingSpacesData, ShouldBeEmpty)
+		So(secGroups[1].Guid, ShouldEqual, "f9ad202b-76dd-44ec-b7c2-fd2417a561e8")
+		So(secGroups[1].Name, ShouldEqual, "secgroup-test2")
+		So(secGroups[1].Running, ShouldEqual, false)
+		So(secGroups[1].Staging, ShouldEqual, false)
+		So(secGroups[1].Rules[0].Protocol, ShouldEqual, "udp")
+		So(secGroups[1].Rules[0].Ports, ShouldEqual, "2222")
+		So(secGroups[1].Rules[0].Destination, ShouldEqual, "2.2.2.2")
+		So(secGroups[1].Rules[1].Protocol, ShouldEqual, "tcp")
+		So(secGroups[1].Rules[1].Ports, ShouldEqual, "443,4443")
+		So(secGroups[1].Rules[1].Destination, ShouldEqual, "4.3.2.1")
+		So(secGroups[1].StagingSpacesData[0].Entity.Guid, ShouldEqual, "e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4")
+		So(secGroups[1].StagingSpacesData[0].Entity.Name, ShouldEqual, "space-test")
+		So(secGroups[1].StagingSpacesData[1].Entity.Guid, ShouldEqual, "a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333")
+		So(secGroups[1].StagingSpacesData[1].Entity.Name, ShouldEqual, "space-test2")
+		So(secGroups[1].StagingSpacesData[2].Entity.Guid, ShouldEqual, "c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1")
+		So(secGroups[1].StagingSpacesData[2].Entity.Name, ShouldEqual, "space-test3")
+	})
+}
+
 func TestListSpaceManagers(t *testing.T) {
 	Convey("ListSpaceManagers()", t, func() {
 		setup(MockRoute{"GET", "/v2/spaces/foo/managers", []string{listSpacePeoplePayload}, "", 200, "", nil}, t)
