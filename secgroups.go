@@ -284,11 +284,8 @@ func (secGroup *SecGroup) ListStagingSpaceResources() ([]SpaceResource, error) {
 CreateSecGroup contacts the CF endpoint for creating a new security group.
 name: the name to give to the created security group
 rules: A slice of rule objects that describe the rules that this security group enforces.
-
 	This can technically be nil or an empty slice - we won't judge you
-
 spaceGuids: The security group will be associated with the spaces specified by the contents of this slice.
-
 	If nil, the security group will not be associated with any spaces initially.
 */
 func (c *Client) CreateSecGroup(name string, rules []SecGroupRule, spaceGuids []string) (*SecGroup, error) {
@@ -300,9 +297,7 @@ UpdateSecGroup contacts the CF endpoint to update an existing security group.
 guid: identifies the security group that you would like to update.
 name: the new name to give to the security group
 rules: A slice of rule objects that describe the rules that this security group enforces.
-
 	If this is left nil, the rules will not be changed.
-
 spaceGuids: The security group will be associated with the spaces specified by the contents of this slice.
 
 	If nil, the space associations will not be changed.
