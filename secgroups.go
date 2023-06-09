@@ -284,8 +284,11 @@ func (secGroup *SecGroup) ListStagingSpaceResources() ([]SpaceResource, error) {
 CreateSecGroup contacts the CF endpoint for creating a new security group.
 name: the name to give to the created security group
 rules: A slice of rule objects that describe the rules that this security group enforces.
+
 	This can technically be nil or an empty slice - we won't judge you
+
 spaceGuids: The security group will be associated with the spaces specified by the contents of this slice.
+
 	If nil, the security group will not be associated with any spaces initially.
 */
 func (c *Client) CreateSecGroup(name string, rules []SecGroupRule, spaceGuids []string) (*SecGroup, error) {
@@ -297,8 +300,11 @@ UpdateSecGroup contacts the CF endpoint to update an existing security group.
 guid: identifies the security group that you would like to update.
 name: the new name to give to the security group
 rules: A slice of rule objects that describe the rules that this security group enforces.
+
 	If this is left nil, the rules will not be changed.
+
 spaceGuids: The security group will be associated with the spaces specified by the contents of this slice.
+
 	If nil, the space associations will not be changed.
 */
 func (c *Client) UpdateSecGroup(guid, name string, rules []SecGroupRule, spaceGuids []string) (*SecGroup, error) {
@@ -452,6 +458,25 @@ spaceGUID: identifies the space to dissociate from the security group
 func (c *Client) UnbindSecGroup(secGUID, spaceGUID string) error {
 	// Perform the DELETE and check for errors
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/security_groups/%s/spaces/%s", secGUID, spaceGUID)))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+/*
+UnbindStagingSecGroupToSpace contact the CF endpoint to dis-associate a space with a security group for life-cycle staging.
+It is the reverse of BindStagingSecGroupToSpace and comparable to UnbindSecGroup which is for life-cycle running.
+secGUID: identifies the security group to remove a space from
+spaceGUID: identifies the space to dissociate from the security group
+*/
+func (c *Client) UnbindStagingSecGroupToSpace(secGUID, spaceGUID string) error {
+	// Perform the DELETE and check for errors
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/security_groups/%s/staging_spaces/%s", secGUID, spaceGUID)))
 	if err != nil {
 		return err
 	}
