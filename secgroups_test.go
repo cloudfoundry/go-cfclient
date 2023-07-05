@@ -254,3 +254,22 @@ func TestUnbindStagingSecGroups(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestUnbindStagingSecGroupToSpace(t *testing.T) {
+	Convey("Unbind Staging Sec Group from Space", t, func() {
+		mocks := []MockRoute{
+			{"DELETE", "/v2/security_groups/0cbfd9ee-697f-4b52-81b8-e54b6c77e352/staging_spaces/c3cd2163-d66a-47ec-b3e8-e4189bd52f09", []string{""}, "", 204, "", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.UnbindStagingSecGroupToSpace("0cbfd9ee-697f-4b52-81b8-e54b6c77e352", "c3cd2163-d66a-47ec-b3e8-e4189bd52f09")
+		So(err, ShouldBeNil)
+	})
+}

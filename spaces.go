@@ -615,6 +615,55 @@ func (s *Space) ListSecGroups() (secGroups []SecGroup, err error) {
 	return secGroups, nil
 }
 
+func (c *Client) ListSpaceStagingSecGroups(spaceGUID string) (secGroups []SecGroup, err error) {
+	space := Space{Guid: spaceGUID, c: c}
+	return space.ListStagingSecGroups()
+}
+
+func (s *Space) ListStagingSecGroups() (secGroups []SecGroup, err error) {
+	requestURL := fmt.Sprintf("/v2/spaces/%s/staging_security_groups?inline-relations-depth=1", s.Guid)
+	for requestURL != "" {
+		var secGroupResp SecGroupResponse
+		r := s.c.NewRequest("GET", requestURL)
+		resp, err := s.c.DoRequest(r)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Error requesting staging sec groups")
+		}
+		defer resp.Body.Close()
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error reading staging sec group response body")
+		}
+
+		err = json.Unmarshal(resBody, &secGroupResp)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error unmarshalling staging sec group")
+		}
+
+		for _, secGroup := range secGroupResp.Resources {
+			secGroup.Entity.Guid = secGroup.Meta.Guid
+			secGroup.Entity.c = s.c
+			for i, space := range secGroup.Entity.StagingSpacesData {
+				space.Entity.Guid = space.Meta.Guid
+				secGroup.Entity.StagingSpacesData[i] = space
+			}
+			if len(secGroup.Entity.StagingSpacesData) == 0 {
+				spaces, err := secGroup.Entity.ListSpaceResources()
+				if err != nil {
+					return nil, err
+				}
+				secGroup.Entity.StagingSpacesData = append(secGroup.Entity.StagingSpacesData, spaces...)
+			}
+			secGroups = append(secGroups, secGroup.Entity)
+		}
+
+		requestURL = secGroupResp.NextUrl
+		resp.Body.Close()
+	}
+	return secGroups, nil
+}
+
 func (s *Space) GetServiceOfferings() (ServiceOfferingResponse, error) {
 	var response ServiceOfferingResponse
 	requestURL := fmt.Sprintf("/v2/spaces/%s/services", s.Guid)

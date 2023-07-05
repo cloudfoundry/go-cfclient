@@ -2283,6 +2283,154 @@ const listSecGroupsPayloadPage2 = `{
    ]
 }`
 
+const listSpaceStagingSecGroupsPayload = `{
+   "total_results": 28,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": "/v2/security_groupsPage2",
+   "resources": [
+      {
+         "metadata": {
+            "guid": "af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c",
+            "url": "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c",
+            "created_at": "2015-12-04T11:15:55Z",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "secgroup-test",
+            "rules": [
+               {
+                  "destination": "1.1.1.1",
+                  "ports": "443,4443",
+                  "protocol": "tcp"
+               },
+               {
+                  "destination": "1.2.3.4",
+                  "ports": "1111",
+                  "protocol": "udp"
+               }
+            ],
+            "running_default": true,
+            "staging_default": true,
+            "staging_spaces_url": "/v2/security_groups/af15c29a-6bde-4a9b-8cdf-43aa0d4b7e3c/staging_spaces",
+            "spaces": []
+         }
+      }
+   ]
+}`
+
+const listSpaceStagingSecGroupsPayloadPage2 = `{
+"total_results": 28,
+   "total_pages": 1,
+   "prev_url": null,
+   "next_url": null,
+   "resources": [
+      {
+         "metadata": {
+            "guid": "f9ad202b-76dd-44ec-b7c2-fd2417a561e8",
+            "url": "/v2/security_groups/f9ad202b-76dd-44ec-b7c2-fd2417a561e8",
+            "created_at": "2015-12-04T11:15:55Z",
+            "updated_at": null
+         },
+         "entity": {
+            "name": "secgroup-test2",
+            "rules": [
+               {
+                  "destination": "2.2.2.2",
+                  "ports": "2222",
+                  "protocol": "udp"
+               },
+               {
+                  "destination": "4.3.2.1",
+                  "ports": "443,4443",
+                  "protocol": "tcp"
+               }
+            ],
+            "running_default": false,
+            "staging_default": false,
+            "staging_spaces_url": "/v2/security_groups/f9ad202b-76dd-44ec-b7c2-fd2417a561e8/staging_spaces",
+            "staging_spaces": [
+               {
+                  "metadata": {
+                     "guid": "e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4",
+                     "url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4",
+                     "created_at": "2014-10-27T10:49:37Z",
+                     "updated_at": "2015-01-21T15:30:52Z"
+                  },
+                  "entity": {
+                     "name": "space-test",
+                     "organization_guid": "82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "space_quota_definition_guid": null,
+                     "allow_ssh": true,
+                     "organization_url": "/v2/organizations/82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "developers_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/developers",
+                     "managers_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/managers",
+                     "auditors_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/auditors",
+                     "apps_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/apps",
+                     "routes_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/routes",
+                     "domains_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/domains",
+                     "service_instances_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/service_instances",
+                     "app_events_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/app_events",
+                     "events_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/events",
+                     "staging_security_groups_url": "/v2/spaces/e0a0d1bf-ad74-4b3c-8f4a-0c33859a54e4/staging_security_groups"
+                  }
+               },
+               {
+                  "metadata": {
+                     "guid": "a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333",
+                     "url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333",
+                     "created_at": "2014-10-27T10:49:37Z",
+                     "updated_at": "2015-01-21T15:30:52Z"
+                  },
+                  "entity": {
+                     "name": "space-test2",
+                     "organization_guid": "82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "space_quota_definition_guid": null,
+                     "allow_ssh": true,
+                     "organization_url": "/v2/organizations/82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "developers_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/developers",
+                     "managers_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/managers",
+                     "auditors_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/auditors",
+                     "apps_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/apps",
+                     "routes_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/routes",
+                     "domains_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/domains",
+                     "service_instances_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/service_instances",
+                     "app_events_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/app_events",
+                     "events_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/events",
+                     "staging_security_groups_url": "/v2/spaces/a2a0d1bf-ad74-4b3c-8f4a-0c33859a5333/staging_security_groups"
+                  }
+               },
+               {
+                  "metadata": {
+                     "guid": "c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1",
+                     "url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1",
+                     "created_at": "2014-10-27T10:49:37Z",
+                     "updated_at": "2015-01-21T15:30:52Z"
+                  },
+                  "entity": {
+                     "name": "space-test3",
+                     "organization_guid": "82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "space_quota_definition_guid": null,
+                     "allow_ssh": true,
+                     "organization_url": "/v2/organizations/82338ba1-bc08-4576-aad1-9a5b4693b386",
+                     "developers_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/developers",
+                     "managers_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/managers",
+                     "auditors_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/auditors",
+                     "apps_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/apps",
+                     "routes_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/routes",
+                     "domains_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/domains",
+                     "service_instances_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/service_instances",
+                     "app_events_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/app_events",
+                     "events_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/events",
+                     "staging_security_groups_url": "/v2/spaces/c7a0d1bf-ad74-4b3c-8f4a-0c33859adsa1/staging_security_groups"
+                  }
+               }
+            ]
+         }
+      }
+   ]
+}`
+
 const listRunningSecGroupsPayload = `{
   "total_results": 1,
   "total_pages": 1,

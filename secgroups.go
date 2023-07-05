@@ -462,6 +462,25 @@ func (c *Client) UnbindSecGroup(secGUID, spaceGUID string) error {
 	return nil
 }
 
+/*
+UnbindStagingSecGroupToSpace contact the CF endpoint to dis-associate a space with a security group for life-cycle staging.
+It is the reverse of BindStagingSecGroupToSpace and comparable to UnbindSecGroup which is for life-cycle running.
+secGUID: identifies the security group to remove a space from
+spaceGUID: identifies the space to dissociate from the security group
+*/
+func (c *Client) UnbindStagingSecGroupToSpace(secGUID, spaceGUID string) error {
+	// Perform the DELETE and check for errors
+	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/security_groups/%s/staging_spaces/%s", secGUID, spaceGUID)))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
 // Reads most security group response bodies into a SecGroup object
 func respBodyToSecGroup(body io.ReadCloser, c *Client) (*SecGroup, error) {
 	// get the json from the response body
