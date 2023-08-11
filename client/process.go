@@ -2,8 +2,9 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -58,6 +59,16 @@ func (c *ProcessClient) Get(ctx context.Context, guid string) (*resource.Process
 func (c *ProcessClient) GetStats(ctx context.Context, guid string) (*resource.ProcessStats, error) {
 	var stats resource.ProcessStats
 	err := c.client.get(ctx, path.Format("/v3/processes/%s/stats", guid), &stats)
+	if err != nil {
+		return nil, err
+	}
+	return &stats, nil
+}
+
+// GetStatsApp for the specified app
+func (c *ProcessClient) GetStatsApp(ctx context.Context, guid, processType string) (*resource.ProcessStats, error) {
+	var stats resource.ProcessStats
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes/%s/stats", guid, processType), &stats)
 	if err != nil {
 		return nil, err
 	}
