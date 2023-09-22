@@ -1,16 +1,17 @@
-package operation_test
+package operation
 
 import (
 	"context"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client"
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"github.com/cloudfoundry-community/go-cfclient/v3/operation"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 func TestAppPush(t *testing.T) {
@@ -28,19 +29,22 @@ func TestAppPush(t *testing.T) {
 	dropletAssoc := g.DropletAssociation()
 
 	fakeAppZipReader := strings.NewReader("blah zip zip")
-	manifest := &operation.AppManifest{
-		Name:                    app.Name,
-		Buildpacks:              []string{"java-buildpack-offline"},
-		HealthCheckType:         "http",
-		HealthCheckHTTPEndpoint: "/health",
-		Instances:               2,
-		Memory:                  "1G",
-		Routes: []operation.AppManifestRoutes{
+	manifest := &AppManifest{
+		Name:       app.Name,
+		Buildpacks: []string{"java-buildpack-offline"},
+
+		AppManifestProcess: AppManifestProcess{
+			HealthCheckType:         "http",
+			HealthCheckHTTPEndpoint: "/health",
+			Instances:               2,
+			Memory:                  "1G",
+		},
+		Routes: &AppManifestRoutes{
 			{
 				Route: "https://spring-music.cf.apps.example.org",
 			},
 		},
-		Services: []string{"spring-music-sql"},
+		Services: &AppManifestServices{{Name: "spring-music-sql"}},
 		Stack:    "cflinuxfs3",
 	}
 
@@ -131,7 +135,7 @@ func TestAppPush(t *testing.T) {
 	cf, err := client.New(c)
 	require.NoError(t, err)
 
-	pusher := operation.NewAppPushOperation(cf, org.Name, space.Name)
+	pusher := NewAppPushOperation(cf, org.Name, space.Name)
 	_, err = pusher.Push(context.Background(), manifest, fakeAppZipReader)
 	require.NoError(t, err)
 }
