@@ -2,9 +2,10 @@ package client
 
 import (
 	"context"
+	"net/url"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"net/url"
 )
 
 type OrganizationClient commonClient
@@ -23,7 +24,7 @@ func NewOrganizationListOptions() *OrganizationListOptions {
 	}
 }
 
-func (o OrganizationListOptions) ToQueryString() url.Values {
+func (o OrganizationListOptions) ToQueryString() (url.Values, error) {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -119,7 +120,7 @@ func (c *OrganizationClient) List(ctx context.Context, opts *OrganizationListOpt
 		opts = NewOrganizationListOptions()
 	}
 	var res resource.OrganizationList
-	err := c.client.get(ctx, path.Format("/v3/organizations?%s", opts.ToQueryString()), &res)
+	err := c.client.list(ctx, "/v3/organizations", opts.ToQueryString, &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,7 +144,7 @@ func (c *OrganizationClient) ListForIsolationSegment(ctx context.Context, isolat
 		opts = NewOrganizationListOptions()
 	}
 	var res resource.OrganizationList
-	err := c.client.get(ctx, path.Format("/v3/isolation_segments/%s/organizations?%s", isolationSegmentGUID, opts.ToQueryString()), &res)
+	err := c.client.list(ctx, "/v3/isolation_segments/"+isolationSegmentGUID+"/organizations", opts.ToQueryString, &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,7 +168,7 @@ func (c *OrganizationClient) ListUsers(ctx context.Context, guid string, opts *U
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.get(ctx, path.Format("/v3/organizations/%s/users?%s", guid, opts.ToQueryString()), &res)
+	err := c.client.list(ctx, "/v3/organizations/"+guid+"/users", opts.ToQueryString, &res)
 	if err != nil {
 		return nil, nil, err
 	}
