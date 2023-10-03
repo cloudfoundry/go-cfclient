@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -27,7 +26,7 @@ func NewIsolationSegmentOptions() *IsolationSegmentListOptions {
 	}
 }
 
-func (o IsolationSegmentListOptions) ToQueryString() (url.Values, error) {
+func (o IsolationSegmentListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -100,7 +99,7 @@ func (c *IsolationSegmentClient) List(ctx context.Context, opts *IsolationSegmen
 	}
 
 	var isos resource.IsolationSegmentList
-	err := c.client.list(ctx, "/v3/isolation_segments", opts.ToQueryString, &isos)
+	err := c.client.get(ctx, path.Format("/v3/isolation_segments?%s", opts.ToQueryString()), &isos)
 	if err != nil {
 		return nil, nil, err
 	}

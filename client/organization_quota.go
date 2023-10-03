@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -27,7 +26,7 @@ func NewOrganizationQuotaListOptions() *OrganizationQuotaListOptions {
 	}
 }
 
-func (o OrganizationQuotaListOptions) ToQueryString() (url.Values, error) {
+func (o OrganizationQuotaListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -86,7 +85,7 @@ func (c *OrganizationQuotaClient) List(ctx context.Context, opts *OrganizationQu
 	}
 
 	var res resource.OrganizationQuotaList
-	err := c.client.list(ctx, "/v3/organization_quotas", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/organization_quotas?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

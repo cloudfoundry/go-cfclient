@@ -2,10 +2,9 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"net/url"
 )
 
 type ServiceRouteBindingClient commonClient
@@ -29,7 +28,7 @@ func NewServiceRouteBindingListOptions() *ServiceRouteBindingListOptions {
 	}
 }
 
-func (o ServiceRouteBindingListOptions) ToQueryString() (url.Values, error) {
+func (o ServiceRouteBindingListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -108,7 +107,7 @@ func (c *ServiceRouteBindingClient) List(ctx context.Context, opts *ServiceRoute
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.list(ctx, "/v3/service_route_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -134,7 +133,7 @@ func (c *ServiceRouteBindingClient) ListIncludeRoutes(ctx context.Context, opts 
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.list(ctx, "/v3/service_route_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -174,7 +173,7 @@ func (c *ServiceRouteBindingClient) ListIncludeServiceInstances(ctx context.Cont
 	opts.Include = resource.ServiceRouteBindingIncludeNone
 
 	var res resource.ServiceRouteBindingList
-	err := c.client.list(ctx, "/v3/service_route_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_route_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}

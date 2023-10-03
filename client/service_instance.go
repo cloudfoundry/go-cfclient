@@ -3,10 +3,9 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"net/url"
 )
 
 type ServiceInstanceClient commonClient
@@ -31,7 +30,7 @@ func NewServiceInstanceListOptions() *ServiceInstanceListOptions {
 	}
 }
 
-func (o ServiceInstanceListOptions) ToQueryString() (url.Values, error) {
+func (o ServiceInstanceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -144,7 +143,7 @@ func (c *ServiceInstanceClient) List(ctx context.Context, opts *ServiceInstanceL
 		opts = NewServiceInstanceListOptions()
 	}
 	var res resource.ServiceInstanceList
-	err := c.client.list(ctx, "/v3/service_instances", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_instances?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

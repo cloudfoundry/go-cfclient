@@ -3,10 +3,9 @@ package client
 import (
 	"context"
 	"errors"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"net/url"
 )
 
 type DeploymentClient commonClient
@@ -28,7 +27,7 @@ func NewDeploymentListOptions() *DeploymentListOptions {
 	}
 }
 
-func (o DeploymentListOptions) ToQueryString() (url.Values, error) {
+func (o DeploymentListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -76,7 +75,7 @@ func (c *DeploymentClient) List(ctx context.Context, opts *DeploymentListOptions
 		opts = NewDeploymentListOptions()
 	}
 	var res resource.DeploymentList
-	err := c.client.list(ctx, "/v3/deployments", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/deployments?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

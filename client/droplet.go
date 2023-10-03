@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	http2 "net/http"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"io"
+	http2 "net/http"
+	"net/url"
 )
 
 type DropletClient commonClient
@@ -33,7 +32,7 @@ func NewDropletListOptions() *DropletListOptions {
 	}
 }
 
-func (o DropletListOptions) ToQueryString() (url.Values, error) {
+func (o DropletListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -52,7 +51,7 @@ func NewDropletPackageListOptions() *DropletPackageListOptions {
 	}
 }
 
-func (o DropletPackageListOptions) ToQueryString() (url.Values, error) {
+func (o DropletPackageListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -72,7 +71,7 @@ func NewDropletAppListOptions() *DropletAppListOptions {
 	}
 }
 
-func (o DropletAppListOptions) ToQueryString() (url.Values, error) {
+func (o DropletAppListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -176,7 +175,7 @@ func (c *DropletClient) List(ctx context.Context, opts *DropletListOptions) ([]*
 		opts = NewDropletListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.list(ctx, "/v3/droplets", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/droplets?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -200,7 +199,7 @@ func (c *DropletClient) ListForApp(ctx context.Context, appGUID string, opts *Dr
 		opts = NewDropletAppListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.list(ctx, "/v3/apps/"+appGUID+"/droplets", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/droplets?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -224,7 +223,7 @@ func (c *DropletClient) ListForPackage(ctx context.Context, packageGUID string, 
 		opts = NewDropletPackageListOptions()
 	}
 	var res resource.DropletList
-	err := c.client.list(ctx, "/v3/packages/"+packageGUID+"/droplets", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/packages/%s/droplets?%s", packageGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
