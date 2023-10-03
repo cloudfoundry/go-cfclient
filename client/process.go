@@ -16,7 +16,10 @@ type ProcessListOptions struct {
 	*ListOptions
 
 	GUIDs             Filter `qs:"guids"`
+	Types             Filter `qs:"types"`
 	Names             Filter `qs:"names"`
+	AppGUIDs          Filter `qs:"app_guids"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
 	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
