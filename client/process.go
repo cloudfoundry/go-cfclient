@@ -2,8 +2,9 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"net/url"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -26,7 +27,7 @@ func NewProcessOptions() *ProcessListOptions {
 	}
 }
 
-func (o ProcessListOptions) ToQueryString() url.Values {
+func (o ProcessListOptions) ToQueryString() (url.Values, error) {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -71,7 +72,7 @@ func (c *ProcessClient) List(ctx context.Context, opts *ProcessListOptions) ([]*
 	}
 
 	var isos resource.ProcessList
-	err := c.client.get(ctx, path.Format("/v3/processes?%s", opts.ToQueryString()), &isos)
+	err := c.client.list(ctx, "/v3/processes", opts.ToQueryString, &isos)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -96,7 +97,7 @@ func (c *ProcessClient) ListForApp(ctx context.Context, appGUID string, opts *Pr
 	}
 
 	var processes resource.ProcessList
-	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes?%s", appGUID, opts.ToQueryString()), &processes)
+	err := c.client.list(ctx, "/v3/apps/"+appGUID+"/processes", opts.ToQueryString, &processes)
 	if err != nil {
 		return nil, nil, err
 	}
