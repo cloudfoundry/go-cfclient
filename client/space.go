@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -29,7 +28,7 @@ func NewSpaceListOptions() *SpaceListOptions {
 	}
 }
 
-func (o SpaceListOptions) ToQueryString() (url.Values, error) {
+func (o SpaceListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -113,7 +112,7 @@ func (c *SpaceClient) List(ctx context.Context, opts *SpaceListOptions) ([]*reso
 	opts.Include = resource.SpaceIncludeNone
 
 	var res resource.SpaceList
-	err := c.client.list(ctx, "/v3/spaces", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/spaces?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -139,7 +138,7 @@ func (c *SpaceClient) ListIncludeOrganizations(ctx context.Context, opts *SpaceL
 	opts.Include = resource.SpaceIncludeOrganization
 
 	var res resource.SpaceList
-	err := c.client.list(ctx, "/v3/spaces", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/spaces?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -176,7 +175,7 @@ func (c *SpaceClient) ListUsers(ctx context.Context, spaceGUID string, opts *Use
 		opts = NewUserListOptions()
 	}
 	var res resource.UserList
-	err := c.client.list(ctx, "/v3/spaces/"+spaceGUID+"/users", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/spaces/%s/users?%s", spaceGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

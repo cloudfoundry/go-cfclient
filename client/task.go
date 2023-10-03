@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -29,7 +28,7 @@ func NewTaskListOptions() *TaskListOptions {
 	}
 }
 
-func (o TaskListOptions) ToQueryString() (url.Values, error) {
+func (o TaskListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -88,7 +87,7 @@ func (c *TaskClient) List(ctx context.Context, opts *TaskListOptions) ([]*resour
 	}
 
 	var res resource.TaskList
-	err := c.client.list(ctx, "/v3/tasks", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/tasks?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -114,7 +113,7 @@ func (c *TaskClient) ListForApp(ctx context.Context, appGUID string, opts *TaskL
 	}
 
 	var res resource.TaskList
-	err := c.client.list(ctx, "/v3/apps/"+appGUID+"/tasks", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/tasks?%s", appGUID, opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

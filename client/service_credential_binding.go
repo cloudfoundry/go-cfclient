@@ -2,10 +2,9 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"net/url"
 )
 
 type ServiceCredentialBindingClient commonClient
@@ -36,7 +35,7 @@ func NewServiceCredentialBindingListOptions() *ServiceCredentialBindingListOptio
 	}
 }
 
-func (o ServiceCredentialBindingListOptions) ToQueryString() (url.Values, error) {
+func (o ServiceCredentialBindingListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -119,7 +118,7 @@ func (c *ServiceCredentialBindingClient) GetIncludeServiceInstance(ctx context.C
 // List pages ServiceCredentialBindings the user has access to
 func (c *ServiceCredentialBindingClient) List(ctx context.Context, opts *ServiceCredentialBindingListOptions) ([]*resource.ServiceCredentialBinding, *Pager, error) {
 	var res resource.ServiceCredentialBindingList
-	err := c.client.list(ctx, "/v3/service_credential_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -145,7 +144,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeApps(ctx context.Context, op
 	opts.Include = resource.ServiceCredentialBindingIncludeApp
 
 	var res resource.ServiceCredentialBindingList
-	err := c.client.list(ctx, "/v3/service_credential_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -184,7 +183,7 @@ func (c *ServiceCredentialBindingClient) ListIncludeServiceInstances(ctx context
 	opts.Include = resource.ServiceCredentialBindingIncludeServiceInstance
 
 	var res resource.ServiceCredentialBindingList
-	err := c.client.list(ctx, "/v3/service_credential_bindings", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}

@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -32,7 +31,7 @@ func NewAppListOptions() *AppListOptions {
 	}
 }
 
-func (o AppListOptions) ToQueryString() (url.Values, error) {
+func (o AppListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -117,7 +116,7 @@ func (c *AppClient) List(ctx context.Context, opts *AppListOptions) ([]*resource
 	opts.Include = resource.AppIncludeNone
 
 	var res resource.AppList
-	err := c.client.list(ctx, "/v3/apps", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,7 +142,7 @@ func (c *AppClient) ListIncludeSpaces(ctx context.Context, opts *AppListOptions)
 	opts.Include = resource.AppIncludeSpace
 
 	var res resource.AppList
-	err := c.client.list(ctx, "/v3/apps", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -182,7 +181,7 @@ func (c *AppClient) ListIncludeSpacesAndOrganizations(ctx context.Context, opts 
 	opts.Include = resource.AppIncludeSpaceOrganization
 
 	var res resource.AppList
-	err := c.client.list(ctx, "/v3/apps", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/apps?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}

@@ -5,19 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"mime/multipart"
-	http2 "net/http"
-	"net/url"
-	"os"
-	"strings"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/check"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"io"
+	"mime/multipart"
+	http2 "net/http"
+	"net/url"
+	"os"
+	"strings"
 )
 
 // Client used to communicate with Cloud Foundry
@@ -217,17 +216,6 @@ func (c *Client) delete(ctx context.Context, path string) (string, error) {
 		return "", c.decodeError(resp)
 	}
 	return c.decodeJobIDOrBody(resp, nil)
-}
-
-func (c *Client) list(ctx context.Context, urlPathFormat string, queryStrFunc func() (url.Values, error), result any) error {
-	params, err := queryStrFunc()
-	if err != nil {
-		return fmt.Errorf("error while generate query params: %w", err)
-	}
-	if len(params) > 0 {
-		urlPathFormat = urlPathFormat + "?" + params.Encode()
-	}
-	return c.get(ctx, strings.TrimSuffix(urlPathFormat, "?"), result)
 }
 
 // get does an HTTP GET to the specified endpoint and automatically handles unmarshalling

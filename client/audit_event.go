@@ -2,10 +2,9 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"net/url"
 )
 
 type AuditEventClient commonClient
@@ -14,10 +13,10 @@ type AuditEventClient commonClient
 type AuditEventListOptions struct {
 	*ListOptions
 
-	Types             Filter          `qs:"types"`        //  list of event types to filter by
-	TargetGUIDs       ExclusionFilter `qs:"target_guids"` // list of target guids to filter by
-	OrganizationGUIDs Filter          `qs:"organization_guids"`
-	SpaceGUIDs        Filter          `qs:"space_guids"`
+	Types             Filter `qs:"types"`        //  list of event types to filter by
+	TargetGUIDs       Filter `qs:"target_guids"` // list of target guids to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
 }
 
 // NewAuditEventListOptions creates new options to pass to list
@@ -27,7 +26,7 @@ func NewAuditEventListOptions() *AuditEventListOptions {
 	}
 }
 
-func (o AuditEventListOptions) ToQueryString() (url.Values, error) {
+func (o AuditEventListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -54,7 +53,7 @@ func (c *AuditEventClient) List(ctx context.Context, opts *AuditEventListOptions
 		opts = NewAuditEventListOptions()
 	}
 	var res resource.AuditEventList
-	err := c.client.list(ctx, "/v3/audit_events", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/audit_events?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}

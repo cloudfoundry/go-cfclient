@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
-	"net/url"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"net/url"
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -36,7 +35,7 @@ func NewServicePlanListOptions() *ServicePlanListOptions {
 	}
 }
 
-func (o ServicePlanListOptions) ToQueryString() (url.Values, error) {
+func (o ServicePlanListOptions) ToQueryString() url.Values {
 	return o.ListOptions.ToQueryString(o)
 }
 
@@ -90,7 +89,7 @@ func (c *ServicePlanClient) List(ctx context.Context, opts *ServicePlanListOptio
 	}
 
 	var res resource.ServicePlanList
-	err := c.client.list(ctx, "/v3/service_plans", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -116,7 +115,7 @@ func (c *ServicePlanClient) ListIncludeServiceOffering(ctx context.Context, opts
 	opts.Include = resource.ServicePlanIncludeServiceOffering
 
 	var res resource.ServicePlanList
-	err := c.client.list(ctx, "/v3/service_plans", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -155,7 +154,7 @@ func (c *ServicePlanClient) ListIncludeSpacesAndOrganizations(ctx context.Contex
 	opts.Include = resource.ServicePlanIncludeSpaceOrganization
 
 	var res resource.ServicePlanList
-	err := c.client.list(ctx, "/v3/service_plans", opts.ToQueryString, &res)
+	err := c.client.get(ctx, path.Format("/v3/service_plans?%s", opts.ToQueryString()), &res)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
