@@ -2,11 +2,12 @@ package client
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestOrganizations(t *testing.T) {
@@ -75,6 +76,21 @@ func TestOrganizations(t *testing.T) {
 				iso, err := c.Organizations.GetDefaultIsolationSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
 				require.NoError(t, err)
 				require.Equal(t, "443a1ea0-2403-4f0f-8c74-023a320bd1f2", iso)
+				return nil, nil
+			},
+		},
+		{
+			Description: "Get organization default iso segment when non-assigned",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/organizations/3691e277-eb88-4ddc-bec3-0111d9dd4ef5/relationships/default_isolation_segment",
+				Output:   []string{`{ "data":null}`},
+				Status:   http.StatusOK,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				iso, err := c.Organizations.GetDefaultIsolationSegment(context.Background(), "3691e277-eb88-4ddc-bec3-0111d9dd4ef5")
+				require.NoError(t, err)
+				require.Equal(t, "", iso)
 				return nil, nil
 			},
 		},
