@@ -3,10 +3,13 @@ package operation
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
+
+	"gopkg.in/yaml.v3"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"gopkg.in/yaml.v3"
-	"io"
 )
 
 // AppPushOperation can be used to push buildpack apps
@@ -55,7 +58,12 @@ func (p *AppPushOperation) pushApp(ctx context.Context, space *resource.Space, m
 		return nil, err
 	}
 
-	pkg, err := p.uploadPackage(ctx, app, zipFile)
+	var pkg *resource.Package
+	if app.Lifecycle.Type == resource.LifecycleDocker.String() {
+		pkg, err = p.uploadDockerPackage(ctx, app, manifest.Docker)
+	} else {
+		pkg, err = p.uploadBitsPackage(ctx, app, zipFile)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -105,13 +113,21 @@ func (p *AppPushOperation) findApp(ctx context.Context, appName string, space *r
 	return app, nil
 }
 
-func (p *AppPushOperation) uploadPackage(ctx context.Context, app *resource.App, zipFile io.Reader) (*resource.Package, error) {
+func (p *AppPushOperation) uploadDockerPackage(ctx context.Context, app *resource.App, docker *AppManifestDocker) (*resource.Package, error) {
+	newPkg := resource.NewDockerPackageCreate(app.GUID, docker.Image, docker.Username, os.Getenv("CF_DOCKER_PASSWORD"))
+	pkg, err := p.client.Packages.Create(ctx, newPkg)
+	if err != nil {
+		return nil, fmt.Errorf("error creating docker package for app %s: %w", app.Name, err)
+	}
+	return pkg, nil
+}
+
+func (p *AppPushOperation) uploadBitsPackage(ctx context.Context, app *resource.App, zipFile io.Reader) (*resource.Package, error) {
 	newPkg := resource.NewPackageCreate(app.GUID)
 	pkg, err := p.client.Packages.Create(ctx, newPkg)
 	if err != nil {
-		return nil, fmt.Errorf("error creating package for app %s: %w", app.Name, err)
+		return nil, fmt.Errorf("error creating package bits for app %s: %w", app.Name, err)
 	}
-
 	_, err = p.client.Packages.Upload(ctx, pkg.GUID, zipFile)
 	if err != nil {
 		return nil, fmt.Errorf("error uploading package bits for app %s: %w", app.Name, err)
@@ -125,12 +141,16 @@ func (p *AppPushOperation) uploadPackage(ctx context.Context, app *resource.App,
 
 func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
-	newBuild.Lifecycle = &resource.Lifecycle{
-		Type: "buildpack",
-		BuildpackData: resource.BuildpackLifecycle{
-			Buildpacks: manifest.Buildpacks,
-			Stack:      manifest.Stack,
-		},
+	if pkg.Type == resource.LifecycleDocker.String() {
+		newBuild.Lifecycle = &resource.Lifecycle{Type: pkg.Type}
+	} else {
+		newBuild.Lifecycle = &resource.Lifecycle{
+			Type: resource.LifecycleBuildpack.String(),
+			BuildpackData: resource.BuildpackLifecycle{
+				Buildpacks: manifest.Buildpacks,
+				Stack:      manifest.Stack,
+			},
+		}
 	}
 	build, err := p.client.Builds.Create(ctx, newBuild)
 	if err != nil {
