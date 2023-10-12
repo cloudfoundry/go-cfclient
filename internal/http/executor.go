@@ -71,7 +71,7 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 		return nil, errNilContext
 	}
 	if !isSupportedHTTPMethod(request.method) {
-		return nil, fmt.Errorf("error executing request, found unsupport HTTP method %s", request.method)
+		return nil, fmt.Errorf("error executing request, found unsupported HTTP method %s", request.method)
 	}
 
 	// JSON encode the object and use that as the body if specified, otherwise use the body as-is
