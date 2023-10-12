@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 func TestProcesses(t *testing.T) {
@@ -41,6 +42,19 @@ func TestProcesses(t *testing.T) {
 			Expected: processStats,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Processes.GetStats(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606")
+			},
+		},
+		{
+			Description: "Get app process stats",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/apps/2a550283-9245-493e-af36-5e4b8703f896/processes/web/stats",
+				Output:   g.Single(processStats),
+				Status:   http.StatusOK,
+			},
+			Expected: processStats,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Processes.GetStatsApp(context.Background(), "2a550283-9245-493e-af36-5e4b8703f896", "web")
 			},
 		},
 		{

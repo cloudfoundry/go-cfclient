@@ -67,6 +67,16 @@ func (c *ProcessClient) GetStats(ctx context.Context, guid string) (*resource.Pr
 	return &stats, nil
 }
 
+// GetStatsApp for the specified app
+func (c *ProcessClient) GetStatsApp(ctx context.Context, guid, processType string) (*resource.ProcessStats, error) {
+	var stats resource.ProcessStats
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes/%s/stats", guid, processType), &stats)
+	if err != nil {
+		return nil, err
+	}
+	return &stats, nil
+}
+
 // List pages all processes
 func (c *ProcessClient) List(ctx context.Context, opts *ProcessListOptions) ([]*resource.Process, *Pager, error) {
 	if opts == nil {
