@@ -27,7 +27,7 @@ endif
 
 .PHONY: lint
 lint: lint-prepare ## Run the golangci linter
-	@bin/golangci-lint run
+	golangci-lint run
 
 .PHONY: tidy
 tidy: ## Remove unused dependencies
