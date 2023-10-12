@@ -67,10 +67,10 @@ func (c *ProcessClient) GetStats(ctx context.Context, guid string) (*resource.Pr
 	return &stats, nil
 }
 
-// GetStatsApp for the specified app
-func (c *ProcessClient) GetStatsApp(ctx context.Context, guid, processType string) (*resource.ProcessStats, error) {
+// GetStatsForApp for the specified app
+func (c *ProcessClient) GetStatsForApp(ctx context.Context, appGUID, processType string) (*resource.ProcessStats, error) {
 	var stats resource.ProcessStats
-	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes/%s/stats", guid, processType), &stats)
+	err := c.client.get(ctx, path.Format("/v3/apps/%s/processes/%s/stats", appGUID, processType), &stats)
 	if err != nil {
 		return nil, err
 	}

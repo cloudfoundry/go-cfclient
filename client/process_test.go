@@ -54,7 +54,7 @@ func TestProcesses(t *testing.T) {
 			},
 			Expected: processStats,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Processes.GetStatsApp(context.Background(), "2a550283-9245-493e-af36-5e4b8703f896", "web")
+				return c.Processes.GetStatsForApp(context.Background(), "2a550283-9245-493e-af36-5e4b8703f896", "web")
 			},
 		},
 		{
