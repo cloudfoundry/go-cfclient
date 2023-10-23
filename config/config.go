@@ -28,7 +28,7 @@ type Config struct {
 	ClientSecret string
 	UserAgent    string
 	Origin       string
-	Token        string
+	AccessToken  string
 
 	baseHTTPClient    *http.Client
 	requestTimeout    time.Duration
@@ -91,16 +91,16 @@ func NewClientSecret(apiRoot, clientID, clientSecret string) (*Config, error) {
 //
 // This method of authentication does _not_ support refresh tokens or re-authentication, the access token
 // must be valid and created externally to this client.
-func NewToken(apiRoot, token string) (*Config, error) {
-	if token == "" {
-		return nil, errors.New("expected an non-empty CF API token")
+func NewToken(apiRoot, accessToken string) (*Config, error) {
+	if accessToken == "" {
+		return nil, errors.New("expected an non-empty CF API accessToken")
 	}
 
 	c, err := newDefault(apiRoot)
 	if err != nil {
 		return nil, err
 	}
-	c.Token = token
+	c.AccessToken = accessToken
 
 	return c, nil
 }
@@ -130,7 +130,7 @@ func NewFromCFHomeDir(cfHomeDir string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg.Token = cfHomeConfig.AccessToken
+	cfg.AccessToken = cfHomeConfig.AccessToken
 	cfg.skipTLSValidation = cfHomeConfig.SSLDisabled
 
 	return cfg, nil

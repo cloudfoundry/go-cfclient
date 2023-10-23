@@ -109,7 +109,7 @@ func (m *OAuthSessionManager) newTokenSource(ctx context.Context) error {
 	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, m.config.HTTPClient())
 
 	switch {
-	case m.config.Token != "":
+	case m.config.AccessToken != "":
 		m.userTokenAuth(oauthCtx, loginEndpoint, uaaEndpoint)
 	case m.config.ClientID != "":
 		m.clientAuth(oauthCtx, uaaEndpoint)
@@ -177,9 +177,9 @@ func (m *OAuthSessionManager) userTokenAuth(ctx context.Context, loginEndpoint, 
 		},
 	}
 
-	// Token is expected to have no "bearer" prefix
+	// AccessToken is expected to have no "bearer" prefix
 	token := &oauth2.Token{
-		AccessToken: m.config.Token,
+		AccessToken: m.config.AccessToken,
 		TokenType:   "Bearer",
 	}
 	tokenSource := authConfig.TokenSource(ctx, token)
