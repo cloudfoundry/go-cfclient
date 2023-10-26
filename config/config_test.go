@@ -83,7 +83,7 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 }
 
 func TestNewConfigBaseHTTPClient(t *testing.T) {
-	c, err := config.NewToken("https://api.example.com", "token-content")
+	c, err := config.NewToken("https://api.example.com", "token-content", "")
 	require.NoError(t, err)
 
 	require.Equal(t, time.Second*30, c.HTTPClient().Timeout,
@@ -103,7 +103,7 @@ func TestNewConfigBaseHTTPClient(t *testing.T) {
 }
 
 func TestNewConfigWithOverrides(t *testing.T) {
-	c, err := config.NewToken("https://api.example.com", "token-content")
+	c, err := config.NewToken("https://api.example.com", "token-content", "")
 	require.NoError(t, err)
 
 	// setting the http client should also set the TLS config and timeout on the default client

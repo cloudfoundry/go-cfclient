@@ -29,6 +29,7 @@ type Config struct {
 	UserAgent    string
 	Origin       string
 	AccessToken  string
+	RefreshToken string
 
 	baseHTTPClient    *http.Client
 	requestTimeout    time.Duration
@@ -87,13 +88,16 @@ func NewClientSecret(apiRoot, clientID, clientSecret string) (*Config, error) {
 	return c, nil
 }
 
-// NewToken creates a new config configured to use a static access token
+// NewToken creates a new config configured to use a static token
 //
-// This method of authentication does _not_ support refresh tokens or re-authentication, the access token
-// must be valid and created externally to this client.
-func NewToken(apiRoot, accessToken string) (*Config, error) {
-	if accessToken == "" {
-		return nil, errors.New("expected an non-empty CF API accessToken")
+// This method of authentication does _not_ support re-authentication, the access token
+// and/or refresh token must be valid and created externally to this client.
+//
+// If accessToken is empty, refreshToken must be non-empty and valid - an access token will be generated
+// automatically using the refresh token.
+func NewToken(apiRoot, accessToken, refreshToken string) (*Config, error) {
+	if accessToken == "" && refreshToken == "" {
+		return nil, errors.New("expected an non-empty CF API access token or refresh token")
 	}
 
 	c, err := newDefault(apiRoot)
@@ -101,6 +105,7 @@ func NewToken(apiRoot, accessToken string) (*Config, error) {
 		return nil, err
 	}
 	c.AccessToken = accessToken
+	c.RefreshToken = refreshToken
 
 	return c, nil
 }
@@ -131,6 +136,7 @@ func NewFromCFHomeDir(cfHomeDir string) (*Config, error) {
 		return nil, err
 	}
 	cfg.AccessToken = cfHomeConfig.AccessToken
+	cfg.RefreshToken = cfHomeConfig.RefreshToken
 	cfg.skipTLSValidation = cfHomeConfig.SSLDisabled
 
 	return cfg, nil
