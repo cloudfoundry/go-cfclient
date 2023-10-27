@@ -144,8 +144,8 @@ func New(config *config.Config) (*Client, error) {
 }
 
 // AccessToken returns the raw encoded OAuth access token without the bearer prefix
-func (c *Client) AccessToken(ignoredCtx context.Context) (string, error) {
-	token, err := c.authenticatedClientProvider.AccessToken()
+func (c *Client) AccessToken(ctx context.Context) (string, error) {
+	token, err := c.authenticatedClientProvider.AccessToken(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -164,7 +164,7 @@ func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	values.Set("response_type", "code")
 	values.Set("client_id", r.Links.AppSSH.Meta.OauthClient) // client_id，used by cf server
 
-	token, err := c.authenticatedClientProvider.AccessToken()
+	token, err := c.authenticatedClientProvider.AccessToken(ctx)
 	if err != nil {
 		return "", err
 	}

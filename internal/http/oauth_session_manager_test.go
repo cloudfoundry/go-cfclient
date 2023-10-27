@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
@@ -22,7 +23,7 @@ func TestOAuthSessionManager(t *testing.T) {
 	require.Empty(t, c.UAAEndpointURL)
 	m := http.NewOAuthSessionManager(c)
 
-	_, err = m.Client(true)
+	_, err = m.Client(context.Background(), true)
 	require.Error(t, err, "expected an error when UAA or Login endpoint is empty")
 	require.Equal(t, "login and UAA endpoints must not be empty", err.Error())
 
@@ -31,35 +32,35 @@ func TestOAuthSessionManager(t *testing.T) {
 	c.UAAEndpointURL = uaaURL
 
 	// we can create a client that utilizes oauth
-	client1, err := m.Client(true)
+	client1, err := m.Client(context.Background(), true)
 	require.NoError(t, err)
 	require.NotNil(t, client1)
 
 	// the same access token is returned as long as it's not expired (which it's not - 300s)
-	token, err := m.AccessToken()
+	token, err := m.AccessToken(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "foobar1", token)
 	require.NoError(t, err)
-	token, err = m.AccessToken()
+	token, err = m.AccessToken(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "foobar1", token)
 
 	// the same client is returned
-	client2, err := m.Client(true)
+	client2, err := m.Client(context.Background(), true)
 	require.NoError(t, err)
 	require.Same(t, client1, client2)
 
 	// we force new auth context
-	err = m.ReAuthenticate()
+	err = m.ReAuthenticate(context.Background())
 	require.NoError(t, err)
 
 	// a different client is now returned
-	client3, err := m.Client(true)
+	client3, err := m.Client(context.Background(), true)
 	require.NoError(t, err)
 	require.NotSame(t, client2, client3)
 
 	// a new token is also returned
-	token, err = m.AccessToken()
+	token, err = m.AccessToken(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "foobar2", token)
 
@@ -84,22 +85,22 @@ func TestOAuthSessionManagerRefreshToken(t *testing.T) {
 	m := http.NewOAuthSessionManager(c)
 
 	// we can create a client that utilizes oauth
-	client1, err := m.Client(true)
+	client1, err := m.Client(context.Background(), true)
 	require.NoError(t, err)
 	require.NotNil(t, client1)
 
 	// get the access token, it should have been auto-refreshed because the one we gave in the config was expired
-	token, err := m.AccessToken()
+	token, err := m.AccessToken(context.Background())
 	require.NoError(t, err)
 	require.NotEqual(t, accessToken, token)
 	require.Equal(t, "foobar1", token)
 
 	// get the access token, should be the same as before
-	token, err = m.AccessToken()
+	token, err = m.AccessToken(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, "foobar1", token)
 
 	// we cannot re-auth with only a refresh token (no credentials)
-	err = m.ReAuthenticate()
+	err = m.ReAuthenticate(context.Background())
 	require.EqualError(t, err, "cannot reauthenticate user token auth type, check your access and/or refresh token expiration date")
 }

@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -61,7 +62,7 @@ func (c *Executor) ExecuteRequest(request *Request) (*http.Response, error) {
 	// refresh token is expired or revoked. Attempt to get a new refresh and access token and retry the request.
 	var authErr *unauthorizedError
 	if errors.As(err, &authErr) {
-		err = c.reAuthenticate()
+		err = c.reAuthenticate(req.Context())
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +112,7 @@ func (c *Executor) newHTTPRequest(request *Request) (*http.Request, error) {
 
 // do will get the proper http.Client and calls Do on it using the specified http.Request
 func (c *Executor) do(request *http.Request, followRedirects bool) (*http.Response, error) {
-	client, err := c.clientProvider.Client(followRedirects)
+	client, err := c.clientProvider.Client(request.Context(), followRedirects)
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed to get the underlying HTTP client: %w", err)
 	}
@@ -148,8 +149,8 @@ func (c *Executor) do(request *http.Request, followRedirects bool) (*http.Respon
 }
 
 // reAuthenticate tells the client provider to restart authentication anew because we received a 401
-func (c *Executor) reAuthenticate() error {
-	err := c.clientProvider.ReAuthenticate()
+func (c *Executor) reAuthenticate(ctx context.Context) error {
+	err := c.clientProvider.ReAuthenticate(ctx)
 	if err != nil {
 		return fmt.Errorf("an error occurred attempting to reauthenticate "+
 			"after initially receiving a 401 executing a request: %w", err)

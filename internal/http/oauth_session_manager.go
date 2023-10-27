@@ -36,8 +36,8 @@ func NewOAuthSessionManager(config *config.Config) *OAuthSessionManager {
 }
 
 // Client returns an authenticated OAuth http client
-func (m *OAuthSessionManager) Client(followRedirects bool) (*http.Client, error) {
-	err := m.init(context.Background())
+func (m *OAuthSessionManager) Client(ctx context.Context, followRedirects bool) (*http.Client, error) {
+	err := m.init(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (m *OAuthSessionManager) Client(followRedirects bool) (*http.Client, error)
 // likely in response to a 401
 //
 // This won't work for userTokenAuth since we have no credentials to exchange for a new token.
-func (m *OAuthSessionManager) ReAuthenticate() error {
+func (m *OAuthSessionManager) ReAuthenticate(ctx context.Context) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
@@ -64,12 +64,12 @@ func (m *OAuthSessionManager) ReAuthenticate() error {
 	}
 
 	// attempt to create a new token source
-	return m.newTokenSource(context.Background())
+	return m.newTokenSource(ctx)
 }
 
 // AccessToken returns the raw OAuth access token
-func (m *OAuthSessionManager) AccessToken() (string, error) {
-	err := m.init(context.Background())
+func (m *OAuthSessionManager) AccessToken(ctx context.Context) (string, error) {
+	err := m.init(ctx)
 	if err != nil {
 		return "", err
 	}
