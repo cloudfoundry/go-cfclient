@@ -2,34 +2,36 @@ package http
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
-	"strings"
+	"net/http"
 	"testing"
-	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRequest(t *testing.T) {
-	reader := strings.NewReader("blah")
-	object := time.Minute
-	ctx := context.Background()
+	t.Run("Test IsIgnoredRedirect with default request", func(t *testing.T) {
+		r, _ := http.NewRequestWithContext(context.Background(), "GET", "/v3/apps", nil)
+		require.False(t, IsIgnoredRedirect(r))
+	})
 
-	r := NewRequest(ctx, "GET", "/v3/apps")
-	require.Nil(t, r.contentLength, "content length should default to nil")
-	require.Empty(t, r.contentType, "content type defaults to empty")
-	require.NotNil(t, r.headers, "headers should default to empty, not nil")
+	t.Run("Test CheckRedirect with default request", func(t *testing.T) {
+		r, _ := http.NewRequestWithContext(context.Background(), "GET", "/v3/apps", nil)
+		require.Nil(t, CheckRedirect(r, nil))
+	})
 
-	r = NewRequest(ctx, "GET", "/v3/apps").WithObject(object)
-	require.Equal(t, "application/json", r.contentType, "with object, content type should be json")
-	require.Equal(t, object, r.object)
+	t.Run("Test CheckRedirect with max redirects exceeded", func(t *testing.T) {
+		r, _ := http.NewRequestWithContext(context.Background(), "GET", "/v3/apps", nil)
+		err := CheckRedirect(r, make([]*http.Request, 11))
+		require.Error(t, err)
+		require.Equal(t, ErrMaxRedirects, err.Error())
+	})
 
-	r = NewRequest(ctx, "GET", "/v3/apps").WithBody(reader)
-	require.Equal(t, "application/json", r.contentType, "with body, content type should be json")
-	require.Equal(t, reader, r.body)
+	t.Run("Test IgnoreRedirect and IsIgnoredRedirect", func(t *testing.T) {
+		r, _ := http.NewRequestWithContext(context.Background(), "GET", "/v3/apps", nil)
+		r = IgnoreRedirect(r)
+		require.True(t, IsIgnoredRedirect(r))
 
-	r = NewRequest(ctx, "GET", "/v3/apps").WithContentType("application/yaml")
-	require.Equal(t, "application/yaml", r.contentType)
-	r.WithBody(reader)
-	require.Equal(t, "application/yaml", r.contentType,
-		"with content type previously set, setting a body shouldn't override it")
-	require.Equal(t, reader, r.body)
+		err := CheckRedirect(r, nil)
+		require.ErrorIs(t, err, http.ErrUseLastResponse)
+	})
 }

@@ -3,11 +3,13 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 type RouteTest struct {
@@ -31,7 +33,7 @@ func ExecuteTests(tests []RouteTest, t *testing.T) {
 				details = tt.Description + ": " + details
 			}
 
-			c, _ := config.NewToken(serverURL, "", "fake-refresh-token")
+			c, err := config.New(serverURL, config.Token("", "fake-refresh-token"))
 			cl, err := New(c)
 			require.NoError(t, err, details)
 

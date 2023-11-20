@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"gopkg.in/yaml.v3"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/operation"
-	"gopkg.in/yaml.v3"
-	"os"
 )
 
 func main() {
@@ -29,11 +31,10 @@ func main() {
 
 func runPush(org, space, pathToZip string) error {
 	ctx := context.Background()
-	conf, err := config.NewFromCFHome()
+	conf, err := config.NewFromCFHome(config.SkipTLSValidation())
 	if err != nil {
 		return err
 	}
-	conf.WithSkipTLSValidation(true)
 	cf, err := client.New(conf)
 	if err != nil {
 		return err

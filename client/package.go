@@ -2,13 +2,9 @@ package client
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
-	http2 "net/http"
 	"net/url"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -68,34 +64,7 @@ func (c *PackageClient) Download(ctx context.Context, guid string) (io.ReadClose
 	// The client will not automatically follow this redirect and uses a secondary
 	// unauthenticated client to download the bits
 	// https://v3-apidocs.cloudfoundry.org/version/3.128.0/index.html#download-package-bits
-	p := path.Format("/v3/packages/%s/download", guid)
-	req := http.NewRequest(ctx, http2.MethodGet, p).WithFollowRedirects(false)
-	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error getting %s: %w", p, err)
-	}
-	if !http.IsResponseRedirect(resp.StatusCode) {
-		return nil, fmt.Errorf("error downloading package %s bits, expected redirect to blobstore", guid)
-	}
-
-	// get the full URL to the blobstore via the Location header
-	blobStoreLocation := resp.Header.Get("Location")
-	if blobStoreLocation == "" {
-		return nil, errors.New("response redirect Location header was empty")
-	}
-
-	// directly download the bits from blobstore using an unauthenticated client as
-	// some blob stores will return a 400 if an Authorization header is sent
-	req = http.NewRequest(ctx, http2.MethodGet, "")
-	blobstoreHTTPExecutor := http.NewExecutor(
-		c.client.unauthenticatedClientProvider, blobStoreLocation, c.client.config.UserAgent)
-
-	resp, err = blobstoreHTTPExecutor.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error downloading package %s bits from blobstore", guid)
-	}
-
-	return resp.Body, nil
+	return c.client.download(ctx, path.Format("/v3/packages/%s/download", guid))
 }
 
 // First returns the first package matching the options or an error when less than 1 match
@@ -128,8 +97,7 @@ func (c *PackageClient) List(ctx context.Context, opts *PackageListOptions) ([]*
 		opts = NewPackageListOptions()
 	}
 	var res resource.PackageList
-	err := c.client.list(ctx, "/v3/packages", opts.ToQueryString, &res)
-	if err != nil {
+	if err := c.client.list(ctx, "/v3/packages", opts.ToQueryString, &res); err != nil {
 		return nil, nil, err
 	}
 	pager := NewPager(res.Pagination)

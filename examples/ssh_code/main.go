@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"os"
 )
 
 func main() {
@@ -19,11 +20,10 @@ func main() {
 
 func execute() error {
 	ctx := context.Background()
-	conf, err := config.NewFromCFHome()
+	conf, err := config.NewFromCFHome(config.SkipTLSValidation())
 	if err != nil {
 		return err
 	}
-	conf.WithSkipTLSValidation(true)
 	cf, err := client.New(conf)
 	if err != nil {
 		return err

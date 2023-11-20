@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"os"
 )
 
 func main() {
@@ -20,25 +21,26 @@ func main() {
 func execute() error {
 	err := listOrganizationsWithConfig(config.NewFromCFHome)
 	if err == nil {
-		err = listOrganizationsWithConfig(func() (*config.Config, error) {
-			return config.NewUserPassword("https://api.sys.example.com", "admin", "password")
+		err = listOrganizationsWithConfig(func(options ...config.Option) (*config.Config, error) {
+			options = append(options, config.UserPassword("admin", "password"))
+			return config.New("https://api.sys.example.com", options...)
 		})
 		if err == nil {
-			err = listOrganizationsWithConfig(func() (*config.Config, error) {
-				return config.NewClientSecret("https://api.sys.example.com", "cf-client", "client-secret")
+			err = listOrganizationsWithConfig(func(options ...config.Option) (*config.Config, error) {
+				options = append(options, config.ClientCredentials("cf-client", "client-secret"))
+				return config.New("https://api.sys.example.com", options...)
 			})
 		}
 	}
 	return err
 }
 
-func listOrganizationsWithConfig(cFn func() (*config.Config, error)) error {
+func listOrganizationsWithConfig(cFn func(options ...config.Option) (*config.Config, error)) error {
 	ctx := context.Background()
-	conf, err := cFn()
+	conf, err := cFn(config.SkipTLSValidation())
 	if err != nil {
 		return err
 	}
-	conf.WithSkipTLSValidation(true)
 	cf, err := client.New(conf)
 	if err != nil {
 		return err
