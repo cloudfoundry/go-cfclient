@@ -7,7 +7,7 @@ require (
 	github.com/martini-contrib/render v0.0.0-20150707142108-ec18f8345a11
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/net v0.19.0
-	golang.org/x/oauth2 v0.13.0
+	golang.org/x/oauth2 v0.15.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
