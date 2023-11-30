@@ -80,7 +80,7 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	cfg, err := NewFromCFHomeDir(cfHomeDir)
 	require.NoError(t, err)
 	require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
-	require.Equal(t, "cf", cfg.clientID)
+	require.Equal(t, internalhttp.DefaultClientId, cfg.clientID)
 	require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
 	require.Equal(t, internalhttp.GrantTypeNone, cfg.grantType)
 }

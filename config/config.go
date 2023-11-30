@@ -139,6 +139,12 @@ func (c *Config) obtainUserToken(ctx context.Context, authConfig *oauth2.Config)
 func (c *Config) refreshToken(ctx context.Context, authConfig *oauth2.Config) error {
 	var err error
 	if c.oAuthToken, err = authConfig.TokenSource(ctx, c.oAuthToken).Token(); err != nil {
+		var oauthErr *oauth2.RetrieveError
+		if errors.As(err, &oauthErr) && oauthErr.Response.StatusCode == http.StatusUnauthorized {
+			if err = c.generateToken(ctx, true); err == nil {
+				return nil
+			}
+		}
 		return fmt.Errorf("an error occurred while attempting to refresh the token: %w", err)
 	}
 	return nil
@@ -177,15 +183,22 @@ func (c *Config) Validate() error {
 		return errors.New("either client credentials, user credentials, or tokens are required")
 	}
 
+	if c.oAuthToken != nil {
+		c.grantType = internalhttp.GrantTypeNone
+	}
+
 	// If clientID is provided, check for clientSecret
 	if c.clientID != "" {
-		if c.clientSecret == "" && c.clientID != "cf" {
-			return errors.New("client secret is required when using client credentials")
+		if c.clientSecret == "" {
+			if c.clientID != internalhttp.DefaultClientId {
+				return errors.New("client secret is required when using client credentials")
+			}
+		} else {
+			c.grantType = internalhttp.GrantTypeClientCredentials
 		}
-		c.grantType = internalhttp.GrantTypeClientCredentials
 	} else {
 		// Set a default clientID if not provided
-		c.clientID = "cf"
+		c.clientID = internalhttp.DefaultClientId
 	}
 
 	// If username is provided, check for password
@@ -194,10 +207,6 @@ func (c *Config) Validate() error {
 			return errors.New("password is required when using user credentials")
 		}
 		c.grantType = internalhttp.GrantTypePassword
-	}
-
-	if c.oAuthToken != nil {
-		c.grantType = internalhttp.GrantTypeNone
 	}
 
 	c.configureHTTPClient()
