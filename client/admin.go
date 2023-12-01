@@ -10,9 +10,5 @@ type AdminClient commonClient
 // Ruby gems. An admin who wants to decrease the size of their blobstore could use this endpoint to delete
 // unnecessary blobs.
 func (c *AdminClient) ClearBuildpackCache(ctx context.Context) (string, error) {
-	jobGUID, err := c.client.post(ctx, "/v3/admin/actions/clear_buildpack_cache", nil, nil)
-	if err != nil {
-		return "", err
-	}
-	return jobGUID, nil
+	return c.client.post(ctx, "/v3/admin/actions/clear_buildpack_cache", nil, nil)
 }

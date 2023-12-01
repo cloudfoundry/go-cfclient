@@ -1,67 +1,68 @@
-package config_test
+package config
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"net/http"
 	"os"
 	"path"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
+
+	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 )
 
-func TestConfigNewUserPasswordConfig(t *testing.T) {
-	c, err := config.NewUserPassword("https://api.example.com", "admin", "pwd")
-	require.NoError(t, err)
+func TestConfig(t *testing.T) {
+	t.Run("Test with empty ClientID", func(t *testing.T) {
+		_, err := New("https://api.example.com", ClientCredentials("", "test"))
+		require.NotNil(t, err)
+		require.Equal(t, "expected a non-empty CF API clientID", err.Error())
+	})
 
-	require.Equal(t, "Go-CF-Client/3.0", c.UserAgent)
+	t.Run("Test with empty Username", func(t *testing.T) {
+		_, err := New("https://api.example.com", UserPassword("", "test"))
+		require.NotNil(t, err)
+		require.Equal(t, "expected a non-empty CF API username", err.Error())
+	})
 
-	require.Equal(t, "admin", c.Username)
-	require.Equal(t, "pwd", c.Password)
-	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
+	t.Run("Test with empty Password", func(t *testing.T) {
+		_, err := New("https://api.example.com", UserPassword("user", ""))
+		require.NotNil(t, err)
+		require.Equal(t, "expected a non-empty CF API password", err.Error())
+	})
 
-	require.Empty(t, c.ClientID)
-	require.Empty(t, c.ClientSecret)
-}
+	t.Run("Test with empty Refresh Token", func(t *testing.T) {
+		_, err := New("https://api.example.com", Token("test", ""))
+		require.NotNil(t, err)
+		require.ErrorContains(t, err, "invalid CF API token:")
+	})
 
-func TestConfigNewUserPasswordConfigTrimsApiTrailingSlash(t *testing.T) {
-	c, err := config.NewUserPassword("https://api.example.com/", "admin", "pwd")
-	require.NoError(t, err)
-	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
-}
+	t.Run("Test with Valid Tokens", func(t *testing.T) {
+		c, err := New("https://api.example.com", Token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk", "test"),
+			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+		require.Nil(t, err)
+		require.NotNil(t, c.oAuthToken)
+		require.Equal(t, internalhttp.GrantTypeNone, c.grantType)
+	})
 
-func TestConfigNewUserPasswordConfigBadApiAddress(t *testing.T) {
-	_, err := config.NewUserPassword("api.example.com", "admin", "pwd")
-	require.Error(t, err)
+	t.Run("Test with valid ClientCredentials", func(t *testing.T) {
+		c, err := New("https://api.example.com", ClientCredentials("clientID", "clientSecret"), AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+		require.Nil(t, err)
+		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
+		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
+		require.Equal(t, internalhttp.GrantTypeClientCredentials, c.grantType)
+	})
 
-	_, err = config.NewUserPassword("1.1.1.1", "admin", "pwd")
-	require.Error(t, err)
+	t.Run("Test with valid UserPassword", func(t *testing.T) {
+		c, err := New("https://api.example.com", UserPassword("username", "password"), AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+		require.Nil(t, err)
+		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
+		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
+		require.Equal(t, internalhttp.GrantTypePassword, c.grantType)
+	})
 
-	_, err = config.NewUserPassword("", "admin", "pwd")
-	require.Error(t, err)
-}
-
-func TestConfigNewUserPasswordConfigEmptyUserPwd(t *testing.T) {
-	_, err := config.NewUserPassword("https://api.example.com", "", "pwd")
-	require.Error(t, err, "expected missing username error")
-
-	_, err = config.NewUserPassword("https://api.example.com", "admin", "")
-	require.Error(t, err, "expected missing password error")
-}
-
-func TestConfigNewClientSecretConfig(t *testing.T) {
-	c, err := config.NewClientSecret("https://api.example.com", "opsman", "secret")
-	require.NoError(t, err)
-
-	require.Equal(t, "Go-CF-Client/3.0", c.UserAgent)
-
-	require.Equal(t, "opsman", c.ClientID)
-	require.Equal(t, "secret", c.ClientSecret)
-	require.Equal(t, "https://api.example.com", c.APIEndpointURL)
-
-	require.Empty(t, c.Username)
-	require.Empty(t, c.Password)
+	t.Run("Test with invalid URL", func(t *testing.T) {
+		_, err := New(":", ClientCredentials("clientID", "clientSecret"))
+		require.ErrorContains(t, err, "expected an http(s) CF API root URI, but got")
+	})
 }
 
 func TestNewConfigFromCFHomeDir(t *testing.T) {
@@ -76,51 +77,12 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	err = os.WriteFile(configPath, []byte(cfCLIConfig), 0744)
 	require.NoError(t, err)
 
-	cfg, err := config.NewFromCFHomeDir(cfHomeDir)
+	cfg, err := NewFromCFHomeDir(cfHomeDir)
 	require.NoError(t, err)
-
-	require.Equal(t, "https://api.sys.example.com", cfg.APIEndpointURL)
-}
-
-func TestNewConfigBaseHTTPClient(t *testing.T) {
-	c, err := config.NewToken("https://api.example.com", "token-content", "")
-	require.NoError(t, err)
-
-	require.Equal(t, time.Second*30, c.HTTPClient().Timeout,
-		"expected the non-default request timeout of 30s")
-
-	tr := c.HTTPClient().Transport.(*http.Transport)
-	require.Equal(t, 100, tr.MaxIdleConns,
-		"expected the default number of 100 max idle connections")
-	require.Equal(t, 0, tr.MaxConnsPerHost,
-		"expected 0, or unlimited connections per host")
-	require.Equal(t, 0, tr.MaxIdleConnsPerHost,
-		"expected 0, as http.Transport uses DefaultMaxIdleConnsPerHost (e.g. 2) if zero")
-	require.Equal(t, 90*time.Second, tr.IdleConnTimeout,
-		"expected to use the default idle connection timeout of 90s")
-	require.Equal(t, 10*time.Second, tr.TLSHandshakeTimeout,
-		"expected to use the default TLS handshake timeout of 10s")
-}
-
-func TestNewConfigWithOverrides(t *testing.T) {
-	c, err := config.NewToken("https://api.example.com", "token-content", "")
-	require.NoError(t, err)
-
-	// setting the http client should also set the TLS config and timeout on the default client
-	c.WithSkipTLSValidation(true)
-	c.WithRequestTimeout(time.Second * 10)
-	require.Equal(t, time.Second*10, c.HTTPClient().Timeout)
-	tr := c.HTTPClient().Transport.(*http.Transport)
-	require.True(t, tr.TLSClientConfig.InsecureSkipVerify)
-
-	// setting the http client should also set the TLS config and timeout on the custom client
-	customClient := &http.Client{
-		Transport: http.DefaultTransport,
-	}
-	c.WithHTTPClient(customClient)
-	require.Equal(t, time.Second*10, c.HTTPClient().Timeout)
-	tr = c.HTTPClient().Transport.(*http.Transport)
-	require.True(t, tr.TLSClientConfig.InsecureSkipVerify)
+	require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
+	require.Equal(t, internalhttp.DefaultClientID, cfg.clientID)
+	require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
+	require.Equal(t, internalhttp.GrantTypeNone, cfg.grantType)
 }
 
 const cfCLIConfig = `
@@ -132,7 +94,7 @@ const cfCLIConfig = `
   "DopplerEndPoint": "wss://doppler.sys.example.com:443",
   "UaaEndpoint": "https://uaa.sys.example.com",
   "RoutingAPIEndpoint": "https://api.sys.example.com/routing",
-  "AccessToken": "bearer secret-bearer-token",
+  "AccessToken": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk",
   "SSHOAuthClient": "ssh-proxy",
   "UAAOAuthClient": "cf",
   "UAAOAuthClientSecret": "",

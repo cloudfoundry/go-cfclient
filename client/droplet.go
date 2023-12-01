@@ -2,13 +2,9 @@ package client
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
-	http2 "net/http"
 	"net/url"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
@@ -90,8 +86,7 @@ func (c *DropletClient) Copy(ctx context.Context, srcDropletGUID string, destApp
 // Create a droplet without a package. To create a droplet based on a package, see Create a build
 func (c *DropletClient) Create(ctx context.Context, r *resource.DropletCreate) (*resource.Droplet, error) {
 	var d resource.Droplet
-	_, err := c.client.post(ctx, "/v3/droplets", r, &d)
-	if err != nil {
+	if _, err := c.client.post(ctx, "/v3/droplets", r, &d); err != nil {
 		return nil, err
 	}
 	return &d, nil
@@ -109,34 +104,7 @@ func (c *DropletClient) Download(ctx context.Context, guid string) (io.ReadClose
 	// The client will not automatically follow this redirect and uses a secondary
 	// unauthenticated client to download the bits
 	// https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#download-droplet-bits
-	p := path.Format("/v3/droplets/%s/download", guid)
-	req := http.NewRequest(ctx, http2.MethodGet, p).WithFollowRedirects(false)
-	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error getting %s: %w", p, err)
-	}
-	if !http.IsResponseRedirect(resp.StatusCode) {
-		return nil, fmt.Errorf("error downloading droplet %s bits, expected redirect to blobstore", guid)
-	}
-
-	// get the full URL to the blobstore via the Location header
-	blobStoreLocation := resp.Header.Get("Location")
-	if blobStoreLocation == "" {
-		return nil, errors.New("response redirect Location header was empty")
-	}
-
-	// directly download the bits from blobstore using an unauthenticated client as
-	// some blob stores will return a 400 if an Authorization header is sent
-	req = http.NewRequest(ctx, http2.MethodGet, "")
-	blobstoreHTTPExecutor := http.NewExecutor(
-		c.client.unauthenticatedClientProvider, blobStoreLocation, c.client.config.UserAgent)
-
-	resp, err = blobstoreHTTPExecutor.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error downloading droplet %s bits from blobstore", guid)
-	}
-
-	return resp.Body, nil
+	return c.client.download(ctx, path.Format("/v3/droplets/%s/download", guid))
 }
 
 // First returns the first droplet matching the options or an error when less than 1 match

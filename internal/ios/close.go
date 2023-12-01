@@ -5,19 +5,15 @@ import (
 	"os"
 )
 
-func CloseReaderIgnoreError(r io.ReadCloser) {
-	_ = r.Close()
-}
-
-func CloseWriterIgnoreError(w io.WriteCloser) {
-	_ = w.Close()
-}
-
-func CloseIgnoreError(c io.Closer) {
-	_ = c.Close()
+func Close(c io.Closer) {
+	if c != nil {
+		_ = c.Close()
+	}
 }
 
 func CleanupTempFile(f *os.File) {
-	_ = f.Close()
-	_ = os.Remove(f.Name())
+	if f != nil {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+	}
 }

@@ -130,8 +130,7 @@ func TestAppPush(t *testing.T) {
 		},
 	}, t)
 
-	c, _ := config.NewToken(serverURL, "", "fake-refresh-token")
-	c.WithSkipTLSValidation(true)
+	c, _ := config.New(serverURL, config.Token("", "fake-refresh-token"), config.SkipTLSValidation())
 	cf, err := client.New(c)
 	require.NoError(t, err)
 

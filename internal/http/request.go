@@ -1,82 +1,68 @@
 package http
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
+	"net/http"
+	"time"
 )
 
-const DefaultContentType = "application/json"
+const (
+	GrantTypeNone              = ""
+	GrantTypeClientCredentials = "client_credentials"
+	GrantTypePassword          = "password"
+	DefaultRequestTimeout      = 30 * time.Second
+	DefaultUserAgent           = "Go-CF-Client/3.0"
+	MaxRedirects               = 10
+	ErrMaxRedirects            = "stopped after maximum allowed redirects"
+	DefaultClientID            = "cf"
+)
 
-// Request is used to help build up an HTTP request
-type Request struct {
-	method          string
-	pathAndQuery    string
-	contentType     string
-	contentLength   *int64
-	followRedirects bool
-	context         context.Context
+// contextKey is a private static type to avoid potential collisions.
+type contextKey struct{}
 
-	// can set one or the other but not both
-	body   io.Reader
-	object any
+// ignoreRedirectKey is a context key used for storing the redirect ignore flag.
+var ignoreRedirectKey = contextKey{}
 
-	// arbitrary headers
-	headers map[string]string
-}
-
-// NewRequest creates a new minimally configured HTTP request instance
-func NewRequest(ctx context.Context, method, pathAndQuery string) *Request {
-	return &Request{
-		context:         ctx,
-		method:          method,
-		pathAndQuery:    pathAndQuery,
-		headers:         make(map[string]string),
-		followRedirects: true,
+// IgnoreRedirect sets a flag in the request's context to indicate that redirects should be ignored.
+func IgnoreRedirect(req *http.Request) *http.Request {
+	if req == nil {
+		return nil
 	}
+	return req.WithContext(context.WithValue(req.Context(), ignoreRedirectKey, true))
 }
 
-// WithObject adds an object to the request body to be JSON serialized
-func (r *Request) WithObject(obj any) *Request {
-	r.object = obj
-
-	// default content type to json if provided an object
-	if r.contentType == "" {
-		r.contentType = DefaultContentType
+// IsIgnoredRedirect checks if the 'ignore redirect' flag is set in the request's context.
+func IsIgnoredRedirect(req *http.Request) bool {
+	if req == nil {
+		return false
 	}
-	return r
+	v, ok := req.Context().Value(ignoreRedirectKey).(bool)
+	return ok && v
 }
 
-// WithBody adds the specified body as-is to the request and defaults the content type to JSON
-func (r *Request) WithBody(body io.Reader) *Request {
-	r.body = body
-
-	// default content type to json if provided a body
-	if r.contentType == "" {
-		r.contentType = DefaultContentType
+// CheckRedirect checks the redirect policy for the HTTP client.
+func CheckRedirect(req *http.Request, via []*http.Request) error {
+	if IsIgnoredRedirect(req) {
+		return http.ErrUseLastResponse
 	}
-	return r
+	if len(via) >= MaxRedirects {
+		return errors.New(ErrMaxRedirects)
+	}
+	return nil
 }
 
-// WithContentType sets the content type of the request body
-func (r *Request) WithContentType(contentType string) *Request {
-	r.contentType = contentType
-	return r
-}
-
-// WithContentLength sets the content length, needed for file uploads
-func (r *Request) WithContentLength(len int64) *Request {
-	r.contentLength = &len
-	return r
-}
-
-// WithHeader sets an arbitrary header on the request
-func (r *Request) WithHeader(name, value string) *Request {
-	r.headers[name] = value
-	return r
-}
-
-// WithFollowRedirects sets the content type of the request body
-func (r *Request) WithFollowRedirects(follow bool) *Request {
-	r.followRedirects = follow
-	return r
+func EncodeBody(obj any) (io.Reader, error) {
+	if obj == nil {
+		return nil, nil
+	}
+	buf := new(bytes.Buffer)
+	if err := json.NewEncoder(buf).Encode(obj); err != nil {
+		return nil, fmt.Errorf("error encoding object to JSON: %w", err)
+	}
+	return buf, nil
 }

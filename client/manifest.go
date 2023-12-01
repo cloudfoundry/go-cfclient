@@ -3,36 +3,33 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 	"io"
-	http2 "net/http"
+	"net/http"
 	"strings"
+
+	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 )
 
 type ManifestClient commonClient
 
 // Generate the specified app manifest as a yaml text string
 func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, error) {
-	p := path.Format("/v3/apps/%s/manifest", appGUID)
-	req := http.NewRequest(ctx, http2.MethodGet, p)
-
-	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.client.ToURL(path.Format("/v3/apps/%s/manifest", appGUID)), nil)
 	if err != nil {
-		return "", fmt.Errorf("error getting %s: %w", p, err)
+		return "", fmt.Errorf("failed to create manifest request for app %s: %w", appGUID, err)
 	}
-	defer func(b io.ReadCloser) {
-		_ = b.Close()
-	}(resp.Body)
 
-	if resp.StatusCode != http2.StatusOK {
-		return "", c.client.decodeError(resp)
+	resp, err := c.client.ExecuteAuthRequest(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute manifest request for app %s: %w", appGUID, err)
 	}
+	defer ios.Close(resp.Body)
 
 	buf := new(strings.Builder)
-	_, err = io.Copy(buf, resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("error reading response %s: %w", p, err)
+	if _, err = io.Copy(buf, resp.Body); err != nil {
+		return "", fmt.Errorf("failed to read manifest for app %s: %w", appGUID, err)
 	}
 	return buf.String(), nil
 }
@@ -43,25 +40,16 @@ func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, 
 // The apps must reside in the space. These changes are additive and will not modify any unspecified
 // properties or remove any existing environment variables, routes, or services.
 func (c *ManifestClient) ApplyManifest(ctx context.Context, spaceGUID string, manifest string) (string, error) {
-	reader := strings.NewReader(manifest)
-	req := http.NewRequest(ctx, http2.MethodPost, path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)).
-		WithContentType("application/x-yaml").
-		WithBody(reader)
-
-	resp, err := c.client.authenticatedHTTPExecutor.ExecuteRequest(req)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.client.ToURL(path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)), strings.NewReader(manifest))
 	if err != nil {
-		return "", fmt.Errorf("error uploading manifest %s bits: %w", spaceGUID, err)
+		return "", fmt.Errorf("failed to create manifest apply request for space %s: %w", spaceGUID, err)
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	if resp.StatusCode != http2.StatusAccepted {
-		return "", c.client.decodeError(resp)
-	}
+	req.Header.Set("Content-Type", "application/x-yaml")
 
-	jobGUID, err := c.client.decodeJobIDOrBody(resp, nil)
+	resp, err := c.client.ExecuteAuthRequest(req)
 	if err != nil {
-		return "", fmt.Errorf("error reading jobGUID: %w", err)
+		return "", fmt.Errorf("failed to upload manifest for space %s: %w", spaceGUID, err)
 	}
-	return jobGUID, nil
+	defer ios.Close(resp.Body)
+	return internalhttp.DecodeJobID(resp), nil
 }
