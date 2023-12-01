@@ -33,7 +33,7 @@ func ExecuteTests(tests []RouteTest, t *testing.T) {
 				details = tt.Description + ": " + details
 			}
 
-			c, err := config.New(serverURL, config.Token("", "fake-refresh-token"))
+			c, _ := config.New(serverURL, config.Token("", "fake-refresh-token"))
 			cl, err := New(c)
 			require.NoError(t, err, details)
 

@@ -190,7 +190,7 @@ func (c *Config) Validate() error {
 	// If clientID is provided, check for clientSecret
 	if c.clientID != "" {
 		if c.clientSecret == "" {
-			if c.clientID != internalhttp.DefaultClientId {
+			if c.clientID != internalhttp.DefaultClientID {
 				return errors.New("client secret is required when using client credentials")
 			}
 		} else {
@@ -198,7 +198,7 @@ func (c *Config) Validate() error {
 		}
 	} else {
 		// Set a default clientID if not provided
-		c.clientID = internalhttp.DefaultClientId
+		c.clientID = internalhttp.DefaultClientID
 	}
 
 	// If username is provided, check for password

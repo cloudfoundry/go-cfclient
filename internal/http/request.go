@@ -19,7 +19,7 @@ const (
 	DefaultUserAgent           = "Go-CF-Client/3.0"
 	MaxRedirects               = 10
 	ErrMaxRedirects            = "stopped after maximum allowed redirects"
-	DefaultClientId            = "cf"
+	DefaultClientID            = "cf"
 )
 
 // contextKey is a private static type to avoid potential collisions.
