@@ -1,6 +1,6 @@
 # go-cfclient
 
-[![build workflow](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml)
+[![build workflow](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml)
 [![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3?status.svg)](http://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3)
 [![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient/v3)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient/v3)
 
