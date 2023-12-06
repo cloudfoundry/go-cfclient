@@ -24,6 +24,16 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
+const (
+	GrantTypeRefreshToken      = "refresh_token"
+	GrantTypeClientCredentials = "client_credentials"
+	GrantTypeAuthorizationCode = "authorization_code"
+
+	DefaultRequestTimeout = 30 * time.Second
+	DefaultUserAgent      = "Go-CF-Client/3.0"
+	DefaultClientID       = "cf"
+)
+
 // cfHomeConfig represents the CF Home configuration.
 type cfHomeConfig struct {
 	AccessToken           string
@@ -181,21 +191,21 @@ func (c *Config) Validate() error {
 	}
 
 	if c.oAuthToken != nil {
-		c.grantType = internalhttp.GrantTypeNone
+		c.grantType = GrantTypeRefreshToken
 	}
 
 	// If clientID is provided, check for clientSecret
 	if c.clientID != "" {
 		if c.clientSecret == "" {
-			if c.clientID != internalhttp.DefaultClientID {
+			if c.clientID != DefaultClientID {
 				return errors.New("client secret is required when using client credentials")
 			}
 		} else {
-			c.grantType = internalhttp.GrantTypeClientCredentials
+			c.grantType = GrantTypeClientCredentials
 		}
 	} else {
 		// Set a default clientID if not provided
-		c.clientID = internalhttp.DefaultClientID
+		c.clientID = DefaultClientID
 	}
 
 	// If username is provided, check for password
@@ -203,7 +213,7 @@ func (c *Config) Validate() error {
 		if c.password == "" {
 			return errors.New("password is required when using user credentials")
 		}
-		c.grantType = internalhttp.GrantTypePassword
+		c.grantType = GrantTypeAuthorizationCode
 	}
 
 	c.configureHTTPClient()
@@ -238,9 +248,9 @@ func (c *Config) generateToken(ctx context.Context, shouldCreateToken bool) erro
 		return c.userAuth(oauthCtx, shouldCreateToken)
 	}
 	switch c.grantType {
-	case internalhttp.GrantTypeClientCredentials:
+	case GrantTypeClientCredentials:
 		return c.clientAuth(oauthCtx)
-	case internalhttp.GrantTypePassword:
+	case GrantTypeAuthorizationCode:
 		return c.userAuth(oauthCtx, shouldCreateToken)
 	default:
 		return fmt.Errorf("unsupported grant type: `%s`", c.grantType)
@@ -349,8 +359,8 @@ func New(apiRootURL string, options ...Option) (*Config, error) {
 	}
 	return validateConfig(&Config{
 		apiEndpointURL: strings.TrimRight(u.String(), "/"),
-		userAgent:      internalhttp.DefaultUserAgent,
-		requestTimeout: internalhttp.DefaultRequestTimeout,
+		userAgent:      DefaultUserAgent,
+		requestTimeout: DefaultRequestTimeout,
 	}, options...)
 }
 
@@ -399,8 +409,8 @@ func loadConfigFromCFHome(cfHomeDir string) (*Config, error) {
 		sshOAuthClient:    cfgHome.SSHOAuthClient,
 		username:          os.Getenv("CF_USERNAME"),
 		password:          os.Getenv("CF_PASSWORD"),
-		userAgent:         internalhttp.DefaultUserAgent,
-		requestTimeout:    internalhttp.DefaultRequestTimeout,
+		userAgent:         DefaultUserAgent,
+		requestTimeout:    DefaultRequestTimeout,
 	}
 	if oAuthToken, err := jwt.ToOAuth2Token(cfgHome.AccessToken, cfgHome.RefreshToken); err == nil {
 		cfg.oAuthToken = oAuthToken

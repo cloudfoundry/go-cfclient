@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 )
 
 func TestConfig(t *testing.T) {
@@ -40,7 +38,7 @@ func TestConfig(t *testing.T) {
 			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
 		require.Nil(t, err)
 		require.NotNil(t, c.oAuthToken)
-		require.Equal(t, internalhttp.GrantTypeNone, c.grantType)
+		require.Equal(t, GrantTypeRefreshToken, c.grantType)
 	})
 
 	t.Run("Test with valid ClientCredentials", func(t *testing.T) {
@@ -48,7 +46,7 @@ func TestConfig(t *testing.T) {
 		require.Nil(t, err)
 		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
 		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
-		require.Equal(t, internalhttp.GrantTypeClientCredentials, c.grantType)
+		require.Equal(t, GrantTypeClientCredentials, c.grantType)
 	})
 
 	t.Run("Test with valid UserPassword", func(t *testing.T) {
@@ -56,7 +54,7 @@ func TestConfig(t *testing.T) {
 		require.Nil(t, err)
 		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
 		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
-		require.Equal(t, internalhttp.GrantTypePassword, c.grantType)
+		require.Equal(t, GrantTypeAuthorizationCode, c.grantType)
 	})
 
 	t.Run("Test with invalid URL", func(t *testing.T) {
@@ -80,9 +78,9 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	cfg, err := NewFromCFHomeDir(cfHomeDir)
 	require.NoError(t, err)
 	require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
-	require.Equal(t, internalhttp.DefaultClientID, cfg.clientID)
+	require.Equal(t, DefaultClientID, cfg.clientID)
 	require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
-	require.Equal(t, internalhttp.GrantTypeNone, cfg.grantType)
+	require.Equal(t, GrantTypeRefreshToken, cfg.grantType)
 }
 
 const cfCLIConfig = `

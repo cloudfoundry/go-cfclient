@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
 	"net/http"
 	"net/url"
@@ -56,7 +55,7 @@ func Scopes(scopes ...string) Option {
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {
 		if userAgent = strings.TrimSpace(userAgent); userAgent == "" {
-			c.userAgent = internalhttp.DefaultUserAgent
+			c.userAgent = DefaultUserAgent
 		} else {
 			c.userAgent = userAgent
 		}
@@ -102,7 +101,7 @@ func HttpClient(client *http.Client) Option {
 func RequestTimeout(timeout time.Duration) Option {
 	return func(c *Config) error {
 		if timeout <= 0 {
-			c.requestTimeout = internalhttp.DefaultRequestTimeout
+			c.requestTimeout = DefaultRequestTimeout
 		} else {
 			c.requestTimeout = timeout
 		}

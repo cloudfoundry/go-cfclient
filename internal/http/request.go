@@ -8,18 +8,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 const (
-	GrantTypeNone              = ""
-	GrantTypeClientCredentials = "client_credentials"
-	GrantTypePassword          = "password"
-	DefaultRequestTimeout      = 30 * time.Second
-	DefaultUserAgent           = "Go-CF-Client/3.0"
-	MaxRedirects               = 10
-	ErrMaxRedirects            = "stopped after maximum allowed redirects"
-	DefaultClientID            = "cf"
+	MaxRedirects    = 10
+	ErrMaxRedirects = "stopped after maximum allowed redirects"
 )
 
 // contextKey is a private static type to avoid potential collisions.
