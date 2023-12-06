@@ -3,13 +3,11 @@ package config
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -33,20 +31,6 @@ const (
 	DefaultUserAgent      = "Go-CF-Client/3.0"
 	DefaultClientID       = "cf"
 )
-
-// cfHomeConfig represents the CF Home configuration.
-type cfHomeConfig struct {
-	AccessToken           string
-	RefreshToken          string
-	Target                string
-	AuthorizationEndpoint string
-	UaaEndpoint           string
-	UAAOAuthClient        string
-	UAAOAuthClientSecret  string
-	UAAGrantType          string
-	SSHOAuthClient        string
-	SSLDisabled           bool
-}
 
 // Config is used to configure the creation of a client
 type Config struct {
@@ -380,40 +364,37 @@ func NewFromCFHome(options ...Option) (*Config, error) {
 // NewFromCFHomeDir is similar to NewToken but reads the access token from the config in the specified directory
 // which must exist and have a valid access token.
 func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
-	config, err := loadConfigFromCFHome(cfHomeDir)
+	config, err := createConfigFromCFCLIConfig(cfHomeDir)
 	if err != nil {
 		return nil, err
 	}
 	return validateConfig(config, options...)
 }
 
-// loadConfigFromCFHome reads the CF Home configuration from the specified directory.
-func loadConfigFromCFHome(cfHomeDir string) (*Config, error) {
-	configFile := filepath.Join(filepath.Join(cfHomeDir, ".cf"), "config.json")
-	cfJSON, err := os.ReadFile(configFile)
+// createConfigFromCFCLIConfig reads the CF Home configuration from the specified directory.
+func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
+	cf, err := loadCFCLIConfig(cfHomeDir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read %s: %w", configFile, err)
+		return nil, err
 	}
-	var cfgHome cfHomeConfig
-	if err = json.Unmarshal(cfJSON, &cfgHome); err != nil {
-		return nil, fmt.Errorf("error while unmarshalling CF home config: %w", err)
+	oAuthToken, err := jwt.ToOAuth2Token(cf.AccessToken, cf.RefreshToken)
+	if err != nil {
+		return nil, err
 	}
 	cfg := &Config{
-		apiEndpointURL:    cfgHome.Target,
-		loginEndpointURL:  cfgHome.AuthorizationEndpoint,
-		uaaEndpointURL:    cfgHome.UaaEndpoint,
-		clientID:          cfgHome.UAAOAuthClient,
-		clientSecret:      cfgHome.UAAOAuthClientSecret,
-		skipTLSValidation: cfgHome.SSLDisabled,
-		grantType:         cfgHome.UAAGrantType,
-		sshOAuthClient:    cfgHome.SSHOAuthClient,
+		apiEndpointURL:    cf.Target,
+		loginEndpointURL:  cf.AuthorizationEndpoint,
+		uaaEndpointURL:    cf.UaaEndpoint,
+		clientID:          cf.UAAOAuthClient,
+		clientSecret:      cf.UAAOAuthClientSecret,
+		skipTLSValidation: cf.SSLDisabled,
+		grantType:         cf.UAAGrantType,
+		sshOAuthClient:    cf.SSHOAuthClient,
+		oAuthToken:        oAuthToken,
 		username:          os.Getenv("CF_USERNAME"),
 		password:          os.Getenv("CF_PASSWORD"),
 		userAgent:         DefaultUserAgent,
 		requestTimeout:    DefaultRequestTimeout,
-	}
-	if oAuthToken, err := jwt.ToOAuth2Token(cfgHome.AccessToken, cfgHome.RefreshToken); err == nil {
-		cfg.oAuthToken = oAuthToken
 	}
 	return cfg, nil
 }
