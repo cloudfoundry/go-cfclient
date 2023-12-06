@@ -6,6 +6,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk"
+const refreshToken = "secret-refresh-token"
+
 func TestConfig(t *testing.T) {
 	t.Run("Test with empty ClientID", func(t *testing.T) {
 		_, err := New("https://api.example.com", ClientCredentials("", "test"))
@@ -32,7 +35,7 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("Test with Valid Tokens", func(t *testing.T) {
-		c, err := New("https://api.example.com", Token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk", "test"),
+		c, err := New("https://api.example.com", Token(accessToken, refreshToken),
 			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
 		require.Nil(t, err)
 		require.NotNil(t, c.oAuthToken)
@@ -40,7 +43,9 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("Test with valid ClientCredentials", func(t *testing.T) {
-		c, err := New("https://api.example.com", ClientCredentials("clientID", "clientSecret"), AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+		c, err := New("https://api.example.com",
+			ClientCredentials("clientID", "clientSecret"),
+			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
 		require.Nil(t, err)
 		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
 		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
@@ -48,7 +53,9 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("Test with valid UserPassword", func(t *testing.T) {
-		c, err := New("https://api.example.com", UserPassword("username", "password"), AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+		c, err := New("https://api.example.com",
+			UserPassword("username", "password"),
+			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
 		require.Nil(t, err)
 		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
 		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
