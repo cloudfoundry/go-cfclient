@@ -3,11 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-
 	"github.com/cloudfoundry-community/go-cfclient/v3/client"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 )
+
+const apiURL = "https://api.sys.example.com"
+const loginURL = "https://login.sys.example.com"
+const tokenURL = "https://uaa.sys.example.com"
+const username = "admin"
+const password = "password"
+const clientID = "cf"
+const clientSecret = "secret"
 
 func main() {
 	err := execute()
@@ -19,29 +29,59 @@ func main() {
 }
 
 func execute() error {
-	err := listOrganizationsWithConfig(config.NewFromCFHome)
-	if err == nil {
-		err = listOrganizationsWithConfig(func(options ...config.Option) (*config.Config, error) {
-			options = append(options, config.UserPassword("admin", "password"))
-			return config.New("https://api.sys.example.com", options...)
-		})
-		if err == nil {
-			err = listOrganizationsWithConfig(func(options ...config.Option) (*config.Config, error) {
-				options = append(options, config.ClientCredentials("cf-client", "client-secret"))
-				return config.New("https://api.sys.example.com", options...)
-			})
-		}
-	}
-	return err
-}
-
-func listOrganizationsWithConfig(cFn func(options ...config.Option) (*config.Config, error)) error {
-	ctx := context.Background()
-	conf, err := cFn(config.SkipTLSValidation())
+	// use the CF CLI config and the stored access/refresh token
+	cfg, err := config.NewFromCFHome()
 	if err != nil {
 		return err
 	}
-	cf, err := client.New(conf)
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// use the hardcoded CF API endpoint and user/pass and skip TLS validation
+	cfg, err = config.New(apiURL,
+		config.UserPassword(username, password),
+		config.SkipTLSValidation())
+	if err != nil {
+		return err
+	}
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// use the hardcoded CF API endpoint and client/secret and skip TLS validation
+	cfg, err = config.New(apiURL,
+		config.ClientCredentials(clientID, clientSecret),
+		config.SkipTLSValidation())
+	if err != nil {
+		return err
+	}
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// Unnecessarily use all config options
+	cfg, err = config.New(apiURL,
+		config.UserPassword(username, password),
+		config.SkipTLSValidation(),
+		config.AuthTokenURL(loginURL, tokenURL),
+		config.UserAgent("MyApp-Client/1.0"),
+		config.HttpClient(&http.Client{}),
+		config.RequestTimeout(10*time.Second),
+		config.Origin("uaa"),
+		config.Scopes("cloud_controller.read", "cloud_controller_service_permissions.read"))
+	if err != nil {
+		return err
+	}
+	return listOrganizationsWithConfig(cfg)
+}
+
+func listOrganizationsWithConfig(cfg *config.Config) error {
+	ctx := context.Background()
+	cf, err := client.New(cfg)
 	if err != nil {
 		return err
 	}
