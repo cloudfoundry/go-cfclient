@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -70,10 +71,48 @@ func TestConfig(t *testing.T) {
 
 func TestNewConfigFromCFHomeDir(t *testing.T) {
 	cfHomeDir := writeTestCFCLIConfig(t)
-	cfg, err := NewFromCFHomeDir(cfHomeDir)
-	require.NoError(t, err)
-	require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
-	require.Equal(t, DefaultClientID, cfg.clientID)
-	require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
-	require.Equal(t, GrantTypeRefreshToken, cfg.grantType)
+
+	t.Run("without overrides", func(t *testing.T) {
+		cfg, err := NewFromCFHomeDir(cfHomeDir)
+		require.NoError(t, err)
+		require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
+		require.Equal(t, "https://login.sys.example.com", cfg.loginEndpointURL)
+		require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
+		require.Equal(t, accessToken, cfg.oAuthToken.AccessToken)
+		require.Equal(t, refreshToken, cfg.oAuthToken.RefreshToken)
+		require.Equal(t, DefaultClientID, cfg.clientID)
+		require.Equal(t, GrantTypeRefreshToken, cfg.grantType)
+	})
+
+	t.Run("with with CF_USERNAME and CF_PASSWORD set", func(t *testing.T) {
+		require.NoError(t, os.Setenv("CF_USERNAME", "admin"))
+		require.NoError(t, os.Setenv("CF_PASSWORD", "pass"))
+		defer func() {
+			_ = os.Unsetenv("CF_USERNAME")
+			_ = os.Unsetenv("CF_PASSWORD")
+		}()
+		cfg, err := NewFromCFHomeDir(cfHomeDir)
+		require.NoError(t, err)
+		require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
+		require.Equal(t, "https://login.sys.example.com", cfg.loginEndpointURL)
+		require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
+		require.Equal(t, "admin", cfg.username)
+		require.Equal(t, "pass", cfg.password)
+		require.Equal(t, DefaultClientID, cfg.clientID)
+		require.Equal(t, GrantTypeAuthorizationCode, cfg.grantType)
+	})
+
+	t.Run("with override options", func(t *testing.T) {
+		cfg, err := NewFromCFHomeDir(cfHomeDir,
+			UserPassword("admin", "pass"),
+			AuthTokenURL("https://login2.sys.example.com", "https://uaa2.sys.example.com"))
+		require.NoError(t, err)
+		require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
+		require.Equal(t, "https://login2.sys.example.com", cfg.loginEndpointURL)
+		require.Equal(t, "https://uaa2.sys.example.com", cfg.uaaEndpointURL)
+		require.Equal(t, "admin", cfg.username)
+		require.Equal(t, "pass", cfg.password)
+		require.Equal(t, DefaultClientID, cfg.clientID)
+		require.Equal(t, GrantTypeAuthorizationCode, cfg.grantType)
+	})
 }

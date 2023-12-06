@@ -377,10 +377,7 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	oAuthToken, err := jwt.ToOAuth2Token(cf.AccessToken, cf.RefreshToken)
-	if err != nil {
-		return nil, err
-	}
+
 	cfg := &Config{
 		apiEndpointURL:    cf.Target,
 		loginEndpointURL:  cf.AuthorizationEndpoint,
@@ -388,14 +385,25 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 		clientID:          cf.UAAOAuthClient,
 		clientSecret:      cf.UAAOAuthClientSecret,
 		skipTLSValidation: cf.SSLDisabled,
-		grantType:         cf.UAAGrantType,
 		sshOAuthClient:    cf.SSHOAuthClient,
-		oAuthToken:        oAuthToken,
-		username:          os.Getenv("CF_USERNAME"),
-		password:          os.Getenv("CF_PASSWORD"),
 		userAgent:         DefaultUserAgent,
 		requestTimeout:    DefaultRequestTimeout,
 	}
+
+	// if the username and password are specified via env vars use password based auth
+	if os.Getenv("CF_USERNAME") != "" && os.Getenv("CF_PASSWORD") != "" {
+		cfg.username = os.Getenv("CF_USERNAME")
+		cfg.password = os.Getenv("CF_PASSWORD")
+		cfg.grantType = GrantTypeAuthorizationCode
+	} else {
+		oAuthToken, err := jwt.ToOAuth2Token(cf.AccessToken, cf.RefreshToken)
+		if err != nil {
+			return nil, err
+		}
+		cfg.oAuthToken = oAuthToken
+		cfg.grantType = GrantTypeRefreshToken
+	}
+
 	return cfg, nil
 }
 
