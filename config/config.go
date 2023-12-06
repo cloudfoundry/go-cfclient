@@ -319,19 +319,30 @@ func New(apiRootURL string, options ...Option) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRootURL, err)
 	}
-	return validateConfig(&Config{
+	cfg := &Config{
 		apiEndpointURL: strings.TrimRight(u.String(), "/"),
 		userAgent:      DefaultUserAgent,
 		requestTimeout: DefaultRequestTimeout,
 		clientID:       DefaultClientID,
-	}, options...)
+	}
+	err = applyOptions(cfg, options...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }
 
-// NewFromCFHome is similar to NewToken but reads the access token from the CF_HOME config, which must
-// exist and have a valid access token.
+// NewFromCFHome creates a go-cfclient config from the CF CLI config.
 //
 // This will use the currently configured CF_HOME env var if it exists, otherwise attempts to use the
 // default CF_HOME directory.
+//
+// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
+// those env vars are not set then the stored oauth2 token is used.
 func NewFromCFHome(options ...Option) (*Config, error) {
 	dir, err := findCFHomeDir()
 	if err != nil {
@@ -340,14 +351,26 @@ func NewFromCFHome(options ...Option) (*Config, error) {
 	return NewFromCFHomeDir(dir, options...)
 }
 
-// NewFromCFHomeDir is similar to NewToken but reads the access token from the config in the specified directory
-// which must exist and have a valid access token.
+// NewFromCFHomeDir creates a go-cfclient config from the CF CLI config using the specified directory.
+//
+// This will attempt to read the CF CLI config from the specified directory only.
+//
+// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
+// those env vars are not set then the stored oauth2 token is used.
 func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
-	config, err := createConfigFromCFCLIConfig(cfHomeDir)
+	cfg, err := createConfigFromCFCLIConfig(cfHomeDir)
 	if err != nil {
 		return nil, err
 	}
-	return validateConfig(config, options...)
+	err = applyOptions(cfg, options...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }
 
 // createConfigFromCFCLIConfig reads the CF Home configuration from the specified directory.
@@ -386,16 +409,13 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 	return cfg, nil
 }
 
-func validateConfig(cfg *Config, options ...Option) (*Config, error) {
+func applyOptions(cfg *Config, options ...Option) error {
 	for _, option := range options {
 		if err := option(cfg); err != nil {
-			return nil, err
+			return err
 		}
 	}
-	if err := cfg.Validate(); err != nil {
-		return nil, fmt.Errorf("error validating configuration: %w", err)
-	}
-	return cfg, nil
+	return nil
 }
 
 // findCFHomeDir finds the CF Home directory.
