@@ -24,6 +24,7 @@ func ClientCredentials(clientId, clientSecret string) Option {
 		}
 		c.clientID = clientId
 		c.clientSecret = clientSecret
+		c.grantType = GrantTypeClientCredentials
 		return nil
 	}
 }
@@ -39,6 +40,7 @@ func UserPassword(username, password string) Option {
 		}
 		c.username = username
 		c.password = password
+		c.grantType = GrantTypeAuthorizationCode
 		return nil
 	}
 }
@@ -125,6 +127,7 @@ func Token(accessToken, refreshToken string) Option {
 			return fmt.Errorf("invalid CF API token: %w", err)
 		}
 		c.oAuthToken = oAuthToken
+		c.grantType = GrantTypeRefreshToken
 		return nil
 	}
 }

@@ -163,41 +163,19 @@ func (c *Config) Validate() error {
 		return nil
 	}
 
-	// Trim spaces only once for efficiency
-	c.clientID = strings.TrimSpace(c.clientID)
-	c.username = strings.TrimSpace(c.username)
-	c.clientSecret = strings.TrimSpace(c.clientSecret)
-	c.password = strings.TrimSpace(c.password)
-
 	// Ensure at least one of clientID, username, or token is provided
 	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
 		return errors.New("either client credentials, user credentials, or tokens are required")
 	}
 
-	if c.oAuthToken != nil {
-		c.grantType = GrantTypeRefreshToken
-	}
-
-	// If clientID is provided, check for clientSecret
-	if c.clientID != "" {
-		if c.clientSecret == "" {
-			if c.clientID != DefaultClientID {
-				return errors.New("client secret is required when using client credentials")
-			}
-		} else {
-			c.grantType = GrantTypeClientCredentials
-		}
-	} else {
-		// Set a default clientID if not provided
-		c.clientID = DefaultClientID
+	// If a non-default clientID is provided, check for clientSecret
+	if c.clientID != DefaultClientID && c.clientSecret == "" {
+		return errors.New("client secret is required when using client credentials")
 	}
 
 	// If username is provided, check for password
-	if c.username != "" {
-		if c.password == "" {
-			return errors.New("password is required when using user credentials")
-		}
-		c.grantType = GrantTypeAuthorizationCode
+	if c.username != "" && c.password == "" {
+		return errors.New("password is required when using user credentials")
 	}
 
 	c.configureHTTPClient()
@@ -345,6 +323,7 @@ func New(apiRootURL string, options ...Option) (*Config, error) {
 		apiEndpointURL: strings.TrimRight(u.String(), "/"),
 		userAgent:      DefaultUserAgent,
 		requestTimeout: DefaultRequestTimeout,
+		clientID:       DefaultClientID,
 	}, options...)
 }
 
