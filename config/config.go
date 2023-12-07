@@ -107,6 +107,37 @@ func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
 	return cfg, nil
 }
 
+// Validate validates the configuration.
+func (c *Config) Validate() error {
+	// Ensure at least one of clientID, username, or token is provided
+	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
+		return errors.New("either client credentials, user credentials, or tokens are required")
+	}
+
+	// If a non-default clientID is provided, check for clientSecret
+	if c.clientID != DefaultClientID && c.clientSecret == "" {
+		return errors.New("client secret is required when using client credentials")
+	}
+
+	// If username is provided, check for password
+	if c.username != "" && c.password == "" {
+		return errors.New("password is required when using user credentials")
+	}
+
+	return nil
+}
+
+func (c *Config) SSHOAuthClient(ctx context.Context) (string, error) {
+	if c.sshOAuthClient == "" {
+		r, err := globalAPIRoot(ctx, c.httpClient, c.ToURL("/"))
+		if err != nil {
+			return "", err
+		}
+		c.sshOAuthClient = r.Links.AppSSH.Meta.OauthClient
+	}
+	return c.sshOAuthClient, nil
+}
+
 // initConfig fully populates and then validates the provided base config
 func initConfig(cfg *Config, options ...Option) error {
 	// Apply any user provided config overrides
@@ -117,7 +148,7 @@ func initConfig(cfg *Config, options ...Option) error {
 
 	// Ensure an HTTP client is available and then query the CF API for UAA/Login endpoints
 	configureHTTPClient(cfg)
-	err = tokenServiceURLDiscovery(context.Background(), cfg)
+	err = discoverAuthConfig(context.Background(), cfg)
 	if err != nil {
 		return err
 	}
@@ -144,14 +175,14 @@ func configureHTTPClient(c *Config) {
 	c.httpClient.Timeout = c.requestTimeout
 }
 
-func tokenServiceURLDiscovery(ctx context.Context, c *Config) error {
+func discoverAuthConfig(ctx context.Context, c *Config) error {
 	// Return immediately if URLs have already been configured
 	if c.loginEndpointURL != "" && c.uaaEndpointURL != "" {
 		return nil
 	}
 
 	// Query the CF API root for the service locator records
-	root, err := c.globalAPIRoot(ctx)
+	root, err := globalAPIRoot(ctx, c.httpClient, c.ToURL("/"))
 	if err != nil {
 		return fmt.Errorf("error while discovering token service URL: %w", err)
 	}
@@ -161,202 +192,14 @@ func tokenServiceURLDiscovery(ctx context.Context, c *Config) error {
 	return nil
 }
 
-// userAuth authenticates using user credentials or refreshes an existing token.
-func (c *Config) userAuth(ctx context.Context, shouldCreateToken bool) error {
-	authConfig := &oauth2.Config{
-		ClientID:     c.clientID,
-		ClientSecret: c.clientSecret,
-		Scopes:       c.scopes,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  c.loginEndpointURL + "/oauth/auth",
-			TokenURL: c.uaaEndpointURL + "/oauth/token",
-		},
-	}
-	// If shouldCreateToken is true, generate a new token
-	if shouldCreateToken {
-		if c.origin != "" {
-			// Add login hint to the token URL
-			authConfig.Endpoint.TokenURL = addLoginHintToURL(authConfig.Endpoint.TokenURL, c.origin)
-		}
-		// Authenticate with user credentials
-		return c.obtainUserToken(ctx, authConfig)
-	}
-	// Refresh an existing token
-	return c.refreshToken(ctx, authConfig)
-}
-
-// obtainUserToken obtains a user authentication token.
-func (c *Config) obtainUserToken(ctx context.Context, authConfig *oauth2.Config) error {
-	var err error
-	if c.oAuthToken, err = authConfig.PasswordCredentialsToken(ctx, c.username, c.password); err != nil {
-		return fmt.Errorf("an error occurred while obtaining the user authentication token: %w", err)
-	}
-	return nil
-}
-
-// refreshToken refreshes an existing token.
-func (c *Config) refreshToken(ctx context.Context, authConfig *oauth2.Config) error {
-	var err error
-	if c.oAuthToken, err = authConfig.TokenSource(ctx, c.oAuthToken).Token(); err != nil {
-		var oauthErr *oauth2.RetrieveError
-		if errors.As(err, &oauthErr) && oauthErr.Response.StatusCode == http.StatusUnauthorized {
-			if err = c.generateToken(ctx, true); err == nil {
-				return nil
-			}
-		}
-		return fmt.Errorf("an error occurred while attempting to refresh the token: %w", err)
-	}
-	return nil
-}
-
-// clientAuth authenticates using client credentials.
-func (c *Config) clientAuth(ctx context.Context) error {
-	authConfig := &clientcredentials.Config{
-		ClientID:     c.clientID,
-		ClientSecret: c.clientSecret,
-		Scopes:       c.scopes,
-		TokenURL:     c.uaaEndpointURL + "/oauth/token",
-	}
-	var err error
-	// Authenticate with client credentials
-	if c.oAuthToken, err = authConfig.Token(ctx); err != nil {
-		return fmt.Errorf("an error occurred while obtaining the client authentication token: %w", err)
-	}
-	return nil
-}
-
-// Validate validates the configuration.
-func (c *Config) Validate() error {
-	// Ensure at least one of clientID, username, or token is provided
-	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
-		return errors.New("either client credentials, user credentials, or tokens are required")
-	}
-
-	// If a non-default clientID is provided, check for clientSecret
-	if c.clientID != DefaultClientID && c.clientSecret == "" {
-		return errors.New("client secret is required when using client credentials")
-	}
-
-	// If username is provided, check for password
-	if c.username != "" && c.password == "" {
-		return errors.New("password is required when using user credentials")
-	}
-
-	return nil
-}
-
-// token ensures the token is valid, refreshing it if necessary.
-func (c *Config) token(ctx context.Context) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.oAuthToken.Valid() {
-		return nil
-	}
-	// If the current token is not valid, refresh it.
-	shouldCreateToken := c.oAuthToken == nil || strings.TrimSpace(c.oAuthToken.RefreshToken) == ""
-	// If the token is missing or has no refresh token, re-authenticate.
-	return c.generateToken(ctx, shouldCreateToken)
-}
-
-// generateToken generates a new token or refreshes an existing one.
-func (c *Config) generateToken(ctx context.Context, shouldCreateToken bool) error {
-	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
-	if !shouldCreateToken {
-		return c.userAuth(oauthCtx, shouldCreateToken)
-	}
-	switch c.grantType {
-	case GrantTypeClientCredentials:
-		return c.clientAuth(oauthCtx)
-	case GrantTypeAuthorizationCode:
-		return c.userAuth(oauthCtx, shouldCreateToken)
-	default:
-		return fmt.Errorf("unsupported grant type: `%s`", c.grantType)
-	}
-}
-
-func (c *Config) ToURL(urlPath string) string {
-	return path.Join(c.apiEndpointURL, urlPath)
-}
-
-func (c *Config) ToAuthenticateURL(urlPath string) string {
-	return path.Join(c.uaaEndpointURL, urlPath)
-}
-
-func (c *Config) SSHOAuthClient(ctx context.Context) (string, error) {
-	if c.sshOAuthClient == "" {
-		r, err := c.globalAPIRoot(ctx)
-		if err != nil {
-			return "", err
-		}
-		c.sshOAuthClient = r.Links.AppSSH.Meta.OauthClient
-	}
-	return c.sshOAuthClient, nil
-}
-
-func (c *Config) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (*http.Response, error) {
-	if req == nil {
-		return nil, errors.New("request is empty or invalid")
-	}
-
-	req.Header.Set("User-Agent", c.userAgent)
-	if includeAuthHeader {
-		// Get a new access token if the current one is invalid.
-		if err := c.token(req.Context()); err != nil {
-			return nil, fmt.Errorf("unable to get new access token: %w", err)
-		}
-		// Set the OAuth header on the request.
-		c.oAuthToken.SetAuthHeader(req)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
-	}
-
-	// If the response status code is 401 Unauthorized, refresh the access token and retry the request.
-	if includeAuthHeader && resp.StatusCode == http.StatusUnauthorized {
-		ios.Close(resp.Body)
-		// Return from the function to retry the request.
-		return c.reAuthenticateAndRetry(req)
-	}
-
-	if internalhttp.IsStatusSuccess(resp.StatusCode) {
-		return resp, err
-	}
-	return nil, internalhttp.DecodeError(resp)
-}
-
-// ExecuteAuthRequest executes an HTTP request with authentication.
-func (c *Config) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, true)
-}
-
-func (c *Config) ExecuteRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, false)
-}
-
-func (c *Config) reAuthenticateAndRetry(req *http.Request) (*http.Response, error) {
-	// Lock the mutex to prevent concurrent access to the OAuth token.
-	c.mu.Lock()
-	// Check if another goroutine already refreshed the token.
-	if !c.oAuthToken.Valid() {
-		// Set the OAuth token to nil so that a new one will be obtained on the next request.
-		c.oAuthToken = nil
-	}
-	c.mu.Unlock()
-	// Retry the request with the new token.
-	return c.ExecuteAuthRequest(req)
-}
-
 // globalAPIRoot queries the CF API service discovery root endpoint
-func (c *Config) globalAPIRoot(ctx context.Context) (*resource.Root, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToURL("/"), nil)
+func globalAPIRoot(ctx context.Context, httpClient *http.Client, url string) (*resource.Root, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error occurred while generating the request for the global API root: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
 	}
@@ -429,6 +272,141 @@ func getHTTPTransport(client *http.Client) *http.Transport {
 	return nil
 }
 
+//////////////////////// OAuth2/HTTP ///////////////////////////////
+
+func (c *Config) ToURL(urlPath string) string {
+	return path.Join(c.apiEndpointURL, urlPath)
+}
+
+func (c *Config) ToAuthenticateURL(urlPath string) string {
+	return path.Join(c.uaaEndpointURL, urlPath)
+}
+
+// ExecuteAuthRequest executes an HTTP request with authentication.
+func (c *Config) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, true)
+}
+
+func (c *Config) ExecuteRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, false)
+}
+
+func (c *Config) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (*http.Response, error) {
+	if req == nil {
+		return nil, errors.New("request is empty or invalid")
+	}
+
+	req.Header.Set("User-Agent", c.userAgent)
+	if includeAuthHeader {
+		// Get a new access token if the current one is invalid.
+		if err := c.token(req.Context()); err != nil {
+			return nil, fmt.Errorf("unable to get new access token: %w", err)
+		}
+		// Set the OAuth header on the request.
+		c.oAuthToken.SetAuthHeader(req)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
+	}
+
+	// If the response status code is 401 Unauthorized, refresh the access token and retry the request.
+	if includeAuthHeader && resp.StatusCode == http.StatusUnauthorized {
+		ios.Close(resp.Body)
+		// Return from the function to retry the request.
+		return c.reAuthenticateAndRetry(req)
+	}
+
+	if internalhttp.IsStatusSuccess(resp.StatusCode) {
+		return resp, err
+	}
+	return nil, internalhttp.DecodeError(resp)
+}
+
+func (c *Config) reAuthenticateAndRetry(req *http.Request) (*http.Response, error) {
+	// Lock the mutex to prevent concurrent access to the OAuth token.
+	c.mu.Lock()
+	// Check if another goroutine already refreshed the token.
+	if !c.oAuthToken.Valid() {
+		// Set the OAuth token to nil so that a new one will be obtained on the next request.
+		c.oAuthToken = nil
+	}
+	c.mu.Unlock()
+	// Retry the request with the new token.
+	return c.ExecuteAuthRequest(req)
+}
+
+// token ensures the token is valid, refreshing it if necessary.
+func (c *Config) token(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.oAuthToken.Valid() {
+		return nil
+	}
+	// If the current token is not valid, refresh it.
+	shouldCreateToken := c.oAuthToken == nil || strings.TrimSpace(c.oAuthToken.RefreshToken) == ""
+	// If the token is missing or has no refresh token, re-authenticate.
+	return c.generateToken(ctx, shouldCreateToken)
+}
+
+// generateToken generates a new token or refreshes an existing one.
+func (c *Config) generateToken(ctx context.Context, shouldCreateToken bool) error {
+	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
+	if !shouldCreateToken {
+		return c.userAuth(oauthCtx, shouldCreateToken)
+	}
+	switch c.grantType {
+	case GrantTypeClientCredentials:
+		return c.clientAuth(oauthCtx)
+	case GrantTypeAuthorizationCode:
+		return c.userAuth(oauthCtx, shouldCreateToken)
+	default:
+		return fmt.Errorf("unsupported grant type: `%s`", c.grantType)
+	}
+}
+
+// clientAuth authenticates using client credentials.
+func (c *Config) clientAuth(ctx context.Context) error {
+	authConfig := &clientcredentials.Config{
+		ClientID:     c.clientID,
+		ClientSecret: c.clientSecret,
+		Scopes:       c.scopes,
+		TokenURL:     c.uaaEndpointURL + "/oauth/token",
+	}
+	var err error
+	// Authenticate with client credentials
+	if c.oAuthToken, err = authConfig.Token(ctx); err != nil {
+		return fmt.Errorf("an error occurred while obtaining the client authentication token: %w", err)
+	}
+	return nil
+}
+
+// userAuth authenticates using user credentials or refreshes an existing token.
+func (c *Config) userAuth(ctx context.Context, shouldCreateToken bool) error {
+	authConfig := &oauth2.Config{
+		ClientID:     c.clientID,
+		ClientSecret: c.clientSecret,
+		Scopes:       c.scopes,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  c.loginEndpointURL + "/oauth/auth",
+			TokenURL: c.uaaEndpointURL + "/oauth/token",
+		},
+	}
+	// If shouldCreateToken is true, generate a new token
+	if shouldCreateToken {
+		if c.origin != "" {
+			// Add login hint to the token URL
+			authConfig.Endpoint.TokenURL = addLoginHintToURL(authConfig.Endpoint.TokenURL, c.origin)
+		}
+		// Authenticate with user credentials
+		return c.obtainUserToken(ctx, authConfig)
+	}
+	// Refresh an existing token
+	return c.refreshToken(ctx, authConfig)
+}
+
 func addLoginHintToURL(tokenURL, origin string) string {
 	u, err := url.Parse(tokenURL)
 	if err != nil {
@@ -441,4 +419,28 @@ func addLoginHintToURL(tokenURL, origin string) string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
+}
+
+// obtainUserToken obtains a user authentication token.
+func (c *Config) obtainUserToken(ctx context.Context, authConfig *oauth2.Config) error {
+	var err error
+	if c.oAuthToken, err = authConfig.PasswordCredentialsToken(ctx, c.username, c.password); err != nil {
+		return fmt.Errorf("an error occurred while obtaining the user authentication token: %w", err)
+	}
+	return nil
+}
+
+// refreshToken refreshes an existing token.
+func (c *Config) refreshToken(ctx context.Context, authConfig *oauth2.Config) error {
+	var err error
+	if c.oAuthToken, err = authConfig.TokenSource(ctx, c.oAuthToken).Token(); err != nil {
+		var oauthErr *oauth2.RetrieveError
+		if errors.As(err, &oauthErr) && oauthErr.Response.StatusCode == http.StatusUnauthorized {
+			if err = c.generateToken(ctx, true); err == nil {
+				return nil
+			}
+		}
+		return fmt.Errorf("an error occurred while attempting to refresh the token: %w", err)
+	}
+	return nil
 }
