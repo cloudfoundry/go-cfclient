@@ -21,6 +21,19 @@ type cfCLIConfig struct {
 	SSLDisabled           bool
 }
 
+// findCFHomeDir finds the CF Home directory.
+func findCFHomeDir() (string, error) {
+	cfHomeDir := os.Getenv("CF_HOME")
+	if cfHomeDir != "" {
+		return cfHomeDir, nil
+	}
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("failed to determine user's home directory: %w", err)
+	}
+	return userHomeDir, nil
+}
+
 // createConfigFromCFCLIConfig reads the CF Home configuration from the specified directory.
 func loadCFCLIConfig(cfHomeDir string) (*cfCLIConfig, error) {
 	configFile := filepath.Join(filepath.Join(cfHomeDir, ".cf"), "config.json")

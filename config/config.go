@@ -417,19 +417,6 @@ func applyOptions(cfg *Config, options ...Option) error {
 	return nil
 }
 
-// findCFHomeDir finds the CF Home directory.
-func findCFHomeDir() (string, error) {
-	cfHomeDir := os.Getenv("CF_HOME")
-	if cfHomeDir != "" {
-		return cfHomeDir, nil
-	}
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", fmt.Errorf("failed to determine user's home directory: %w", err)
-	}
-	return userHomeDir, nil
-}
-
 func getHTTPTransport(client *http.Client) *http.Transport {
 	switch t := client.Transport.(type) {
 	case *http.Transport:
