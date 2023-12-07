@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -8,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 
 	"github.com/stretchr/testify/require"
 
@@ -236,7 +235,7 @@ func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
 func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 	t.Helper()
 	if len(UserAgentExp) < 1 {
-		UserAgentExp = internalhttp.DefaultUserAgent
+		UserAgentExp = config.DefaultUserAgent
 	}
 	if UserAgent != UserAgentExp {
 		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)
