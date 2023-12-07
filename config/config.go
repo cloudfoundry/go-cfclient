@@ -146,7 +146,7 @@ func configureHTTPClient(c *Config) {
 
 func tokenServiceURLDiscovery(ctx context.Context, c *Config) error {
 	// Return immediately if URLs have already been configured
-	if strings.TrimSpace(c.loginEndpointURL) != "" && strings.TrimSpace(c.uaaEndpointURL) != "" {
+	if c.loginEndpointURL != "" && c.uaaEndpointURL != "" {
 		return nil
 	}
 
@@ -385,8 +385,8 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 		uaaEndpointURL:    cf.UaaEndpoint,
 		clientID:          cf.UAAOAuthClient,
 		clientSecret:      cf.UAAOAuthClientSecret,
-		skipTLSValidation: cf.SSLDisabled,
 		sshOAuthClient:    cf.SSHOAuthClient,
+		skipTLSValidation: cf.SSLDisabled,
 		userAgent:         DefaultUserAgent,
 		requestTimeout:    DefaultRequestTimeout,
 	}
