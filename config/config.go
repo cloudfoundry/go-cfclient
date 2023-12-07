@@ -151,7 +151,7 @@ func tokenServiceURLDiscovery(ctx context.Context, c *Config) error {
 	}
 
 	// Query the CF API root for the service locator records
-	root, err := c.Root(ctx)
+	root, err := c.globalAPIRoot(ctx)
 	if err != nil {
 		return fmt.Errorf("error while discovering token service URL: %w", err)
 	}
@@ -285,7 +285,7 @@ func (c *Config) ToAuthenticateURL(urlPath string) string {
 
 func (c *Config) SSHOAuthClient(ctx context.Context) (string, error) {
 	if c.sshOAuthClient == "" {
-		r, err := c.Root(ctx)
+		r, err := c.globalAPIRoot(ctx)
 		if err != nil {
 			return "", err
 		}
@@ -349,17 +349,20 @@ func (c *Config) reAuthenticateAndRetry(req *http.Request) (*http.Response, erro
 	return c.ExecuteAuthRequest(req)
 }
 
-// Root queries the global API root
-func (c *Config) Root(ctx context.Context) (*resource.Root, error) {
+// globalAPIRoot queries the CF API service discovery root endpoint
+func (c *Config) globalAPIRoot(ctx context.Context) (*resource.Root, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToURL("/"), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error occurred while generating the request for the global API root: %w", err)
 	}
-	resp, err := c.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("error occurred while attempting to query the global API root: %w", err)
-	}
 
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
+	}
+	if !internalhttp.IsStatusSuccess(resp.StatusCode) {
+		return nil, internalhttp.DecodeError(resp)
+	}
 	defer ios.Close(resp.Body)
 
 	var root resource.Root

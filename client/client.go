@@ -43,6 +43,7 @@ type Client struct {
 	Revisions                 *RevisionClient
 	ResourceMatches           *ResourceMatchClient
 	Roles                     *RoleClient
+	Root                      *RootClient
 	Routes                    *RouteClient
 	SecurityGroups            *SecurityGroupClient
 	ServiceBrokers            *ServiceBrokerClient
@@ -105,6 +106,7 @@ func New(config *config.Config) (*Client, error) {
 	client.Revisions = (*RevisionClient)(&client.common)
 	client.ResourceMatches = (*ResourceMatchClient)(&client.common)
 	client.Roles = (*RoleClient)(&client.common)
+	client.Root = (*RootClient)(&client.common)
 	client.Routes = (*RouteClient)(&client.common)
 	client.SecurityGroups = (*SecurityGroupClient)(&client.common)
 	client.ServiceBrokers = (*ServiceBrokerClient)(&client.common)
