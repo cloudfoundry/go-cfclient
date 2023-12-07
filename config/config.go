@@ -30,6 +30,7 @@ const (
 	DefaultRequestTimeout = 30 * time.Second
 	DefaultUserAgent      = "Go-CF-Client/3.0"
 	DefaultClientID       = "cf"
+	DefaultSSHClientID    = "ssh-proxy"
 )
 
 // Config is used to configure the creation of a client
@@ -66,6 +67,7 @@ func New(apiRootURL string, options ...Option) (*Config, error) {
 		userAgent:      DefaultUserAgent,
 		requestTimeout: DefaultRequestTimeout,
 		clientID:       DefaultClientID,
+		sshOAuthClient: DefaultSSHClientID,
 	}
 	err = initConfig(cfg, options...)
 	if err != nil {
@@ -127,15 +129,9 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *Config) SSHOAuthClient(ctx context.Context) (string, error) {
-	if c.sshOAuthClient == "" {
-		r, err := globalAPIRoot(ctx, c.httpClient, c.ToURL("/"))
-		if err != nil {
-			return "", err
-		}
-		c.sshOAuthClient = r.Links.AppSSH.Meta.OauthClient
-	}
-	return c.sshOAuthClient, nil
+// SSHOAuthClient returns the clientID used to request an SSH code, typically 'ssh-proxy'.
+func (c *Config) SSHOAuthClient() string {
+	return c.sshOAuthClient
 }
 
 // initConfig fully populates and then validates the provided base config

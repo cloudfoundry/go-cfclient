@@ -129,15 +129,9 @@ func New(config *config.Config) (*Client, error) {
 
 // SSHCode generates an SSH code that can be used by generic SSH clients to SSH into app instances
 func (c *Client) SSHCode(ctx context.Context) (string, error) {
-	// need this to grab the SSH client id, should probably be cached in config
-	sshOAuthClient, err := c.SSHOAuthClient(ctx)
-	if err != nil {
-		return "", err
-	}
-
 	values := url.Values{}
 	values.Set("response_type", "code")
-	values.Set("client_id", sshOAuthClient) // client_id，used by cf server
+	values.Set("client_id", c.SSHOAuthClient())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToAuthenticateURL(path.Format("/oauth/authorize?%s", values)), nil)
 	if err != nil {

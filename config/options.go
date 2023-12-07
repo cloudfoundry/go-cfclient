@@ -131,3 +131,11 @@ func Token(accessToken, refreshToken string) Option {
 		return nil
 	}
 }
+
+// SSHOAuthClient configures a clientID used to request an SSH code.
+func SSHOAuthClient(clientID string) Option {
+	return func(c *Config) error {
+		c.sshOAuthClient = clientID
+		return nil
+	}
+}
