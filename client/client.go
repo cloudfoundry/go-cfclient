@@ -131,7 +131,7 @@ func New(config *config.Config) (*Client, error) {
 func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	values := url.Values{}
 	values.Set("response_type", "code")
-	values.Set("client_id", c.SSHOAuthClient())
+	values.Set("client_id", c.SSHOAuthClientID())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToAuthenticateURL(path.Format("/oauth/authorize?%s", values)), nil)
 	if err != nil {

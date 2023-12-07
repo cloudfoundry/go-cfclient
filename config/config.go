@@ -129,8 +129,8 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// SSHOAuthClient returns the clientID used to request an SSH code, typically 'ssh-proxy'.
-func (c *Config) SSHOAuthClient() string {
+// SSHOAuthClientID returns the clientID used to request an SSH code, typically 'ssh-proxy'.
+func (c *Config) SSHOAuthClientID() string {
 	return c.sshOAuthClient
 }
 
