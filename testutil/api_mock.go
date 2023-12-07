@@ -28,6 +28,7 @@ type MockRoute struct {
 	Output           []string
 	UserAgent        string
 	Status           int
+	Statuses         []int
 	QueryString      string
 	PostForm         string
 	RedirectLocation string
@@ -78,15 +79,28 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 	for _, mock := range mockEndpoints {
 		method := mock.Method
 		endpoint := mock.Endpoint
+		userAgent := mock.UserAgent
+		status := mock.Status
+		statuses := mock.Statuses
+		queryString := mock.QueryString
+		postFormBody := mock.PostForm
+		redirectLocation := mock.RedirectLocation
+
+		// TODO: add support for other HTTP verbs
+		// GET optionally supports returning multiple results for the same endpoint
 		output := mock.Output
 		if len(output) == 0 {
 			output = []string{""}
 		}
-		userAgent := mock.UserAgent
-		status := mock.Status
-		queryString := mock.QueryString
-		postFormBody := mock.PostForm
-		redirectLocation := mock.RedirectLocation
+
+		// if a separate status wasn't specified for each call, reuse the same status
+		if len(statuses) == 0 {
+			statuses = make([]int, len(output))
+			for i, _ := range statuses {
+				statuses[i] = status
+			}
+		}
+
 		switch method {
 		case "GET":
 			count := 0
@@ -97,6 +111,7 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 					res.Header().Add("Location", redirectLocation)
 				}
 				singleOutput := output[count]
+				status = statuses[count]
 				count++
 				return status, singleOutput
 			})
