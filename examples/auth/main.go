@@ -72,7 +72,8 @@ func execute() error {
 		config.HttpClient(&http.Client{}),
 		config.RequestTimeout(10*time.Second),
 		config.Origin("uaa"),
-		config.Scopes("cloud_controller.read", "cloud_controller_service_permissions.read"))
+		config.Scopes("cloud_controller.read", "cloud_controller_service_permissions.read"),
+		config.SSHOAuthClient("ssh-proxy"))
 	if err != nil {
 		return err
 	}
