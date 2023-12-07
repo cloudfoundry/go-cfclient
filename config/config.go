@@ -53,12 +53,81 @@ type Config struct {
 	skipTLSValidation bool
 	requestTimeout    time.Duration
 	userAgent         string
+}
 
-	isValidated bool
+// New creates a new Config with specified API root URL and options.
+func New(apiRootURL string, options ...Option) (*Config, error) {
+	u, err := url.Parse(apiRootURL)
+	if err != nil {
+		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRootURL, err)
+	}
+	cfg := &Config{
+		apiEndpointURL: strings.TrimRight(u.String(), "/"),
+		userAgent:      DefaultUserAgent,
+		requestTimeout: DefaultRequestTimeout,
+		clientID:       DefaultClientID,
+	}
+	err = initConfig(cfg, options...)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// NewFromCFHome creates a go-cfclient config from the CF CLI config.
+//
+// This will use the currently configured CF_HOME env var if it exists, otherwise attempts to use the
+// default CF_HOME directory.
+//
+// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
+// those env vars are not set then the stored oauth2 token is used.
+func NewFromCFHome(options ...Option) (*Config, error) {
+	dir, err := findCFHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	return NewFromCFHomeDir(dir, options...)
+}
+
+// NewFromCFHomeDir creates a go-cfclient config from the CF CLI config using the specified directory.
+//
+// This will attempt to read the CF CLI config from the specified directory only.
+//
+// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
+// those env vars are not set then the stored oauth2 token is used.
+func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
+	cfg, err := createConfigFromCFCLIConfig(cfHomeDir)
+	if err != nil {
+		return nil, err
+	}
+	err = initConfig(cfg, options...)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// initConfig fully populates and then validates the provided base config
+func initConfig(cfg *Config, options ...Option) error {
+	// Apply any user provided config overrides
+	err := applyOptions(cfg, options...)
+	if err != nil {
+		return err
+	}
+
+	// Ensure an HTTP client is available and then query the CF API for UAA/Login endpoints
+	configureHTTPClient(cfg)
+	err = tokenServiceURLDiscovery(context.Background(), cfg)
+	if err != nil {
+		return err
+	}
+
+	// Ensure the config object is valid for use by the client
+	return cfg.Validate()
 }
 
 // configureHTTPClient configures the base http client
-func (c *Config) configureHTTPClient() {
+func configureHTTPClient(c *Config) {
 	// Only configure the client if it has not been configured before
 	if c.httpClient == nil {
 		c.httpClient = &http.Client{
@@ -75,18 +144,17 @@ func (c *Config) configureHTTPClient() {
 	c.httpClient.Timeout = c.requestTimeout
 }
 
-func (c *Config) tokenServiceURLDiscovery() error {
-	// Return immediately if URLs have already been discovered
+func tokenServiceURLDiscovery(ctx context.Context, c *Config) error {
+	// Return immediately if URLs have already been configured
 	if strings.TrimSpace(c.loginEndpointURL) != "" && strings.TrimSpace(c.uaaEndpointURL) != "" {
 		return nil
 	}
 
-	// Perform the URL discovery
-	root, err := c.Root(context.Background())
+	// Query the CF API root for the service locator records
+	root, err := c.Root(ctx)
 	if err != nil {
 		return fmt.Errorf("error while discovering token service URL: %w", err)
 	}
-	// Update the URLs based on the discovery results
 	c.loginEndpointURL = root.Links.Login.Href
 	c.uaaEndpointURL = root.Links.Uaa.Href
 	c.sshOAuthClient = root.Links.AppSSH.Meta.OauthClient
@@ -159,10 +227,6 @@ func (c *Config) clientAuth(ctx context.Context) error {
 
 // Validate validates the configuration.
 func (c *Config) Validate() error {
-	if c.isValidated {
-		return nil
-	}
-
 	// Ensure at least one of clientID, username, or token is provided
 	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
 		return errors.New("either client credentials, user credentials, or tokens are required")
@@ -177,14 +241,6 @@ func (c *Config) Validate() error {
 	if c.username != "" && c.password == "" {
 		return errors.New("password is required when using user credentials")
 	}
-
-	c.configureHTTPClient()
-
-	if err := c.tokenServiceURLDiscovery(); err != nil {
-		return err
-	}
-
-	c.isValidated = true // Mark as validated
 
 	return nil
 }
@@ -311,66 +367,6 @@ func (c *Config) Root(ctx context.Context) (*resource.Root, error) {
 		return nil, fmt.Errorf("failed to decode API root response: %w", err)
 	}
 	return &root, nil
-}
-
-// New creates a new Config with specified API root URL and options.
-func New(apiRootURL string, options ...Option) (*Config, error) {
-	u, err := url.Parse(apiRootURL)
-	if err != nil {
-		return nil, fmt.Errorf("expected an http(s) CF API root URI, but got %s: %w", apiRootURL, err)
-	}
-	cfg := &Config{
-		apiEndpointURL: strings.TrimRight(u.String(), "/"),
-		userAgent:      DefaultUserAgent,
-		requestTimeout: DefaultRequestTimeout,
-		clientID:       DefaultClientID,
-	}
-	err = applyOptions(cfg, options...)
-	if err != nil {
-		return nil, err
-	}
-	err = cfg.Validate()
-	if err != nil {
-		return nil, err
-	}
-	return cfg, nil
-}
-
-// NewFromCFHome creates a go-cfclient config from the CF CLI config.
-//
-// This will use the currently configured CF_HOME env var if it exists, otherwise attempts to use the
-// default CF_HOME directory.
-//
-// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
-// those env vars are not set then the stored oauth2 token is used.
-func NewFromCFHome(options ...Option) (*Config, error) {
-	dir, err := findCFHomeDir()
-	if err != nil {
-		return nil, err
-	}
-	return NewFromCFHomeDir(dir, options...)
-}
-
-// NewFromCFHomeDir creates a go-cfclient config from the CF CLI config using the specified directory.
-//
-// This will attempt to read the CF CLI config from the specified directory only.
-//
-// If CF_USERNAME and CF_PASSWORD env vars are set then those credentials will be used to get an oauth2 token. If
-// those env vars are not set then the stored oauth2 token is used.
-func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
-	cfg, err := createConfigFromCFCLIConfig(cfHomeDir)
-	if err != nil {
-		return nil, err
-	}
-	err = applyOptions(cfg, options...)
-	if err != nil {
-		return nil, err
-	}
-	err = cfg.Validate()
-	if err != nil {
-		return nil, err
-	}
-	return cfg, nil
 }
 
 // createConfigFromCFCLIConfig reads the CF Home configuration from the specified directory.
