@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"os"
 	"testing"
 
@@ -54,12 +55,13 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("Test with valid UserPassword", func(t *testing.T) {
+		uaaURL := testutil.SetupFakeUAAServer(300)
 		c, err := New("https://api.example.com",
 			UserPassword("username", "password"),
-			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com"))
+			AuthTokenURL(uaaURL, uaaURL))
 		require.Nil(t, err)
-		require.Equal(t, "https://login.cf.example.com", c.loginEndpointURL)
-		require.Equal(t, "https://token.cf.example.com", c.uaaEndpointURL)
+		require.Equal(t, uaaURL, c.loginEndpointURL)
+		require.Equal(t, uaaURL, c.uaaEndpointURL)
 		require.Equal(t, GrantTypeAuthorizationCode, c.grantType)
 	})
 
@@ -85,17 +87,18 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	})
 
 	t.Run("with with CF_USERNAME and CF_PASSWORD set", func(t *testing.T) {
+		uaaURL := testutil.SetupFakeUAAServer(300)
 		require.NoError(t, os.Setenv("CF_USERNAME", "admin"))
 		require.NoError(t, os.Setenv("CF_PASSWORD", "pass"))
 		defer func() {
 			_ = os.Unsetenv("CF_USERNAME")
 			_ = os.Unsetenv("CF_PASSWORD")
 		}()
-		cfg, err := NewFromCFHomeDir(cfHomeDir)
+		cfg, err := NewFromCFHomeDir(cfHomeDir, AuthTokenURL(uaaURL, uaaURL))
 		require.NoError(t, err)
 		require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
-		require.Equal(t, "https://login.sys.example.com", cfg.loginEndpointURL)
-		require.Equal(t, "https://uaa.sys.example.com", cfg.uaaEndpointURL)
+		require.Equal(t, uaaURL, cfg.loginEndpointURL)
+		require.Equal(t, uaaURL, cfg.uaaEndpointURL)
 		require.Equal(t, "admin", cfg.username)
 		require.Equal(t, "pass", cfg.password)
 		require.Equal(t, DefaultClientID, cfg.clientID)
@@ -103,13 +106,14 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 	})
 
 	t.Run("with override options", func(t *testing.T) {
+		uaaURL := testutil.SetupFakeUAAServer(300)
 		cfg, err := NewFromCFHomeDir(cfHomeDir,
 			UserPassword("admin", "pass"),
-			AuthTokenURL("https://login2.sys.example.com", "https://uaa2.sys.example.com"))
+			AuthTokenURL(uaaURL, uaaURL))
 		require.NoError(t, err)
 		require.Equal(t, "https://api.sys.example.com", cfg.apiEndpointURL)
-		require.Equal(t, "https://login2.sys.example.com", cfg.loginEndpointURL)
-		require.Equal(t, "https://uaa2.sys.example.com", cfg.uaaEndpointURL)
+		require.Equal(t, uaaURL, cfg.loginEndpointURL)
+		require.Equal(t, uaaURL, cfg.uaaEndpointURL)
 		require.Equal(t, "admin", cfg.username)
 		require.Equal(t, "pass", cfg.password)
 		require.Equal(t, DefaultClientID, cfg.clientID)

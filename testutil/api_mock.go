@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -96,7 +95,7 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 		// if a separate status wasn't specified for each call, reuse the same status
 		if len(statuses) == 0 {
 			statuses = make([]int, len(output))
-			for i, _ := range statuses {
+			for i := range statuses {
 				statuses[i] = status
 			}
 		}
@@ -250,7 +249,7 @@ func testQueryString(QueryString string, QueryStringExp string, t *testing.T) {
 func testUserAgent(UserAgent string, UserAgentExp string, t *testing.T) {
 	t.Helper()
 	if len(UserAgentExp) < 1 {
-		UserAgentExp = config.DefaultUserAgent
+		UserAgentExp = "Go-CF-Client/3.0"
 	}
 	if UserAgent != UserAgentExp {
 		t.Errorf("Error: Agent %s should be equal to %s", UserAgent, UserAgentExp)

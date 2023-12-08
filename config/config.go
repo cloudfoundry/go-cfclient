@@ -9,13 +9,12 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	internal "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
@@ -35,8 +34,6 @@ const (
 
 // Config is used to configure the creation of a client
 type Config struct {
-	mu sync.Mutex
-
 	apiEndpointURL   string
 	loginEndpointURL string
 	uaaEndpointURL   string
@@ -51,6 +48,7 @@ type Config struct {
 	scopes            []string
 	oAuthToken        *oauth2.Token
 	httpClient        *http.Client
+	httpAuthClient    *http.Client
 	skipTLSValidation bool
 	requestTimeout    time.Duration
 	userAgent         string
@@ -76,7 +74,7 @@ func New(apiRootURL string, options ...Option) (*Config, error) {
 	return cfg, nil
 }
 
-// NewFromCFHome creates a go-cfclient config from the CF CLI config.
+// NewFromCFHome creates a client config from the CF CLI config.
 //
 // This will use the currently configured CF_HOME env var if it exists, otherwise attempts to use the
 // default CF_HOME directory.
@@ -91,7 +89,7 @@ func NewFromCFHome(options ...Option) (*Config, error) {
 	return NewFromCFHomeDir(dir, options...)
 }
 
-// NewFromCFHomeDir creates a go-cfclient config from the CF CLI config using the specified directory.
+// NewFromCFHomeDir creates a client config from the CF CLI config using the specified directory.
 //
 // This will attempt to read the CF CLI config from the specified directory only.
 //
@@ -134,6 +132,68 @@ func (c *Config) SSHOAuthClientID() string {
 	return c.sshOAuthClient
 }
 
+// HTTPClient returns the un-authenticated http.Client.
+func (c *Config) HTTPClient() *http.Client {
+	return c.httpClient
+}
+
+// HTTPAuthClient returns the authenticated http.Client.
+func (c *Config) HTTPAuthClient() *http.Client {
+	return c.httpClient
+}
+
+func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
+	// use our http.Client instance for token acquisition
+	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
+
+	twoLeggedAuthConfigFn := func() *clientcredentials.Config {
+		return &clientcredentials.Config{
+			ClientID:     c.clientID,
+			ClientSecret: c.clientSecret,
+			TokenURL:     c.uaaEndpointURL,
+		}
+	}
+
+	threeLeggedAuthConfigFn := func() *oauth2.Config {
+		return &oauth2.Config{
+			ClientID:     c.clientID,
+			ClientSecret: c.clientSecret,
+			Scopes:       c.scopes,
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  c.loginEndpointURL + "/oauth/auth",
+				TokenURL: c.uaaEndpointURL + "/oauth/token",
+			},
+		}
+	}
+
+	var tokenSource oauth2.TokenSource
+	switch c.grantType {
+	case GrantTypeClientCredentials:
+		authConfig := twoLeggedAuthConfigFn()
+		tokenSource = authConfig.TokenSource(oauthCtx)
+	case GrantTypeAuthorizationCode:
+		authConfig := threeLeggedAuthConfigFn()
+
+		// Add optional login hint to the token URL
+		if c.origin != "" {
+			authConfig.Endpoint.TokenURL = addLoginHintToURL(authConfig.Endpoint.TokenURL, c.origin)
+		}
+
+		// Login using user/pass
+		token, err := authConfig.PasswordCredentialsToken(oauthCtx, c.username, c.password)
+		if err != nil {
+			return nil, err
+		}
+		tokenSource = authConfig.TokenSource(oauthCtx, token)
+	case GrantTypeRefreshToken:
+		authConfig := threeLeggedAuthConfigFn()
+		tokenSource = authConfig.TokenSource(oauthCtx, c.oAuthToken)
+	default:
+		return nil, fmt.Errorf("unsupported OAuth2 grant type '%s'", c.grantType)
+	}
+	return tokenSource, nil
+}
+
 // initConfig fully populates and then validates the provided base config
 func initConfig(cfg *Config, options ...Option) error {
 	// Apply any user provided config overrides
@@ -142,18 +202,37 @@ func initConfig(cfg *Config, options ...Option) error {
 		return err
 	}
 
-	// Ensure an HTTP client is available and then query the CF API for UAA/Login endpoints
+	// Validate the config object is ready to use
+	err = cfg.Validate()
+	if err != nil {
+		return err
+	}
+
+	// Ensure a http.Client is available and properly configured
 	configureHTTPClient(cfg)
+
+	// Query the CF API for UAA/Login endpoints
 	err = discoverAuthConfig(context.Background(), cfg)
 	if err != nil {
 		return err
 	}
 
-	// Ensure the config object is valid for use by the client
-	return cfg.Validate()
+	// Finally create a http.Client for making API calls that require authentication
+	return createHTTPAuthClient(context.Background(), cfg)
 }
 
-// configureHTTPClient configures the base http client
+// applyOptions executes each option function to create the config.
+func applyOptions(cfg *Config, options ...Option) error {
+	for _, option := range options {
+		if err := option(cfg); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// configureHTTPClient creates a default http.Client if one wasn't supplied in the config and then
+// configures the base http.Client from the config.
 func configureHTTPClient(c *Config) {
 	// Only configure the client if it has not been configured before
 	if c.httpClient == nil {
@@ -167,10 +246,18 @@ func configureHTTPClient(c *Config) {
 		}
 		transport.TLSClientConfig.InsecureSkipVerify = c.skipTLSValidation
 	}
-	c.httpClient.CheckRedirect = internalhttp.CheckRedirect
+	c.httpClient.CheckRedirect = internal.CheckRedirect
 	c.httpClient.Timeout = c.requestTimeout
 }
 
+// createHTTPAuthClient creates the http.Client used for any API calls that require authentication.
+func createHTTPAuthClient(ctx context.Context, c *Config) (err error) {
+	c.httpAuthClient, err = internal.NewAuthenticatedClient(ctx, c.httpClient, c)
+	return err
+}
+
+// discoverAuthConfig configures the UAA and Login config properties from the CF API if none were supplied in the
+// config.
 func discoverAuthConfig(ctx context.Context, c *Config) error {
 	// Return immediately if URLs have already been configured
 	if c.loginEndpointURL != "" && c.uaaEndpointURL != "" {
@@ -199,19 +286,20 @@ func globalAPIRoot(ctx context.Context, httpClient *http.Client, url string) (*r
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
 	}
-	if !internalhttp.IsStatusSuccess(resp.StatusCode) {
-		return nil, internalhttp.DecodeError(resp)
+	if !internal.IsStatusSuccess(resp.StatusCode) {
+		return nil, internal.DecodeError(resp)
 	}
 	defer ios.Close(resp.Body)
 
 	var root resource.Root
-	if err := internalhttp.DecodeBody(resp, &root); err != nil {
+	if err := internal.DecodeBody(resp, &root); err != nil {
 		return nil, fmt.Errorf("failed to decode API root response: %w", err)
 	}
 	return &root, nil
 }
 
-// createConfigFromCFCLIConfig reads the CF Home configuration from the specified directory.
+// createConfigFromCFCLIConfig generates a config object from the CF CLI config found in the specified CF home
+// directory.
 func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 	cf, err := loadCFCLIConfig(cfHomeDir)
 	if err != nil {
@@ -247,15 +335,6 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 	return cfg, nil
 }
 
-func applyOptions(cfg *Config, options ...Option) error {
-	for _, option := range options {
-		if err := option(cfg); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func getHTTPTransport(client *http.Client) *http.Transport {
 	switch t := client.Transport.(type) {
 	case *http.Transport:
@@ -266,6 +345,20 @@ func getHTTPTransport(client *http.Client) *http.Transport {
 		}
 	}
 	return nil
+}
+
+func addLoginHintToURL(tokenURL, origin string) string {
+	u, err := url.Parse(tokenURL)
+	if err != nil {
+		// Handle the error, or return the original URL
+		return tokenURL
+	}
+
+	q := u.Query()
+	q.Add("login_hint", fmt.Sprintf(`{"origin":"%s"}`, origin))
+	u.RawQuery = q.Encode()
+
+	return u.String()
 }
 
 //////////////////////// OAuth2/HTTP ///////////////////////////////
@@ -287,156 +380,20 @@ func (c *Config) ExecuteRequest(req *http.Request) (*http.Response, error) {
 	return c.executeHTTPRequest(req, false)
 }
 
-func (c *Config) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (*http.Response, error) {
-	if req == nil {
-		return nil, errors.New("request is empty or invalid")
-	}
-
+func (c *Config) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (resp *http.Response, err error) {
 	req.Header.Set("User-Agent", c.userAgent)
 	if includeAuthHeader {
-		// Get a new access token if the current one is invalid.
-		if err := c.token(req.Context()); err != nil {
-			return nil, fmt.Errorf("unable to get new access token: %w", err)
-		}
-		// Set the OAuth header on the request.
-		c.oAuthToken.SetAuthHeader(req)
+		resp, err = c.httpAuthClient.Do(req)
+	} else {
+		resp, err = c.httpClient.Do(req)
 	}
 
-	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
 	}
-
-	// If the response status code is 401 Unauthorized, refresh the access token and retry the request.
-	if includeAuthHeader && resp.StatusCode == http.StatusUnauthorized {
-		ios.Close(resp.Body)
-		// Return from the function to retry the request.
-		return c.reAuthenticateAndRetry(req)
+	if !internal.IsStatusSuccess(resp.StatusCode) {
+		return nil, internal.DecodeError(resp)
 	}
 
-	if internalhttp.IsStatusSuccess(resp.StatusCode) {
-		return resp, err
-	}
-	return nil, internalhttp.DecodeError(resp)
-}
-
-func (c *Config) reAuthenticateAndRetry(req *http.Request) (*http.Response, error) {
-	// Lock the mutex to prevent concurrent access to the OAuth token.
-	c.mu.Lock()
-	// Check if another goroutine already refreshed the token.
-	if !c.oAuthToken.Valid() {
-		// Set the OAuth token to nil so that a new one will be obtained on the next request.
-		c.oAuthToken = nil
-	}
-	c.mu.Unlock()
-	// Retry the request with the new token.
-	return c.ExecuteAuthRequest(req)
-}
-
-// token ensures the token is valid, refreshing it if necessary.
-func (c *Config) token(ctx context.Context) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.oAuthToken.Valid() {
-		return nil
-	}
-	// If the current token is not valid, refresh it.
-	shouldCreateToken := c.oAuthToken == nil || strings.TrimSpace(c.oAuthToken.RefreshToken) == ""
-	// If the token is missing or has no refresh token, re-authenticate.
-	return c.generateToken(ctx, shouldCreateToken)
-}
-
-// generateToken generates a new token or refreshes an existing one.
-func (c *Config) generateToken(ctx context.Context, shouldCreateToken bool) error {
-	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
-	if !shouldCreateToken {
-		return c.userAuth(oauthCtx, shouldCreateToken)
-	}
-	switch c.grantType {
-	case GrantTypeClientCredentials:
-		return c.clientAuth(oauthCtx)
-	case GrantTypeAuthorizationCode:
-		return c.userAuth(oauthCtx, shouldCreateToken)
-	default:
-		return fmt.Errorf("unsupported grant type: `%s`", c.grantType)
-	}
-}
-
-// clientAuth authenticates using client credentials.
-func (c *Config) clientAuth(ctx context.Context) error {
-	authConfig := &clientcredentials.Config{
-		ClientID:     c.clientID,
-		ClientSecret: c.clientSecret,
-		Scopes:       c.scopes,
-		TokenURL:     c.uaaEndpointURL + "/oauth/token",
-	}
-	var err error
-	// Authenticate with client credentials
-	if c.oAuthToken, err = authConfig.Token(ctx); err != nil {
-		return fmt.Errorf("an error occurred while obtaining the client authentication token: %w", err)
-	}
-	return nil
-}
-
-// userAuth authenticates using user credentials or refreshes an existing token.
-func (c *Config) userAuth(ctx context.Context, shouldCreateToken bool) error {
-	authConfig := &oauth2.Config{
-		ClientID:     c.clientID,
-		ClientSecret: c.clientSecret,
-		Scopes:       c.scopes,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  c.loginEndpointURL + "/oauth/auth",
-			TokenURL: c.uaaEndpointURL + "/oauth/token",
-		},
-	}
-	// If shouldCreateToken is true, generate a new token
-	if shouldCreateToken {
-		if c.origin != "" {
-			// Add login hint to the token URL
-			authConfig.Endpoint.TokenURL = addLoginHintToURL(authConfig.Endpoint.TokenURL, c.origin)
-		}
-		// Authenticate with user credentials
-		return c.obtainUserToken(ctx, authConfig)
-	}
-	// Refresh an existing token
-	return c.refreshToken(ctx, authConfig)
-}
-
-func addLoginHintToURL(tokenURL, origin string) string {
-	u, err := url.Parse(tokenURL)
-	if err != nil {
-		// Handle the error, or return the original URL
-		return tokenURL
-	}
-
-	q := u.Query()
-	q.Add("login_hint", fmt.Sprintf(`{"origin":"%s"}`, origin))
-	u.RawQuery = q.Encode()
-
-	return u.String()
-}
-
-// obtainUserToken obtains a user authentication token.
-func (c *Config) obtainUserToken(ctx context.Context, authConfig *oauth2.Config) error {
-	var err error
-	if c.oAuthToken, err = authConfig.PasswordCredentialsToken(ctx, c.username, c.password); err != nil {
-		return fmt.Errorf("an error occurred while obtaining the user authentication token: %w", err)
-	}
-	return nil
-}
-
-// refreshToken refreshes an existing token.
-func (c *Config) refreshToken(ctx context.Context, authConfig *oauth2.Config) error {
-	var err error
-	if c.oAuthToken, err = authConfig.TokenSource(ctx, c.oAuthToken).Token(); err != nil {
-		var oauthErr *oauth2.RetrieveError
-		if errors.As(err, &oauthErr) && oauthErr.Response.StatusCode == http.StatusUnauthorized {
-			if err = c.generateToken(ctx, true); err == nil {
-				return nil
-			}
-		}
-		return fmt.Errorf("an error occurred while attempting to refresh the token: %w", err)
-	}
-	return nil
+	return resp, err
 }
