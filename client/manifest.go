@@ -16,7 +16,7 @@ type ManifestClient commonClient
 
 // Generate the specified app manifest as a yaml text string
 func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.client.ToURL(path.Format("/v3/apps/%s/manifest", appGUID)), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.client.ApiURL(path.Format("/v3/apps/%s/manifest", appGUID)), nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create manifest request for app %s: %w", appGUID, err)
 	}
@@ -40,7 +40,7 @@ func (c *ManifestClient) Generate(ctx context.Context, appGUID string) (string, 
 // The apps must reside in the space. These changes are additive and will not modify any unspecified
 // properties or remove any existing environment variables, routes, or services.
 func (c *ManifestClient) ApplyManifest(ctx context.Context, spaceGUID string, manifest string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.client.ToURL(path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)), strings.NewReader(manifest))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.client.ApiURL(path.Format("/v3/spaces/%s/actions/apply_manifest", spaceGUID)), strings.NewReader(manifest))
 	if err != nil {
 		return "", fmt.Errorf("failed to create manifest apply request for space %s: %w", spaceGUID, err)
 	}

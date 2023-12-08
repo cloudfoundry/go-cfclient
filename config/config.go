@@ -107,6 +107,14 @@ func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
 	return cfg, nil
 }
 
+func (c *Config) ApiURL(urlPath string) string {
+	return path.Join(c.apiEndpointURL, urlPath)
+}
+
+func (c *Config) AuthURL(urlPath string) string {
+	return path.Join(c.uaaEndpointURL, urlPath)
+}
+
 // CreateOAuth2TokenSource is used by the HTTP transport infrastructure to generate new TokenSource instances
 // on-demand.
 func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
@@ -272,7 +280,7 @@ func discoverAuthConfig(ctx context.Context, c *Config) error {
 	}
 
 	// Query the CF API root for the service locator records
-	root, err := globalAPIRoot(ctx, c.httpClient, c.ToURL("/"))
+	root, err := globalAPIRoot(ctx, c.httpClient, c.ApiURL("/"))
 	if err != nil {
 		return fmt.Errorf("error while discovering token service URL: %w", err)
 	}
@@ -366,14 +374,4 @@ func addLoginHintToURL(tokenURL, origin string) string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
-}
-
-//////////////////////// OAuth2/HTTP ///////////////////////////////
-
-func (c *Config) ToURL(urlPath string) string {
-	return path.Join(c.apiEndpointURL, urlPath)
-}
-
-func (c *Config) ToAuthenticateURL(urlPath string) string {
-	return path.Join(c.uaaEndpointURL, urlPath)
 }

@@ -127,13 +127,23 @@ func New(config *config.Config) (*Client, error) {
 	return client, nil
 }
 
+// ExecuteAuthRequest executes an HTTP request with authentication.
+func (c *Client) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, true)
+}
+
+// ExecuteRequest executes an HTTP request without authentication.
+func (c *Client) ExecuteRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, false)
+}
+
 // SSHCode generates an SSH code that can be used by generic SSH clients to SSH into app instances
 func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	values := url.Values{}
 	values.Set("response_type", "code")
 	values.Set("client_id", c.SSHOAuthClientID())
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToAuthenticateURL(path.Format("/oauth/authorize?%s", values)), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.AuthURL(path.Format("/oauth/authorize?%s", values)), nil)
 	if err != nil {
 		return "", fmt.Errorf("error creating SSH code request: %w", err)
 	}
@@ -162,12 +172,12 @@ func (c *Client) SSHCode(ctx context.Context) (string, error) {
 	return codes[0], nil
 }
 
-// delete does an HTTP DELETE to the specified endpoint and returns the job ID if any
+// delete does an HTTP DELETE to the specified endpoint and returns the job ID if any.
 //
 // This function takes the relative API resource path. If the resource returns an async job ID
 // then the function returns the job GUID which the caller can reference via the job endpoint.
 func (c *Client) delete(ctx context.Context, resourcePath string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.ToURL(resourcePath), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.ApiURL(resourcePath), nil)
 	if err != nil {
 		return "", fmt.Errorf("creating DELETE request for %s failed: %w", resourcePath, err)
 	}
@@ -179,17 +189,6 @@ func (c *Client) delete(ctx context.Context, resourcePath string) (string, error
 	return internal.DecodeJobIDOrBody(resp, nil)
 }
 
-func (c *Client) list(ctx context.Context, urlPathFormat string, queryStrFunc func() (url.Values, error), result any) error {
-	params, err := queryStrFunc()
-	if err != nil {
-		return fmt.Errorf("error while generate query params: %w", err)
-	}
-	if len(params) > 0 {
-		urlPathFormat = strings.TrimSuffix(urlPathFormat+"?"+params.Encode(), "?")
-	}
-	return c.get(ctx, urlPathFormat, result)
-}
-
 // get does an HTTP GET to the specified endpoint and automatically handles unmarshalling
 // the result JSON body
 func (c *Client) get(ctx context.Context, resourcePath string, result any) error {
@@ -197,7 +196,7 @@ func (c *Client) get(ctx context.Context, resourcePath string, result any) error
 		return errors.New("expected result to be nil or a pointer type")
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToURL(resourcePath), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ApiURL(resourcePath), nil)
 	if err != nil {
 		return fmt.Errorf("error creating GET request for %s: %w", resourcePath, err)
 	}
@@ -211,27 +210,17 @@ func (c *Client) get(ctx context.Context, resourcePath string, result any) error
 	return internal.DecodeBody(resp, result)
 }
 
-func (c *Client) createOrUpdate(ctx context.Context, method, resourcePath string, params, result any) (string, error) {
-	if !check.IsNil(result) && !check.IsPointer(result) {
-		return "", errors.New("expected result to be a pointer type, or nil")
-	}
-	body, err := internal.EncodeBody(params)
+// list does an HTTP GET to the specified endpoint and automatically handles unmarshalling the result JSON body.
+// This is a utility function to support list functions.
+func (c *Client) list(ctx context.Context, urlPathFormat string, queryStrFunc func() (url.Values, error), result any) error {
+	params, err := queryStrFunc()
 	if err != nil {
-		return "", fmt.Errorf("failed to encode params: %w", err)
+		return fmt.Errorf("error while generate query params: %w", err)
 	}
-	req, err := http.NewRequestWithContext(ctx, method, c.ToURL(resourcePath), body)
-	if err != nil {
-		return "", fmt.Errorf("creating %s request for %s failed: %w", method, resourcePath, err)
+	if len(params) > 0 {
+		urlPathFormat = strings.TrimSuffix(urlPathFormat+"?"+params.Encode(), "?")
 	}
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	resp, err := c.ExecuteAuthRequest(req)
-	if err != nil {
-		return "", fmt.Errorf("executing %s request for %s failed: %w", method, resourcePath, err)
-	}
-	defer ios.Close(resp.Body)
-	return internal.DecodeJobIDOrBody(resp, result)
+	return c.get(ctx, urlPathFormat, result)
 }
 
 // patch does an HTTP PATCH to the specified endpoint and automatically handles the result
@@ -253,6 +242,37 @@ func (c *Client) patch(ctx context.Context, resourcePath string, params any, res
 // header then the job GUID is returned which the caller can reference via the job endpoint.
 func (c *Client) post(ctx context.Context, resourcePath string, params, result any) (string, error) {
 	return c.createOrUpdate(ctx, http.MethodPost, resourcePath, params, result)
+}
+
+// Download the bits of an existing package or droplet
+// It is the caller's responsibility to close the io.ReadCloser
+func (c *Client) download(ctx context.Context, resourcePath string) (io.ReadCloser, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ApiURL(resourcePath), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating download request for %s failed: %w", resourcePath, err)
+	}
+	resp, err := c.ExecuteAuthRequest(internal.IgnoreRedirect(req))
+	if err != nil {
+		return nil, fmt.Errorf("executing download request for %s failed: %w", resourcePath, err)
+	}
+	ios.Close(resp.Body)
+	if !internal.IsResponseRedirect(resp.StatusCode) {
+		return nil, fmt.Errorf("error downloading `%s` bits, expected redirect to blobstore", resourcePath)
+	}
+	// get the full URL to the blobstore via the Location header
+	blobStoreLocation := resp.Header.Get("Location")
+	if blobStoreLocation == "" {
+		return nil, errors.New("response redirect Location header was empty")
+	}
+	req, err = http.NewRequestWithContext(ctx, http.MethodGet, blobStoreLocation, nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating blob download request for %s failed: %w", blobStoreLocation, err)
+	}
+	resp, err = c.ExecuteRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing blob download request for %s failed: %w", blobStoreLocation, err)
+	}
+	return resp.Body, nil
 }
 
 // postFileUpload does an HTTP POST to the specified endpoint and automatically handles uploading the specified file
@@ -286,7 +306,7 @@ func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName s
 	}
 
 	// Create and execute the HTTP request
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.ToURL(path), body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.ApiURL(path), body)
 	if err != nil {
 		return "", fmt.Errorf("error creating request: %w", err)
 	}
@@ -302,47 +322,37 @@ func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName s
 	return internal.DecodeJobIDAndBody(resp, result)
 }
 
-// Download the bits of an existing package or droplet
-// It is the caller's responsibility to close the io.ReadCloser
-func (c *Client) download(ctx context.Context, resourcePath string) (io.ReadCloser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.ToURL(resourcePath), nil)
+// createOrUpdate is a utility function for patch and post that does an HTTP POST or PATCH to the specified
+// endpoint and automatically handles the result whether that's a JSON body or job ID.
+//
+// This function takes the relative API resource path, any parameters to POST/PATCH and an optional
+// struct to unmarshall the result body. If the resource returns an async job ID in the Location
+// header then the job GUID is returned which the caller can reference via the job endpoint.
+func (c *Client) createOrUpdate(ctx context.Context, method, resourcePath string, params, result any) (string, error) {
+	if !check.IsNil(result) && !check.IsPointer(result) {
+		return "", errors.New("expected result to be a pointer type, or nil")
+	}
+	body, err := internal.EncodeBody(params)
 	if err != nil {
-		return nil, fmt.Errorf("creating download request for %s failed: %w", resourcePath, err)
+		return "", fmt.Errorf("failed to encode params: %w", err)
 	}
-	resp, err := c.ExecuteAuthRequest(internal.IgnoreRedirect(req))
+	req, err := http.NewRequestWithContext(ctx, method, c.ApiURL(resourcePath), body)
 	if err != nil {
-		return nil, fmt.Errorf("executing download request for %s failed: %w", resourcePath, err)
+		return "", fmt.Errorf("creating %s request for %s failed: %w", method, resourcePath, err)
 	}
-	ios.Close(resp.Body)
-	if !internal.IsResponseRedirect(resp.StatusCode) {
-		return nil, fmt.Errorf("error downloading `%s` bits, expected redirect to blobstore", resourcePath)
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
-	// get the full URL to the blobstore via the Location header
-	blobStoreLocation := resp.Header.Get("Location")
-	if blobStoreLocation == "" {
-		return nil, errors.New("response redirect Location header was empty")
-	}
-	req, err = http.NewRequestWithContext(ctx, http.MethodGet, blobStoreLocation, nil)
+	resp, err := c.ExecuteAuthRequest(req)
 	if err != nil {
-		return nil, fmt.Errorf("creating blob download request for %s failed: %w", blobStoreLocation, err)
+		return "", fmt.Errorf("executing %s request for %s failed: %w", method, resourcePath, err)
 	}
-	resp, err = c.ExecuteRequest(req)
-	if err != nil {
-		return nil, fmt.Errorf("executing blob download request for %s failed: %w", blobStoreLocation, err)
-	}
-	return resp.Body, nil
+	defer ios.Close(resp.Body)
+	return internal.DecodeJobIDOrBody(resp, result)
 }
 
-// ExecuteAuthRequest executes an HTTP request with authentication.
-func (c *Client) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, true)
-}
-
-// ExecuteRequest executes an HTTP request without authentication.
-func (c *Client) ExecuteRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, false)
-}
-
+// executeHTTPRequest is the low level client function that handles executing the request against the
+// correct http.Client.
 func (c *Client) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (resp *http.Response, err error) {
 	req.Header.Set("User-Agent", c.UserAgent())
 	if includeAuthHeader {
