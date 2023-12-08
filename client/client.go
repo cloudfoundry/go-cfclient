@@ -14,7 +14,7 @@ import (
 
 	"github.com/cloudfoundry-community/go-cfclient/v3/config"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/check"
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
+	internal "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
 )
@@ -138,14 +138,14 @@ func (c *Client) SSHCode(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("error creating SSH code request: %w", err)
 	}
 
-	resp, err := c.ExecuteAuthRequest(internalhttp.IgnoreRedirect(req))
+	resp, err := c.ExecuteAuthRequest(internal.IgnoreRedirect(req))
 	if err != nil {
 		return "", fmt.Errorf("error executing SSH code request: %w", err)
 	}
 
 	defer ios.Close(resp.Body)
 
-	if !internalhttp.IsResponseRedirect(resp.StatusCode) {
+	if !internal.IsResponseRedirect(resp.StatusCode) {
 		return "", fmt.Errorf(
 			"expected UAA to return a 302 location that contains the code, but instead got a %d", resp.StatusCode)
 	}
@@ -176,7 +176,7 @@ func (c *Client) delete(ctx context.Context, resourcePath string) (string, error
 		return "", fmt.Errorf("executing DELETE request for %s failed: %w", resourcePath, err)
 	}
 	defer ios.Close(resp.Body)
-	return internalhttp.DecodeJobIDOrBody(resp, nil)
+	return internal.DecodeJobIDOrBody(resp, nil)
 }
 
 func (c *Client) list(ctx context.Context, urlPathFormat string, queryStrFunc func() (url.Values, error), result any) error {
@@ -208,14 +208,14 @@ func (c *Client) get(ctx context.Context, resourcePath string, result any) error
 	}
 	defer ios.Close(resp.Body)
 
-	return internalhttp.DecodeBody(resp, result)
+	return internal.DecodeBody(resp, result)
 }
 
 func (c *Client) createOrUpdate(ctx context.Context, method, resourcePath string, params, result any) (string, error) {
 	if !check.IsNil(result) && !check.IsPointer(result) {
 		return "", errors.New("expected result to be a pointer type, or nil")
 	}
-	body, err := internalhttp.EncodeBody(params)
+	body, err := internal.EncodeBody(params)
 	if err != nil {
 		return "", fmt.Errorf("failed to encode params: %w", err)
 	}
@@ -231,7 +231,7 @@ func (c *Client) createOrUpdate(ctx context.Context, method, resourcePath string
 		return "", fmt.Errorf("executing %s request for %s failed: %w", method, resourcePath, err)
 	}
 	defer ios.Close(resp.Body)
-	return internalhttp.DecodeJobIDOrBody(resp, result)
+	return internal.DecodeJobIDOrBody(resp, result)
 }
 
 // patch does an HTTP PATCH to the specified endpoint and automatically handles the result
@@ -299,7 +299,7 @@ func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName s
 	defer ios.Close(resp.Body) // Ensure closure of the response body
 
 	// Decode the response
-	return internalhttp.DecodeJobIDAndBody(resp, result)
+	return internal.DecodeJobIDAndBody(resp, result)
 }
 
 // Download the bits of an existing package or droplet
@@ -309,12 +309,12 @@ func (c *Client) download(ctx context.Context, resourcePath string) (io.ReadClos
 	if err != nil {
 		return nil, fmt.Errorf("creating download request for %s failed: %w", resourcePath, err)
 	}
-	resp, err := c.ExecuteAuthRequest(internalhttp.IgnoreRedirect(req))
+	resp, err := c.ExecuteAuthRequest(internal.IgnoreRedirect(req))
 	if err != nil {
 		return nil, fmt.Errorf("executing download request for %s failed: %w", resourcePath, err)
 	}
 	ios.Close(resp.Body)
-	if !internalhttp.IsResponseRedirect(resp.StatusCode) {
+	if !internal.IsResponseRedirect(resp.StatusCode) {
 		return nil, fmt.Errorf("error downloading `%s` bits, expected redirect to blobstore", resourcePath)
 	}
 	// get the full URL to the blobstore via the Location header
@@ -331,4 +331,32 @@ func (c *Client) download(ctx context.Context, resourcePath string) (io.ReadClos
 		return nil, fmt.Errorf("executing blob download request for %s failed: %w", blobStoreLocation, err)
 	}
 	return resp.Body, nil
+}
+
+// ExecuteAuthRequest executes an HTTP request with authentication.
+func (c *Client) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, true)
+}
+
+// ExecuteRequest executes an HTTP request without authentication.
+func (c *Client) ExecuteRequest(req *http.Request) (*http.Response, error) {
+	return c.executeHTTPRequest(req, false)
+}
+
+func (c *Client) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (resp *http.Response, err error) {
+	req.Header.Set("User-Agent", c.UserAgent())
+	if includeAuthHeader {
+		resp, err = c.HTTPAuthClient().Do(req)
+	} else {
+		resp, err = c.HTTPClient().Do(req)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
+	}
+	if !internal.IsStatusSuccess(resp.StatusCode) {
+		return nil, internal.DecodeError(resp)
+	}
+
+	return resp, err
 }

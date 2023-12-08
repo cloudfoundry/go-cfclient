@@ -174,6 +174,11 @@ func (c *Config) SSHOAuthClientID() string {
 	return c.sshOAuthClient
 }
 
+// UserAgent returns the configured user agent header string.
+func (c *Config) UserAgent() string {
+	return c.userAgent
+}
+
 // Validate validates the configuration.
 func (c *Config) Validate() error {
 	// Ensure at least one of clientID, username, or token is provided
@@ -369,31 +374,4 @@ func (c *Config) ToURL(urlPath string) string {
 
 func (c *Config) ToAuthenticateURL(urlPath string) string {
 	return path.Join(c.uaaEndpointURL, urlPath)
-}
-
-// ExecuteAuthRequest executes an HTTP request with authentication.
-func (c *Config) ExecuteAuthRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, true)
-}
-
-func (c *Config) ExecuteRequest(req *http.Request) (*http.Response, error) {
-	return c.executeHTTPRequest(req, false)
-}
-
-func (c *Config) executeHTTPRequest(req *http.Request, includeAuthHeader bool) (resp *http.Response, err error) {
-	req.Header.Set("User-Agent", c.userAgent)
-	if includeAuthHeader {
-		resp, err = c.httpAuthClient.Do(req)
-	} else {
-		resp, err = c.httpClient.Do(req)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("error executing request, failed during HTTP request send: %w", err)
-	}
-	if !internal.IsStatusSuccess(resp.StatusCode) {
-		return nil, internal.DecodeError(resp)
-	}
-
-	return resp, err
 }
