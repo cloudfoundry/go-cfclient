@@ -21,6 +21,13 @@ Will resolve and add the package to the current development module, along with i
 library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the Versioning section below.
 
 ## Usage
+- [Authentication](./README.md#authentication)
+- [Resources](./README.md#resources)
+- [Pagination](./README.md#pagination)
+- [Asynchronous Jobs](./README.md#asynchronous-jobs)
+- [Error Handling](./README.md#error-handling)
+- [Migrating v2 to v3](./README.md#migrating-v2-to-v3)
+
 Using go modules import the client, config and resource packages:
 ```go
 import (
@@ -32,18 +39,30 @@ import (
 
 ### Authentication
 Construct a new CF client configuration object. The configuration object configures how the client will authenticate to the 
-CF API. There are various supported auth mechanisms, with the simplest being - use the existing CF CLI configuration and
-auth token:
+CF API. There are various supported auth mechanisms.
+
+The simplest being - use the existing CF CLI configuration and auth token:
 ```go
 cfg, _ := config.NewFromCFHome()
 cf, _ := client.New(cfg)
 ```
-You may also use username/password
+Username and password:
 ```go
-cfg, _ := config.NewUserPassword("https://api.example.org", "user", "pass")
+cfg, _ := config.New("https://api.example.org", config.UserPassword("user", "pass"))
 cf, _ := client.New(cfg)
 ```
-There is also client/secret and token config support.
+Client and client secret:
+```go
+cfg, _ := config.New("https://api.example.org", config.ClientCredentials("cf", "secret"))
+cf, _ := client.New(cfg)
+```
+Static OAuth token, which requires both an access and refresh token:
+```go
+cfg, _ := config.New("https://api.example.org", config.Token(accessToken, refreshToken))
+cf, _ := client.New(cfg)
+```
+For more detailed examples of using the various authentication and configuration options, see the
+[auth example](./examples/auth/main.go).
 
 ### Resources
 The services of a client divide the API into logical chunks and correspond to the structure of the CF API documentation
@@ -82,8 +101,9 @@ for {
     pager.NextPage(opts)
 }
 ```
-If you'd rather have your code get _all_ of the resources in one go and not worry about paging, every collection
-has a corresponding `All` method that gathers all the resources from every page before returning.
+If you'd rather get _all_ of the resources in one go and not worry about paging, every collection
+has a corresponding `All` method that gathers all the resources from every page before returning. While this may be
+convenient, this could have negative performance consequences on larger foundations/collections.
 ```go
 opts := client.NewAppListOptions()
 apps, _ := cf.Applications.ListAll(context.Background(), opts)
@@ -95,7 +115,7 @@ for _, app := range apps {
 ### Asynchronous Jobs
 Some API calls are long-running so immediately return a JobID (GUID) instead of waiting and returning a resource. In
 those cases you only know if the job was accepted. You will need to poll the Job API to find out when the job
-finishes. There's a `PollComplete` method to block until the job finishes:
+finishes. There's a `PollComplete` utility function that you can use to block until the job finishes:
 ```go
 jobGUID, err := cf.Manifests.ApplyManifest(context.Background(), spaceGUID, manifest))
 if err != nil {
@@ -109,12 +129,12 @@ if err != nil {
 ```
 The timeout and polling interval can be configured using the PollingOptions struct.
 
-The PollComplete method will return a nil err if the job completes successfully. If PollComplete
+The PollComplete function will return a nil error if the job completes successfully. If PollComplete
 times out waiting for the job to complete a `client.AsyncProcessTimeoutError` is returned. If the job itself
 failed then the job API is queried for the job error which is then returned as a `resource.CloudFoundryError`
 which can be inspected to find the failure cause.
 
-### Error handling
+### Error Handling
 All client methods will return a `resource.CloudFoundryError` or sub-type for any response that isn't a 200 level
 status code. All CF errors have a corresponding error code and the client uses those codes to construct a specific
 client side error type. This allows you to easily branch your logic based off specific API error codes using one of
@@ -129,6 +149,43 @@ if resource.IsServiceFetchBindingParametersNotSupportedError(err) {
     fmt.Printf("Parameters: %v\n", params)
 }
 ```
+
+### Migrating v2 to v3
+A very basic example using the v2 client:
+```go
+c := &cfclient.Config{
+    ApiAddress: "https://api.sys.example.com",
+    Username:   "user",
+    Password:   "password",
+}
+client, _ := cfclient.NewClient(c)
+apps, _ := client.ListApps()
+for _, a := range apps {
+	fmt.Println(a.Name)
+}
+```
+Converted to do the same in the v3 client:
+```go
+cfg, _ := config.New("https://api.sys.example.org", config.UserPassword("user", "pass"))
+client, _ := client.New(cfg)
+apps, _ := client.Applications.ListAll(context.Background(), nil)
+for _, app := range apps {
+    fmt.Println(app.Name)
+}
+```
+If you need to migrate over to the new client iteratively you can do that by referencing both the old and new modules
+simultaneously and creating two separate client instances - one for each module version.
+
+Some of the main differences between the old client and the new v3 client include:
+- The old v2 client supported most v2 resources and few a v3 resources. The new v3 client supports all v3 resources and
+no v2 resources. While most v2 resources are similar to their v3 counterparts, some code changes will need to be made.
+- The v2 client had a single type that contained resource functions disambiguated by function name. The v3
+client has a separate client nested under the main client for each resource. For example:
+`client.ListApps()` vs `client.Applications.ListAll()`
+- All v3 client functions take a cancellable context object as their first parameter.
+- All v3 client list functions take a type specific options struct that support type safe filtering.
+- All v3 client list functions support paging natively in the client for ease of use.
+- The v3 client supports shared access across goroutines.
 
 ## Versioning
 In general, go-cfclient follows [semver](https://go.dev/doc/modules/version-number) as closely as we can for [tagging

@@ -18,6 +18,8 @@ const username = "admin"
 const password = "password"
 const clientID = "cf"
 const clientSecret = "secret"
+const accessToken = "<access-token>"
+const refreshToken = "<refresh-token>"
 
 func main() {
 	err := execute()
@@ -54,6 +56,18 @@ func execute() error {
 	// use the hardcoded CF API endpoint and client/secret and skip TLS validation
 	cfg, err = config.New(apiURL,
 		config.ClientCredentials(clientID, clientSecret),
+		config.SkipTLSValidation())
+	if err != nil {
+		return err
+	}
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// use the hardcoded CF API endpoint and OAuth token
+	cfg, err = config.New(apiURL,
+		config.Token(accessToken, refreshToken),
 		config.SkipTLSValidation())
 	if err != nil {
 		return err
