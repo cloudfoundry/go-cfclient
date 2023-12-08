@@ -107,41 +107,6 @@ func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
 	return cfg, nil
 }
 
-// Validate validates the configuration.
-func (c *Config) Validate() error {
-	// Ensure at least one of clientID, username, or token is provided
-	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
-		return errors.New("either client credentials, user credentials, or tokens are required")
-	}
-
-	// If a non-default clientID is provided, check for clientSecret
-	if c.clientID != DefaultClientID && c.clientSecret == "" {
-		return errors.New("client secret is required when using client credentials")
-	}
-
-	// If username is provided, check for password
-	if c.username != "" && c.password == "" {
-		return errors.New("password is required when using user credentials")
-	}
-
-	return nil
-}
-
-// SSHOAuthClientID returns the clientID used to request an SSH code, typically 'ssh-proxy'.
-func (c *Config) SSHOAuthClientID() string {
-	return c.sshOAuthClient
-}
-
-// HTTPClient returns the un-authenticated http.Client.
-func (c *Config) HTTPClient() *http.Client {
-	return c.httpClient
-}
-
-// HTTPAuthClient returns the authenticated http.Client.
-func (c *Config) HTTPAuthClient() *http.Client {
-	return c.httpClient
-}
-
 func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
 	// use our http.Client instance for token acquisition
 	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
@@ -192,6 +157,41 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 		return nil, fmt.Errorf("unsupported OAuth2 grant type '%s'", c.grantType)
 	}
 	return tokenSource, nil
+}
+
+// HTTPClient returns the un-authenticated http.Client.
+func (c *Config) HTTPClient() *http.Client {
+	return c.httpClient
+}
+
+// HTTPAuthClient returns the authenticated http.Client.
+func (c *Config) HTTPAuthClient() *http.Client {
+	return c.httpClient
+}
+
+// SSHOAuthClientID returns the clientID used to request an SSH code, typically 'ssh-proxy'.
+func (c *Config) SSHOAuthClientID() string {
+	return c.sshOAuthClient
+}
+
+// Validate validates the configuration.
+func (c *Config) Validate() error {
+	// Ensure at least one of clientID, username, or token is provided
+	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
+		return errors.New("either client credentials, user credentials, or tokens are required")
+	}
+
+	// If a non-default clientID is provided, check for clientSecret
+	if c.clientID != DefaultClientID && c.clientSecret == "" {
+		return errors.New("client secret is required when using client credentials")
+	}
+
+	// If username is provided, check for password
+	if c.username != "" && c.password == "" {
+		return errors.New("password is required when using user credentials")
+	}
+
+	return nil
 }
 
 // initConfig fully populates and then validates the provided base config
