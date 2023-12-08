@@ -107,6 +107,8 @@ func NewFromCFHomeDir(cfHomeDir string, options ...Option) (*Config, error) {
 	return cfg, nil
 }
 
+// CreateOAuth2TokenSource is used by the HTTP transport infrastructure to generate new TokenSource instances
+// on-demand.
 func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
 	// use our http.Client instance for token acquisition
 	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
@@ -199,7 +201,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// initConfig fully populates and then validates the provided base config
+// initConfig fully populates and validates the provided base config
 func initConfig(cfg *Config, options ...Option) error {
 	// Apply any user provided config overrides
 	err := applyOptions(cfg, options...)
