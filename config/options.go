@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
 	"net/http"
@@ -14,17 +13,23 @@ import (
 type Option func(*Config) error
 
 // ClientCredentials is a functional option to set client credentials.
-func ClientCredentials(clientId, clientSecret string) Option {
+func ClientCredentials(clientID, clientSecret string) Option {
+	clientID = strings.TrimSpace(clientID)
+	clientSecret = strings.TrimSpace(clientSecret)
 	return func(c *Config) error {
-		if clientId = strings.TrimSpace(clientId); clientId == "" {
-			return errors.New("expected a non-empty CF API clientID")
+		// don't override the default client with empty
+		if clientID != "" {
+			c.clientID = clientID
 		}
-		if clientSecret = strings.TrimSpace(clientSecret); clientSecret == "" {
-			return errors.New("expected a non-empty CF API clientSecret")
+
+		// client/secret grant type takes precedence over nothing & token
+		// but a secret must be set to be a real client
+		if clientSecret != "" {
+			c.clientSecret = clientSecret
+			if c.grantType != GrantTypeAuthorizationCode {
+				c.grantType = GrantTypeClientCredentials
+			}
 		}
-		c.clientID = clientId
-		c.clientSecret = clientSecret
-		c.grantType = GrantTypeClientCredentials
 		return nil
 	}
 }
@@ -32,15 +37,28 @@ func ClientCredentials(clientId, clientSecret string) Option {
 // UserPassword is a functional option to set user credentials.
 func UserPassword(username, password string) Option {
 	return func(c *Config) error {
-		if username = strings.TrimSpace(username); username == "" {
-			return errors.New("expected a non-empty CF API username")
-		}
-		if password = strings.TrimSpace(password); password == "" {
-			return errors.New("expected a non-empty CF API password")
-		}
-		c.username = username
-		c.password = password
+		c.username = strings.TrimSpace(username)
+		c.password = strings.TrimSpace(password)
+
+		// username/password grant type always takes precedence
 		c.grantType = GrantTypeAuthorizationCode
+		return nil
+	}
+}
+
+// Token is a functional option to set the access and refresh tokens.
+func Token(accessToken, refreshToken string) Option {
+	return func(c *Config) error {
+		oAuthToken, err := jwt.ToOAuth2Token(accessToken, refreshToken)
+		if err != nil {
+			return fmt.Errorf("invalid CF API token: %w", err)
+		}
+		c.oAuthToken = oAuthToken
+
+		// token grant type only takes precedence over nothing
+		if c.grantType == "" {
+			c.grantType = GrantTypeRefreshToken
+		}
 		return nil
 	}
 }
@@ -115,19 +133,6 @@ func RequestTimeout(timeout time.Duration) Option {
 func SkipTLSValidation() Option {
 	return func(c *Config) error {
 		c.skipTLSValidation = true
-		return nil
-	}
-}
-
-// Token is a functional option to set the access and refresh tokens.
-func Token(accessToken, refreshToken string) Option {
-	return func(c *Config) error {
-		oAuthToken, err := jwt.ToOAuth2Token(accessToken, refreshToken)
-		if err != nil {
-			return fmt.Errorf("invalid CF API token: %w", err)
-		}
-		c.oAuthToken = oAuthToken
-		c.grantType = GrantTypeRefreshToken
 		return nil
 	}
 }

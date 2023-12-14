@@ -125,7 +125,9 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 		return &clientcredentials.Config{
 			ClientID:     c.clientID,
 			ClientSecret: c.clientSecret,
-			TokenURL:     c.uaaEndpointURL,
+			Scopes:       c.scopes,
+			TokenURL:     c.uaaEndpointURL + "/oauth/token",
+			AuthStyle:    oauth2.AuthStyleInHeader,
 		}
 	}
 
@@ -135,8 +137,9 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 			ClientSecret: c.clientSecret,
 			Scopes:       c.scopes,
 			Endpoint: oauth2.Endpoint{
-				AuthURL:  c.loginEndpointURL + "/oauth/auth",
-				TokenURL: c.uaaEndpointURL + "/oauth/token",
+				AuthURL:   c.loginEndpointURL + "/oauth/auth",
+				TokenURL:  c.uaaEndpointURL + "/oauth/token",
+				AuthStyle: oauth2.AuthStyleInHeader,
 			},
 		}
 	}
@@ -176,7 +179,7 @@ func (c *Config) HTTPClient() *http.Client {
 
 // HTTPAuthClient returns the authenticated http.Client.
 func (c *Config) HTTPAuthClient() *http.Client {
-	return c.httpClient
+	return c.httpAuthClient
 }
 
 // SSHOAuthClientID returns the clientID used to request an SSH code, typically 'ssh-proxy'.
@@ -191,19 +194,21 @@ func (c *Config) UserAgent() string {
 
 // Validate validates the configuration.
 func (c *Config) Validate() error {
-	// Ensure at least one of clientID, username, or token is provided
-	if c.clientID == "" && c.username == "" && c.oAuthToken == nil {
-		return errors.New("either client credentials, user credentials, or tokens are required")
-	}
-
-	// If a non-default clientID is provided, check for clientSecret
-	if c.clientID != DefaultClientID && c.clientSecret == "" {
-		return errors.New("client secret is required when using client credentials")
-	}
-
-	// If username is provided, check for password
-	if c.username != "" && c.password == "" {
-		return errors.New("password is required when using user credentials")
+	switch c.grantType {
+	case GrantTypeClientCredentials:
+		if c.clientID != DefaultClientID && c.clientSecret == "" {
+			return errors.New("client secret is required when using client credentials")
+		}
+	case GrantTypeAuthorizationCode:
+		if c.username == "" || c.password == "" {
+			return errors.New("username and password are required when using using user credentials")
+		}
+	case GrantTypeRefreshToken:
+		if c.oAuthToken == nil {
+			return errors.New("access token and/or refresh token is required when using token credentials")
+		}
+	default:
+		return errors.New("CF API credentials were not provided")
 	}
 
 	return nil
@@ -249,18 +254,23 @@ func applyOptions(cfg *Config, options ...Option) error {
 // configureHTTPClient creates a default http.Client if one wasn't supplied in the config and then
 // configures the base http.Client from the config.
 func configureHTTPClient(c *Config) {
-	// Only configure the client if it has not been configured before
+	// Ensure there is a client and transport configured
 	if c.httpClient == nil {
-		c.httpClient = &http.Client{
-			Transport: http.DefaultTransport.(*http.Transport).Clone(),
-		}
+		c.httpClient = &http.Client{}
 	}
+	if c.httpClient.Transport == nil {
+		c.httpClient.Transport = http.DefaultTransport.(*http.Transport).Clone()
+	}
+
+	// Ensure there is a TLS config instance then configure it
 	if transport := getHTTPTransport(c.httpClient); transport != nil {
 		if transport.TLSClientConfig == nil {
 			transport.TLSClientConfig = &tls.Config{}
 		}
 		transport.TLSClientConfig.InsecureSkipVerify = c.skipTLSValidation
 	}
+
+	// Use our configurable redirect function and the configured timeout
 	c.httpClient.CheckRedirect = internal.CheckRedirect
 	c.httpClient.Timeout = c.requestTimeout
 }
