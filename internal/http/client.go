@@ -3,11 +3,14 @@ package http
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
-	"golang.org/x/oauth2"
 	"io"
 	"net/http"
+
+	"golang.org/x/oauth2"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 )
 
 // OAuthTokenSourceCreator implementations create OAuth2 TokenSources
@@ -44,34 +47,31 @@ func NewAuthenticatedClient(ctx context.Context, baseClient *http.Client, tokenS
 	return &http.Client{
 		Transport:     transport,
 		Timeout:       baseClient.Timeout,
-		CheckRedirect: CheckRedirect,
+		CheckRedirect: baseClient.CheckRedirect,
 		Jar:           baseClient.Jar,
 	}, nil
 }
 
 func (t *retryableAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Clone the request body
-	var bodyBytes []byte
-	if req.Body != nil {
-		bodyBytes, _ = io.ReadAll(req.Body)
-		req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+	if err := backupRequestBody(req); err != nil {
+		return nil, err
 	}
 
 	// Send the request
 	resp, err := t.transport.RoundTrip(req)
 	if err != nil {
-		return resp, err
+		var oauthErr *oauth2.RetrieveError
+		if !errors.As(err, &oauthErr) {
+			return nil, err
+		}
+		resp = oauthErr.Response
 	}
 
 	// Retry logic
-	for shouldRetryAuth(resp) {
+	if shouldRetryAuth(resp) {
 		// We're going to retry, consume any response to reuse the connection.
 		drainBody(resp)
-
-		// Clone the request body again
-		if req.Body != nil {
-			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-		}
 
 		// Recreate the token source
 		src, tsErr := t.tokenSourceCreator.CreateOAuth2TokenSource(req.Context())
@@ -80,12 +80,35 @@ func (t *retryableAuthTransport) RoundTrip(req *http.Request) (*http.Response, e
 		}
 		t.transport.(*oauth2.Transport).Source = src
 
+		// Clone the request body again
+		if req.GetBody != nil {
+			if req.Body, err = req.GetBody(); err != nil {
+				return nil, err
+			}
+		}
+
 		// Retry the request
 		resp, err = t.transport.RoundTrip(req)
 	}
 
 	// Return the response
 	return resp, err
+}
+
+func backupRequestBody(req *http.Request) error {
+	if req.Body != nil && req.GetBody == nil {
+		bodyBytes, err := io.ReadAll(req.Body)
+		ios.Close(req.Body) // Ensure the body is always closed
+		if err != nil {
+			return err
+		}
+
+		req.GetBody = func() (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewBuffer(bodyBytes)), nil
+		}
+		req.Body, _ = req.GetBody()
+	}
+	return nil
 }
 
 func shouldRetryAuth(resp *http.Response) bool {

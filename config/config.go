@@ -24,7 +24,7 @@ import (
 const (
 	GrantTypeRefreshToken      = "refresh_token"
 	GrantTypeClientCredentials = "client_credentials"
-	GrantTypeAuthorizationCode = "authorization_code"
+	GrantTypePassword          = "password"
 
 	DefaultRequestTimeout = 30 * time.Second
 	DefaultUserAgent      = "Go-CF-Client/3.0"
@@ -149,7 +149,7 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 	case GrantTypeClientCredentials:
 		authConfig := twoLeggedAuthConfigFn()
 		tokenSource = authConfig.TokenSource(oauthCtx)
-	case GrantTypeAuthorizationCode:
+	case GrantTypePassword:
 		authConfig := threeLeggedAuthConfigFn()
 
 		// Add optional login hint to the token URL
@@ -194,23 +194,18 @@ func (c *Config) UserAgent() string {
 
 // Validate validates the configuration.
 func (c *Config) Validate() error {
-	switch c.grantType {
-	case GrantTypeClientCredentials:
-		if c.clientID != DefaultClientID && c.clientSecret == "" {
-			return errors.New("client secret is required when using client credentials")
+	if c.grantType == "" {
+		switch {
+		case c.username != "" && c.password != "":
+			c.grantType = GrantTypePassword
+		case c.clientID != "" && c.clientSecret != "":
+			c.grantType = GrantTypeClientCredentials
+		case c.oAuthToken != nil:
+			c.grantType = GrantTypeRefreshToken
+		default:
+			return errors.New("CF API credentials were not provided")
 		}
-	case GrantTypeAuthorizationCode:
-		if c.username == "" || c.password == "" {
-			return errors.New("username and password are required when using using user credentials")
-		}
-	case GrantTypeRefreshToken:
-		if c.oAuthToken == nil {
-			return errors.New("access token and/or refresh token is required when using token credentials")
-		}
-	default:
-		return errors.New("CF API credentials were not provided")
 	}
-
 	return nil
 }
 
@@ -341,21 +336,10 @@ func createConfigFromCFCLIConfig(cfHomeDir string) (*Config, error) {
 		skipTLSValidation: cf.SSLDisabled,
 		userAgent:         DefaultUserAgent,
 		requestTimeout:    DefaultRequestTimeout,
+		username:          os.Getenv("CF_USERNAME"),
+		password:          os.Getenv("CF_PASSWORD"),
 	}
-
-	// if the username and password are specified via env vars use password based auth
-	if os.Getenv("CF_USERNAME") != "" && os.Getenv("CF_PASSWORD") != "" {
-		cfg.username = os.Getenv("CF_USERNAME")
-		cfg.password = os.Getenv("CF_PASSWORD")
-		cfg.grantType = GrantTypeAuthorizationCode
-	} else {
-		oAuthToken, err := jwt.ToOAuth2Token(cf.AccessToken, cf.RefreshToken)
-		if err != nil {
-			return nil, err
-		}
-		cfg.oAuthToken = oAuthToken
-		cfg.grantType = GrantTypeRefreshToken
-	}
+	cfg.oAuthToken, _ = jwt.ToOAuth2Token(cf.AccessToken, cf.RefreshToken)
 
 	return cfg, nil
 }
