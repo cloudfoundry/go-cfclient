@@ -1,12 +1,14 @@
 package config
 
 import (
+	"errors"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
 )
 
 // Option is a functional option for configuring the client.
@@ -14,21 +16,16 @@ type Option func(*Config) error
 
 // ClientCredentials is a functional option to set client credentials.
 func ClientCredentials(clientID, clientSecret string) Option {
-	clientID = strings.TrimSpace(clientID)
-	clientSecret = strings.TrimSpace(clientSecret)
 	return func(c *Config) error {
 		// don't override the default client with empty
-		if clientID != "" {
+		if clientID = strings.TrimSpace(clientID); clientID != "" {
 			c.clientID = clientID
 		}
 
 		// client/secret grant type takes precedence over nothing & token
 		// but a secret must be set to be a real client
-		if clientSecret != "" {
+		if clientSecret = strings.TrimSpace(clientSecret); clientSecret != "" {
 			c.clientSecret = clientSecret
-			if c.grantType != GrantTypeAuthorizationCode {
-				c.grantType = GrantTypeClientCredentials
-			}
 		}
 		return nil
 	}
@@ -37,11 +34,13 @@ func ClientCredentials(clientID, clientSecret string) Option {
 // UserPassword is a functional option to set user credentials.
 func UserPassword(username, password string) Option {
 	return func(c *Config) error {
-		c.username = strings.TrimSpace(username)
-		c.password = strings.TrimSpace(password)
-
-		// username/password grant type always takes precedence
-		c.grantType = GrantTypeAuthorizationCode
+		username = strings.TrimSpace(username)
+		password = strings.TrimSpace(password)
+		if username == "" || password == "" {
+			return errors.New("username and password are required when using using user credentials")
+		}
+		c.username = username
+		c.password = password
 		return nil
 	}
 }
@@ -54,11 +53,6 @@ func Token(accessToken, refreshToken string) Option {
 			return fmt.Errorf("invalid CF API token: %w", err)
 		}
 		c.oAuthToken = oAuthToken
-
-		// token grant type only takes precedence over nothing
-		if c.grantType == "" {
-			c.grantType = GrantTypeRefreshToken
-		}
 		return nil
 	}
 }

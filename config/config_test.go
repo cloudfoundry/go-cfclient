@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 
 	"github.com/stretchr/testify/require"
 )
@@ -39,7 +40,7 @@ func TestUsernamePassword(t *testing.T) {
 		require.Equal(t, "username", c.username)
 		require.Equal(t, "password", c.password)
 		require.Equal(t, "cf", c.clientID)
-		require.Equal(t, GrantTypeAuthorizationCode, c.grantType)
+		require.Equal(t, GrantTypePassword, c.grantType)
 	})
 
 	t.Run("with username and password with non-default client", func(t *testing.T) {
@@ -53,7 +54,7 @@ func TestUsernamePassword(t *testing.T) {
 		require.Equal(t, "username", c.username)
 		require.Equal(t, "password", c.password)
 		require.Equal(t, "clientID", c.clientID)
-		require.Equal(t, GrantTypeAuthorizationCode, c.grantType)
+		require.Equal(t, GrantTypePassword, c.grantType)
 	})
 }
 
@@ -198,7 +199,7 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 		require.Equal(t, "admin", cfg.username)
 		require.Equal(t, "pass", cfg.password)
 		require.Equal(t, DefaultClientID, cfg.clientID)
-		require.Equal(t, GrantTypeAuthorizationCode, cfg.grantType)
+		require.Equal(t, GrantTypePassword, cfg.grantType)
 	})
 
 	t.Run("with override options", func(t *testing.T) {
@@ -213,6 +214,6 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 		require.Equal(t, "admin", cfg.username)
 		require.Equal(t, "pass", cfg.password)
 		require.Equal(t, DefaultClientID, cfg.clientID)
-		require.Equal(t, GrantTypeAuthorizationCode, cfg.grantType)
+		require.Equal(t, GrantTypePassword, cfg.grantType)
 	})
 }
