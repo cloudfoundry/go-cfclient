@@ -19,6 +19,15 @@ type OAuthTokenSourceCreator interface {
 	CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error)
 }
 
+// BytesBufferReadCloser allows direct access to the underlying buffer
+// so that re-reading ops do not incur a performance penalty.
+type BytesBufferReadCloser struct {
+	*bytes.Buffer
+}
+
+// Close is no-op - avoids http.NewRequest wrapping the body in an io.NopCloser
+func (BytesBufferReadCloser) Close() error { return nil }
+
 // retryableAuthTransport wraps a http.RoundTripper and combines it with an OAuthTokenSourceCreator so
 // that any 401s cause a re-authentication and request retry
 type retryableAuthTransport struct {
@@ -97,16 +106,26 @@ func (t *retryableAuthTransport) RoundTrip(req *http.Request) (*http.Response, e
 
 func backupRequestBody(req *http.Request) error {
 	if req.Body != nil && req.GetBody == nil {
-		bodyBytes, err := io.ReadAll(req.Body)
-		ios.Close(req.Body) // Ensure the body is always closed
-		if err != nil {
-			return err
-		}
+		// TODO handle bytes.Reader and strings.Reader
+		// optimization - we can re-read bytes.Buffer over and over again
+		if r, ok := req.Body.(BytesBufferReadCloser); ok {
+			buf := r.Buffer
+			req.GetBody = func() (io.ReadCloser, error) {
+				return BytesBufferReadCloser{buf}, nil
+			}
+			req.Body, _ = req.GetBody()
+		} else {
+			bodyBytes, err := io.ReadAll(req.Body)
+			ios.Close(req.Body) // Ensure the body is always closed
+			if err != nil {
+				return err
+			}
 
-		req.GetBody = func() (io.ReadCloser, error) {
-			return io.NopCloser(bytes.NewBuffer(bodyBytes)), nil
+			req.GetBody = func() (io.ReadCloser, error) {
+				return io.NopCloser(bytes.NewBuffer(bodyBytes)), nil
+			}
+			req.Body, _ = req.GetBody()
 		}
-		req.Body, _ = req.GetBody()
 	}
 	return nil
 }

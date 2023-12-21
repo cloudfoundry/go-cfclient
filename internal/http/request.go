@@ -57,5 +57,7 @@ func EncodeBody(obj any) (io.Reader, error) {
 	if err := json.NewEncoder(buf).Encode(obj); err != nil {
 		return nil, fmt.Errorf("error encoding object to JSON: %w", err)
 	}
-	return buf, nil
+	return &BytesBufferReadCloser{
+		buf,
+	}, nil
 }

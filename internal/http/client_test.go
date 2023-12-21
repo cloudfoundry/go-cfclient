@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"bytes"
 	"context"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
@@ -32,12 +33,13 @@ func (ts *MockedOAuthTokenSource) Token() (*oauth2.Token, error) {
 }
 
 func TestOAuthSessionManager(t *testing.T) {
+	g := testutil.NewObjectJSONGenerator(1)
 	serverURL := testutil.SetupMultiple([]testutil.MockRoute{
 		{
-			Method:    "GET",
+			Method:    "POST",
 			Endpoint:  "/v3/organizations",
-			Output:    []string{"organizations[]"},
-			Statuses:  []int{200},
+			Output:    []string{"auth error", g.Organization().JSON},
+			Statuses:  []int{401, 201},
 			UserAgent: "Go-http-client/1.1",
 		},
 		{
@@ -65,14 +67,15 @@ func TestOAuthSessionManager(t *testing.T) {
 	client, err := http.NewAuthenticatedClient(context.Background(), gohttp.DefaultClient, tokenSrcCreator)
 	require.NoError(t, err)
 
-	resp, err := client.Get(serverURL + "/v3/organizations")
+	body := http.BytesBufferReadCloser{Buffer: bytes.NewBufferString(g.Organization().JSON)}
+	resp, err := client.Post(serverURL+"/v3/organizations", "application/json", body)
 	require.NoError(t, err)
-	require.Equal(t, 200, resp.StatusCode)
+	require.Equal(t, 201, resp.StatusCode)
 
 	// to the caller the retry is transparent on 401
 	resp, err = client.Get(serverURL + "/v3/spaces")
 	require.NoError(t, err)
 	require.Equal(t, 200, resp.StatusCode)
 
-	tokenSrcCreator.AssertNumberOfCalls(t, "CreateOAuth2TokenSource", 2)
+	tokenSrcCreator.AssertNumberOfCalls(t, "CreateOAuth2TokenSource", 3)
 }
