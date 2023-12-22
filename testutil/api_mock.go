@@ -115,6 +115,7 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 				return status, singleOutput
 			})
 		case "POST":
+			count := 0
 			r.Post(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
@@ -122,18 +123,26 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output[0]
+				singleOutput := output[count]
+				status = statuses[count]
+				count++
+				return status, singleOutput
 			})
 		case "DELETE":
+			count := 0
 			r.Delete(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output[0]
+				singleOutput := output[count]
+				status = statuses[count]
+				count++
+				return status, singleOutput
 			})
 		case "PUT":
+			count := 0
 			r.Put(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
@@ -141,9 +150,13 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output[0]
+				singleOutput := output[count]
+				status = statuses[count]
+				count++
+				return status, singleOutput
 			})
 		case "PATCH":
+			count := 0
 			r.Patch(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testQueryString(req.URL.RawQuery, queryString, t)
@@ -151,16 +164,23 @@ func SetupMultiple(mockEndpoints []MockRoute, t *testing.T) string {
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output[0]
+				singleOutput := output[count]
+				status = statuses[count]
+				count++
+				return status, singleOutput
 			})
 		case "PUT-FILE":
+			count := 0
 			r.Put(endpoint, func(res http.ResponseWriter, req *http.Request) (int, string) {
 				testUserAgent(req.Header.Get("User-Agent"), userAgent, t)
 				testBodyContains(req, postFormBody, t)
 				if redirectLocation != "" {
 					res.Header().Add("Location", redirectLocation)
 				}
-				return status, output[0]
+				singleOutput := output[count]
+				status = statuses[count]
+				count++
+				return status, singleOutput
 			})
 		}
 	}
