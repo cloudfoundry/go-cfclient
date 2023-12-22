@@ -32,6 +32,8 @@ const (
 	DefaultSSHClientID    = "ssh-proxy"
 )
 
+var ErrConfigInvalid = errors.New("configuration is invalid")
+
 // Config is used to configure the creation of a client
 type Config struct {
 	apiEndpointURL   string
@@ -52,6 +54,8 @@ type Config struct {
 	skipTLSValidation bool
 	requestTimeout    time.Duration
 	userAgent         string
+
+	initialized bool
 }
 
 // New creates a new Config with specified API root URL and options.
@@ -192,19 +196,10 @@ func (c *Config) UserAgent() string {
 	return c.userAgent
 }
 
-// Validate validates the configuration.
+// Validate returns an error if the Config is incomplete or invalid.
 func (c *Config) Validate() error {
-	if c.grantType == "" {
-		switch {
-		case c.username != "" && c.password != "":
-			c.grantType = GrantTypePassword
-		case c.clientID != "" && c.clientSecret != "":
-			c.grantType = GrantTypeClientCredentials
-		case c.oAuthToken != nil:
-			c.grantType = GrantTypeRefreshToken
-		default:
-			return errors.New("CF API credentials were not provided")
-		}
+	if !c.initialized {
+		return ErrConfigInvalid
 	}
 	return nil
 }
@@ -217,8 +212,8 @@ func initConfig(cfg *Config, options ...Option) error {
 		return err
 	}
 
-	// Validate the config object is ready to use
-	err = cfg.Validate()
+	// Find the appropriate grant type based on config
+	err = setGrantType(cfg)
 	if err != nil {
 		return err
 	}
@@ -233,7 +228,13 @@ func initConfig(cfg *Config, options ...Option) error {
 	}
 
 	// Finally create a http.Client for making API calls that require authentication
-	return createHTTPAuthClient(context.Background(), cfg)
+	err = createHTTPAuthClient(context.Background(), cfg)
+	if err != nil {
+		return err
+	}
+
+	cfg.initialized = true
+	return nil
 }
 
 // applyOptions executes each option function to create the config.
@@ -242,6 +243,21 @@ func applyOptions(cfg *Config, options ...Option) error {
 		if err := option(cfg); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// setGrantType finds the configured grant type.
+func setGrantType(c *Config) error {
+	switch {
+	case c.username != "" && c.password != "":
+		c.grantType = GrantTypePassword
+	case c.clientID != "" && c.clientSecret != "":
+		c.grantType = GrantTypeClientCredentials
+	case c.oAuthToken != nil:
+		c.grantType = GrantTypeRefreshToken
+	default:
+		return errors.New("CF API credentials were not provided")
 	}
 	return nil
 }

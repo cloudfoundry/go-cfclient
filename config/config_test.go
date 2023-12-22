@@ -13,6 +13,13 @@ import (
 const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk"
 const refreshToken = "secret-refresh-token"
 
+func TestInvalidConfig(t *testing.T) {
+	c := &Config{}
+	err := c.Validate()
+	require.Error(t, err)
+	require.Equal(t, err, ErrConfigInvalid)
+}
+
 func TestUsernamePassword(t *testing.T) {
 	t.Run("with empty username", func(t *testing.T) {
 		_, err := New("https://api.example.com",

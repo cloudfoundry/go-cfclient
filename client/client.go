@@ -73,7 +73,7 @@ type commonClient struct {
 // New returns a new CF client
 func New(config *config.Config) (*Client, error) {
 	if config == nil {
-		return nil, errors.New("config is empty or invalid")
+		return nil, errors.New("config is nil")
 	}
 	if err := config.Validate(); err != nil {
 		return nil, err
