@@ -1,12 +1,6 @@
 package resource
 
-import "time"
-
 type ServiceUsage struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
 	// Current state of the service that this event pertains to, if applicable
 	State string `json:"state"`
 
@@ -28,7 +22,7 @@ type ServiceUsage struct {
 	// service broker that this event pertains to, if applicable
 	ServiceBroker ServiceUsageGUIDName `json:"service_broker"`
 
-	Links map[string]Link `json:"links"`
+	Resource `json:",inline"`
 }
 
 type ServiceUsageList struct {

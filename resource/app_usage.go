@@ -1,12 +1,6 @@
 package resource
 
-import "time"
-
 type AppUsage struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
 	// the app that this event pertains to, if applicable
 	App AppUsageGUIDName `json:"app"`
 
@@ -34,7 +28,7 @@ type AppUsage struct {
 	// instance count of the app that this event pertains to, if applicable
 	InstanceCount AppUsageCurrentPreviousInt `json:"instance_count"`
 
-	Links map[string]Link `json:"links"`
+	Resource `json:",inline"`
 }
 
 type AppUsageList struct {

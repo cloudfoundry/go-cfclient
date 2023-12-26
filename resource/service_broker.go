@@ -1,16 +1,11 @@
 package resource
 
-import "time"
-
 type ServiceBroker struct {
-	GUID          string            `json:"guid"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
 	Name          string            `json:"name"`
 	URL           string            `json:"url"`
 	Relationships SpaceRelationship `json:"relationships"`
-	Links         map[string]Link   `json:"links"`
 	Metadata      *Metadata         `json:"metadata"`
+	Resource      `json:",inline"`
 }
 
 type ServiceBrokerList struct {

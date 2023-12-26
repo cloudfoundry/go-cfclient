@@ -1,12 +1,6 @@
 package resource
 
-import "time"
-
 type Sidecar struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
 	// Human-readable name for the sidecar
 	Name string `json:"name"`
 
@@ -24,6 +18,8 @@ type Sidecar struct {
 
 	// The app the sidecar is associated with
 	Relationships AppRelationship `json:"relationships"`
+
+	Resource `json:",inline"`
 }
 
 type SidecarList struct {

@@ -2,18 +2,14 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // ServiceOffering represent the services offered by service brokers
 type ServiceOffering struct {
-	GUID        string    `json:"guid"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Name        string    `json:"name"`        // Name of the service offering
-	Description string    `json:"description"` // Description of the service offering
-	Available   bool      `json:"available"`   // Whether the service offering is available
-	Tags        []string  `json:"tags"`        // Descriptive tags for the service offering
+	Name        string   `json:"name"`        // Name of the service offering
+	Description string   `json:"description"` // Description of the service offering
+	Available   bool     `json:"available"`   // Whether the service offering is available
+	Tags        []string `json:"tags"`        // Descriptive tags for the service offering
 
 	// A list of permissions that the user would have to give the service, if they provision it;
 	// the only permissions currently supported are syslog_drain, route_forwarding and volume_mount
@@ -31,7 +27,7 @@ type ServiceOffering struct {
 
 	Relationships ServiceBrokerRelationship `json:"relationships"`
 	Metadata      *Metadata                 `json:"metadata"`
-	Links         map[string]Link           `json:"links,omitempty"`
+	Resource      `json:",inline"`
 }
 
 type ServiceOfferingList struct {

@@ -1,12 +1,7 @@
 package resource
 
-import "time"
-
 type Task struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name"`
+	Name string `json:"name"`
 
 	// User-facing id of the task; this number is unique for every task associated with a given app
 	SequenceID int `json:"sequence_id"`
@@ -35,8 +30,8 @@ type Task struct {
 	// The app the task belongs to
 	Relationships AppRelationship `json:"relationships"`
 
-	Links    map[string]Link `json:"links"`
-	Metadata *Metadata       `json:"metadata"`
+	Metadata *Metadata `json:"metadata"`
+	Resource `json:",inline"`
 }
 
 type TaskCreate struct {

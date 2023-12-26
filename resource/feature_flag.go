@@ -146,8 +146,9 @@ func (a FeatureFlagType) String() string {
 		return "unset_roles_by_username"
 	case FeatureFlagUserOrgCreation:
 		return "user_org_creation"
+	default:
+		return ""
 	}
-	return ""
 }
 
 func NewFeatureFlagUpdate() *FeatureFlagUpdate {

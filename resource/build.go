@@ -1,7 +1,5 @@
 package resource
 
-import "time"
-
 type BuildState string
 
 func (b BuildState) String() string {
@@ -16,11 +14,8 @@ const (
 )
 
 type Build struct {
-	GUID      string     `json:"guid"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	State     BuildState `json:"state"`
-	Error     *string    `json:"error"`
+	State BuildState `json:"state"`
+	Error *string    `json:"error"`
 
 	StagingMemoryInMB                 int `json:"staging_memory_in_mb"`
 	StagingDiskInMB                   int `json:"staging_disk_in_mb"`
@@ -30,9 +25,9 @@ type Build struct {
 	Package       Relationship    `json:"package"`
 	Droplet       *Relationship   `json:"droplet"`
 	CreatedBy     CreatedBy       `json:"created_by"`
-	Links         map[string]Link `json:"links"`
 	Relationships AppRelationship `json:"relationships"`
 	Metadata      *Metadata       `json:"metadata"`
+	Resource      `json:",inline"`
 }
 
 type BuildCreate struct {

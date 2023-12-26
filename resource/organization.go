@@ -1,16 +1,11 @@
 package resource
 
-import "time"
-
 type Organization struct {
-	GUID          string            `json:"guid"`
 	Name          string            `json:"name"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
 	Suspended     *bool             `json:"suspended,omitempty"`
 	Relationships QuotaRelationship `json:"relationships,omitempty"`
-	Links         map[string]Link   `json:"links,omitempty"`
 	Metadata      *Metadata         `json:"metadata,omitempty"`
+	Resource      `json:",inline"`
 }
 
 type OrganizationCreate struct {

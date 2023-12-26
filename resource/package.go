@@ -3,7 +3,6 @@ package resource
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 type PackageState string
@@ -18,16 +17,13 @@ const (
 )
 
 type Package struct {
-	GUID          string              `json:"guid"`
-	CreatedAt     time.Time           `json:"created_at"`
-	UpdatedAt     time.Time           `json:"updated_at"`
 	Type          string              `json:"type"` // bits or docker
 	DataRaw       json.RawMessage     `json:"data"`
 	Data          BitsOrDockerPackage `json:"-"` // depends on value of Type
 	State         PackageState        `json:"state"`
-	Links         map[string]Link     `json:"links"`
 	Relationships AppRelationship     `json:"relationships"`
 	Metadata      *Metadata           `json:"metadata"`
+	Resource      `json:",inline"`
 }
 
 type PackageCreate struct {

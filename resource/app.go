@@ -2,19 +2,15 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type App struct {
-	GUID          string            `json:"guid"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
 	Name          string            `json:"name"`
 	State         string            `json:"state"`
 	Lifecycle     Lifecycle         `json:"lifecycle"`
 	Relationships SpaceRelationship `json:"relationships"`
-	Links         map[string]Link   `json:"links"`
 	Metadata      *Metadata         `json:"metadata"`
+	Resource      `json:",inline"`
 }
 
 type AppCreate struct {
@@ -99,8 +95,9 @@ func (l LifecycleType) String() string {
 		return "buildpack"
 	case LifecycleDocker:
 		return "docker"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // AppIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
@@ -115,11 +112,12 @@ const (
 func (a AppIncludeType) String() string {
 	switch a {
 	case AppIncludeSpace:
-		return "space"
+		return IncludeSpace
 	case AppIncludeSpaceOrganization:
-		return "space.organization"
+		return IncludeSpaceOrganization
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewAppCreate(name, spaceGUID string) *AppCreate {

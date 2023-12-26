@@ -2,22 +2,18 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // ServiceCredentialBinding implements the service credential binding object
 // a credential binding can be a binding between apps and a service instance or a service key
 type ServiceCredentialBinding struct {
-	GUID          string        `json:"guid"`
-	CreatedAt     time.Time     `json:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at"`
 	Name          string        `json:"name"`
 	Type          string        `json:"type"`
 	LastOperation LastOperation `json:"last_operation"`
 	Metadata      *Metadata     `json:"metadata"`
 
 	Relationships ServiceCredentialBindingRelationships `json:"relationships"`
-	Links         map[string]Link                       `json:"links"`
+	Resource      `json:",inline"`
 }
 
 type ServiceCredentialBindingDetails struct {
@@ -72,11 +68,12 @@ const (
 func (a ServiceCredentialBindingIncludeType) String() string {
 	switch a {
 	case ServiceCredentialBindingIncludeApp:
-		return "app"
+		return IncludeApp
 	case ServiceCredentialBindingIncludeServiceInstance:
-		return "service_instance"
+		return IncludeServiceInstance
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewServiceCredentialBindingCreateApp(serviceInstanceGUID, appGUID string) *ServiceCredentialBindingCreate {

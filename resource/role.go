@@ -1,15 +1,10 @@
 package resource
 
-import "time"
-
 // Role implements role object. Roles control access to resources in organizations and spaces. Roles are assigned to users.
 type Role struct {
-	GUID          string                                 `json:"guid"`
-	CreatedAt     time.Time                              `json:"created_at"`
-	UpdatedAt     time.Time                              `json:"updated_at"`
 	Type          string                                 `json:"type,omitempty"`
 	Relationships RoleSpaceUserOrganizationRelationships `json:"relationships,omitempty"`
-	Links         map[string]Link                        `json:"links,omitempty"`
+	Resource      `json:",inline"`
 }
 
 type RoleList struct {
@@ -76,8 +71,9 @@ func (sr SpaceRoleType) String() string {
 		return "space_manager"
 	case SpaceRoleSupporter:
 		return "space_supporter"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // OrganizationRoleType https://v3-apidocs.cloudfoundry.org/version/3.127.0/index.html#valid-role-types
@@ -101,8 +97,9 @@ func (or OrganizationRoleType) String() string {
 		return "organization_manager"
 	case OrganizationRoleBillingManager:
 		return "organization_billing_manager"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // RoleIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include
@@ -118,13 +115,14 @@ const (
 func (r RoleIncludeType) String() string {
 	switch r {
 	case RoleIncludeUser:
-		return "user"
+		return IncludeUser
 	case RoleIncludeSpace:
-		return "space"
+		return IncludeSpace
 	case RoleIncludeOrganization:
-		return "organization"
+		return IncludeOrganization
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewRoleSpaceCreate(spaceGUID, userGUID string, roleType SpaceRoleType) *RoleSpaceCreate {

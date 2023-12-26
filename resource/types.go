@@ -4,11 +4,24 @@ import (
 	"time"
 )
 
-type Meta struct {
+const (
+	IncludeNone              = ""
+	IncludeSpaceOrganization = "space.organization"
+	IncludeSpace             = "Space"
+	IncludeUser              = "user"
+	IncludeOrganization      = "organization"
+	IncludeDomain            = "domain"
+	IncludeServiceOffering   = "service_offering"
+	IncludeApp               = "app"
+	IncludeServiceInstance   = "service_instance"
+	IncludeRoute             = "route"
+)
+
+type Resource struct {
 	GUID      string    `json:"guid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	URL       string    `json:"url"`
+	Links     Links     `json:"links,omitempty"`
 }
 
 // Pagination is used by the apis to page list results
@@ -19,6 +32,12 @@ type Pagination struct {
 	Last         Link `json:"last"`
 	Next         Link `json:"next"`
 	Previous     Link `json:"previous"`
+}
+
+type Links map[string]Link
+
+func (l Links) Self() Link {
+	return l["self"]
 }
 
 // Link is a HATEOAS-style link for apis

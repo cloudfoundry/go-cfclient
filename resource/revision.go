@@ -1,9 +1,6 @@
 package resource
 
-import "time"
-
 type Revision struct {
-	GUID          string            `json:"guid"`
 	Version       int               `json:"version"`
 	Droplet       Relationship      `json:"droplet"`
 	Processes     RevisionProcesses `json:"processes"`
@@ -11,10 +8,8 @@ type Revision struct {
 	Description   string            `json:"description"`
 	Deployable    bool              `json:"deployable"`
 	Relationships AppRelationship   `json:"relationships"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
 	Metadata      *Metadata         `json:"metadata"`
-	Links         map[string]Link   `json:"links"`
+	Resource      `json:",inline"`
 }
 
 type RevisionList struct {

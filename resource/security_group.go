@@ -1,18 +1,13 @@
 package resource
 
-import "time"
-
 // SecurityGroup implements the security group object. Security groups are collections
 // of egress traffic rules that can be applied to the staging or running state of applications.
 type SecurityGroup struct {
-	GUID            string                       `json:"guid"`
-	CreatedAt       time.Time                    `json:"created_at"`
-	UpdatedAt       time.Time                    `json:"updated_at"`
 	Name            string                       `json:"name"`
 	GloballyEnabled SecurityGroupGloballyEnabled `json:"globally_enabled"`
 	Rules           []SecurityGroupRule          `json:"rules"`
 	Relationships   SecurityGroupsRelationships  `json:"relationships"`
-	Links           map[string]Link              `json:"links"`
+	Resource        `json:",inline"`
 }
 
 type SecurityGroupList struct {

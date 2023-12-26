@@ -1,20 +1,15 @@
 package resource
 
-import "time"
-
 type Deployment struct {
-	GUID            string             `json:"guid"`
 	Status          DeploymentStatus   `json:"status"`
 	Strategy        string             `json:"strategy"`
 	Droplet         Relationship       `json:"droplet"`
 	PreviousDroplet Relationship       `json:"previous_droplet"`
 	NewProcesses    []ProcessReference `json:"new_processes"`
 	Revision        DeploymentRevision `json:"revision"`
-	CreatedAt       time.Time          `json:"created_at"`
-	UpdatedAt       time.Time          `json:"updated_at"`
-	Links           map[string]Link    `json:"links"`
 	Metadata        *Metadata          `json:"metadata"`
 	Relationships   AppRelationship    `json:"relationships"`
+	Resource        `json:",inline"`
 }
 
 type DeploymentCreate struct {

@@ -1,11 +1,6 @@
 package resource
 
-import "time"
-
 type Route struct {
-	GUID         string             `json:"guid"`
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
 	Host         string             `json:"host"`
 	Path         string             `json:"path"`
 	URL          string             `json:"url"`
@@ -15,7 +10,7 @@ type Route struct {
 
 	Metadata      *Metadata          `json:"metadata"`
 	Relationships RouteRelationships `json:"relationships"`
-	Links         map[string]Link    `json:"links"`
+	Resource      `json:",inline"`
 }
 
 type RouteCreate struct {
@@ -113,13 +108,14 @@ const (
 func (a RouteIncludeType) String() string {
 	switch a {
 	case RouteIncludeSpace:
-		return "space"
+		return IncludeSpace
 	case RouteIncludeSpaceOrganization:
-		return "space.organization"
+		return IncludeSpaceOrganization
 	case RouteIncludeDomain:
-		return "domain"
+		return IncludeDomain
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewRouteCreate(domainGUID, spaceGUID string) *RouteCreate {

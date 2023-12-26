@@ -41,8 +41,9 @@ func (s ServicePlanVisibilityType) String() string {
 		return "organization"
 	case ServicePlanVisibilitySpace:
 		return "space"
+	default:
+		return ""
 	}
-	return ""
 }
 
 func ParseServicePlanVisibilityType(visibilityType string) (ServicePlanVisibilityType, error) {
@@ -55,8 +56,9 @@ func ParseServicePlanVisibilityType(visibilityType string) (ServicePlanVisibilit
 		return ServicePlanVisibilityOrganization, nil
 	case "space":
 		return ServicePlanVisibilitySpace, nil
+	default:
+		return ServicePlanVisibilityNone, fmt.Errorf("could not parse %s into a valid ServicePlanVisibilityType", visibilityType)
 	}
-	return ServicePlanVisibilityNone, fmt.Errorf("could not parse %s into a valid ServicePlanVisibilityType", visibilityType)
 }
 
 func NewServicePlanVisibilityUpdate(visibilityType ServicePlanVisibilityType) *ServicePlanVisibility {

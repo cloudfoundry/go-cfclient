@@ -1,7 +1,5 @@
 package resource
 
-import "time"
-
 type DropletState string
 
 // The 3 lifecycle states
@@ -19,13 +17,9 @@ const (
 // docker. In the case of buildpacks, the droplet contains the
 // bits produced by the buildpack.
 type Droplet struct {
-	GUID              string            `json:"guid"`
-	CreatedAt         time.Time         `json:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at"`
 	State             DropletState      `json:"state"`
 	Error             *string           `json:"error"`
 	Lifecycle         Lifecycle         `json:"lifecycle"`
-	Links             map[string]Link   `json:"links"`
 	ExecutionMetadata string            `json:"execution_metadata"`
 	ProcessTypes      map[string]string `json:"process_types"`
 	Metadata          *Metadata         `json:"metadata"`
@@ -42,6 +36,7 @@ type Droplet struct {
 	} `json:"checksum"`
 	Stack      string              `json:"stack"`
 	Buildpacks []DetectedBuildpack `json:"buildpacks"`
+	Resource   `json:",inline"`
 }
 
 type DropletCreate struct {
