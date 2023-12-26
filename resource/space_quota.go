@@ -1,12 +1,6 @@
 package resource
 
-import "time"
-
 type SpaceQuota struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
 	// 	Name of the quota
 	Name string `json:"name"`
 
@@ -22,7 +16,7 @@ type SpaceQuota struct {
 	// relationships to the organization and spaces where the quota belongs
 	Relationships SpaceQuotaRelationships `json:"relationships"`
 
-	Links map[string]Link `json:"links"`
+	Resource `json:",inline"`
 }
 
 type SpaceQuotaList struct {

@@ -3,10 +3,6 @@ package resource
 import "time"
 
 type Process struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-
 	// Process type; a unique identifier for processes belonging to an app: web, task
 	Type string `json:"type"`
 
@@ -28,8 +24,8 @@ type Process struct {
 	HealthCheck   ProcessHealthCheck   `json:"health_check"`
 	Relationships ProcessRelationships `json:"relationships"`
 
-	Links    map[string]Link `json:"links"`
-	Metadata *Metadata       `json:"metadata"`
+	Metadata *Metadata `json:"metadata"`
+	Resource `json:",inline"`
 }
 
 type ProcessList struct {

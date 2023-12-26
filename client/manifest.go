@@ -10,6 +10,7 @@ import (
 	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
 	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
 type ManifestClient commonClient
@@ -52,4 +53,24 @@ func (c *ManifestClient) ApplyManifest(ctx context.Context, spaceGUID string, ma
 	}
 	defer ios.Close(resp.Body)
 	return internalhttp.DecodeJobID(resp), nil
+}
+
+// ManifestDiff compares the provided manifest against the current state of the space.
+func (c *ManifestClient) ManifestDiff(ctx context.Context, spaceGUID string, manifest string) (*resource.ManifestDiff, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.client.ApiURL(path.Format("/v3/spaces/%s/manifest_diff", spaceGUID)), strings.NewReader(manifest))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create manifest diff request for space %s: %w", spaceGUID, err)
+	}
+	req.Header.Set("Content-Type", "application/x-yaml")
+
+	resp, err := c.client.ExecuteAuthRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute manifest diff request for space %s: %w", spaceGUID, err)
+	}
+	defer ios.Close(resp.Body)
+	var diff resource.ManifestDiff
+	if err = internalhttp.DecodeBody(resp, &diff); err != nil {
+		return nil, err
+	}
+	return &diff, nil
 }

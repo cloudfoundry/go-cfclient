@@ -1,12 +1,7 @@
 package resource
 
-import "time"
-
 type OrganizationQuota struct {
-	GUID      string    `json:"guid"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Name string `json:"name"`
 
 	Apps     OrganizationQuotaApps     `json:"apps"`
 	Services OrganizationQuotaServices `json:"services"`
@@ -15,7 +10,7 @@ type OrganizationQuota struct {
 
 	Relationships OrganizationQuotaRelationships `json:"relationships"`
 
-	Links map[string]Link `json:"links"`
+	Resource `json:",inline"`
 }
 
 type OrganizationQuotaCreateOrUpdate struct {

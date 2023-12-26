@@ -1,14 +1,9 @@
 package resource
 
-import "time"
-
 type IsolationSegment struct {
-	GUID      string          `json:"guid"`
-	Name      string          `json:"name"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-	Links     map[string]Link `json:"links"`
-	Metadata  *Metadata       `json:"metadata"`
+	Name     string    `json:"name"`
+	Metadata *Metadata `json:"metadata"`
+	Resource `json:",inline"`
 }
 
 type IsolationSegmentCreate struct {

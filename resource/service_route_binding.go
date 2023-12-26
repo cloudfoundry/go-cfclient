@@ -2,13 +2,9 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type ServiceRouteBinding struct {
-	GUID          string        `json:"guid"`
-	CreatedAt     time.Time     `json:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at"`
 	LastOperation LastOperation `json:"last_operation"`
 
 	// The URL for the route service
@@ -17,8 +13,8 @@ type ServiceRouteBinding struct {
 	// The route and service instance that the service route is bound to
 	Relationships ServiceRouteBindingRelationships `json:"relationships"`
 
-	Links    map[string]Link `json:"links"`
-	Metadata *Metadata       `json:"metadata"`
+	Metadata *Metadata `json:"metadata"`
+	Resource `json:",inline"`
 }
 
 type ServiceRouteBindingList struct {
@@ -68,11 +64,12 @@ const (
 func (a ServiceRouteBindingIncludeType) String() string {
 	switch a {
 	case ServiceRouteBindingIncludeRoute:
-		return "route"
+		return IncludeRoute
 	case ServiceRouteBindingIncludeServiceInstance:
-		return "service_instance"
+		return IncludeServiceInstance
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewServiceRouteBindingCreate(routeGUID, serviceInstanceGUID string) *ServiceRouteBindingCreate {

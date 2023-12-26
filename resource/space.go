@@ -1,17 +1,10 @@
 package resource
 
-import (
-	"time"
-)
-
 type Space struct {
-	GUID          string              `json:"guid"`
-	CreatedAt     time.Time           `json:"created_at"`
-	UpdatedAt     time.Time           `json:"updated_at"`
 	Name          string              `json:"name"`
 	Relationships *SpaceRelationships `json:"relationships"`
-	Links         map[string]Link     `json:"links"`
 	Metadata      *Metadata           `json:"metadata"`
+	Resource      `json:",inline"`
 }
 
 type SpaceCreate struct {
@@ -55,9 +48,10 @@ type SpaceIncludeType int
 func (s SpaceIncludeType) String() string {
 	switch s {
 	case SpaceIncludeOrganization:
-		return "organization"
+		return IncludeOrganization
+	default:
+		return IncludeNone
 	}
-	return ""
 }
 
 func NewSpaceCreate(name, orgGUID string) *SpaceCreate {

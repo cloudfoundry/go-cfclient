@@ -2,9 +2,11 @@ package resource_test
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
 func TestMetadata(t *testing.T) {

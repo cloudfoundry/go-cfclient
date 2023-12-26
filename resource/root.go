@@ -25,14 +25,19 @@ type RootLinks struct {
 
 type RootCloudController struct {
 	Link
-	Meta Meta `json:"meta"`
+	Meta struct {
+		Version string `json:"version"`
+	} `json:"meta"`
 }
 
-type RootAppSSHMeta struct {
-	HostKeyFingerprint string `json:"host_key_fingerprint"`
-	OauthClient        string `json:"oauth_client"`
-}
 type RootAppSSH struct {
 	Link
-	Meta RootAppSSHMeta `json:"meta"`
+	Meta struct {
+		HostKeyFingerprint string `json:"host_key_fingerprint"`
+		OauthClient        string `json:"oauth_client"`
+	} `json:"meta"`
+}
+
+type V3Root struct {
+	Links Links `json:"links"`
 }

@@ -2,20 +2,15 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type ServiceInstance struct {
-	GUID          string                       `json:"guid"`
-	CreatedAt     time.Time                    `json:"created_at"`
-	UpdatedAt     time.Time                    `json:"updated_at"`
 	Name          string                       `json:"name"`
 	Tags          []string                     `json:"tags"` // Used by apps to identify service instances; they are shown in the app VCAP_SERVICES env
 	Type          string                       `json:"type"` // Either managed or user-provided
 	LastOperation LastOperation                `json:"last_operation"`
 	Relationships ServiceInstanceRelationships `json:"relationships"`
 	Metadata      *Metadata                    `json:"metadata"`
-	Links         map[string]Link              `json:"links,omitempty"`
 
 	// Information about the version of this service instance; only shown when type is managed
 	MaintenanceInfo *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
@@ -32,6 +27,8 @@ type ServiceInstance struct {
 
 	// The URL to the route service (or null if there is none); only shown when type is user provided
 	RouteServiceURL *string `json:"route_service_url,omitempty"`
+
+	Resource `json:",inline"`
 }
 
 type ServiceInstanceCreate struct {

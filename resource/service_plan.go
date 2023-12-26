@@ -2,15 +2,11 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type ServicePlan struct {
-	GUID        string    `json:"guid"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 
 	// the visibility of the plan; can be public, admin, organization
 	VisibilityType string `json:"visibility_type"`
@@ -36,8 +32,8 @@ type ServicePlan struct {
 	// The service offering that this service plan relates to
 	Relationships ServicePlanRelationship `json:"relationships"`
 
-	Metadata *Metadata       `json:"metadata"`
-	Links    map[string]Link `json:"links"`
+	Metadata *Metadata `json:"metadata"`
+	Resource `json:",inline"`
 }
 
 type ServicePlanList struct {
@@ -146,9 +142,10 @@ const (
 func (a ServicePlanIncludeType) String() string {
 	switch a {
 	case ServicePlanIncludeSpaceOrganization:
-		return "space.organization"
+		return IncludeSpaceOrganization
 	case ServicePlanIncludeServiceOffering:
-		return "service_offering"
+		return IncludeServiceOffering
+	default:
+		return IncludeNone
 	}
-	return ""
 }

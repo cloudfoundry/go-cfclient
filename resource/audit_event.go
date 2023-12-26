@@ -2,14 +2,10 @@ package resource
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type AuditEvent struct {
-	GUID      string    `json:"guid"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Type      string    `json:"type"`
+	Type string `json:"type"`
 
 	Actor  AuditEventRelatedObject `json:"actor"`
 	Target AuditEventRelatedObject `json:"target"`
@@ -18,7 +14,7 @@ type AuditEvent struct {
 	Space        Relationship     `json:"space"`
 	Organization Relationship     `json:"organization"`
 
-	Links map[string]Link `json:"links"`
+	Resource `json:",inline"`
 }
 
 type AuditEventList struct {

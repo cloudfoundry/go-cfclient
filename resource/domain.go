@@ -1,20 +1,13 @@
 package resource
 
-import (
-	"time"
-)
-
 type Domain struct {
-	GUID               string              `json:"guid"`
-	CreatedAt          time.Time           `json:"created_at"`
-	UpdatedAt          time.Time           `json:"updated_at"`
 	Name               string              `json:"name"`
 	Internal           bool                `json:"internal"`
 	RouterGroup        *Relationship       `json:"router_group"`
 	SupportedProtocols []string            `json:"supported_protocols"`
 	Relationships      DomainRelationships `json:"relationships"`
 	Metadata           *Metadata           `json:"metadata"`
-	Links              map[string]Link     `json:"links"`
+	Resource           `json:",inline"`
 }
 
 type DomainCreate struct {

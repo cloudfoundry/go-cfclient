@@ -1,17 +1,12 @@
 package resource
 
-import "time"
-
 // User implements the user object
 type User struct {
-	GUID             string          `json:"guid"`
-	CreatedAt        time.Time       `json:"created_at"`
-	UpdatedAt        time.Time       `json:"updated_at"`
-	Username         string          `json:"username"`
-	PresentationName string          `json:"presentation_name"`
-	Origin           string          `json:"origin"`
-	Links            map[string]Link `json:"links"`
-	Metadata         *Metadata       `json:"metadata"`
+	Username         string    `json:"username"`
+	PresentationName string    `json:"presentation_name"`
+	Origin           string    `json:"origin"`
+	Metadata         *Metadata `json:"metadata"`
+	Resource         `json:",inline"`
 }
 
 // UserCreate is used to create a new user in the Cloud Controller database
