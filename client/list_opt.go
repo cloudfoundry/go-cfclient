@@ -25,6 +25,7 @@ var listOptionsSerializerType = reflect.TypeOf((*ListOptionsSerializer)(nil)).El
 type ListOptioner interface {
 	CurrentPage(page, perPage int)
 	ToQueryString() (url.Values, error)
+	SetPerPage(perPage int)
 }
 
 // ListOptions is the shared common type for all other list option types
@@ -47,6 +48,10 @@ func NewListOptions() *ListOptions {
 
 func (lo *ListOptions) CurrentPage(page, perPage int) {
 	lo.Page = page
+	lo.PerPage = perPage
+}
+
+func (lo *ListOptions) SetPerPage(perPage int) {
 	lo.PerPage = perPage
 }
 

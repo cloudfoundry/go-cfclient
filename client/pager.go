@@ -74,6 +74,7 @@ func AutoPage[T ListOptioner, R any](opts T, list ListFunc[T, R]) ([]R, error) {
 
 // Single returns a single object from the call to list or an error if matches > 1 or matches < 1
 func Single[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
+	opts.SetPerPage(2)
 	matches, _, err := list(opts)
 	if err != nil {
 		return *new(R), err
@@ -86,6 +87,7 @@ func Single[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
 
 // First returns the first object from the call to list or an error if matches < 1
 func First[T ListOptioner, R any](opts T, list ListFunc[T, R]) (R, error) {
+	opts.SetPerPage(1)
 	matches, _, err := list(opts)
 	if err != nil {
 		return *new(R), err
