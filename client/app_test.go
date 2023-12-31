@@ -2,11 +2,13 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 func TestApps(t *testing.T) {
@@ -58,7 +60,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:      "GET",
 				Endpoint:    "/v3/apps",
-				QueryString: "names=spring-music&page=1&per_page=50",
+				QueryString: "names=spring-music&page=1&per_page=1",
 				Output:      g.Paged([]string{app1, app2}),
 				Status:      http.StatusOK},
 			Expected: app1,
@@ -73,7 +75,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:      "GET",
 				Endpoint:    "/v3/apps",
-				QueryString: "names=spring-music&page=1&per_page=50",
+				QueryString: "names=spring-music&page=1&per_page=1",
 				Output:      g.Paged([]string{}),
 				Status:      http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
@@ -230,7 +232,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:      "GET",
 				Endpoint:    "/v3/apps",
-				QueryString: "names=spring-music-124&page=1&per_page=50",
+				QueryString: "names=spring-music-124&page=1&per_page=2",
 				Output:      g.Paged([]string{app1}),
 				Status:      http.StatusOK},
 			Expected: app1,
@@ -245,7 +247,7 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:      "GET",
 				Endpoint:    "/v3/apps",
-				QueryString: "names=spring-music&page=1&per_page=50",
+				QueryString: "names=spring-music&page=1&per_page=2",
 				Output:      g.Paged([]string{app1, app2}),
 				Status:      http.StatusOK},
 			Action: func(c *Client, t *testing.T) (any, error) {
