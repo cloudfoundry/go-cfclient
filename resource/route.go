@@ -17,7 +17,7 @@ type RouteCreate struct {
 	Relationships RouteRelationships `json:"relationships"`
 	Host          *string            `json:"host,omitempty"`
 	Path          *string            `json:"path,omitempty"`
-	Port          *int               `json:"port,omitempty"`
+	Port          *int               `json:"port"`
 	Metadata      *Metadata          `json:"metadata,omitempty"`
 }
 
@@ -50,7 +50,7 @@ type RouteDestination struct {
 	App      RouteDestinationApp `json:"app"`
 	Weight   *int                `json:"weight"`
 	Port     *int                `json:"port,omitempty"`
-	Protocol *string             `json:"protocol,omitempty"`
+	Protocol *string             `json:"protocol"`
 }
 
 type RouteDestinationInsertOrReplace struct {

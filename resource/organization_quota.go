@@ -28,43 +28,43 @@ type OrganizationQuotaList struct {
 
 type OrganizationQuotaApps struct {
 	// Total memory allowed for all the started processes and running tasks in an organization
-	TotalMemoryInMB *int `json:"total_memory_in_mb,omitempty"`
+	TotalMemoryInMB *int `json:"total_memory_in_mb"`
 
 	// Maximum memory for a single process or task
-	PerProcessMemoryInMB *int `json:"per_process_memory_in_mb,omitempty"`
+	PerProcessMemoryInMB *int `json:"per_process_memory_in_mb"`
 
 	// Total log rate limit allowed for all the started processes and running tasks in an organization
-	LogRateLimitInBytesPerSecond *int `json:"log_rate_limit_in_bytes_per_second,omitempty"`
+	LogRateLimitInBytesPerSecond *int `json:"log_rate_limit_in_bytes_per_second"`
 
 	// Total instances of all the started processes allowed in an organization
-	TotalInstances *int `json:"total_instances,omitempty"`
+	TotalInstances *int `json:"total_instances"`
 
 	// Maximum number of running tasks in an organization
-	PerAppTasks *int `json:"per_app_tasks,omitempty"`
+	PerAppTasks *int `json:"per_app_tasks"`
 }
 
 type OrganizationQuotaServices struct {
 	// Specifies whether instances of paid service plans can be created
-	PaidServicesAllowed *bool `json:"paid_services_allowed,omitempty"`
+	PaidServicesAllowed *bool `json:"paid_services_allowed"`
 
 	// Total number of service instances allowed in an organization
-	TotalServiceInstances *int `json:"total_service_instances,omitempty"`
+	TotalServiceInstances *int `json:"total_service_instances"`
 
 	// Total number of service keys allowed in an organization
-	TotalServiceKeys *int `json:"total_service_keys,omitempty"`
+	TotalServiceKeys *int `json:"total_service_keys"`
 }
 
 type OrganizationQuotaRoutes struct {
 	// Total number of routes allowed in an organization
-	TotalRoutes *int `json:"total_routes,omitempty"`
+	TotalRoutes *int `json:"total_routes"`
 
 	// Total number of ports that are reservable by routes in an organization
-	TotalReservedPorts *int `json:"total_reserved_ports,omitempty"`
+	TotalReservedPorts *int `json:"total_reserved_ports"`
 }
 
 type OrganizationQuotaDomains struct {
 	// Total number of domains that can be scoped to an organization
-	TotalDomains *int `json:"total_domains,omitempty"`
+	TotalDomains *int `json:"total_domains"`
 }
 
 type OrganizationQuotaRelationships struct {

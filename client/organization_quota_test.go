@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 func TestOrganizationQuotas(t *testing.T) {
@@ -98,11 +99,40 @@ func TestOrganizationQuotas(t *testing.T) {
 				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
 				Output:   g.Single(orgQuota),
 				Status:   http.StatusOK,
-				PostForm: `{ "name": "new_name", "apps": { "per_app_tasks": 5 }}`,
+				PostForm: `{
+					"name": "new_name",
+					"apps": {
+						"log_rate_limit_in_bytes_per_second": 1000,
+						"per_app_tasks": 5,
+						"per_process_memory_in_mb": 10,
+						"total_instances": 15,
+						"total_memory_in_mb": 100
+					},
+					"routes": {
+						"total_reserved_ports": 35,
+						"total_routes": 30
+					},
+					"services": {
+						"paid_services_allowed": false,
+						"total_service_instances": 20,
+						"total_service_keys": 25
+					}
+				}`,
 			},
 			Expected: orgQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				r := resource.NewOrganizationQuotaUpdate().WithName("new_name").WithPerAppTasks(5)
+				r := resource.NewOrganizationQuotaUpdate().
+					WithName("new_name").
+					WithPerProcessMemoryInMB(10).
+					WithAppsTotalMemoryInMB(100).
+					WithTotalInstances(15).
+					WithLogRateLimitInBytesPerSecond(1000).
+					WithPerAppTasks(5).
+					WithPaidServicesAllowed(false).
+					WithTotalServiceInstances(20).
+					WithTotalServiceKeys(25).
+					WithTotalRoutes(30).
+					WithTotalReservedPorts(35)
 				return c.OrganizationQuotas.Update(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff", r)
 			},
 		},
