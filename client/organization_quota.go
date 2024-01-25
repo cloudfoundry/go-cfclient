@@ -57,9 +57,8 @@ func (c *OrganizationQuotaClient) Create(ctx context.Context, r *resource.Organi
 }
 
 // Delete the specified organization quota
-func (c *OrganizationQuotaClient) Delete(ctx context.Context, guid string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/organization_quotas/%s", guid))
-	return err
+func (c *OrganizationQuotaClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/organization_quotas/%s", guid))
 }
 
 // First returns the first organization quota matching the options or an error when less than 1 match

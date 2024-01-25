@@ -68,12 +68,14 @@ func TestOrganizationQuotas(t *testing.T) {
 		{
 			Description: "Delete organization quota",
 			Route: testutil.MockRoute{
-				Method:   "DELETE",
-				Endpoint: "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
-				Status:   http.StatusAccepted,
+				Method:           "DELETE",
+				Endpoint:         "/v3/organization_quotas/e3bff602-f3d4-4c63-a85a-d7155aa2f1ff",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.OrganizationQuotas.Delete(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
+				return c.OrganizationQuotas.Delete(context.Background(), "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
 			},
 		},
 		{
