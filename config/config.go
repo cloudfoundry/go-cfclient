@@ -196,6 +196,11 @@ func (c *Config) UserAgent() string {
 	return c.userAgent
 }
 
+// ApiEndpointURL returns the configured api endpoint url string.
+func (c *Config) ApiEndpointURL() string {
+	return c.apiEndpointURL
+}
+
 // Validate returns an error if the Config is incomplete or invalid.
 func (c *Config) Validate() error {
 	if !c.initialized {
