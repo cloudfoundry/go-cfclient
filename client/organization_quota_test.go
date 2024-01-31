@@ -45,11 +45,23 @@ func TestOrganizationQuotas(t *testing.T) {
 				Endpoint: "/v3/organization_quotas",
 				Output:   g.Single(orgQuota),
 				Status:   http.StatusCreated,
-				PostForm: `{ "name": "my-org-quota" }`,
+				PostForm: `{ 
+					"name": "my-org-quota",
+					"relationships": {
+						"organizations": {
+							"data": [
+								{
+									"guid": "e3bff602-f3d4-4c63-a85a-d7155aa2f1ff"
+								}
+							]
+						}
+					} 
+				}`,
 			},
 			Expected: orgQuota,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewOrganizationQuotaCreate("my-org-quota")
+				r.WithOrganizations("e3bff602-f3d4-4c63-a85a-d7155aa2f1ff")
 				return c.OrganizationQuotas.Create(context.Background(), r)
 			},
 		},

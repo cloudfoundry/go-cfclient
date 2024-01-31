@@ -14,11 +14,12 @@ type OrganizationQuota struct {
 }
 
 type OrganizationQuotaCreateOrUpdate struct {
-	Name     *string                    `json:"name,omitempty"`
-	Apps     *OrganizationQuotaApps     `json:"apps,omitempty"`
-	Services *OrganizationQuotaServices `json:"services,omitempty"`
-	Routes   *OrganizationQuotaRoutes   `json:"routes,omitempty"`
-	Domains  *OrganizationQuotaDomains  `json:"domains,omitempty"`
+	Name          *string                         `json:"name,omitempty"`
+	Apps          *OrganizationQuotaApps          `json:"apps,omitempty"`
+	Services      *OrganizationQuotaServices      `json:"services,omitempty"`
+	Routes        *OrganizationQuotaRoutes        `json:"routes,omitempty"`
+	Domains       *OrganizationQuotaDomains       `json:"domains,omitempty"`
+	Relationships *OrganizationQuotaRelationships `json:"relationships,omitempty"`
 }
 
 type OrganizationQuotaList struct {
@@ -172,5 +173,20 @@ func (q *OrganizationQuotaCreateOrUpdate) WithDomains(count int) *OrganizationQu
 		q.Domains = &OrganizationQuotaDomains{}
 	}
 	q.Domains.TotalDomains = &count
+	return q
+}
+
+func (q *OrganizationQuotaCreateOrUpdate) WithOrganizations(orgGUIDs ...string) *OrganizationQuotaCreateOrUpdate {
+	if q.Relationships == nil {
+		q.Relationships = &OrganizationQuotaRelationships{
+			Organizations: ToManyRelationships{},
+		}
+	}
+	for _, g := range orgGUIDs {
+		r := Relationship{
+			GUID: g,
+		}
+		q.Relationships.Organizations.Data = append(q.Relationships.Organizations.Data, r)
+	}
 	return q
 }
