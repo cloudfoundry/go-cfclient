@@ -34,10 +34,7 @@ type ProcessList struct {
 }
 
 type ProcessUpdate struct {
-	// The command used to start the process
-	// Note - This doesn't currently support using null to revert to the buildpack-detected or
-	// procfile-provided start command because of the omitempty
-	Command *string `json:"command,omitempty"`
+	Command *string `json:"command"`
 
 	HealthCheck *ProcessHealthCheck `json:"health_check,omitempty"`
 	Metadata    *Metadata           `json:"metadata,omitempty"`
