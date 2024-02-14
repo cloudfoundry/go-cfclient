@@ -31,13 +31,23 @@ type ServiceInstance struct {
 	Resource `json:",inline"`
 }
 
-type ServiceInstanceCreate struct {
+type ServiceInstanceManagedCreate struct {
 	Type          string                       `json:"type"` // Either managed or user-provided
 	Name          string                       `json:"name"`
 	Relationships ServiceInstanceRelationships `json:"relationships"`
 	Metadata      *Metadata                    `json:"metadata,omitempty"`
 	Parameters    *json.RawMessage             `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
 	Tags          []string                     `json:"tags,omitempty"`
+}
+type ServiceInstanceUserProvidedCreate struct {
+	Type            string                       `json:"type"` // Either managed or user-provided
+	Name            string                       `json:"name"`
+	Relationships   ServiceInstanceRelationships `json:"relationships"`
+	Metadata        *Metadata                    `json:"metadata,omitempty"`
+	Credentials     *json.RawMessage             `json:"credentials,omitempty"` // A JSON object
+	SyslogDrainURL  *string                      `json:"syslog_drain_url,omitempty"`
+	RouteServiceURL *string                      `json:"route_service_url,omitempty"`
+	Tags            []string                     `json:"tags,omitempty"`
 }
 
 type ServiceInstanceManagedUpdate struct {
@@ -101,8 +111,8 @@ type ServiceInstanceSpaceUsageSummary struct {
 	BoundAppCount int          `json:"bound_app_count"`
 }
 
-func NewServiceInstanceCreateManaged(name, spaceGUID, servicePlanGUID string) *ServiceInstanceCreate {
-	return &ServiceInstanceCreate{
+func NewServiceInstanceCreateManaged(name, spaceGUID, servicePlanGUID string) *ServiceInstanceManagedCreate {
+	return &ServiceInstanceManagedCreate{
 		Type: "managed",
 		Name: name,
 		Relationships: ServiceInstanceRelationships{
@@ -120,8 +130,18 @@ func NewServiceInstanceCreateManaged(name, spaceGUID, servicePlanGUID string) *S
 	}
 }
 
-func NewServiceInstanceCreateUserProvided(name, spaceGUID string) *ServiceInstanceCreate {
-	return &ServiceInstanceCreate{
+func (u *ServiceInstanceManagedCreate) WithTags(tags []string) *ServiceInstanceManagedCreate {
+	u.Tags = tags
+	return u
+}
+
+func (u *ServiceInstanceManagedCreate) WithParameters(parameters json.RawMessage) *ServiceInstanceManagedCreate {
+	u.Parameters = &parameters
+	return u
+}
+
+func NewServiceInstanceCreateUserProvided(name, spaceGUID string) *ServiceInstanceUserProvidedCreate {
+	return &ServiceInstanceUserProvidedCreate{
 		Type: "user-provided",
 		Name: name,
 		Relationships: ServiceInstanceRelationships{
@@ -132,6 +152,26 @@ func NewServiceInstanceCreateUserProvided(name, spaceGUID string) *ServiceInstan
 			},
 		},
 	}
+}
+
+func (u *ServiceInstanceUserProvidedCreate) WithTags(tags []string) *ServiceInstanceUserProvidedCreate {
+	u.Tags = tags
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedCreate) WithCredentials(credentials json.RawMessage) *ServiceInstanceUserProvidedCreate {
+	u.Credentials = &credentials
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedCreate) WithSyslogDrainURL(url string) *ServiceInstanceUserProvidedCreate {
+	u.SyslogDrainURL = &url
+	return u
+}
+
+func (u *ServiceInstanceUserProvidedCreate) WithRouteServiceURL(url string) *ServiceInstanceUserProvidedCreate {
+	u.RouteServiceURL = &url
+	return u
 }
 
 func NewServiceInstanceManagedUpdate() *ServiceInstanceManagedUpdate {

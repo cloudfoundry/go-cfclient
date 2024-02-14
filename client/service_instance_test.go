@@ -3,11 +3,12 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"testing"
+
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestServiceInstances(t *testing.T) {
@@ -53,6 +54,46 @@ func TestServiceInstances(t *testing.T) {
 			},
 		},
 		{
+			Description: "Create managed service instance with parameters",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/service_instances",
+				Output:   g.Single(si),
+				Status:   http.StatusCreated,
+				PostForm: `{
+					"type": "managed",
+					"name": "my_service_instance",
+					"tags": ["foo", "bar", "baz"],
+					"parameters": {
+						"foo": "bar",
+						"baz": "qux"
+					},
+					"relationships": {
+						"space": {
+							"data": {
+								"guid": "7304bc3c-7010-11ea-8840-48bf6bec2d78"
+							}
+						},
+						"service_plan": {
+							"data": {
+								"guid": "e0e4417c-74ee-11ea-a604-48bf6bec2d78"
+							}
+						}
+					}
+				}`,
+				RedirectLocation: "https://api.example.org/v3/jobs/af5c57f6-8769-41fa-a499-2c84ed896788",
+			},
+			Expected: "af5c57f6-8769-41fa-a499-2c84ed896788",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewServiceInstanceCreateManaged("my_service_instance",
+					"7304bc3c-7010-11ea-8840-48bf6bec2d78", "e0e4417c-74ee-11ea-a604-48bf6bec2d78").
+					WithTags([]string{"foo", "bar", "baz"}).
+					WithParameters(json.RawMessage(`{"foo": "bar", "baz": "qux"}`))
+
+				return c.ServiceInstances.CreateManaged(context.Background(), r)
+			},
+		},
+		{
 			Description: "Create user provided service instance",
 			Route: testutil.MockRoute{
 				Method:   "POST",
@@ -77,6 +118,39 @@ func TestServiceInstances(t *testing.T) {
 				r := resource.NewServiceInstanceCreateUserProvided("my_service_instance",
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78")
 				r.Tags = []string{"foo", "bar", "baz"}
+				return c.ServiceInstances.CreateUserProvided(context.Background(), r)
+			},
+		},
+		{
+			Description: "Create user provided service instance with credentials",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/service_instances",
+				Output:   g.Single(si),
+				Status:   http.StatusCreated,
+				PostForm: `{
+					"type": "user-provided",
+					"name": "my_service_instance",
+					"tags": ["foo", "bar", "baz"],
+					"credentials": {
+						"foo": "bar",
+						"baz": "qux"
+					},
+					"relationships": {
+						"space": {
+							"data": {
+								"guid": "7304bc3c-7010-11ea-8840-48bf6bec2d78"
+							}
+						}
+					}
+				}`,
+			},
+			Expected: si,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewServiceInstanceCreateUserProvided("my_service_instance",
+					"7304bc3c-7010-11ea-8840-48bf6bec2d78").
+					WithCredentials(json.RawMessage(`{"foo": "bar", "baz": "qux"}`)).
+					WithTags([]string{"foo", "bar", "baz"})
 				return c.ServiceInstances.CreateUserProvided(context.Background(), r)
 			},
 		},
