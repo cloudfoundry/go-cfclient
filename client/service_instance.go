@@ -37,7 +37,7 @@ func (o ServiceInstanceListOptions) ToQueryString() (url.Values, error) {
 
 // CreateManaged requests a new service instance asynchronously from a broker. The result
 // of this call is an error or the jobGUID.
-func (c *ServiceInstanceClient) CreateManaged(ctx context.Context, r *resource.ServiceInstanceCreate) (string, error) {
+func (c *ServiceInstanceClient) CreateManaged(ctx context.Context, r *resource.ServiceInstanceManagedCreate) (string, error) {
 	var si resource.ServiceInstance
 	jobGUID, err := c.client.post(ctx, "/v3/service_instances", r, &si)
 	if err != nil {
@@ -48,7 +48,7 @@ func (c *ServiceInstanceClient) CreateManaged(ctx context.Context, r *resource.S
 
 // CreateUserProvided creates a new user provided service instance. User provided service instances
 // do not require interactions with service brokers.
-func (c *ServiceInstanceClient) CreateUserProvided(ctx context.Context, r *resource.ServiceInstanceCreate) (*resource.ServiceInstance, error) {
+func (c *ServiceInstanceClient) CreateUserProvided(ctx context.Context, r *resource.ServiceInstanceUserProvidedCreate) (*resource.ServiceInstance, error) {
 	var si resource.ServiceInstance
 	_, err := c.client.post(ctx, "/v3/service_instances", r, &si)
 	if err != nil {
