@@ -1,0 +1,45 @@
+{
+  "guid": "{{.GUID}}",
+  "created_at": "2020-03-10T15:56:08Z",
+  "updated_at": "2020-03-10T15:56:08Z",
+  "last_operation": {
+    "type": "create",
+    "state": "succeeded",
+    "description": "Operation succeeded",
+    "updated_at": "2020-03-10T15:49:32Z",
+    "created_at": "2020-03-10T15:49:29Z"
+  },
+  "name": "{{.Name}}",
+  "tags": ["sql"],
+  "type": "user-provided",
+  "syslog_drain_url": "http://logs.example.com",
+  "route_service_url": "https://routes.example.com",
+  "relationships": {
+    "space": {
+      "data": {
+        "guid": "5a84d315-9513-4d74-95e5-f6a5501eeef7"
+      }
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/service_instances/88ce23e5-27c3-4381-a2df-32a28ec43133"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/5a84d315-9513-4d74-95e5-f6a5501eeef7"
+    },
+    "credentials": {
+      "href": "https://api.example.org/v3/service_instances/88ce23e5-27c3-4381-a2df-32a28ec43133/credentials"
+    },
+    "service_credential_bindings": {
+      "href": "https://api.example.org/v3/service_credential_bindings?service_instance_guids=88ce23e5-27c3-4381-a2df-32a28ec43133"
+    },
+    "service_route_bindings": {
+      "href": "https://api.example.org/v3/service_route_bindings?service_instance_guids=88ce23e5-27c3-4381-a2df-32a28ec43133"
+    }
+  }
+}

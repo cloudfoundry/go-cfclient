@@ -15,6 +15,7 @@ func TestServiceInstances(t *testing.T) {
 	g := testutil.NewObjectJSONGenerator(156)
 	si := g.ServiceInstance().JSON
 	si2 := g.ServiceInstance().JSON
+	siUserProvided := g.ServiceInstanceUserProvided().JSON
 	siSharedSummary := g.ServiceInstanceUsageSummary().JSON
 	siSpaceRelationships := g.ServiceInstanceSpaceRelationships().JSON
 
@@ -98,7 +99,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   g.Single(si),
+				Output:   g.Single(siUserProvided),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "user-provided",
@@ -113,7 +114,7 @@ func TestServiceInstances(t *testing.T) {
 					}
 				}`,
 			},
-			Expected: si,
+			Expected: siUserProvided,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewServiceInstanceCreateUserProvided("my_service_instance",
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78")
@@ -126,7 +127,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "POST",
 				Endpoint: "/v3/service_instances",
-				Output:   g.Single(si),
+				Output:   g.Single(siUserProvided),
 				Status:   http.StatusCreated,
 				PostForm: `{
 					"type": "user-provided",
@@ -145,7 +146,7 @@ func TestServiceInstances(t *testing.T) {
 					}
 				}`,
 			},
-			Expected: si,
+			Expected: siUserProvided,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewServiceInstanceCreateUserProvided("my_service_instance",
 					"7304bc3c-7010-11ea-8840-48bf6bec2d78").
@@ -264,7 +265,7 @@ func TestServiceInstances(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
-				Output:   g.Single(si),
+				Output:   g.Single(siUserProvided),
 				Status:   http.StatusOK,
 				PostForm: `{
 					"name": "my_service_instance",
@@ -277,7 +278,7 @@ func TestServiceInstances(t *testing.T) {
 					"route_service_url": "https://route.com/service"
 				  }`,
 			},
-			Expected: si,
+			Expected: siUserProvided,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewServiceInstanceUserProvidedUpdate().
 					WithName("my_service_instance").

@@ -358,6 +358,14 @@ func (o ObjectJSONGenerator) ServiceInstance() *JSONResource {
 	return o.renderTemplate(r, "service_instance.json")
 }
 
+func (o ObjectJSONGenerator) ServiceInstanceUserProvided() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+	}
+	return o.renderTemplate(r, "service_instance_user_provided.json")
+}
+
 func (o ObjectJSONGenerator) ServiceInstanceUsageSummary() *JSONResource {
 	r := &JSONResource{}
 	return o.renderTemplate(r, "service_instance_usage_summary.json")
