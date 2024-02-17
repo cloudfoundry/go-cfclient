@@ -281,10 +281,13 @@ func (c *Client) download(ctx context.Context, resourcePath string) (io.ReadClos
 // This function takes the relative API resource path, any parameters to POST and an optional
 // struct to unmarshall the result body. If the resource returns an async job ID in the Location
 // header then the job GUID is returned which the caller can reference via the job endpoint.
-func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName string, fileToUpload io.Reader, result any) (string, error) {
+func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName string, fileContent io.Reader, result any) (string, error) {
 	// Validate input parameters
 	if path == "" || fieldName == "" || fileName == "" {
 		return "", errors.New("path, fieldName, and fileName are required")
+	}
+	if fileContent == nil {
+		return "", fmt.Errorf("no content was provided for the %s file", fileName)
 	}
 
 	if !check.IsNil(result) && !check.IsPointer(result) {
@@ -298,7 +301,7 @@ func (c *Client) postFileUpload(ctx context.Context, path, fieldName, fileName s
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to %s: %w", path, err)
 	}
-	if _, err = io.Copy(part, fileToUpload); err != nil {
+	if _, err = io.Copy(part, fileContent); err != nil {
 		return "", fmt.Errorf("error uploading file to %s, failed on copy: %w", path, err)
 	}
 	if err = formWriter.Close(); err != nil {
