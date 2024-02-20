@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -12,20 +13,38 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
+type StrategyMode int
+
+const (
+	StrategyNone StrategyMode = iota
+	StrategyBlueGreen
+	StrategyRolling
+)
+
+func (sm StrategyMode) String() string {
+	return [...]string{"none", "blue-green", "rolling"}[sm]
+}
+
 // AppPushOperation can be used to push buildpack apps
 type AppPushOperation struct {
 	orgName   string
 	spaceName string
 	client    *client.Client
+	strategy  StrategyMode
 }
 
 // NewAppPushOperation creates a new AppPushOperation
 func NewAppPushOperation(client *client.Client, orgName, spaceName string) *AppPushOperation {
-	return &AppPushOperation{
+	apo := AppPushOperation{
 		orgName:   orgName,
 		spaceName: spaceName,
 		client:    client,
 	}
+	apo.strategy = StrategyNone
+	return &apo
+}
+func (p *AppPushOperation) WithStrategy(s StrategyMode) {
+	p.strategy = s
 }
 
 // Push creates or updates an application using the specified manifest and zipped source files
@@ -38,7 +57,86 @@ func (p *AppPushOperation) Push(ctx context.Context, appManifest *AppManifest, z
 	if err != nil {
 		return nil, err
 	}
-	return p.pushApp(ctx, space, appManifest, zipFile)
+	return p.pushWithStrategyApp(ctx, space, appManifest, zipFile)
+}
+func (p *AppPushOperation) pushWithStrategyApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	switch p.strategy {
+	case StrategyNone:
+		return p.pushApp(ctx, space, manifest, zipFile)
+	case StrategyBlueGreen:
+		return p.pushBlueGreenApp(ctx, space, manifest, zipFile)
+	default:
+		return nil, fmt.Errorf("invalid push strategy: %s strategy not available", p.strategy.String())
+	}
+}
+
+func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	originalApp, err := p.findApp(ctx, manifest.Name, space)
+	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+		return nil, err
+	}
+	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+		return p.pushApp(ctx, space, manifest, zipFile)
+	}
+
+	tempAppName := originalApp.Name + "-venerable"
+
+	// Check if temporary app name already exists if yes gracefully delete the app and continue
+	tempApp, err := p.findApp(ctx, tempAppName, space)
+	if err == nil {
+		err = p.gracefulDeletion(ctx, tempApp)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Update the existing app's name
+	_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+		Name: tempAppName,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update app name failed with: %s", err.Error())
+	}
+
+	// Apply the manifest
+	newApp, err := p.pushApp(ctx, space, manifest, zipFile)
+	if err != nil {
+		// If push fails change back original app name
+		_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+			Name: originalApp.Name,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to update app name back to original name: failed with %s", err.Error())
+		}
+		return nil, fmt.Errorf("blue green deployment failed with: %s", err.Error())
+	}
+	if newApp.State == "STARTED" {
+		err = p.gracefulDeletion(ctx, originalApp)
+		return newApp, err
+	}
+	return newApp, fmt.Errorf("failed to verify application start: %s", err.Error())
+}
+
+// Stop the application and delete it
+// https://github.com/cloudfoundry/cloud_controller_ng/issues/1017
+func (p *AppPushOperation) gracefulDeletion(ctx context.Context, app *resource.App) error {
+	app, err := p.client.Applications.Stop(ctx, app.GUID)
+	if err != nil {
+		return fmt.Errorf("failed to stop the application with: %s", err.Error())
+	}
+	jobId, err := p.client.Applications.Delete(ctx, app.GUID)
+	if err != nil {
+		return err
+	}
+	err = p.client.Jobs.PollComplete(ctx, jobId, &client.PollingOptions{
+		Timeout:       20 * time.Minute,
+		CheckInterval: time.Second * 5,
+		FailedState:   string(resource.JobStateFailed),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // pushApp pushes an application
@@ -90,6 +188,7 @@ func (p *AppPushOperation) applySpaceManifest(ctx context.Context, space *resour
 	if err != nil {
 		return fmt.Errorf("error marshalling application manifest: %w", err)
 	}
+	fmt.Println(string(manifestBytes))
 
 	jobGUID, err := p.client.Manifests.ApplyManifest(ctx, space.GUID, string(manifestBytes))
 	if err != nil {
@@ -145,11 +244,14 @@ func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Packa
 		newBuild.Lifecycle = &resource.Lifecycle{Type: pkg.Type}
 	} else {
 		newBuild.Lifecycle = &resource.Lifecycle{
-			Type: resource.LifecycleBuildpack.String(),
-			BuildpackData: resource.BuildpackLifecycle{
-				Buildpacks: manifest.Buildpacks,
-				Stack:      manifest.Stack,
-			},
+			Type:          resource.LifecycleBuildpack.String(),
+			BuildpackData: resource.BuildpackLifecycle{},
+		}
+		if len(manifest.Buildpacks) != 0 {
+			newBuild.Lifecycle.BuildpackData.Buildpacks = manifest.Buildpacks
+		}
+		if manifest.Stack != "" {
+			newBuild.Lifecycle.BuildpackData.Stack = manifest.Stack
 		}
 	}
 	build, err := p.client.Builds.Create(ctx, newBuild)
