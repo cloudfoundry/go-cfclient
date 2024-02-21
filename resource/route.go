@@ -5,7 +5,7 @@ type Route struct {
 	Path         string             `json:"path"`
 	URL          string             `json:"url"`
 	Protocol     string             `json:"protocol"`
-	Port         int                `json:"port"`
+	Port         *int               `json:"port"`
 	Destinations []RouteDestination `json:"destinations"`
 
 	Metadata      *Metadata          `json:"metadata"`
