@@ -65,6 +65,8 @@ func (p *AppPushOperation) pushWithStrategyApp(ctx context.Context, space *resou
 		return p.pushApp(ctx, space, manifest, zipFile)
 	case StrategyBlueGreen:
 		return p.pushBlueGreenApp(ctx, space, manifest, zipFile)
+	case StrategyRolling:
+		return p.pushRollingApp(ctx, space, manifest, zipFile)
 	default:
 		return nil, fmt.Errorf("invalid push strategy: %s strategy not available", p.strategy.String())
 	}
@@ -115,6 +117,115 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 		return newApp, err
 	}
 	return newApp, fmt.Errorf("failed to verify application start: %s", err.Error())
+}
+
+func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	originalApp, err := p.findApp(ctx, manifest.Name, space)
+	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+		return nil, err
+	}
+	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+		return p.pushApp(ctx, space, manifest, zipFile)
+	}
+	// Get the fallback revision in case of rollback
+	fallbackRevision, _ := p.client.Revisions.SingleForAppDeployed(ctx, originalApp.GUID, nil)
+
+	err = p.applySpaceManifest(ctx, space, manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	var pkg *resource.Package
+	if manifest.Docker != nil {
+		pkg, err = p.uploadDockerPackage(ctx, originalApp, manifest.Docker)
+	} else {
+		pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	droplet, err := p.buildDroplet(ctx, pkg, manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	deployment, err := p.createNewDeployment(ctx, originalApp, droplet)
+	if err != nil {
+		return nil, fmt.Errorf("failed to deploy with: %s", err.Error())
+	}
+	// In case application crashed due to new deployment, deployment will be stuck with value "ACTIVE" and reason "DEPLOYING"
+	// This will be considered as deployment failed after timeout
+	depPollErr := p.waitForDeployment(ctx, deployment.GUID, manifest.Instances)
+
+	// Check the app state if app not started or deployment failed rollback the deployment
+	originalApp, err = p.findApp(ctx, manifest.Name, space)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify application status with: %s", err.Error())
+	}
+	if originalApp.State != "STARTED" || depPollErr != nil {
+		rollBackDeployment, rollBackErr := p.rollBackDeployment(ctx, originalApp, fallbackRevision)
+		if rollBackErr != nil {
+			return nil, fmt.Errorf("failed to confirm rollback deployment with: %s", rollBackErr.Error())
+		}
+		depRollPollErr := p.waitForDeployment(ctx, rollBackDeployment.GUID, manifest.Instances)
+		if depRollPollErr != nil {
+			return nil, fmt.Errorf("failed to deploy with: %s \nfailed to confirm roll back to last deployment with: %s", depPollErr.Error(), depRollPollErr.Error())
+		}
+		return nil, fmt.Errorf("failed to deploy with: %s \nrolled back to last deployment", depPollErr.Error())
+	}
+
+	return originalApp, nil
+}
+
+// Poll for deployment status and wait for the deployment to be in the final state
+// Timeout is calculated based on the number of instances
+func (p *AppPushOperation) waitForDeployment(ctx context.Context, deploymentGUID string, instances uint) error {
+	// If instances is not set default to 1
+	if instances == 0 {
+		instances = 1
+	}
+	pollOptions := client.NewPollingOptions()
+	pollOptions.Timeout = time.Duration(instances) * time.Minute
+
+	depPollErr := client.PollForStateOrTimeout(func() (string, error) {
+		deployment, err := p.client.Deployments.Get(ctx, deploymentGUID)
+		if err != nil {
+			return "", err
+		}
+		return deployment.Status.Value, nil
+	}, "FINALIZED", pollOptions)
+	return depPollErr
+}
+
+func (p *AppPushOperation) createNewDeployment(ctx context.Context, originalApp *resource.App, droplet *resource.Droplet) (*resource.Deployment, error) {
+	return p.client.Deployments.Create(ctx, &resource.DeploymentCreate{
+		Relationships: resource.AppRelationship{
+			App: resource.ToOneRelationship{
+				Data: &resource.Relationship{
+					GUID: originalApp.GUID,
+				},
+			},
+		},
+		Droplet: &resource.Relationship{
+			GUID: droplet.GUID,
+		},
+	})
+}
+
+func (p *AppPushOperation) rollBackDeployment(ctx context.Context, originalApp *resource.App, fallbackRevision *resource.Revision) (*resource.Deployment, error) {
+	return p.client.Deployments.Create(ctx, &resource.DeploymentCreate{
+		Relationships: resource.AppRelationship{
+			App: resource.ToOneRelationship{
+				Data: &resource.Relationship{
+					GUID: originalApp.GUID,
+				},
+			},
+		},
+		Revision: &resource.DeploymentRevision{
+			GUID: fallbackRevision.GUID,
+		},
+	})
 }
 
 // Stop the application and delete it
@@ -188,7 +299,6 @@ func (p *AppPushOperation) applySpaceManifest(ctx context.Context, space *resour
 	if err != nil {
 		return fmt.Errorf("error marshalling application manifest: %w", err)
 	}
-	fmt.Println(string(manifestBytes))
 
 	jobGUID, err := p.client.Manifests.ApplyManifest(ctx, space.GUID, string(manifestBytes))
 	if err != nil {
@@ -244,14 +354,11 @@ func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Packa
 		newBuild.Lifecycle = &resource.Lifecycle{Type: pkg.Type}
 	} else {
 		newBuild.Lifecycle = &resource.Lifecycle{
-			Type:          resource.LifecycleBuildpack.String(),
-			BuildpackData: resource.BuildpackLifecycle{},
-		}
-		if len(manifest.Buildpacks) != 0 {
-			newBuild.Lifecycle.BuildpackData.Buildpacks = manifest.Buildpacks
-		}
-		if manifest.Stack != "" {
-			newBuild.Lifecycle.BuildpackData.Stack = manifest.Stack
+			Type: resource.LifecycleBuildpack.String(),
+			BuildpackData: resource.BuildpackLifecycle{
+				Buildpacks: manifest.Buildpacks,
+				Stack:      manifest.Stack,
+			},
 		}
 	}
 	build, err := p.client.Builds.Create(ctx, newBuild)
