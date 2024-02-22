@@ -22,7 +22,15 @@ const (
 )
 
 func (sm StrategyMode) String() string {
-	return [...]string{"none", "blue-green", "rolling"}[sm]
+	var strategyNames = map[StrategyMode]string{
+		StrategyNone:      "none",
+		StrategyBlueGreen: "blue-green",
+		StrategyRolling:   "rolling",
+	}
+	if name, found := strategyNames[sm]; found {
+		return name
+	}
+	return "none"
 }
 
 // AppPushOperation can be used to push buildpack apps
