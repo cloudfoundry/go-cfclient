@@ -21,18 +21,6 @@ const (
 	StrategyRolling
 )
 
-func (sm StrategyMode) String() string {
-	var strategyNames = map[StrategyMode]string{
-		StrategyNone:      "none",
-		StrategyBlueGreen: "blue-green",
-		StrategyRolling:   "rolling",
-	}
-	if name, found := strategyNames[sm]; found {
-		return name
-	}
-	return "none"
-}
-
 // AppPushOperation can be used to push buildpack apps
 type AppPushOperation struct {
 	orgName   string
@@ -52,7 +40,12 @@ func NewAppPushOperation(client *client.Client, orgName, spaceName string) *AppP
 	return &apo
 }
 func (p *AppPushOperation) WithStrategy(s StrategyMode) {
-	p.strategy = s
+	switch s {
+	case StrategyBlueGreen, StrategyRolling:
+		p.strategy = s
+	default:
+		p.strategy = StrategyNone
+	}
 }
 
 // Push creates or updates an application using the specified manifest and zipped source files
@@ -69,14 +62,12 @@ func (p *AppPushOperation) Push(ctx context.Context, appManifest *AppManifest, z
 }
 func (p *AppPushOperation) pushWithStrategyApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	switch p.strategy {
-	case StrategyNone:
-		return p.pushApp(ctx, space, manifest, zipFile)
 	case StrategyBlueGreen:
 		return p.pushBlueGreenApp(ctx, space, manifest, zipFile)
 	case StrategyRolling:
 		return p.pushRollingApp(ctx, space, manifest, zipFile)
 	default:
-		return nil, fmt.Errorf("invalid push strategy: %s strategy not available", p.strategy.String())
+		return p.pushApp(ctx, space, manifest, zipFile)
 	}
 }
 

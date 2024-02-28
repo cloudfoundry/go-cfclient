@@ -135,6 +135,9 @@ func TestAppPush(t *testing.T) {
 	require.NoError(t, err)
 
 	pusher := NewAppPushOperation(cf, org.Name, space.Name)
+	// Invalid strategy
+	strategy := StrategyMode(10)
+	pusher.WithStrategy(strategy)
 	_, err = pusher.Push(context.Background(), manifest, fakeAppZipReader)
 	require.NoError(t, err)
 }
