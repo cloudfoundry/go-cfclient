@@ -32,8 +32,8 @@ type SecurityGroupUpdate struct {
 
 // SecurityGroupGloballyEnabled object controls if the group is applied globally to the lifecycle of all applications
 type SecurityGroupGloballyEnabled struct {
-	Running bool `json:"running"`
-	Staging bool `json:"staging"`
+	Running *bool `json:"running,omitempty"`
+	Staging *bool `json:"staging,omitempty"`
 }
 
 type SecurityGroupsRelationships struct {

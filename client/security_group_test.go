@@ -229,8 +229,66 @@ func TestSecurityGroups(t *testing.T) {
 				r := &resource.SecurityGroupUpdate{
 					Name: "my-group0",
 					GloballyEnabled: &resource.SecurityGroupGloballyEnabled{
-						Running: true,
+						Running: testutil.BoolPtr(true),
+						Staging: testutil.BoolPtr(false),
 					},
+					Rules: []*resource.SecurityGroupRule{
+						resource.NewSecurityGroupRuleTCP("10.10.10.0/24", false).
+							WithPorts("443,80,8080"),
+						resource.NewSecurityGroupRuleICMP("10.10.10.0/24", 8, 0).
+							WithDescription("Allow ping requests to private services"),
+					},
+				}
+				return c.SecurityGroups.Update(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", r)
+			},
+		},
+		{
+			Description: "Update security group name only",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
+				Output:   g.Single(sg),
+				Status:   http.StatusOK,
+				PostForm: `{ "name": "my-group-with-new-name" }`,
+			},
+			Expected: sg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := &resource.SecurityGroupUpdate{
+					Name: "my-group-with-new-name",
+				}
+				return c.SecurityGroups.Update(context.Background(), "12e9eabb-5139-4377-a5c3-64e3cd1b6e26", r)
+			},
+		},
+		{
+			Description: "Update security group without updating globally running or staging",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/security_groups/12e9eabb-5139-4377-a5c3-64e3cd1b6e26",
+				Output:   g.Single(sg),
+				Status:   http.StatusOK,
+				PostForm: `{
+				  "name": "my-group0",
+				  "rules": [
+					{
+					  "protocol": "tcp",
+					  "destination": "10.10.10.0/24",
+					  "ports": "443,80,8080",
+					  "log": false
+					},
+					{
+					  "protocol": "icmp",
+					  "destination": "10.10.10.0/24",
+					  "type": 8,
+					  "code": 0,
+					  "description": "Allow ping requests to private services"
+					}
+				  ]
+				}`,
+			},
+			Expected: sg,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := &resource.SecurityGroupUpdate{
+					Name: "my-group0",
 					Rules: []*resource.SecurityGroupRule{
 						resource.NewSecurityGroupRuleTCP("10.10.10.0/24", false).
 							WithPorts("443,80,8080"),
