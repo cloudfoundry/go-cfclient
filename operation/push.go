@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -12,19 +13,38 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
 )
 
+type StrategyMode int
+
+const (
+	StrategyNone StrategyMode = iota
+	StrategyBlueGreen
+	StrategyRolling
+)
+
 // AppPushOperation can be used to push buildpack apps
 type AppPushOperation struct {
 	orgName   string
 	spaceName string
 	client    *client.Client
+	strategy  StrategyMode
 }
 
 // NewAppPushOperation creates a new AppPushOperation
 func NewAppPushOperation(client *client.Client, orgName, spaceName string) *AppPushOperation {
-	return &AppPushOperation{
+	apo := AppPushOperation{
 		orgName:   orgName,
 		spaceName: spaceName,
 		client:    client,
+	}
+	apo.strategy = StrategyNone
+	return &apo
+}
+func (p *AppPushOperation) WithStrategy(s StrategyMode) {
+	switch s {
+	case StrategyBlueGreen, StrategyRolling:
+		p.strategy = s
+	default:
+		p.strategy = StrategyNone
 	}
 }
 
@@ -38,7 +58,195 @@ func (p *AppPushOperation) Push(ctx context.Context, appManifest *AppManifest, z
 	if err != nil {
 		return nil, err
 	}
-	return p.pushApp(ctx, space, appManifest, zipFile)
+	return p.pushWithStrategyApp(ctx, space, appManifest, zipFile)
+}
+func (p *AppPushOperation) pushWithStrategyApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	switch p.strategy {
+	case StrategyBlueGreen:
+		return p.pushBlueGreenApp(ctx, space, manifest, zipFile)
+	case StrategyRolling:
+		return p.pushRollingApp(ctx, space, manifest, zipFile)
+	default:
+		return p.pushApp(ctx, space, manifest, zipFile)
+	}
+}
+
+func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	originalApp, err := p.findApp(ctx, manifest.Name, space)
+	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+		return nil, err
+	}
+	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+		return p.pushApp(ctx, space, manifest, zipFile)
+	}
+
+	tempAppName := originalApp.Name + "-venerable"
+
+	// Check if temporary app name already exists if yes gracefully delete the app and continue
+	tempApp, err := p.findApp(ctx, tempAppName, space)
+	if err == nil {
+		err = p.gracefulDeletion(ctx, tempApp)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Update the existing app's name
+	_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+		Name: tempAppName,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update app name failed with: %s", err.Error())
+	}
+
+	// Apply the manifest
+	newApp, err := p.pushApp(ctx, space, manifest, zipFile)
+	if err != nil {
+		// If push fails change back original app name
+		_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+			Name: originalApp.Name,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to update app name back to original name: failed with %s", err.Error())
+		}
+		return nil, fmt.Errorf("blue green deployment failed with: %s", err.Error())
+	}
+	if newApp.State == "STARTED" {
+		err = p.gracefulDeletion(ctx, originalApp)
+		return newApp, err
+	}
+	return newApp, fmt.Errorf("failed to verify application start: %s", err.Error())
+}
+
+func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
+	originalApp, err := p.findApp(ctx, manifest.Name, space)
+	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+		return nil, err
+	}
+	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+		return p.pushApp(ctx, space, manifest, zipFile)
+	}
+	// Get the fallback revision in case of rollback
+	fallbackRevision, _ := p.client.Revisions.SingleForAppDeployed(ctx, originalApp.GUID, nil)
+
+	err = p.applySpaceManifest(ctx, space, manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	var pkg *resource.Package
+	if manifest.Docker != nil {
+		pkg, err = p.uploadDockerPackage(ctx, originalApp, manifest.Docker)
+	} else {
+		pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	droplet, err := p.buildDroplet(ctx, pkg, manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	deployment, err := p.createNewDeployment(ctx, originalApp, droplet)
+	if err != nil {
+		return nil, fmt.Errorf("failed to deploy with: %s", err.Error())
+	}
+	// In case application crashed due to new deployment, deployment will be stuck with value "ACTIVE" and reason "DEPLOYING"
+	// This will be considered as deployment failed after timeout
+	depPollErr := p.waitForDeployment(ctx, deployment.GUID, manifest.Instances)
+
+	// Check the app state if app not started or deployment failed rollback the deployment
+	originalApp, err = p.findApp(ctx, manifest.Name, space)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify application status with: %s", err.Error())
+	}
+	if originalApp.State != "STARTED" || depPollErr != nil {
+		rollBackDeployment, rollBackErr := p.rollBackDeployment(ctx, originalApp, fallbackRevision)
+		if rollBackErr != nil {
+			return nil, fmt.Errorf("failed to confirm rollback deployment with: %s", rollBackErr.Error())
+		}
+		depRollPollErr := p.waitForDeployment(ctx, rollBackDeployment.GUID, manifest.Instances)
+		if depRollPollErr != nil {
+			return nil, fmt.Errorf("failed to deploy with: %s \nfailed to confirm roll back to last deployment with: %s", depPollErr.Error(), depRollPollErr.Error())
+		}
+		return nil, fmt.Errorf("failed to deploy with: %s \nrolled back to last deployment", depPollErr.Error())
+	}
+
+	return originalApp, nil
+}
+
+// Poll for deployment status and wait for the deployment to be in the final state
+// Timeout is calculated based on the number of instances
+func (p *AppPushOperation) waitForDeployment(ctx context.Context, deploymentGUID string, instances uint) error {
+	// If instances is not set default to 1
+	if instances == 0 {
+		instances = 1
+	}
+	pollOptions := client.NewPollingOptions()
+	pollOptions.Timeout = time.Duration(instances) * time.Minute
+
+	depPollErr := client.PollForStateOrTimeout(func() (string, error) {
+		deployment, err := p.client.Deployments.Get(ctx, deploymentGUID)
+		if err != nil {
+			return "", err
+		}
+		return deployment.Status.Value, nil
+	}, "FINALIZED", pollOptions)
+	return depPollErr
+}
+
+func (p *AppPushOperation) createNewDeployment(ctx context.Context, originalApp *resource.App, droplet *resource.Droplet) (*resource.Deployment, error) {
+	return p.client.Deployments.Create(ctx, &resource.DeploymentCreate{
+		Relationships: resource.AppRelationship{
+			App: resource.ToOneRelationship{
+				Data: &resource.Relationship{
+					GUID: originalApp.GUID,
+				},
+			},
+		},
+		Droplet: &resource.Relationship{
+			GUID: droplet.GUID,
+		},
+	})
+}
+
+func (p *AppPushOperation) rollBackDeployment(ctx context.Context, originalApp *resource.App, fallbackRevision *resource.Revision) (*resource.Deployment, error) {
+	return p.client.Deployments.Create(ctx, &resource.DeploymentCreate{
+		Relationships: resource.AppRelationship{
+			App: resource.ToOneRelationship{
+				Data: &resource.Relationship{
+					GUID: originalApp.GUID,
+				},
+			},
+		},
+		Revision: &resource.DeploymentRevision{
+			GUID: fallbackRevision.GUID,
+		},
+	})
+}
+
+// Stop the application and delete it
+// https://github.com/cloudfoundry/cloud_controller_ng/issues/1017
+func (p *AppPushOperation) gracefulDeletion(ctx context.Context, app *resource.App) error {
+	app, err := p.client.Applications.Stop(ctx, app.GUID)
+	if err != nil {
+		return fmt.Errorf("failed to stop the application with: %s", err.Error())
+	}
+	jobId, err := p.client.Applications.Delete(ctx, app.GUID)
+	if err != nil {
+		return err
+	}
+	err = p.client.Jobs.PollComplete(ctx, jobId, &client.PollingOptions{
+		Timeout:       20 * time.Minute,
+		CheckInterval: time.Second * 5,
+		FailedState:   string(resource.JobStateFailed),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // pushApp pushes an application
