@@ -13,11 +13,10 @@ type Domain struct {
 type DomainCreate struct {
 	Name string `json:"name"`
 
-	Internal            *bool                `json:"internal,omitempty"`
-	RouterGroup         *Relationship        `json:"router_group,omitempty"`
-	Organization        *ToOneRelationship   `json:"organization,omitempty"`
-	SharedOrganizations *ToManyRelationships `json:"shared_organizations,omitempty"`
-	Metadata            *Metadata            `json:"metadata,omitempty"`
+	Internal      *bool                `json:"internal,omitempty"`
+	RouterGroup   *Relationship        `json:"router_group,omitempty"`
+	Relationships *DomainRelationships `json:"relationships,omitempty"`
+	Metadata      *Metadata            `json:"metadata,omitempty"`
 }
 
 type DomainUpdate struct {
@@ -30,8 +29,8 @@ type DomainList struct {
 }
 
 type DomainRelationships struct {
-	Organization        ToOneRelationship   `json:"organization"`
-	SharedOrganizations ToManyRelationships `json:"shared_organizations"`
+	Organization        *ToOneRelationship   `json:"organization,omitempty"`
+	SharedOrganizations *ToManyRelationships `json:"shared_organizations,omitempty"`
 }
 
 func NewDomainCreate(name string) *DomainCreate {
