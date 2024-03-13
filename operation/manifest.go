@@ -51,16 +51,21 @@ type AppManifest struct {
 type AppManifestProcesses []AppManifestProcess
 
 type AppManifestProcess struct {
-	Type                         AppProcessType     `yaml:"type,omitempty"`
-	Command                      string             `yaml:"command,omitempty"`
-	DiskQuota                    string             `yaml:"disk_quota,omitempty"`
-	HealthCheckType              AppHealthCheckType `yaml:"health-check-type,omitempty"`
-	HealthCheckHTTPEndpoint      string             `yaml:"health-check-http-endpoint,omitempty"`
-	HealthCheckInvocationTimeout uint               `yaml:"health-check-invocation-timeout,omitempty"`
-	Instances                    uint               `yaml:"instances,omitempty"`
-	LogRateLimitPerSecond        string             `yaml:"log-rate-limit-per-second,omitempty"`
-	Memory                       string             `yaml:"memory,omitempty"`
-	Timeout                      uint               `yaml:"timeout,omitempty"`
+	Type                             AppProcessType     `yaml:"type,omitempty"`
+	Command                          string             `yaml:"command,omitempty"`
+	DiskQuota                        string             `yaml:"disk_quota,omitempty"`
+	HealthCheckType                  AppHealthCheckType `yaml:"health-check-type,omitempty"`
+	HealthCheckHTTPEndpoint          string             `yaml:"health-check-http-endpoint,omitempty"`
+	HealthCheckInvocationTimeout     uint               `yaml:"health-check-invocation-timeout,omitempty"`
+	Instances                        uint               `yaml:"instances,omitempty"`
+	LogRateLimitPerSecond            string             `yaml:"log-rate-limit-per-second,omitempty"`
+	Memory                           string             `yaml:"memory,omitempty"`
+	Timeout                          uint               `yaml:"timeout,omitempty"`
+	HealthCheckInterval              uint               `yaml:"health-check-interval,omitempty"`
+	ReadinessHealthCheckType         string             `yaml:"readiness-health-check-type,omitempty"`
+	ReadinessHealthCheckHttpEndpoint string             `yaml:"readiness-health-check-http-endpoint,omitempty"`
+	ReadinessHealthInvocationTimeout uint               `yaml:"readiness-health-invocation-timeout,omitempty"`
+	ReadinessHealthCheckInterval     uint               `yaml:"readiness-health-check-interval,omitempty"`
 }
 
 type AppManifestDocker struct {
