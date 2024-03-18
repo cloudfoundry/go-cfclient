@@ -1,6 +1,8 @@
 package operation
 
-import "github.com/cloudfoundry-community/go-cfclient/v3/resource"
+import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+)
 
 type AppHealthCheckType string
 
@@ -104,6 +106,19 @@ func (ams *AppManifestService) UnmarshalYAML(unmarshal func(interface{}) error) 
 							ams.Parameters[kStr] = v
 						}
 					}
+				}
+			}
+		}
+	case map[string]interface{}:
+		for key, value := range v {
+			switch key {
+			case "name":
+				ams.Name = value.(string)
+			case "binding_name":
+				ams.BindingName = value.(string)
+			case "parameters":
+				if params, ok := value.(map[string]interface{}); ok {
+					ams.Parameters = params
 				}
 			}
 		}
