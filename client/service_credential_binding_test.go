@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 )
 
 func TestServiceCredentialBindings(t *testing.T) {
@@ -105,14 +106,28 @@ func TestServiceCredentialBindings(t *testing.T) {
 			},
 		},
 		{
-			Description: "Delete service credential binding",
+			Description: "Delete service credential binding for managed service instance",
+			Route: testutil.MockRoute{
+				Method:           "DELETE",
+				Endpoint:         "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.ServiceCredentialBindings.Delete(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+			},
+		},
+		{
+			Description: "Delete service credential binding for user-provided service instance",
 			Route: testutil.MockRoute{
 				Method:   "DELETE",
-				Endpoint: "/v3/service_credential_bindings/59ba6d78-6a21-4321-83a9-f7eacd88b08d",
-				Status:   http.StatusAccepted,
+				Endpoint: "/v3/service_credential_bindings/db020ea1-5cd9-4e4c-80eb-5a5e02275d5c",
+				Status:   http.StatusNoContent,
 			},
+			Expected: "",
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.ServiceCredentialBindings.Delete(context.Background(), "59ba6d78-6a21-4321-83a9-f7eacd88b08d")
+				return c.ServiceCredentialBindings.Delete(context.Background(), "db020ea1-5cd9-4e4c-80eb-5a5e02275d5c")
 			},
 		},
 		{

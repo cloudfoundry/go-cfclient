@@ -54,9 +54,8 @@ func (c *ServiceCredentialBindingClient) Create(ctx context.Context, r *resource
 }
 
 // Delete the specified service credential binding
-func (c *ServiceCredentialBindingClient) Delete(ctx context.Context, guid string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/service_credential_bindings/%s", guid))
-	return err
+func (c *ServiceCredentialBindingClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/service_credential_bindings/%s", guid))
 }
 
 // First returns the first service credential binding matching the options or an error when less than 1 match
