@@ -123,6 +123,8 @@ func TestManifestUnMarshalling(t *testing.T) {
 	require.Equal(t, "mysql", (*m.Applications[0].Services)[0].BindingName)
 	require.Equal(t, "mysql", (*m.Applications[0].Services)[0].Parameters["name"])
 	require.Equal(t, "oauth2", (*m.Applications[0].Services)[1].Name)
+	require.Equal(t, "spring-music", m.Applications[0].Name)
+	require.Equal(t, "dev", m.Applications[0].Env["SPRING_CLOUD_PROFILE"])
 	require.Equal(t, 1, len(m.Applications))
 	require.Equal(t, 2, len(*m.Applications[0].Services))
 
@@ -132,6 +134,8 @@ func TestManifestUnMarshalling(t *testing.T) {
 	require.Equal(t, "mysql", (*m.Applications[0].Services)[0].BindingName)
 	require.Equal(t, "mysql", (*m.Applications[0].Services)[0].Parameters["name"])
 	require.Equal(t, "oauth2", (*m.Applications[0].Services)[1].Name)
+	require.Equal(t, "spring-music", m.Applications[0].Name)
+	require.Equal(t, "dev", m.Applications[0].Env["SPRING_CLOUD_PROFILE"])
 	require.Equal(t, 1, len(m.Applications))
 	require.Equal(t, 2, len(*m.Applications[0].Services))
 }
