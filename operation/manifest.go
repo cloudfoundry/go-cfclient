@@ -1,6 +1,8 @@
 package operation
 
-import "github.com/cloudfoundry-community/go-cfclient/v3/resource"
+import (
+	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+)
 
 type AppHealthCheckType string
 
@@ -79,6 +81,49 @@ type AppManifestService struct {
 	Name        string                 `yaml:"name"`
 	BindingName string                 `yaml:"binding_name,omitempty"`
 	Parameters  map[string]interface{} `yaml:"parameters,omitempty"`
+}
+
+func (ams *AppManifestService) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var raw interface{}
+	if err := unmarshal(&raw); err != nil {
+		return err
+	}
+	switch v := raw.(type) {
+	case string:
+		ams.Name = v
+	case map[interface{}]interface{}:
+		for key, value := range v {
+			switch key {
+			case "name":
+				ams.Name = value.(string)
+			case "binding_name":
+				ams.BindingName = value.(string)
+			case "parameters":
+				if params, ok := value.(map[interface{}]interface{}); ok {
+					ams.Parameters = make(map[string]interface{})
+					for k, v := range params {
+						if kStr, ok := k.(string); ok {
+							ams.Parameters[kStr] = v
+						}
+					}
+				}
+			}
+		}
+	case map[string]interface{}:
+		for key, value := range v {
+			switch key {
+			case "name":
+				ams.Name = value.(string)
+			case "binding_name":
+				ams.BindingName = value.(string)
+			case "parameters":
+				if params, ok := value.(map[string]interface{}); ok {
+					ams.Parameters = params
+				}
+			}
+		}
+	}
+	return nil
 }
 
 type AppManifestRoutes []AppManifestRoute
