@@ -67,12 +67,46 @@ func (c *RoleClient) CreateSpaceRole(ctx context.Context, spaceGUID, userGUID st
 	return &r, nil
 }
 
+// CreateSpaceRoleWithUsername creates a new role for a user in the space via username and origin.
+// If origin need not be passed, it must be "".
+//
+// To create a space role you must be an admin, an organization manager
+// in the parent organization of the space associated with the role,
+// or a space manager in the space associated with the role.
+//
+// For a user to be assigned a space role, the user must already
+// have an organization role in the parent organization.
+func (c *RoleClient) CreateSpaceRoleWithUsername(ctx context.Context, spaceGUID string, userName string, roleType resource.SpaceRoleType, origin string) (*resource.Role, error) {
+	req := resource.NewRoleSpaceCreateWithUserName(spaceGUID, userName, roleType, origin)
+	var r resource.Role
+	_, err := c.client.post(ctx, "/v3/roles", req, &r)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
 // CreateOrganizationRole creates a new role for a user in the organization
 //
 // To create an organization role you must be an admin or organization
 // manager in the organization associated with the role.
 func (c *RoleClient) CreateOrganizationRole(ctx context.Context, organizationGUID, userGUID string, roleType resource.OrganizationRoleType) (*resource.Role, error) {
 	req := resource.NewRoleOrganizationCreate(organizationGUID, userGUID, roleType)
+	var r resource.Role
+	_, err := c.client.post(ctx, "/v3/roles", req, &r)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+// CreateOrganizationRoleWithUsername creates a new role for a user in the organization via username and origin.
+// If origin need not be passed, it must be "".
+//
+// To create an organization role you must be an admin or organization
+// manager in the organization associated with the role.
+func (c *RoleClient) CreateOrganizationRoleWithUsername(ctx context.Context, organizationGUID string, userName string, roleType resource.OrganizationRoleType, origin string) (*resource.Role, error) {
+	req := resource.NewRoleOrganizationCreateWithUserName(organizationGUID, userName, roleType, origin)
 	var r resource.Role
 	_, err := c.client.post(ctx, "/v3/roles", req, &r)
 	if err != nil {

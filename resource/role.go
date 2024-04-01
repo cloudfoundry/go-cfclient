@@ -25,18 +25,28 @@ type RoleOrganizationCreate struct {
 
 type RoleSpaceUserRelationships struct {
 	Space ToOneRelationship `json:"space"`
-	User  ToOneRelationship `json:"user"`
+	User  RoleUserData      `json:"user"`
 }
 
 type RoleOrganizationUserRelationships struct {
 	Org  ToOneRelationship `json:"organization"`
-	User ToOneRelationship `json:"user"`
+	User RoleUserData      `json:"user"`
 }
 
 type RoleSpaceUserOrganizationRelationships struct {
 	Space ToOneRelationship `json:"space"`
 	User  ToOneRelationship `json:"user"`
 	Org   ToOneRelationship `json:"organization"`
+}
+
+type RoleUserData struct {
+	Data UserData `json:"data"`
+}
+
+type UserData struct {
+	UserName string `json:"username,omitempty"`
+	Origin   string `json:"origin,omitempty"`
+	GUID     string `json:"guid,omitempty"`
 }
 
 type RoleWithIncluded struct {
@@ -134,13 +144,35 @@ func NewRoleSpaceCreate(spaceGUID, userGUID string, roleType SpaceRoleType) *Rol
 					GUID: spaceGUID,
 				},
 			},
-			User: ToOneRelationship{
-				Data: &Relationship{
+			User: RoleUserData{
+				Data: UserData{
 					GUID: userGUID,
 				},
 			},
 		},
 	}
+}
+
+func NewRoleSpaceCreateWithUserName(spaceGUID, userName string, roleType SpaceRoleType, origin string) *RoleSpaceCreate {
+	role := &RoleSpaceCreate{
+		RoleType: roleType.String(),
+		Relationships: RoleSpaceUserRelationships{
+			Space: ToOneRelationship{
+				Data: &Relationship{
+					GUID: spaceGUID,
+				},
+			},
+			User: RoleUserData{
+				Data: UserData{
+					UserName: userName,
+				},
+			},
+		},
+	}
+	if origin != "" {
+		role.Relationships.User.Data.Origin = origin
+	}
+	return role
 }
 
 func NewRoleOrganizationCreate(orgGUID, userGUID string, roleType OrganizationRoleType) *RoleOrganizationCreate {
@@ -152,11 +184,33 @@ func NewRoleOrganizationCreate(orgGUID, userGUID string, roleType OrganizationRo
 					GUID: orgGUID,
 				},
 			},
-			User: ToOneRelationship{
-				Data: &Relationship{
+			User: RoleUserData{
+				Data: UserData{
 					GUID: userGUID,
 				},
 			},
 		},
 	}
+}
+
+func NewRoleOrganizationCreateWithUserName(orgGUID, userName string, roleType OrganizationRoleType, origin string) *RoleOrganizationCreate {
+	role := &RoleOrganizationCreate{
+		RoleType: roleType.String(),
+		Relationships: RoleOrganizationUserRelationships{
+			Org: ToOneRelationship{
+				Data: &Relationship{
+					GUID: orgGUID,
+				},
+			},
+			User: RoleUserData{
+				Data: UserData{
+					UserName: userName,
+				},
+			},
+		},
+	}
+	if origin != "" {
+		role.Relationships.User.Data.Origin = origin
+	}
+	return role
 }

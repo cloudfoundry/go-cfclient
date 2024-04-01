@@ -83,6 +83,65 @@ func TestRoles(t *testing.T) {
 			},
 		},
 		{
+			Description: "Create organization role with username",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/roles",
+				Output:   g.Single(role),
+				Status:   http.StatusCreated,
+				PostForm: `{
+				  "type": "organization_user",
+				  "relationships": {
+					"user": {
+					  "data": {
+						"username": "test@gmail.com",
+						"origin" : "id.dbs"
+					  }
+					},
+					"organization": {
+					  "data": {
+						"guid": "ea77cd9e-a072-41e8-9d0b-b2e9180c50bf"
+					  }
+					}
+				  }
+				}`,
+			},
+			Expected: role,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Roles.CreateOrganizationRoleWithUsername(context.Background(), "ea77cd9e-a072-41e8-9d0b-b2e9180c50bf",
+					"test@gmail.com", resource.OrganizationRoleUser, "id.dbs")
+			},
+		},
+		{
+			Description: "Create space role with username",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/roles",
+				Output:   g.Single(role),
+				Status:   http.StatusCreated,
+				PostForm: `{
+				  "type": "space_manager",
+				  "relationships": {
+					"user": {
+					  "data": {
+							"username": "test@gmail.com"
+					  }
+					},
+					"space": {
+					  "data": {
+						"guid": "c0c8988d-2f97-4768-832a-677557f18174"
+					  }
+					}
+				  }
+				}`,
+			},
+			Expected: role,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Roles.CreateSpaceRoleWithUsername(context.Background(), "c0c8988d-2f97-4768-832a-677557f18174",
+				"test@gmail.com", resource.SpaceRoleManager, "")
+			},
+		},
+		{
 			Description: "Delete role",
 			Route: testutil.MockRoute{
 				Method:           "DELETE",
