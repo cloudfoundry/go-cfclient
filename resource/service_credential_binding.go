@@ -7,7 +7,7 @@ import (
 // ServiceCredentialBinding implements the service credential binding object
 // a credential binding can be a binding between apps and a service instance or a service key
 type ServiceCredentialBinding struct {
-	Name          string        `json:"name"`
+	Name          *string       `json:"name"`
 	Type          string        `json:"type"`
 	LastOperation LastOperation `json:"last_operation"`
 	Metadata      *Metadata     `json:"metadata"`
