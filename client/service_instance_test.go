@@ -329,13 +329,17 @@ func TestServiceInstances(t *testing.T) {
 				Endpoint: "/v3/service_instances/62a3c0fe-5751-4f8f-97c4-28de85962ef8",
 				Output:   g.Single(si),
 				Status:   http.StatusOK,
-				PostForm: `{ "name": "my_service_instance" }`,
+				PostForm: `{
+					"name": "my_service_instance",
+					"tags": ["test","available"]
+					}`,
 			},
 			Expected:  "",
 			Expected2: si,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				r := resource.NewServiceInstanceManagedUpdate().
-					WithName("my_service_instance")
+					WithName("my_service_instance").
+					WithTags([]string{"test", "available"})
 				return c.ServiceInstances.UpdateManaged(context.Background(), "62a3c0fe-5751-4f8f-97c4-28de85962ef8", r)
 			},
 		},

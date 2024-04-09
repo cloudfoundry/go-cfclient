@@ -55,16 +55,16 @@ type ServiceInstanceManagedUpdate struct {
 	Relationships   *ServiceInstanceRelationships   `json:"relationships,omitempty"`
 	MaintenanceInfo *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
 	Parameters      *json.RawMessage                `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
-	Tags            []string                        `json:"tags,omitempty"`
+	Tags            []string                        `json:"tags"`
 	Metadata        *Metadata                       `json:"metadata,omitempty"`
 }
 
 type ServiceInstanceUserProvidedUpdate struct {
 	Name            *string          `json:"name,omitempty"`
-	SyslogDrainURL  *string          `json:"syslog_drain_url,omitempty"`
-	RouteServiceURL *string          `json:"route_service_url,omitempty"`
+	SyslogDrainURL  *string          `json:"syslog_drain_url"`
+	RouteServiceURL *string          `json:"route_service_url"`
 	Credentials     *json.RawMessage `json:"credentials,omitempty"` // A JSON object
-	Tags            []string         `json:"tags,omitempty"`
+	Tags            []string         `json:"tags"`
 	Metadata        *Metadata        `json:"metadata,omitempty"`
 }
 
