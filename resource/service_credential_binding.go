@@ -17,9 +17,9 @@ type ServiceCredentialBinding struct {
 }
 
 type ServiceCredentialBindingDetails struct {
-	Credentials    map[string]any `json:"credentials"`
-	SyslogDrainURL string         `json:"syslog_drain_url"`
-	VolumeMounts   []string       `json:"volume_mounts"`
+	Credentials    map[string]any `json:"credentials,omitempty"`
+	SyslogDrainURL string         `json:"syslog_drain_url,omitempty"`
+	VolumeMounts   []string       `json:"volume_mounts,omitempty"`
 }
 
 type ServiceCredentialBindingCreate struct {
