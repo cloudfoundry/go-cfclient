@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
 )
 
 func TestUsers(t *testing.T) {

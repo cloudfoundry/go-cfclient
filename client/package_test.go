@@ -3,14 +3,16 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestBitsMarshalling(t *testing.T) {

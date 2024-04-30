@@ -4,9 +4,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
-
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
 
 type TaskClient commonClient

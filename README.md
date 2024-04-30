@@ -1,8 +1,8 @@
 # go-cfclient
 
-[![build workflow](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cloudfoundry-community/go-cfclient/actions/workflows/build.yml)
-[![GoDoc](https://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3?status.svg)](http://godoc.org/github.com/cloudfoundry-community/go-cfclient/v3)
-[![Report card](https://goreportcard.com/badge/github.com/cloudfoundry-community/go-cfclient/v3)](https://goreportcard.com/report/github.com/cloudfoundry-community/go-cfclient/v3)
+[![build workflow](https://github.com/cloudfoundry/go-cfclient/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cloudfoundry/go-cfclient/actions/workflows/build.yml)
+[![GoDoc](https://godoc.org/github.com/cloudfoundry/go-cfclient/v3?status.svg)](http://godoc.org/github.com/cloudfoundry/go-cfclient/v3)
+[![Report card](https://goreportcard.com/badge/github.com/cloudfoundry/go-cfclient/v3)](https://goreportcard.com/report/github.com/cloudfoundry/go-cfclient/v3)
 
 ## Overview
 `go-cfclient` is a go module library to assist you in writing apps that need to interact the [Cloud Foundry](http://cloudfoundry.org)
@@ -15,7 +15,7 @@ __NOTE__ - The v3 version in the main branch is currently under development and 
 ## Installation
 go-cfclient is compatible with modern Go releases in module mode, with Go installed:
 ```
-go get github.com/cloudfoundry-community/go-cfclient/v3
+go get github.com/cloudfoundry/go-cfclient/v3
 ```
 Will resolve and add the package to the current development module, along with its dependencies. Eventually this
 library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the Versioning section below.
@@ -31,9 +31,9 @@ library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the V
 Using go modules import the client, config and resource packages:
 ```go
 import (
-    "github.com/cloudfoundry-community/go-cfclient/v3/client"
-    "github.com/cloudfoundry-community/go-cfclient/v3/config"
-    "github.com/cloudfoundry-community/go-cfclient/v3/resource"
+    "github.com/cloudfoundry/go-cfclient/v3/client"
+    "github.com/cloudfoundry/go-cfclient/v3/config"
+    "github.com/cloudfoundry/go-cfclient/v3/resource"
 )
 ```
 

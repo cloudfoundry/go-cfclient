@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/ios"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
 
 // DecodeJobIDAndBody returns the jobGUID if specified in the Location response header and

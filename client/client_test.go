@@ -1,10 +1,12 @@
 package client_test
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/client"
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/client"
+	"github.com/cloudfoundry/go-cfclient/v3/config"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestClientWithInvalidConfig(t *testing.T) {

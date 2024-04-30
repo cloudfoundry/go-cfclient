@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
+
 	"github.com/stretchr/testify/require"
 )
 

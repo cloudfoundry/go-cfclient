@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
 
 	"github.com/stretchr/testify/require"
 )

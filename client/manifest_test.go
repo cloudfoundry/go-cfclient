@@ -2,10 +2,12 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestManifests(t *testing.T) {

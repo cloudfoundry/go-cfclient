@@ -1,9 +1,11 @@
 package check_test
 
 import (
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/check"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/internal/check"
+
+	"github.com/stretchr/testify/require"
 )
 
 type Y struct{}

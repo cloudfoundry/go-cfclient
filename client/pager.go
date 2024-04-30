@@ -3,8 +3,8 @@ package client
 import (
 	"errors"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
 
 var ErrNoResultsReturned = errors.New("expected 1 or more results, but got 0")

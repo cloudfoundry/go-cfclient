@@ -8,17 +8,19 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client"
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
-	"github.com/cloudfoundry-community/go-cfclient/v3/operation"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/client"
+	"github.com/cloudfoundry/go-cfclient/v3/config"
+	"github.com/cloudfoundry/go-cfclient/v3/operation"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (

@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
 )
 
 func TestRoles(t *testing.T) {
@@ -138,7 +139,7 @@ func TestRoles(t *testing.T) {
 			Expected: role,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Roles.CreateSpaceRoleWithUsername(context.Background(), "c0c8988d-2f97-4768-832a-677557f18174",
-				"test@gmail.com", resource.SpaceRoleManager, "")
+					"test@gmail.com", resource.SpaceRoleManager, "")
 			},
 		},
 		{

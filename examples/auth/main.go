@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/cloudfoundry-community/go-cfclient/v3/client"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/config"
+	"github.com/cloudfoundry/go-cfclient/v3/client"
+	"github.com/cloudfoundry/go-cfclient/v3/config"
 )
 
 const apiURL = "https://api.sys.example.com"

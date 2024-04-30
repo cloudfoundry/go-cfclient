@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	internalhttp "github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/ios"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/path"
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	internalhttp "github.com/cloudfoundry/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/ios"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
 
 type ManifestClient commonClient

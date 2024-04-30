@@ -3,15 +3,16 @@ package http_test
 import (
 	"bytes"
 	"context"
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/http"
-	"github.com/cloudfoundry-community/go-cfclient/v3/testutil"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
+	gohttp "net/http"
 	"testing"
 	"time"
 
-	gohttp "net/http"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/http"
+	"github.com/cloudfoundry/go-cfclient/v3/testutil"
+
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type MockedOAuthTokenSourceCreator struct {

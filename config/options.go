@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/internal/jwt"
+	"github.com/cloudfoundry/go-cfclient/v3/internal/jwt"
 )
 
 // Option is a functional option for configuring the client.

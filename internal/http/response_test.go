@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
 
-	"github.com/cloudfoundry-community/go-cfclient/v3/resource"
+	"github.com/stretchr/testify/require"
 )
 
 func TestResponse(t *testing.T) {
