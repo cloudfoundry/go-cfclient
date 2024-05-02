@@ -29,6 +29,7 @@ func TestAppPush(t *testing.T) {
 	dropletAssoc := g.DropletAssociation()
 
 	fakeAppZipReader := strings.NewReader("blah zip zip")
+	var numOfInstances uint = 2
 	manifest := &AppManifest{
 		Name:       app.Name,
 		Buildpacks: []string{"java-buildpack-offline"},
@@ -36,7 +37,7 @@ func TestAppPush(t *testing.T) {
 		AppManifestProcess: AppManifestProcess{
 			HealthCheckType:         "http",
 			HealthCheckHTTPEndpoint: "/health",
-			Instances:               2,
+			Instances:               &numOfInstances,
 			Memory:                  "1G",
 		},
 		Routes: &AppManifestRoutes{

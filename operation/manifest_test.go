@@ -67,6 +67,7 @@ const fullSpringMusicYamlV2 = `applications:
 `
 
 func TestManifestMarshalling(t *testing.T) {
+	var numOfInstances uint = 2
 	m := &Manifest{
 		Applications: []*AppManifest{
 			{
@@ -86,7 +87,7 @@ func TestManifestMarshalling(t *testing.T) {
 				AppManifestProcess: AppManifestProcess{
 					HealthCheckType:         "http",
 					HealthCheckHTTPEndpoint: "/health",
-					Instances:               2,
+					Instances:               &numOfInstances,
 					LogRateLimitPerSecond:   "100MB",
 					Memory:                  "1G",
 					Timeout:                 60,

@@ -59,7 +59,7 @@ type AppManifestProcess struct {
 	HealthCheckType                  AppHealthCheckType `yaml:"health-check-type,omitempty"`
 	HealthCheckHTTPEndpoint          string             `yaml:"health-check-http-endpoint,omitempty"`
 	HealthCheckInvocationTimeout     uint               `yaml:"health-check-invocation-timeout,omitempty"`
-	Instances                        uint               `yaml:"instances,omitempty"`
+	Instances                        *uint              `yaml:"instances,omitempty"`
 	LogRateLimitPerSecond            string             `yaml:"log-rate-limit-per-second,omitempty"`
 	Memory                           string             `yaml:"memory,omitempty"`
 	Timeout                          uint               `yaml:"timeout,omitempty"`
@@ -150,12 +150,13 @@ func NewManifest(applications ...*AppManifest) *Manifest {
 }
 
 func NewAppManifest(appName string) *AppManifest {
+	var numOfInstances uint = 1
 	return &AppManifest{
 		Name: appName,
 		AppManifestProcess: AppManifestProcess{
 			HealthCheckType:         "port",
 			HealthCheckHTTPEndpoint: "/",
-			Instances:               1,
+			Instances:               &numOfInstances,
 			Memory:                  "256M",
 		},
 	}
