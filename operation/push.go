@@ -155,7 +155,7 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 	}
 	// In case application crashed due to new deployment, deployment will be stuck with value "ACTIVE" and reason "DEPLOYING"
 	// This will be considered as deployment failed after timeout
-	depPollErr := p.waitForDeployment(ctx, deployment.GUID, manifest.Instances)
+	depPollErr := p.waitForDeployment(ctx, deployment.GUID, *manifest.Instances)
 
 	// Check the app state if app not started or deployment failed rollback the deployment
 	originalApp, err = p.findApp(ctx, manifest.Name, space)
@@ -167,7 +167,7 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 		if rollBackErr != nil {
 			return nil, fmt.Errorf("failed to confirm rollback deployment with: %s", rollBackErr.Error())
 		}
-		depRollPollErr := p.waitForDeployment(ctx, rollBackDeployment.GUID, manifest.Instances)
+		depRollPollErr := p.waitForDeployment(ctx, rollBackDeployment.GUID, *manifest.Instances)
 		if depRollPollErr != nil {
 			return nil, fmt.Errorf("failed to deploy with: %s \nfailed to confirm roll back to last deployment with: %s", depPollErr.Error(), depRollPollErr.Error())
 		}
