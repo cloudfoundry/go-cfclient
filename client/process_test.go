@@ -119,7 +119,10 @@ func TestProcesses(t *testing.T) {
 					"health_check": {
 						"type": "http",
 						"data": {
-							"timeout": 60
+							"timeout": 60,
+							"invocation_timeout": 5,
+							"interval": 10,
+							"endpoint": "/health"
 						}
 					}
 				}`,
@@ -129,7 +132,10 @@ func TestProcesses(t *testing.T) {
 				r := resource.NewProcessUpdate().
 					WithCommand("rackup").
 					WithHealthCheckType("http").
-					WithHealthCheckTimeout(60)
+					WithHealthCheckTimeout(60).
+					WithHealthCheckInterval(10).
+					WithHealthCheckInvocationTimeout(5).
+					WithHealthCheckEndpoint("/health")
 				return c.Processes.Update(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606", r)
 			},
 		},

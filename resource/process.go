@@ -91,6 +91,9 @@ type ProcessData struct {
 	// The timeout in seconds for individual health check requests for http and port health checks
 	InvocationTimeout *int `json:"invocation_timeout,omitempty"`
 
+	// The interval in seconds between health check requests
+	Interval *int `json:"interval,omitempty"`
+
 	// The endpoint called to determine if the app is healthy; this key is only present for http health check
 	Endpoint *string `json:"endpoint,omitempty"`
 }
@@ -161,6 +164,14 @@ func (p *ProcessUpdate) WithHealthCheckInvocationTimeout(timeout int) *ProcessUp
 		p.HealthCheck = &ProcessHealthCheck{}
 	}
 	p.HealthCheck.Data.InvocationTimeout = &timeout
+	return p
+}
+
+func (p *ProcessUpdate) WithHealthCheckInterval(interval int) *ProcessUpdate {
+	if p.HealthCheck == nil {
+		p.HealthCheck = &ProcessHealthCheck{}
+	}
+	p.HealthCheck.Data.Interval = &interval
 	return p
 }
 
