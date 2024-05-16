@@ -21,8 +21,9 @@ type Process struct {
 	// The log rate in bytes per second allocated per instance
 	LogRateLimitInBytesPerSecond int `json:"log_rate_limit_in_bytes_per_second"`
 
-	HealthCheck   ProcessHealthCheck   `json:"health_check"`
-	Relationships ProcessRelationships `json:"relationships"`
+	HealthCheck    ProcessHealthCheck    `json:"health_check"`
+	ReadinessCheck ProcessReadinessCheck `json:"readiness_health_check"`
+	Relationships  ProcessRelationships  `json:"relationships"`
 
 	Metadata *Metadata `json:"metadata"`
 	Resource `json:",inline"`
@@ -36,8 +37,9 @@ type ProcessList struct {
 type ProcessUpdate struct {
 	Command *string `json:"command"`
 
-	HealthCheck *ProcessHealthCheck `json:"health_check,omitempty"`
-	Metadata    *Metadata           `json:"metadata,omitempty"`
+	HealthCheck    *ProcessHealthCheck    `json:"health_check,omitempty"`
+	ReadinessCheck *ProcessReadinessCheck `json:"readiness_health_check,omitempty"`
+	Metadata       *Metadata              `json:"metadata,omitempty"`
 }
 
 type ProcessStats struct {
@@ -80,11 +82,11 @@ type ProcessScale struct {
 
 type ProcessHealthCheck struct {
 	// The type of health check to perform; valid values are http, port, and process; default is port
-	Type string      `json:"type"`
-	Data ProcessData `json:"data"`
+	Type string                 `json:"type"`
+	Data ProcessHealthCheckData `json:"data"`
 }
 
-type ProcessData struct {
+type ProcessHealthCheckData struct {
 	// The duration in seconds that health checks can fail before the process is restarted
 	Timeout *int `json:"timeout"`
 
@@ -95,6 +97,23 @@ type ProcessData struct {
 	Interval *int `json:"interval,omitempty"`
 
 	// The endpoint called to determine if the app is healthy; this key is only present for http health check
+	Endpoint *string `json:"endpoint,omitempty"`
+}
+
+type ProcessReadinessCheck struct {
+	// The type of health check to perform; valid values are http, port, and process; default is process
+	Type string                    `json:"type"`
+	Data ProcessReadinessCheckData `json:"data"`
+}
+
+type ProcessReadinessCheckData struct {
+	// The timeout in seconds for individual readiness check requests for http and port health checks
+	InvocationTimeout *int `json:"invocation_timeout,omitempty"`
+
+	// The interval in seconds between readiness check requests
+	Interval *int `json:"interval,omitempty"`
+
+	// The endpoint called to determine if the app is ready; this key is only present for http readiness checks
 	Endpoint *string `json:"endpoint,omitempty"`
 }
 
@@ -180,5 +199,37 @@ func (p *ProcessUpdate) WithHealthCheckEndpoint(endpoint string) *ProcessUpdate 
 		p.HealthCheck = &ProcessHealthCheck{}
 	}
 	p.HealthCheck.Data.Endpoint = &endpoint
+	return p
+}
+
+func (p *ProcessUpdate) WithReadinessCheckType(hcType string) *ProcessUpdate {
+	if p.ReadinessCheck == nil {
+		p.ReadinessCheck = &ProcessReadinessCheck{}
+	}
+	p.ReadinessCheck.Type = hcType
+	return p
+}
+
+func (p *ProcessUpdate) WithReadinessCheckInvocationTimeout(timeout int) *ProcessUpdate {
+	if p.ReadinessCheck == nil {
+		p.ReadinessCheck = &ProcessReadinessCheck{}
+	}
+	p.ReadinessCheck.Data.InvocationTimeout = &timeout
+	return p
+}
+
+func (p *ProcessUpdate) WithReadinessCheckInterval(interval int) *ProcessUpdate {
+	if p.ReadinessCheck == nil {
+		p.ReadinessCheck = &ProcessReadinessCheck{}
+	}
+	p.ReadinessCheck.Data.Interval = &interval
+	return p
+}
+
+func (p *ProcessUpdate) WithReadinessCheckEndpoint(endpoint string) *ProcessUpdate {
+	if p.ReadinessCheck == nil {
+		p.ReadinessCheck = &ProcessReadinessCheck{}
+	}
+	p.ReadinessCheck.Data.Endpoint = &endpoint
 	return p
 }

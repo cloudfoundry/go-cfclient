@@ -15,6 +15,14 @@
       "endpoint": "/health"
     }
   },
+  "readiness_health_check": {
+    "type": "http",
+    "data": {
+      "invocation_timeout": 15,
+      "interval": 30,
+      "endpoint": "/ready"
+    }
+  },
   "relationships": {
     "app": {
       "data": {

@@ -108,7 +108,7 @@ func TestProcesses(t *testing.T) {
 			},
 		},
 		{
-			Description: "Update a process",
+			Description: "Update a process health and readiness check",
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/processes/ec4ff362-60c5-47a0-8246-2a134537c606",
@@ -124,6 +124,14 @@ func TestProcesses(t *testing.T) {
 							"interval": 10,
 							"endpoint": "/health"
 						}
+					},
+					"readiness_health_check": {
+						"type": "http",
+						"data": {
+							"invocation_timeout": 15,
+							"interval": 30,
+							"endpoint": "/ready"
+						}
 					}
 				}`,
 			},
@@ -135,7 +143,11 @@ func TestProcesses(t *testing.T) {
 					WithHealthCheckTimeout(60).
 					WithHealthCheckInterval(10).
 					WithHealthCheckInvocationTimeout(5).
-					WithHealthCheckEndpoint("/health")
+					WithHealthCheckEndpoint("/health").
+					WithReadinessCheckType("http").
+					WithReadinessCheckInterval(30).
+					WithReadinessCheckInvocationTimeout(15).
+					WithReadinessCheckEndpoint("/ready")
 				return c.Processes.Update(context.Background(), "ec4ff362-60c5-47a0-8246-2a134537c606", r)
 			},
 		},
