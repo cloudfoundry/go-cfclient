@@ -7,9 +7,20 @@
   "disk_in_mb": 1024,
   "log_rate_limit_in_bytes_per_second": 1024,
   "health_check": {
-    "type": "port",
+    "type": "http",
     "data": {
-      "timeout": null
+      "timeout": 60,
+      "invocation_timeout": 5,
+      "interval": 10,
+      "endpoint": "/health"
+    }
+  },
+  "readiness_health_check": {
+    "type": "http",
+    "data": {
+      "invocation_timeout": 15,
+      "interval": 30,
+      "endpoint": "/ready"
     }
   },
   "relationships": {
