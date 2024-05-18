@@ -20,11 +20,11 @@ type AppListOptions struct {
 	SpaceGUIDs        Filter                 `qs:"space_guids"`
 	Stacks            Filter                 `qs:"stacks"`
 	LifecycleType     resource.LifecycleType `qs:"lifecycle_type"`
+	LabelSel          LabelSelector          `qs:"label_selector"`
+	CreatedAts        TimestampFilter        `qs:"created_ats"`
+	UpdatedAts        TimestampFilter        `qs:"updated_ats"`
 
-	Include    resource.AppIncludeType `qs:"include"`
-	LabelSel   LabelSelector           `qs:"label_selector"`
-	CreatedAts TimestampFilter         `qs:"created_ats"`
-	UpdatedAts TimestampFilter         `qs:"updated_ats"`
+	Include resource.AppIncludeType `qs:"include"`
 }
 
 // NewAppListOptions creates new options to pass to list
