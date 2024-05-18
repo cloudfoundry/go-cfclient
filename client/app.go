@@ -14,14 +14,17 @@ type AppClient commonClient
 type AppListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter `qs:"guids"`
-	Names             Filter `qs:"names"`
-	OrganizationGUIDs Filter `qs:"organization_guids"`
-	SpaceGUIDs        Filter `qs:"space_guids"`
-	Stacks            Filter `qs:"stacks"`
+	GUIDs             Filter                 `qs:"guids"`
+	Names             Filter                 `qs:"names"`
+	OrganizationGUIDs Filter                 `qs:"organization_guids"`
+	SpaceGUIDs        Filter                 `qs:"space_guids"`
+	Stacks            Filter                 `qs:"stacks"`
+	LifecycleType     resource.LifecycleType `qs:"lifecycle_type"`
+	LabelSel          LabelSelector          `qs:"label_selector"`
+	CreatedAts        TimestampFilter        `qs:"created_ats"`
+	UpdatedAts        TimestampFilter        `qs:"updated_ats"`
 
-	LifecycleType resource.LifecycleType  `qs:"lifecycle_type"`
-	Include       resource.AppIncludeType `qs:"include"`
+	Include resource.AppIncludeType `qs:"include"`
 }
 
 // NewAppListOptions creates new options to pass to list

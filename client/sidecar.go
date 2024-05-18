@@ -13,6 +13,8 @@ type SidecarClient commonClient
 // SidecarListOptions list filters
 type SidecarListOptions struct {
 	*ListOptions
+	CreatedAts TimestampFilter `qs:"created_ats"`
+	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewSidecarListOptions creates new options to pass to list

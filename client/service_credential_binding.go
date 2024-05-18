@@ -26,7 +26,10 @@ type ServiceCredentialBindingListOptions struct {
 	Type                 Filter `qs:"type"`                   // list of service credential binding types to filter by, app or key
 	GUIDs                Filter `qs:"guids"`                  // list of service route binding guids to filter by
 
-	Include resource.ServiceCredentialBindingIncludeType `qs:"include"`
+	LabelSel   LabelSelector                                `qs:"label_selector"`
+	CreatedAts TimestampFilter                              `qs:"created_ats"`
+	UpdatedAts TimestampFilter                              `qs:"updated_ats"`
+	Include    resource.ServiceCredentialBindingIncludeType `qs:"include"`
 }
 
 // NewServiceCredentialBindingListOptions creates new options to pass to list
