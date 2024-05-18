@@ -28,6 +28,10 @@ type UserListOptions struct {
 	// UAA have the origin “uaa”; users authenticated by an LDAP provider have the
 	// origin ldap when filtering by origins, usernames must be included
 	Origins Filter `qs:"origins"`
+
+	LabelSel   LabelSelector   `qs:"label_selector"`
+	CreatedAts TimestampFilter `qs:"created_ats"`
+	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewUserListOptions creates new options to pass to list

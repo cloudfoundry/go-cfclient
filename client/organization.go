@@ -13,8 +13,11 @@ type OrganizationClient commonClient
 type OrganizationListOptions struct {
 	*ListOptions
 
-	GUIDs Filter `qs:"guids"` // list of organization guids to filter by
-	Names Filter `qs:"names"` // list of organization names to filter by
+	GUIDs      Filter          `qs:"guids"` // list of organization guids to filter by
+	Names      Filter          `qs:"names"` // list of organization names to filter by
+	LabelSel   LabelSelector   `qs:"label_selector"`
+	CreatedAts TimestampFilter `qs:"created_ats"`
+	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewOrganizationListOptions creates new options to pass to list

@@ -22,6 +22,10 @@ type ServiceInstanceListOptions struct {
 	OrganizationGUIDs Filter `qs:"organization_guids"`
 	ServicePlanGUIDs  Filter `qs:"service_plan_guids"`
 	ServicePlanNames  Filter `qs:"service_plan_names"`
+
+	LabelSel   LabelSelector   `qs:"label_selector"`
+	CreatedAts TimestampFilter `qs:"created_ats"`
+	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewServiceInstanceListOptions creates new options to pass to list

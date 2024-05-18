@@ -14,7 +14,11 @@ type StackClient commonClient
 type StackListOptions struct {
 	*ListOptions
 
-	Names Filter `qs:"names"` // list of stack names to filter by
+	Names      Filter          `qs:"names"` // list of stack names to filter by
+	Default    *bool           `qs:"default"`
+	LabelSel   LabelSelector   `qs:"label_selector"`
+	CreatedAts TimestampFilter `qs:"created_ats"`
+	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewStackListOptions creates new options to pass to list
