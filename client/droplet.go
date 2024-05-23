@@ -15,14 +15,11 @@ type DropletClient commonClient
 type DropletListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter          `qs:"guids"`              // list of droplet guids to filter by
-	States            Filter          `qs:"states"`             // list of droplet states to filter by
-	AppGUIDs          Filter          `qs:"app_guids"`          // list of app guids to filter by
-	SpaceGUIDs        Filter          `qs:"space_guids"`        // list of space guids to filter by
-	OrganizationGUIDs Filter          `qs:"organization_guids"` // list of organization guids to filter by
-	LabelSel          LabelSelector   `qs:"label_selector"`
-	CreatedAts        TimestampFilter `qs:"created_ats"`
-	UpdatedAts        TimestampFilter `qs:"updated_ats"`
+	GUIDs             Filter `qs:"guids"`              // list of droplet guids to filter by
+	States            Filter `qs:"states"`             // list of droplet states to filter by
+	AppGUIDs          Filter `qs:"app_guids"`          // list of app guids to filter by
+	SpaceGUIDs        Filter `qs:"space_guids"`        // list of space guids to filter by
+	OrganizationGUIDs Filter `qs:"organization_guids"` // list of organization guids to filter by
 }
 
 // NewDropletListOptions creates new options to pass to list

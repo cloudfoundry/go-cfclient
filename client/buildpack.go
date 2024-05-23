@@ -15,11 +15,8 @@ type BuildpackClient commonClient
 type BuildpackListOptions struct {
 	*ListOptions
 
-	Names      Filter          `qs:"names"`  // list of buildpack names to filter by
-	Stacks     Filter          `qs:"stacks"` // list of stack names to filter by
-	LabelSel   LabelSelector   `qs:"label_selector"`
-	CreatedAts TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
+	Names  Filter `qs:"names"`  // list of buildpack names to filter by
+	Stacks Filter `qs:"stacks"` // list of stack names to filter by
 }
 
 // NewBuildpackListOptions creates new options to pass to list

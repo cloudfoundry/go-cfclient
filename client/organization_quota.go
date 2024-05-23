@@ -14,11 +14,9 @@ type OrganizationQuotaClient commonClient
 type OrganizationQuotaListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter          `qs:"guids"`
-	Names             Filter          `qs:"names"`
-	OrganizationGUIDs Filter          `qs:"organization_guids"`
-	CreatedAts        TimestampFilter `qs:"created_ats"`
-	UpdatedAts        TimestampFilter `qs:"updated_ats"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
 }
 
 // NewOrganizationQuotaListOptions creates new options to pass to list

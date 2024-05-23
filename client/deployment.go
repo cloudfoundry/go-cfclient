@@ -15,13 +15,10 @@ type DeploymentClient commonClient
 type DeploymentListOptions struct {
 	*ListOptions
 
-	AppGUIDs      Filter          `qs:"app_guids"`
-	States        Filter          `qs:"states"`
-	StatusReasons Filter          `qs:"status_reasons"`
-	StatusValues  Filter          `qs:"status_values"`
-	LabelSel      LabelSelector   `qs:"label_selector"`
-	CreatedAts    TimestampFilter `qs:"created_ats"`
-	UpdatedAts    TimestampFilter `qs:"updated_ats"`
+	AppGUIDs      Filter `qs:"app_guids"`
+	States        Filter `qs:"states"`
+	StatusReasons Filter `qs:"status_reasons"`
+	StatusValues  Filter `qs:"status_values"`
 }
 
 // NewDeploymentListOptions creates new options to pass to list

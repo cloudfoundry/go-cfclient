@@ -15,18 +15,16 @@ type ServicePlanClient commonClient
 type ServicePlanListOptions struct {
 	*ListOptions
 
-	Names                Filter          `qs:"names"`
-	BrokerCatalogIDs     Filter          `qs:"broker_catalog_ids"`
-	SpaceGUIDs           Filter          `qs:"space_guids"`
-	OrganizationGUIDs    Filter          `qs:"organization_guids"`
-	ServiceBrokerGUIDs   Filter          `qs:"service_broker_guids"`
-	ServiceBrokerNames   Filter          `qs:"service_broker_names"`
-	ServiceOfferingGUIDs Filter          `qs:"service_offering_guids"`
-	ServiceOfferingNames Filter          `qs:"service_offering_names"`
-	ServiceInstanceGUIDs Filter          `qs:"service_instance_guids"`
-	LabelSel             LabelSelector   `qs:"label_selector"`
-	CreatedAts           TimestampFilter `qs:"created_ats"`
-	UpdatedAts           TimestampFilter `qs:"updated_ats"`
+	Names                Filter `qs:"names"`
+	BrokerCatalogIDs     Filter `qs:"broker_catalog_ids"`
+	SpaceGUIDs           Filter `qs:"space_guids"`
+	OrganizationGUIDs    Filter `qs:"organization_guids"`
+	ServiceBrokerGUIDs   Filter `qs:"service_broker_guids"`
+	ServiceBrokerNames   Filter `qs:"service_broker_names"`
+	ServiceOfferingGUIDs Filter `qs:"service_offering_guids"`
+	ServiceOfferingNames Filter `qs:"service_offering_names"`
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
+	Available            *bool  `qs:"available"`
 
 	Include resource.ServicePlanIncludeType `qs:"include"`
 }

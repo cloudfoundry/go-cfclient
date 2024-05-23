@@ -14,13 +14,10 @@ type ServiceRouteBindingClient commonClient
 type ServiceRouteBindingListOptions struct {
 	*ListOptions
 
-	GUIDs                Filter          `qs:"guids"`
-	RouteGUIDs           Filter          `qs:"route_guids"`
-	ServiceInstanceGUIDs Filter          `qs:"service_instance_guids"`
-	ServiceInstanceNames Filter          `qs:"service_instance_names"`
-	LabelSel             LabelSelector   `qs:"label_selector"`
-	CreatedAts           TimestampFilter `qs:"created_ats"`
-	UpdatedAts           TimestampFilter `qs:"updated_ats"`
+	GUIDs                Filter `qs:"guids"`
+	RouteGUIDs           Filter `qs:"route_guids"`
+	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
+	ServiceInstanceNames Filter `qs:"service_instance_names"`
 
 	Include resource.ServiceRouteBindingIncludeType `qs:"include"`
 }

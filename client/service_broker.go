@@ -14,11 +14,8 @@ type ServiceBrokerClient commonClient
 type ServiceBrokerListOptions struct {
 	*ListOptions
 
-	SpaceGUIDs Filter          `qs:"space_guids"`
-	Names      Filter          `qs:"names"`
-	LabelSel   LabelSelector   `qs:"label_selector"`
-	CreatedAts TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
+	SpaceGUIDs Filter `qs:"space_guids"`
+	Names      Filter `qs:"names"`
 }
 
 // NewServiceBrokerListOptions creates new options to pass to list

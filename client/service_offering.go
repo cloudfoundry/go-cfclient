@@ -14,15 +14,12 @@ type ServiceOfferingClient commonClient
 type ServiceOfferingListOptions struct {
 	*ListOptions
 
-	Names              Filter          `qs:"names"`
-	ServiceBrokerGUIDs Filter          `qs:"service_broker_guids"`
-	ServiceBrokerNames Filter          `qs:"service_broker_names"`
-	SpaceGUIDs         Filter          `qs:"space_guids"`
-	OrganizationGUIDs  Filter          `qs:"organization_guids"`
-	Available          *bool           `qs:"available"`
-	LabelSel           LabelSelector   `qs:"label_selector"`
-	CreatedAts         TimestampFilter `qs:"created_ats"`
-	UpdatedAts         TimestampFilter `qs:"updated_ats"`
+	Names              Filter `qs:"names"`
+	ServiceBrokerGUIDs Filter `qs:"service_broker_guids"`
+	ServiceBrokerNames Filter `qs:"service_broker_names"`
+	SpaceGUIDs         Filter `qs:"space_guids"`
+	OrganizationGUIDs  Filter `qs:"organization_guids"`
+	Available          *bool  `qs:"available"`
 }
 
 // NewServiceOfferingListOptions creates new options to pass to list

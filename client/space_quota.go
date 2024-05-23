@@ -14,12 +14,10 @@ type SpaceQuotaClient commonClient
 type SpaceQuotaListOptions struct {
 	*ListOptions
 
-	GUIDs             Filter          `qs:"guids"`
-	Names             Filter          `qs:"names"`
-	OrganizationGUIDs Filter          `qs:"organization_guids"`
-	SpaceGUIDs        Filter          `qs:"space_guids"`
-	CreatedAts        TimestampFilter `qs:"created_ats"`
-	UpdatedAts        TimestampFilter `qs:"updated_ats"`
+	GUIDs             Filter `qs:"guids"`
+	Names             Filter `qs:"names"`
+	OrganizationGUIDs Filter `qs:"organization_guids"`
+	SpaceGUIDs        Filter `qs:"space_guids"`
 }
 
 // NewSpaceQuotaListOptions creates new options to pass to list

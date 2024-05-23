@@ -21,9 +21,6 @@ type SecurityGroupListOptions struct {
 
 	GloballyEnabledRunning *bool `qs:"globally_enabled_running"` // If true, only include the security groups that are enabled for running
 	GloballyEnabledStaging *bool `qs:"globally_enabled_staging"` // If true, only include the security groups that are enabled for staging
-
-	CreatedAts TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewSecurityGroupListOptions creates new options to pass to list

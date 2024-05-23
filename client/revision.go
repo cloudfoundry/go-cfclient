@@ -14,10 +14,7 @@ type RevisionClient commonClient
 type RevisionListOptions struct {
 	*ListOptions
 
-	Versions   Filter          `qs:"versions"`
-	LabelSel   LabelSelector   `qs:"label_selector"`
-	CreatedAts TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
+	Versions Filter `qs:"versions"`
 }
 
 // NewRevisionListOptions creates new options to pass to list

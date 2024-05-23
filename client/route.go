@@ -20,12 +20,9 @@ type RouteListOptions struct {
 	OrganizationGUIDs    Filter `qs:"organization_guids"`
 	ServiceInstanceGUIDs Filter `qs:"service_instance_guids"`
 
-	Hosts      Filter          `qs:"hosts"`
-	Paths      Filter          `qs:"paths"`
-	Ports      Filter          `qs:"ports"`
-	LabelSel   LabelSelector   `qs:"label_selector"`
-	CreatedAts TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
+	Hosts Filter `qs:"hosts"`
+	Paths Filter `qs:"paths"`
+	Ports Filter `qs:"ports"`
 
 	Include resource.RouteIncludeType `qs:"include"`
 }

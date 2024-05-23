@@ -13,7 +13,6 @@ type FeatureFlagClient commonClient
 // FeatureFlagListOptions list filters
 type FeatureFlagListOptions struct {
 	*ListOptions
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
 }
 
 // NewFeatureFlagListOptions creates new options to pass to list

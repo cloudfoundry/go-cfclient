@@ -18,8 +18,6 @@ type AuditEventListOptions struct {
 	TargetGUIDs       ExclusionFilter `qs:"target_guids"` // list of target guids to filter by
 	OrganizationGUIDs Filter          `qs:"organization_guids"`
 	SpaceGUIDs        Filter          `qs:"space_guids"`
-	CreatedAts        TimestampFilter `qs:"created_ats"`
-	UpdatedAts        TimestampFilter `qs:"updated_ats"`
 }
 
 // NewAuditEventListOptions creates new options to pass to list
