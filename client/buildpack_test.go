@@ -51,7 +51,7 @@ func TestBuildpacks(t *testing.T) {
 				Status:   http.StatusAccepted,
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return nil, c.Buildpacks.Delete(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb")
+				return c.Buildpacks.Delete(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb")
 			},
 		},
 		{
