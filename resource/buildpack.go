@@ -18,7 +18,7 @@ type BuildpackCreateOrUpdate struct {
 	Position *int      `json:"position,omitempty"` // The order in which the buildpacks are checked during buildpack auto-detection
 	Enabled  *bool     `json:"enabled,omitempty"`  // Whether the buildpack can be used for staging
 	Locked   *bool     `json:"locked,omitempty"`   // Whether the buildpack is locked to prevent updating the bits
-	Stack    *string   `json:"stack,omitempty"`    // The name of the stack that the buildpack will use
+	Stack    *string   `json:"stack"`              // The name of the stack that the buildpack will use
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
 

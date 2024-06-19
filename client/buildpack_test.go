@@ -85,11 +85,16 @@ func TestBuildpacks(t *testing.T) {
 				Endpoint: "/v3/buildpacks/6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb",
 				Output:   g.Single(buildpack),
 				Status:   http.StatusOK,
-				PostForm: `{ "position": 1 }`,
+				PostForm: `{ 
+							"position": 1,
+							"stack" : "cflinuxfs4"
+							}`,
 			},
 			Expected: buildpack,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				r := resource.NewBuildpackUpdate().WithPosition(1)
+				r := resource.NewBuildpackUpdate().
+					WithPosition(1).
+					WithStack("cflinuxfs4")
 				return c.Buildpacks.Update(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb", r)
 			},
 		},
