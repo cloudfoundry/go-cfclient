@@ -40,10 +40,9 @@ func (c *BuildpackClient) Create(ctx context.Context, r *resource.BuildpackCreat
 	return &bp, nil
 }
 
-// Delete the specified buildpack
-func (c *BuildpackClient) Delete(ctx context.Context, guid string) error {
-	_, err := c.client.delete(ctx, path.Format("/v3/buildpacks/%s", guid))
-	return err
+// Delete the specified buildpack returning the async deletion jobGUID
+func (c *BuildpackClient) Delete(ctx context.Context, guid string) (string, error) {
+	return c.client.delete(ctx, path.Format("/v3/buildpacks/%s", guid))
 }
 
 // First returns the first buildpack matching the options or an error when less than 1 match
