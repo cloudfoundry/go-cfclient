@@ -111,7 +111,7 @@ func TestBuildpacks(t *testing.T) {
 			Expected2: buildpack,
 			Action2: func(c *Client, t *testing.T) (any, any, error) {
 				zipFile := strings.NewReader("bp")
-				return c.Buildpacks.Upload(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb", zipFile)
+				return c.Buildpacks.Upload(context.Background(), "6f3c68d0-e119-4ca2-8ce4-83661ad6e0eb", "buildpack.zip", zipFile)
 			},
 		},
 	}

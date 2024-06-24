@@ -115,10 +115,10 @@ func (c *BuildpackClient) Update(ctx context.Context, guid string, r *resource.B
 }
 
 // Upload a gzip compressed (zip) file containing a Cloud Foundry compatible buildpack
-func (c *BuildpackClient) Upload(ctx context.Context, guid string, zipFile io.Reader) (string, *resource.Buildpack, error) {
+func (c *BuildpackClient) Upload(ctx context.Context, guid string, fileName string, zipFile io.Reader) (string, *resource.Buildpack, error) {
 	p := path.Format("/v3/buildpacks/%s/upload", guid)
 	var b resource.Buildpack
-	jobGUID, err := c.client.postFileUpload(ctx, p, "bits", "buildpack.zip", zipFile, &b)
+	jobGUID, err := c.client.postFileUpload(ctx, p, "bits", fileName, zipFile, &b)
 	if err != nil {
 		return "", nil, err
 	}
