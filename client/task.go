@@ -17,6 +17,7 @@ type TaskListOptions struct {
 	GUIDs             Filter `qs:"guids"`
 	Names             Filter `qs:"names"`
 	States            Filter `qs:"states"`
+	AppGUIDs          Filter `qs:"app_guids"`
 	SpaceGUIDs        Filter `qs:"space_guids"`
 	OrganizationGUIDs Filter `qs:"organization_guids"`
 }

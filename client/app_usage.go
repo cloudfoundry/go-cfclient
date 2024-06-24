@@ -13,6 +13,9 @@ type AppUsageClient commonClient
 // AppUsageListOptions list filters
 type AppUsageListOptions struct {
 	*ListOptions
+
+	AfterGUID string `qs:"after_guid"`
+	GUIDs     Filter `qs:"guids"`
 }
 
 // NewAppUsageOptions creates new options to pass to list
