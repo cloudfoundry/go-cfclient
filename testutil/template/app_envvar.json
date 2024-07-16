@@ -1,6 +1,9 @@
 {
   "var": {
-    "RAILS_ENV": "production"
+    "RAILS_ENV": "production",
+    "SOME_BOOLEAN": true,
+    "SOME_INT": 5,
+    "SOME_FLOAT64": 10.4
   },
   "links": {
     "self": {
@@ -11,3 +14,4 @@
     }
   }
 }
+

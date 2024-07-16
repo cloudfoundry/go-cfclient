@@ -38,7 +38,7 @@ func TestRevisions(t *testing.T) {
 				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
-			Expected: `{ "RAILS_ENV": "production" }`,
+			Expected: `{ "RAILS_ENV": "production", "SOME_BOOLEAN":"true", "SOME_FLOAT64":"10.4", "SOME_INT":"5" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Revisions.GetEnvironmentVariables(context.Background(), "5a49a370-92cd-4091-bb62-e0914460f7b2")
 			},

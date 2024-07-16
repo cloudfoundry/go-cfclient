@@ -1,21 +1,21 @@
 {
   "staging_env_json": {
     "GEM_CACHE": "http://gem-cache.example.org",
-    "SOME_BOOLEAN": true,
-    "SOME_INT": 5,
-    "SOME_FLOAT64": 10.4
+    "SOME_BOOLEAN": "true",
+    "SOME_INT": "5",
+    "SOME_FLOAT64": "10.4"
   },
   "running_env_json": {
     "HTTP_PROXY": "http://proxy.example.org",
-    "SOME_BOOLEAN": true,
-    "SOME_INT": 5,
-    "SOME_FLOAT64": 10.4
+    "SOME_BOOLEAN": "true",
+    "SOME_INT": "5",
+    "SOME_FLOAT64": "10.4"
   },
   "environment_variables": {
     "RAILS_ENV": "production",
-    "SOME_BOOLEAN": true,
-    "SOME_INT": 5,
-    "SOME_FLOAT64": 10.4
+    "SOME_BOOLEAN": "true",
+    "SOME_INT": "5",
+    "SOME_FLOAT64": "10.4"
   },
   "system_env_json": {
     "VCAP_SERVICES": {

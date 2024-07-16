@@ -1,7 +1,10 @@
 package resource
 
 import (
+	"C"
 	"encoding/json"
+	"fmt"
+	"strconv"
 )
 
 type App struct {
@@ -131,4 +134,97 @@ func NewAppCreate(name, spaceGUID string) *AppCreate {
 			},
 		},
 	}
+}
+
+type InterfaceEnvVar struct {
+	Var map[string]interface{} `json:"var"`
+}
+
+func (f *EnvVar) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "" || s == "\"\"" {
+		return nil
+	}
+
+	var interfaceEnvVar InterfaceEnvVar
+
+	err := json.Unmarshal(b, &interfaceEnvVar)
+
+	if err != nil {
+		return err
+	}
+
+	varMap := make(map[string]*string)
+	for key, value := range interfaceEnvVar.Var {
+		switch v := value.(type) {
+		default:
+			fmt.Printf("unexpected env var type, skipping env var: %T", v)
+			continue
+		case int:
+			stringVal := strconv.Itoa(v)
+			varMap[key] = &stringVal
+		case string:
+			varMap[key] = &v
+		case bool:
+			stringBool := strconv.FormatBool(v)
+			varMap[key] = &stringBool
+		case float64:
+			stringFloat := strconv.FormatFloat(v, 'f', -1, 64)
+			varMap[key] = &stringFloat
+		}
+	}
+	f.Var = varMap
+
+	return nil
+}
+
+type InterfaceAppEnvironment struct {
+	EnvVars       map[string]interface{}     `json:"environment_variables,omitempty"`
+	StagingEnv    map[string]interface{}     `json:"staging_env_json,omitempty"`
+	RunningEnv    map[string]interface{}     `json:"running_env_json,omitempty"`
+	SystemEnvVars map[string]json.RawMessage `json:"system_env_json,omitempty"`      // VCAP_SERVICES
+	AppEnvVars    map[string]json.RawMessage `json:"application_env_json,omitempty"` // VCAP_APPLICATION
+}
+
+func (f *AppEnvironment) UnmarshalJSON(b []byte) error {
+	s := string(b)
+	if s == "" || s == "\"\"" {
+		return nil
+	}
+
+	var interfaceAppEnvironment InterfaceAppEnvironment
+
+	err := json.Unmarshal(b, &interfaceAppEnvironment)
+
+	if err != nil {
+		return err
+	}
+
+	f.EnvVars = convertEnvVars(interfaceAppEnvironment.EnvVars)
+	f.StagingEnv = convertEnvVars(interfaceAppEnvironment.StagingEnv)
+	f.RunningEnv = convertEnvVars(interfaceAppEnvironment.RunningEnv)
+	f.AppEnvVars = interfaceAppEnvironment.AppEnvVars
+	f.SystemEnvVars = interfaceAppEnvironment.SystemEnvVars
+
+	return nil
+}
+
+func convertEnvVars(envVars map[string]interface{}) map[string]string {
+	envVarMap := make(map[string]string)
+	for key, value := range envVars {
+		switch v := value.(type) {
+		default:
+			fmt.Printf("unexpected env var type, skipping env var: %T", v)
+			continue
+		case int:
+			envVarMap[key] = strconv.Itoa(v)
+		case string:
+			envVarMap[key] = v
+		case bool:
+			envVarMap[key] = strconv.FormatBool(v)
+		case float64:
+			envVarMap[key] = strconv.FormatFloat(v, 'f', -1, 64)
+		}
+	}
+	return envVarMap
 }

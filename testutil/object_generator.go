@@ -119,6 +119,13 @@ func (o ObjectJSONGenerator) AppEnvironment() *JSONResource {
 	return o.renderTemplate(r, "app_environment.json")
 }
 
+func (o ObjectJSONGenerator) AppEnvironmentExpected(name string) *JSONResource {
+	r := &JSONResource{
+		Name: name,
+	}
+	return o.renderTemplate(r, "app_environment_expected.json")
+}
+
 func (o ObjectJSONGenerator) AppEnvVar() *JSONResource {
 	r := &JSONResource{}
 	return o.renderTemplate(r, "app_envvar.json")
