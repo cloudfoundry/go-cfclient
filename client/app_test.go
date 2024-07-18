@@ -2,13 +2,12 @@ package client
 
 import (
 	"context"
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 
-	"github.com/cloudfoundry/go-cfclient/v3/resource"
 	"github.com/cloudfoundry/go-cfclient/v3/testutil"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestApps(t *testing.T) {
@@ -20,11 +19,11 @@ func TestApps(t *testing.T) {
 	space1 := g.Space().JSON
 	space2 := g.Space().JSON
 	org := g.Organization().JSON
-	appEnvironment := g.AppEnvironment().JSON
+	appEnvironment := g.AppEnvironment()
+	appEnvironmentExpected := g.AppEnvironmentExpected(appEnvironment.Name).JSON
 	appEnvVar := g.AppEnvVar().JSON
 	appSSH := g.AppSSH().JSON
 	appPermission := g.AppPermission().JSON
-
 	tests := []RouteTest{
 		{
 			Description: "Create app",
@@ -104,10 +103,10 @@ func TestApps(t *testing.T) {
 			Route: testutil.MockRoute{
 				Method:   "GET",
 				Endpoint: "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/env",
-				Output:   g.Single(appEnvironment),
+				Output:   g.Single(appEnvironment.JSON),
 				Status:   http.StatusOK,
 			},
-			Expected: appEnvironment,
+			Expected: appEnvironmentExpected,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Applications.GetEnvironment(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
@@ -140,7 +139,7 @@ func TestApps(t *testing.T) {
 				Output:   g.Single(appEnvVar),
 				Status:   http.StatusOK,
 			},
-			Expected: `{ "RAILS_ENV": "production" }`,
+			Expected: `{ "RAILS_ENV": "production", "SOME_BOOLEAN": "true", "SOME_FLOAT64": "10.4", "SOME_INT": "5" }`,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Applications.GetEnvironmentVariables(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
 			},
