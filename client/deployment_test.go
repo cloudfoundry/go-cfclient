@@ -140,6 +140,24 @@ func TestDeployments(t *testing.T) {
 				return c.Deployments.Update(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998", r)
 			},
 		},
+		{
+			Description: "Restart deployment",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/deployments",
+				Output:   g.Single(deployment),
+				Status:   http.StatusCreated,
+				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}}, "droplet": {"guid": "c2941033-4575-486d-bf2c-3ae49e8b4ca1"}}`,
+			},
+			Expected: deployment,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewDeploymentRestart("305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+				r.Droplet = &resource.Relationship{
+					GUID: "c2941033-4575-486d-bf2c-3ae49e8b4ca1",
+				}
+				return c.Deployments.Restart(context.Background(), r)
+			},
+		},
 	}
 	ExecuteTests(tests, t)
 }

@@ -20,6 +20,12 @@ type DeploymentCreate struct {
 	Metadata      *Metadata           `json:"metadata,omitempty"`
 }
 
+type DeploymentRestart struct {
+	Relationships AppRelationship     `json:"relationships"`
+	Droplet       *Relationship       `json:"droplet,omitempty"`
+	Strategy      string              `json:"strategy,omitempty"`
+}
+
 type DeploymentUpdate struct {
 	Metadata *Metadata `json:"metadata"`
 }
@@ -47,6 +53,18 @@ type DeploymentStatus struct {
 
 func NewDeploymentCreate(appGUID string) *DeploymentCreate {
 	return &DeploymentCreate{
+		Relationships: AppRelationship{
+			App: ToOneRelationship{
+				Data: &Relationship{
+					GUID: appGUID,
+				},
+			},
+		},
+	}
+}
+
+func NewDeploymentRestart(appGUID string) *DeploymentRestart {
+	return &DeploymentRestart{
 		Relationships: AppRelationship{
 			App: ToOneRelationship{
 				Data: &Relationship{

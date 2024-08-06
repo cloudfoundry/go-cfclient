@@ -53,6 +53,21 @@ func (c *DeploymentClient) Create(ctx context.Context, r *resource.DeploymentCre
 	return &d, nil
 }
 
+// Restart an existing deployment
+func (c *DeploymentClient) Restart(ctx context.Context, r *resource.DeploymentRestart) (*resource.Deployment, error) {
+	// validate the params
+	if r.Droplet == nil {
+		return nil, errors.New("droplet cannot be unset")
+	}
+
+	var d resource.Deployment
+	_, err := c.client.post(ctx, "/v3/deployments", r, &d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
 // First returns the first deployment matching the options or an error when less than 1 match
 func (c *DeploymentClient) First(ctx context.Context, opts *DeploymentListOptions) (*resource.Deployment, error) {
 	return First[*DeploymentListOptions, *resource.Deployment](opts, func(opts *DeploymentListOptions) ([]*resource.Deployment, *Pager, error) {
