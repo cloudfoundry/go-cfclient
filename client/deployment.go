@@ -39,6 +39,7 @@ func (c *DeploymentClient) Cancel(ctx context.Context, guid string) error {
 }
 
 // Create a new deployment
+// Rolling restart can be triggered by passing in the app guid and existing droplet guid
 func (c *DeploymentClient) Create(ctx context.Context, r *resource.DeploymentCreate) (*resource.Deployment, error) {
 	// validate the params
 	if r.Droplet != nil && r.Revision != nil {
