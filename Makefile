@@ -29,6 +29,10 @@ endif
 lint: lint-prepare ## Run the golangci linter
 	golangci-lint run
 
+.PHONY: update
+update: ## Update all dependencies
+	go get -u ./... && go mod tidy
+
 .PHONY: tidy
 tidy: ## Remove unused dependencies
 	go mod tidy
