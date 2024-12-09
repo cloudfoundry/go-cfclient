@@ -187,12 +187,12 @@ func (p *AppPushOperation) waitForDeployment(ctx context.Context, deploymentGUID
 	pollOptions := client.NewPollingOptions()
 	pollOptions.Timeout = time.Duration(instances) * time.Minute
 
-	depPollErr := client.PollForStateOrTimeout(func() (string, error) {
+	depPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
 		deployment, err := p.client.Deployments.Get(ctx, deploymentGUID)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
-		return deployment.Status.Value, nil
+		return deployment.Status.Value, deployment.Status.Reason, nil
 	}, "FINALIZED", pollOptions)
 	return depPollErr
 }
