@@ -22,7 +22,7 @@ func NewPollingOptions() *PollingOptions {
 	}
 }
 
-type getStateFunc func() (string, error)
+type getStateFunc func() (string, string, error)
 
 func PollForStateOrTimeout(getState getStateFunc, successState string, opts *PollingOptions) error {
 	if opts == nil {
@@ -38,7 +38,7 @@ func PollForStateOrTimeout(getState getStateFunc, successState string, opts *Pol
 		case <-timeout:
 			return AsyncProcessTimeoutError
 		case <-ticker.C:
-			state, err := getState()
+			state, cferror, err := getState()
 			if err != nil {
 				return err
 			}
@@ -46,7 +46,7 @@ func PollForStateOrTimeout(getState getStateFunc, successState string, opts *Pol
 			case successState:
 				return nil
 			case opts.FailedState:
-				return AsyncProcessFailedError
+				return errors.Join(AsyncProcessFailedError, errors.New(cferror))
 			}
 		}
 	}
