@@ -112,7 +112,7 @@ func (s *SpaceQuotaCreateOrUpdate) WithPaidServicesAllowed(allowed bool) *SpaceQ
 	if s.Services == nil {
 		s.Services = &ServicesQuota{}
 	}
-	s.Services.PaidServicesAllowed = &allowed
+	s.Services.PaidServicesAllowed = allowed
 	return s
 }
 

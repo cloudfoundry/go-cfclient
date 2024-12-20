@@ -91,7 +91,7 @@ func (q *OrganizationQuotaCreateOrUpdate) WithPaidServicesAllowed(allowed bool) 
 	if q.Services == nil {
 		q.Services = &ServicesQuota{}
 	}
-	q.Services.PaidServicesAllowed = &allowed
+	q.Services.PaidServicesAllowed = allowed
 	return q
 }
 
