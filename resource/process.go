@@ -123,10 +123,12 @@ type ProcessRelationships struct {
 }
 
 type Usage struct {
-	Time   time.Time `json:"time"`
-	CPU    float64   `json:"cpu"`
-	Memory int       `json:"mem"`
-	Disk   int       `json:"disk"`
+	Time           time.Time `json:"time"`
+	CPU            float64   `json:"cpu"`
+	CPUEntitlement float64   `json:"cpu_entitlement"`
+	Memory         int       `json:"mem"`
+	Disk           int       `json:"disk"`
+	LogRate        int       `json:"log_rate"`
 }
 
 func NewProcessScale() *ProcessScale {
