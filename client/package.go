@@ -143,12 +143,12 @@ func (c *PackageClient) ListForAppAll(ctx context.Context, appGUID string, opts 
 
 // PollReady waits until the package is ready, fails, or times out
 func (c *PackageClient) PollReady(ctx context.Context, guid string, opts *PollingOptions) error {
-	return PollForStateOrTimeout(func() (string, error) {
+	return PollForStateOrTimeout(func() (string, string, error) {
 		pkg, err := c.Get(ctx, guid)
 		if pkg != nil {
-			return string(pkg.State), err
+			return string(pkg.State), "", err
 		}
-		return "", err
+		return "", "", err
 	}, string(resource.PackageStateReady), opts)
 }
 
