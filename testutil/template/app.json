@@ -18,6 +18,11 @@
       "data": {
         "guid": "5c1b65d8-abdc-471b-962d-b60a6d8646b0"
       }
+    },
+    "current_droplet": {
+      "data": {
+        "guid": "e4398f42-5ac5-46fb-961e-ad419f14cf83"
+      }
     }
   },
   "metadata": {

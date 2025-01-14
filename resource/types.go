@@ -50,6 +50,11 @@ type SpaceRelationship struct {
 	Space ToOneRelationship `json:"space"`
 }
 
+type AppRelationships struct {
+	Space          ToOneRelationship `json:"space"`
+	CurrentDroplet ToOneRelationship `json:"current_droplet"`
+}
+
 type AppRelationship struct {
 	App ToOneRelationship `json:"app"`
 }

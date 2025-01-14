@@ -7,11 +7,11 @@ import (
 )
 
 type App struct {
-	Name          string            `json:"name"`
-	State         string            `json:"state"`
-	Lifecycle     Lifecycle         `json:"lifecycle"`
-	Relationships SpaceRelationship `json:"relationships"`
-	Metadata      *Metadata         `json:"metadata"`
+	Name          string           `json:"name"`
+	State         string           `json:"state"`
+	Lifecycle     Lifecycle        `json:"lifecycle"`
+	Relationships AppRelationships `json:"relationships"`
+	Metadata      *Metadata        `json:"metadata"`
 	Resource      `json:",inline"`
 }
 
