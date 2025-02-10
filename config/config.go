@@ -123,7 +123,7 @@ func (c *Config) AuthURL(urlPath string) string {
 // on-demand.
 func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
 	// use our http.Client instance for token acquisition
-	oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
+	oauthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, c.httpClient)
 
 	twoLeggedAuthConfigFn := func() *clientcredentials.Config {
 		return &clientcredentials.Config{
@@ -161,8 +161,8 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 			authConfig.Endpoint.TokenURL = addLoginHintToURL(authConfig.Endpoint.TokenURL, c.origin)
 		}
 
-		// Login using user/pass
-		token, err := authConfig.PasswordCredentialsToken(oauthCtx, c.username, c.password)
+		// Login using user/pass with request context
+		token, err := authConfig.PasswordCredentialsToken(ctx, c.username, c.password)
 		if err != nil {
 			return nil, err
 		}
