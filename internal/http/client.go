@@ -74,7 +74,7 @@ func (t *retryableAuthTransport) RoundTrip(req *http.Request) (*http.Response, e
 		drainBody(resp)
 
 		// Recreate the token source
-		src, tsErr := t.tokenSourceCreator.CreateOAuth2TokenSource(req.Context())
+		src, tsErr := t.tokenSourceCreator.CreateOAuth2TokenSource(context.Background())
 		if tsErr != nil {
 			return nil, fmt.Errorf("error re-authenticating with the OAuth2 token source: %w", tsErr)
 		}
