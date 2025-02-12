@@ -27,7 +27,7 @@ endif
 
 .PHONY: lint
 lint: lint-prepare ## Run the golangci linter
-	golangci-lint run
+	./bin/golangci-lint run
 
 .PHONY: update
 update: ## Update all dependencies
