@@ -19,7 +19,7 @@ type AppsQuota struct {
 
 type ServicesQuota struct {
 	// Specifies if instances of paid service plans are permitted to be created.
-	PaidServicesAllowed *bool `json:"paid_services_allowed,omitempty"`
+	PaidServicesAllowed bool `json:"paid_services_allowed"`
 
 	// The maximum number of service instances permitted.
 	TotalServiceInstances *int `json:"total_service_instances"`
