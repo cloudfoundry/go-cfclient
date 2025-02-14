@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-
 	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
@@ -35,13 +34,5 @@ func (c *JobClient) PollComplete(ctx context.Context, jobGUID string, opts *Poll
 		}
 		return "", "", err
 	}, string(resource.JobStateComplete), opts)
-
-	// attempt to return the underlying saved job error
-	if err == AsyncProcessFailedError {
-		job, _ := c.Get(ctx, jobGUID)
-		if job != nil && len(job.Errors) > 0 {
-			return job.Errors[0]
-		}
-	}
 	return err
 }
