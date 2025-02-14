@@ -1,10 +1,13 @@
 package client
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
+
+var CustomStagingErr = "StagingError - Staging error: Start command not specified"
 
 func TestNewPollingOptions(t *testing.T) {
 	opts := NewPollingOptions()
@@ -18,18 +21,19 @@ func TestPollForStateOrTimeout(t *testing.T) {
 	noWaitOpts.Timeout = time.Second
 	noWaitOpts.CheckInterval = time.Millisecond
 
-	failedFn := func() (string, error) {
-		return "FAILED", nil
+	failedFn := func() (string, string, error) {
+		return "FAILED", CustomStagingErr, nil
 	}
-	successFn := func() (string, error) {
-		return "SUCCESS", nil
+	successFn := func() (string, string, error) {
+		return "SUCCESS", "", nil
 	}
-	timeoutFn := func() (string, error) {
-		return "PROCESSING", nil
+	timeoutFn := func() (string, string, error) {
+		return "PROCESSING", "", nil
 	}
 
 	err := PollForStateOrTimeout(failedFn, "NOPE", noWaitOpts)
-	require.Equal(t, AsyncProcessFailedError, err)
+	require.Error(t, err)
+	require.Equal(t, "received state FAILED while waiting for async process: "+CustomStagingErr, err.Error())
 
 	err = PollForStateOrTimeout(successFn, "SUCCESS", noWaitOpts)
 	require.NoError(t, err)

@@ -138,12 +138,15 @@ func (c *BuildClient) ListForAppAll(ctx context.Context, appGUID string, opts *B
 
 // PollStaged waits until the build is staged, fails, or times out
 func (c *BuildClient) PollStaged(ctx context.Context, guid string, opts *PollingOptions) error {
-	return PollForStateOrTimeout(func() (string, error) {
+	return PollForStateOrTimeout(func() (string, string, error) {
 		build, err := c.Get(ctx, guid)
 		if build != nil {
-			return string(build.State), err
+			if build.Error != nil {
+				return string(build.State), *build.Error, err
+			}
+			return string(build.State), "", err
 		}
-		return "", err
+		return "", "", err
 	}, string(resource.BuildStateStaged), opts)
 }
 

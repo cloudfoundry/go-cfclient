@@ -228,6 +228,13 @@ func (o ObjectJSONGenerator) Job(state string) *JSONResource {
 	return o.renderTemplate(r, "job.json")
 }
 
+func (o ObjectJSONGenerator) JobFailed() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "job_failed.json")
+}
+
 func (o ObjectJSONGenerator) Manifest() *JSONResource {
 	r := &JSONResource{}
 	return o.renderTemplate(r, "manifest.yml")

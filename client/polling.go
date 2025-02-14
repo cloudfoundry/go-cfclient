@@ -2,10 +2,10 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
-var AsyncProcessFailedError = errors.New("received state FAILED while waiting for async process")
 var AsyncProcessTimeoutError = errors.New("timed out after waiting for async process")
 
 type PollingOptions struct {
@@ -22,7 +22,7 @@ func NewPollingOptions() *PollingOptions {
 	}
 }
 
-type getStateFunc func() (string, error)
+type getStateFunc func() (string, string, error)
 
 func PollForStateOrTimeout(getState getStateFunc, successState string, opts *PollingOptions) error {
 	if opts == nil {
@@ -38,7 +38,7 @@ func PollForStateOrTimeout(getState getStateFunc, successState string, opts *Pol
 		case <-timeout:
 			return AsyncProcessTimeoutError
 		case <-ticker.C:
-			state, err := getState()
+			state, cfError, err := getState()
 			if err != nil {
 				return err
 			}
@@ -46,7 +46,7 @@ func PollForStateOrTimeout(getState getStateFunc, successState string, opts *Pol
 			case successState:
 				return nil
 			case opts.FailedState:
-				return AsyncProcessFailedError
+				return fmt.Errorf("received state %s while waiting for async process: %s", opts.FailedState, cfError)
 			}
 		}
 	}

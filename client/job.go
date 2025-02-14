@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-
 	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
 	"github.com/cloudfoundry/go-cfclient/v3/resource"
 )
@@ -21,20 +20,19 @@ func (c *JobClient) Get(ctx context.Context, guid string) (*resource.Job, error)
 
 // PollComplete waits until the job completes, fails, or times out
 func (c *JobClient) PollComplete(ctx context.Context, jobGUID string, opts *PollingOptions) error {
-	err := PollForStateOrTimeout(func() (string, error) {
+	err := PollForStateOrTimeout(func() (string, string, error) {
 		job, err := c.Get(ctx, jobGUID)
 		if job != nil {
-			return string(job.State), err
+			var cfErrors string
+			for _, e := range job.Errors {
+				cfErrors += "\n" + e.Error()
+			}
+			for _, e := range job.Warnings {
+				cfErrors += "\n" + e.Detail
+			}
+			return string(job.State), cfErrors, err
 		}
-		return "", err
+		return "", "", err
 	}, string(resource.JobStateComplete), opts)
-
-	// attempt to return the underlying saved job error
-	if err == AsyncProcessFailedError {
-		job, _ := c.Get(ctx, jobGUID)
-		if job != nil && len(job.Errors) > 0 {
-			return job.Errors[0]
-		}
-	}
 	return err
 }
