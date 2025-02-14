@@ -1,0 +1,29 @@
+{
+  "guid": "{{.GUID}}",
+  "created_at": "2016-10-19T20:25:04Z",
+  "updated_at": "2016-11-08T16:41:26Z",
+  "operation": "app.create",
+  "state": "FAILED",
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/jobs/{{.GUID}}"
+    }
+  },
+  "errors": [
+    {
+      "code": 10008,
+      "title": "CF-UnprocessableEntity",
+      "detail": "something went wrong"
+    },
+    {
+      "code": 10001,
+      "title": "UnknownError",
+      "detail": "unexpected error occurred"
+    }
+  ],
+  "warnings": [
+    {
+      "detail": "some warning"
+    }
+  ]
+}
