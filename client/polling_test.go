@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"testing"
 	"time"
 
@@ -33,7 +32,8 @@ func TestPollForStateOrTimeout(t *testing.T) {
 	}
 
 	err := PollForStateOrTimeout(failedFn, "NOPE", noWaitOpts)
-	require.Equal(t, errors.Join(AsyncProcessFailedError, errors.New(CustomStagingErr)), err)
+	require.Error(t, err)
+	require.Equal(t, "received state FAILED while waiting for async process: "+CustomStagingErr, err.Error())
 
 	err = PollForStateOrTimeout(successFn, "SUCCESS", noWaitOpts)
 	require.NoError(t, err)
