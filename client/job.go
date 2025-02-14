@@ -25,8 +25,11 @@ func (c *JobClient) PollComplete(ctx context.Context, jobGUID string, opts *Poll
 		job, err := c.Get(ctx, jobGUID)
 		if job != nil {
 			var cfErrors string
-			for _, error := range job.Errors {
-				cfErrors = cfErrors + "\n" + error.Error()
+			for _, e := range job.Errors {
+				cfErrors += "\n" + e.Error()
+			}
+			for _, e := range job.Warnings {
+				cfErrors += "\n" + e.Detail
 			}
 			return string(job.State), cfErrors, err
 		}

@@ -62,6 +62,7 @@ func TestJobs(t *testing.T) {
 				require.ErrorContains(t, err, "received state FAILED while waiting for async process")
 				require.ErrorContains(t, err, "cfclient error (CF-UnprocessableEntity|10008): something went wrong")
 				require.ErrorContains(t, err, "cfclient error (UnknownError|10001): unexpected error occurred")
+				require.ErrorContains(t, err, "some warning")
 				return nil, nil
 			},
 		},
