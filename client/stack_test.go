@@ -10,7 +10,7 @@ import (
 )
 
 func TestStacks(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(165123)
+	g := testutil.NewObjectJSONGenerator()
 	stack := g.Stack().JSON
 	stack2 := g.Stack().JSON
 	app := g.Application().JSON

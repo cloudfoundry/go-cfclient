@@ -11,7 +11,7 @@ import (
 )
 
 func TestApps(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	app1 := g.Application().JSON
 	app2 := g.Application().JSON
 	app3 := g.Application().JSON

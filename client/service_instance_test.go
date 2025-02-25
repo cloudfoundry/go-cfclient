@@ -13,7 +13,7 @@ import (
 )
 
 func TestServiceInstances(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(156)
+	g := testutil.NewObjectJSONGenerator()
 	si := g.ServiceInstance().JSON
 	si2 := g.ServiceInstance().JSON
 	siUserProvided := g.ServiceInstanceUserProvided().JSON

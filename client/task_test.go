@@ -10,7 +10,7 @@ import (
 )
 
 func TestTasks(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(174545)
+	g := testutil.NewObjectJSONGenerator()
 	task := g.Task().JSON
 	task2 := g.Task().JSON
 	task3 := g.Task().JSON

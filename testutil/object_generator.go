@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
 	"path"
 	"runtime"
@@ -73,8 +72,7 @@ type resultTemplate struct {
 type ObjectJSONGenerator struct {
 }
 
-func NewObjectJSONGenerator(seed int) *ObjectJSONGenerator {
-	rand.Seed(int64(seed)) // stable random
+func NewObjectJSONGenerator() *ObjectJSONGenerator {
 	return &ObjectJSONGenerator{}
 }
 

@@ -18,7 +18,7 @@ func TestAppPush(t *testing.T) {
 	serverURL := testutil.SetupFakeAPIServer()
 	defer testutil.Teardown()
 
-	g := testutil.NewObjectJSONGenerator(8723)
+	g := testutil.NewObjectJSONGenerator()
 	org := g.Organization()
 	space := g.Space()
 	job := g.Job("COMPLETE")

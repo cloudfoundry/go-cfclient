@@ -10,7 +10,7 @@ import (
 )
 
 func TestSecurityGroups(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	sg := g.SecurityGroup().JSON
 	sg2 := g.SecurityGroup().JSON
 

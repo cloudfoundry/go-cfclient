@@ -10,7 +10,7 @@ import (
 )
 
 func TestServiceBrokers(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(6872)
+	g := testutil.NewObjectJSONGenerator()
 	sb := g.ServiceBroker().JSON
 	sb2 := g.ServiceBroker().JSON
 

@@ -10,7 +10,7 @@ import (
 )
 
 func TestServiceRouteBindings(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(324)
+	g := testutil.NewObjectJSONGenerator()
 	svcRouteBinding := g.ServiceRouteBinding().JSON
 	svcRouteBinding2 := g.ServiceRouteBinding().JSON
 	svcRouteBinding3 := g.ServiceRouteBinding().JSON

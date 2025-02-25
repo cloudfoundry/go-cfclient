@@ -10,7 +10,7 @@ import (
 )
 
 func TestRoles(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator()
 	role := g.Role().JSON
 	role2 := g.Role().JSON
 	role3 := g.Role().JSON

@@ -10,7 +10,7 @@ import (
 )
 
 func TestServiceCredentialBindings(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	scb := g.ServiceCredentialBinding().JSON
 	scb2 := g.ServiceCredentialBinding().JSON
 	scb3 := g.ServiceCredentialBinding().JSON

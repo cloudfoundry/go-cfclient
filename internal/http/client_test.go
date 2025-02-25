@@ -34,7 +34,7 @@ func (ts *MockedOAuthTokenSource) Token() (*oauth2.Token, error) {
 }
 
 func TestOAuthSessionManager(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	serverURL := testutil.SetupMultiple([]testutil.MockRoute{
 		{
 			Method:    "POST",
