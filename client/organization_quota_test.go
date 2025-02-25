@@ -10,7 +10,7 @@ import (
 )
 
 func TestOrganizationQuotas(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator()
 	orgQuota := g.OrganizationQuota().JSON
 	orgQuota2 := g.OrganizationQuota().JSON
 	orgQuota3 := g.OrganizationQuota().JSON

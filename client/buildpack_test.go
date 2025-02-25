@@ -11,7 +11,7 @@ import (
 )
 
 func TestBuildpacks(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1002)
+	g := testutil.NewObjectJSONGenerator()
 	buildpack := g.Buildpack().JSON
 	buildpack2 := g.Buildpack().JSON
 	buildpack3 := g.Buildpack().JSON

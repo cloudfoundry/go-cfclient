@@ -9,7 +9,7 @@ import (
 )
 
 func TestAuditEvents(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(161)
+	g := testutil.NewObjectJSONGenerator()
 	auditEvent := g.AuditEvent().JSON
 	auditEvent2 := g.AuditEvent().JSON
 	auditEvent3 := g.AuditEvent().JSON

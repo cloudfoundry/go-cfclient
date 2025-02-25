@@ -10,7 +10,7 @@ import (
 )
 
 func TestRevisions(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	revision := g.Revision().JSON
 	revision2 := g.Revision().JSON
 	revision3 := g.Revision().JSON

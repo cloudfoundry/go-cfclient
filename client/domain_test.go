@@ -10,7 +10,7 @@ import (
 )
 
 func TestDomains(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	domain := g.Domain().JSON
 	domain2 := g.Domain().JSON
 	domain3 := g.Domain().JSON

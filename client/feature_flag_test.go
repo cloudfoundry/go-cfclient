@@ -10,7 +10,7 @@ import (
 )
 
 func TestFeatureFlags(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(852)
+	g := testutil.NewObjectJSONGenerator()
 	ff := g.FeatureFlag().JSON
 	ff2 := g.FeatureFlag().JSON
 	ff3 := g.FeatureFlag().JSON

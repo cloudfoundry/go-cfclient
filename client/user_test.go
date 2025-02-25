@@ -10,7 +10,7 @@ import (
 )
 
 func TestUsers(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(16451)
+	g := testutil.NewObjectJSONGenerator()
 	user := g.User().JSON
 	user2 := g.User().JSON
 

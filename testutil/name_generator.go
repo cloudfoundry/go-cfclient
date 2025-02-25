@@ -1,8 +1,9 @@
 package testutil
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 )
 
 var left = []string{
@@ -121,6 +122,14 @@ func RandomGUID() string {
 }
 
 func RandomName() string {
-	name := left[rand.Intn(len(left))] + "_" + right[rand.Intn(len(right))]
-	return fmt.Sprintf("%s%d", name, rand.Intn(10))
+	getRandomInt := func(max int) int {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
+		if err != nil {
+			panic(err)
+		}
+		return int(n.Int64())
+	}
+
+	name := left[getRandomInt(len(left))] + "_" + right[getRandomInt(len(right))]
+	return fmt.Sprintf("%s%d", name, getRandomInt(10))
 }

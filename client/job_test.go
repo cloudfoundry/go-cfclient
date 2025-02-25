@@ -11,7 +11,7 @@ import (
 )
 
 func TestJobs(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	job := g.Job("COMPLETE").JSON
 	jobProcessing := g.Job("PROCESSING").JSON
 	jobFailed := g.JobFailed().JSON

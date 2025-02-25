@@ -10,7 +10,7 @@ import (
 )
 
 func TestServicePlans(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(156)
+	g := testutil.NewObjectJSONGenerator()
 	svcPlan := g.ServicePlan().JSON
 	svcPlan2 := g.ServicePlan().JSON
 	svcPlan3 := g.ServicePlan().JSON

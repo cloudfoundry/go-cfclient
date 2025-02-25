@@ -10,7 +10,7 @@ import (
 )
 
 func TestRoutes(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(123)
+	g := testutil.NewObjectJSONGenerator()
 	route := g.Route().JSON
 	route2 := g.Route().JSON
 	domain := g.Domain().JSON

@@ -11,7 +11,7 @@ import (
 )
 
 func TestManifests(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	manifest := g.Manifest().JSON
 
 	tests := []RouteTest{

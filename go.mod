@@ -1,6 +1,8 @@
 module github.com/cloudfoundry/go-cfclient/v3
 
-go 1.19
+go 1.23.0
+
+toolchain go1.23.3
 
 require (
 	github.com/go-martini/martini v0.0.0-20170121215854-22fa46961aab

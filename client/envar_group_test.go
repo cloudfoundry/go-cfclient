@@ -10,7 +10,7 @@ import (
 )
 
 func TestEnvVarGroups(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(852)
+	g := testutil.NewObjectJSONGenerator()
 	envVarGroup := g.EnvVarGroup().JSON
 
 	tests := []RouteTest{

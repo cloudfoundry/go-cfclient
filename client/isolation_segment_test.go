@@ -10,7 +10,7 @@ import (
 )
 
 func TestIsolationSegments(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	iso := g.IsolationSegment().JSON
 	iso2 := g.IsolationSegment().JSON
 	iso3 := g.IsolationSegment().JSON

@@ -16,7 +16,7 @@ import (
 )
 
 func TestBitsMarshalling(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	rawPkg := g.Package("PROCESSING_UPLOAD").JSON
 
 	var pkg resource.Package
@@ -33,7 +33,7 @@ func TestBitsMarshalling(t *testing.T) {
 }
 
 func TestDockerMarshalling(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	rawPkg := g.PackageDocker().JSON
 
 	var pkg resource.Package
@@ -51,7 +51,7 @@ func TestDockerMarshalling(t *testing.T) {
 }
 
 func TestPackages(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(1)
+	g := testutil.NewObjectJSONGenerator()
 	pkg := g.Package("PROCESSING_UPLOAD").JSON
 	pkg2 := g.Package("PROCESSING_UPLOAD").JSON
 	pkg3 := g.Package("PROCESSING_UPLOAD").JSON

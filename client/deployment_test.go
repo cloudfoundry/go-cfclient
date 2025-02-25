@@ -12,7 +12,7 @@ import (
 )
 
 func TestDeployments(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(4)
+	g := testutil.NewObjectJSONGenerator()
 	deployment := g.Deployment().JSON
 	deployment2 := g.Deployment().JSON
 	deployment3 := g.Deployment().JSON

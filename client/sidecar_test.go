@@ -10,7 +10,7 @@ import (
 )
 
 func TestSidecars(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(195)
+	g := testutil.NewObjectJSONGenerator()
 	sidecar := g.Sidecar().JSON
 	sidecar2 := g.Sidecar().JSON
 	sidecar3 := g.Sidecar().JSON

@@ -15,7 +15,7 @@ import (
 )
 
 func TestDroplets(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(2)
+	g := testutil.NewObjectJSONGenerator()
 	droplet := g.Droplet().JSON
 	droplet2 := g.Droplet().JSON
 	droplet3 := g.Droplet().JSON

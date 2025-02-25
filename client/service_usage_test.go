@@ -9,7 +9,7 @@ import (
 )
 
 func TestServiceUsages(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(161)
+	g := testutil.NewObjectJSONGenerator()
 	serviceUsage := g.ServiceUsage().JSON
 	serviceUsage2 := g.ServiceUsage().JSON
 	serviceUsage3 := g.ServiceUsage().JSON

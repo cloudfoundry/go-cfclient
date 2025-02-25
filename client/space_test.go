@@ -10,7 +10,7 @@ import (
 )
 
 func TestSpaces(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(19652)
+	g := testutil.NewObjectJSONGenerator()
 	space := g.Space().JSON
 	space2 := g.Space().JSON
 	space3 := g.Space().JSON

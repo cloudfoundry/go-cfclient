@@ -10,7 +10,7 @@ import (
 )
 
 func TestBuilds(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(2)
+	g := testutil.NewObjectJSONGenerator()
 	build := g.Build("STAGED").JSON
 	build2 := g.Build("STAGED").JSON
 	build3 := g.Build("STAGED").JSON

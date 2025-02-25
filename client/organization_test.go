@@ -12,7 +12,7 @@ import (
 )
 
 func TestOrganizations(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(15)
+	g := testutil.NewObjectJSONGenerator()
 	org := g.Organization().JSON
 	org2 := g.Organization().JSON
 	org3 := g.Organization().JSON

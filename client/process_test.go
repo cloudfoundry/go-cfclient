@@ -10,7 +10,7 @@ import (
 )
 
 func TestProcesses(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(78)
+	g := testutil.NewObjectJSONGenerator()
 	process := g.Process().JSON
 	process2 := g.Process().JSON
 	process3 := g.Process().JSON

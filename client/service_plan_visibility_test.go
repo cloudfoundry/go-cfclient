@@ -10,7 +10,7 @@ import (
 )
 
 func TestServicePlanVisibilities(t *testing.T) {
-	g := testutil.NewObjectJSONGenerator(156)
+	g := testutil.NewObjectJSONGenerator()
 	svcPlanVisibility := g.ServicePlanVisibility().JSON
 
 	tests := []RouteTest{
