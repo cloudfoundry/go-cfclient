@@ -30,41 +30,63 @@ func (r FilterModifier) String() string {
 	return ""
 }
 
+type TimestampFilterList []TimestampFilter
+
 type TimestampFilter struct {
 	Timestamp []time.Time
 	Operator  FilterModifier
 }
 
-func (t *TimestampFilter) EqualTo(createdAt ...time.Time) {
-	t.Timestamp = createdAt
+func (tl *TimestampFilterList) EqualTo(ts ...time.Time) {
+	*tl = append(*tl, TimestampFilter{
+		Timestamp: ts,
+	})
 }
 
-func (t *TimestampFilter) Before(createdAt time.Time) {
-	t.Timestamp = []time.Time{
-		createdAt,
-	}
-	t.Operator = FilterModifierLessThan
+func (tl *TimestampFilterList) Before(ts time.Time) {
+	*tl = append(*tl, TimestampFilter{
+		Timestamp: []time.Time{
+			ts,
+		},
+		Operator: FilterModifierLessThan,
+	})
 }
 
-func (t *TimestampFilter) BeforeOrEqualTo(createdAt time.Time) {
-	t.Timestamp = []time.Time{
-		createdAt,
-	}
-	t.Operator = FilterModifierLessThanOrEqual
+func (tl *TimestampFilterList) BeforeOrEqualTo(ts time.Time) {
+	*tl = append(*tl, TimestampFilter{
+		Timestamp: []time.Time{
+			ts,
+		},
+		Operator: FilterModifierLessThanOrEqual,
+	})
 }
 
-func (t *TimestampFilter) After(createdAt time.Time) {
-	t.Timestamp = []time.Time{
-		createdAt,
-	}
-	t.Operator = FilterModifierGreaterThan
+func (tl *TimestampFilterList) After(ts time.Time) {
+	*tl = append(*tl, TimestampFilter{
+		Timestamp: []time.Time{
+			ts,
+		},
+		Operator: FilterModifierGreaterThan,
+	})
 }
 
-func (t *TimestampFilter) AfterOrEqualTo(createdAt time.Time) {
-	t.Timestamp = []time.Time{
-		createdAt,
+func (tl *TimestampFilterList) AfterOrEqualTo(ts time.Time) {
+	*tl = append(*tl, TimestampFilter{
+		Timestamp: []time.Time{
+			ts,
+		},
+		Operator: FilterModifierGreaterThanOrEqual,
+	})
+}
+
+func (tl TimestampFilterList) Serialize(values url.Values, tag string) error {
+	for _, t := range tl {
+		err := t.Serialize(values, tag)
+		if err != nil {
+			return err
+		}
 	}
-	t.Operator = FilterModifierGreaterThanOrEqual
+	return nil
 }
 
 func (t TimestampFilter) Serialize(values url.Values, tag string) error {

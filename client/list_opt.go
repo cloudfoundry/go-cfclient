@@ -29,12 +29,12 @@ type ListOptioner interface {
 
 // ListOptions is the shared common type for all other list option types
 type ListOptions struct {
-	Page       int             `qs:"page"`
-	PerPage    int             `qs:"per_page"`
-	OrderBy    string          `qs:"order_by"`
-	LabelSel   LabelSelector   `qs:"label_selector"`
-	CreateAts  TimestampFilter `qs:"created_ats"`
-	UpdatedAts TimestampFilter `qs:"updated_ats"`
+	Page       int                 `qs:"page"`
+	PerPage    int                 `qs:"per_page"`
+	OrderBy    string              `qs:"order_by"`
+	LabelSel   LabelSelector       `qs:"label_selector"`
+	CreateAts  TimestampFilterList `qs:"created_ats"`
+	UpdatedAts TimestampFilterList `qs:"updated_ats"`
 }
 
 // NewListOptions creates a default list options with page and page size set

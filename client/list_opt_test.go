@@ -73,6 +73,12 @@ func TestListOptions(t *testing.T) {
 	opts.CreateAts.After(date("2019-12-31T23:59:59Z"))
 	require.Equal(t, "created_ats[gt]=2019-12-31T23:59:59Z", qs(opts))
 
+	// date range
+	opts = newEmptyOpts()
+	opts.CreateAts.After(date("2025-02-06T13:00:00Z"))
+	opts.CreateAts.Before(date("2025-02-06T14:00:00Z"))
+	require.Equal(t, "created_ats[gt]=2025-02-06T13:00:00Z&created_ats[lt]=2025-02-06T14:00:00Z", qs(opts))
+
 	// lifecycle type
 	opts = newEmptyOpts()
 	opts.LifecycleType = resource.LifecycleBuildpack
