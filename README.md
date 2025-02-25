@@ -23,6 +23,7 @@ library will cut releases that will be tagged with v3.0.0, v3.0.1 etc, see the V
 ## Usage
 - [Authentication](./README.md#authentication)
 - [Resources](./README.md#resources)
+- [Filtering](./README.md#filtering)
 - [Pagination](./README.md#pagination)
 - [Asynchronous Jobs](./README.md#asynchronous-jobs)
 - [Error Handling](./README.md#error-handling)
