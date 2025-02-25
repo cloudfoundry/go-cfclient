@@ -82,6 +82,42 @@ __NOTE__ - Using the context package you can easily pass cancellation signals an
 for handling a request. In case there is no context available, then `context.Background()` can be used as a starting
 point.
 
+### Filtering
+This library should support all possible
+[filtering combinations that the CF API supports](https://v3-apidocs.cloudfoundry.org/version/3.188.0/index.html#filters),
+including those that may not be valid. While the library tries to steer you in a direction that won't allow for invalid
+combinations it's still possible to create filters that are nonsensical. The support matrix for filters:
+
+| Type | Multi-valued | Empty | Relational Op | Not |
+| --- | --- | --- | --- | --- |
+| Timestamp | x | | x | x |
+| String | x | x | | x |
+
+Full filtering example, find all apps with the name of spring-music:
+```go
+opts := client.NewAppListOptions()
+opts.Names.EqualTo("spring-music")
+apps, _ := cf.Applications.ListAll(context.Background(), opts)
+fmt.Printf("Found %d apps named spring-music\n", len(apps))
+```
+
+Find multiple applications with specific names:
+```go
+opts.Names.EqualTo("credit-processor-service", "credit-processor-ui")
+```
+
+Find all apps not named spring-music:
+```go
+opts.Names.NotEqualTo("spring-music")
+```
+
+Find all spring-music apps created within a date range:
+```go
+opts.Names.EqualTo("spring-music")
+opts.CreateAts.After(date1)
+opts.CreateAts.Before(date2)
+```
+
 ### Pagination
 All requests for resource collections (apps, orgs, spaces etc) support pagination. Pagination options are described
 in the client.ListOptions struct and passed to the list methods directly or as an embedded type of a more specific
