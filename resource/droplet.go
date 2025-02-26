@@ -54,6 +54,10 @@ type DropletUpdate struct {
 	Image    string   `json:"image"`
 }
 
+type DropletMetadataUpdate struct {
+	Metadata Metadata `json:"metadata,omitempty"`
+}
+
 type DropletCurrent struct {
 	Data  Relationship    `json:"data"`
 	Links map[string]Link `json:"links"`

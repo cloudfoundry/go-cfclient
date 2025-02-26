@@ -272,6 +272,16 @@ func (c *DropletClient) Update(ctx context.Context, guid string, r *resource.Dro
 	return &d, nil
 }
 
+// UpdateMetadata of an existing droplet
+func (c *DropletClient) UpdateMetadata(ctx context.Context, guid string, r *resource.DropletMetadataUpdate) (*resource.Droplet, error) {
+	var d resource.Droplet
+	_, err := c.client.patch(ctx, path.Format("/v3/droplets/%s", guid), r, &d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
 // Upload a gzip compressed tarball (tgz) file containing a Cloud Foundry compatible droplet
 func (c *DropletClient) Upload(ctx context.Context, guid string, tgzDroplet io.Reader) (string, *resource.Droplet, error) {
 	p := path.Format("/v3/droplets/%s/upload", guid)
