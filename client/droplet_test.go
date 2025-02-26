@@ -190,6 +190,19 @@ func TestDroplets(t *testing.T) {
 			},
 		},
 		{
+			Description: "Update droplet metadata",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
+				Output:   g.Single(droplet),
+				Status:   http.StatusOK,
+			},
+			Expected: droplet,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Droplets.UpdateMetadata(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletMetadataUpdate{})
+			},
+		},
+		{
 			Description: "Copy droplet",
 			Route: testutil.MockRoute{
 				Method:      "POST",
