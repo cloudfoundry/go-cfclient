@@ -70,6 +70,7 @@ type Lifecycle struct {
 type BuildpackLifecycle struct {
 	Buildpacks []string `json:"buildpacks,omitempty"`
 	Stack      string   `json:"stack,omitempty"`
+	Image      string   `json:"image,omitempty"`
 }
 
 type AppWithIncluded struct {

@@ -40,7 +40,9 @@ type BuildCreate struct {
 }
 
 type BuildUpdate struct {
-	Metadata *Metadata `json:"metadata,omitempty"`
+	Metadata  *Metadata  `json:"metadata,omitempty"`
+	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
+	State     string     `json:"state,omitempty"`
 }
 
 type BuildList struct {
