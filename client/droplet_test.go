@@ -188,7 +188,7 @@ func TestDroplets(t *testing.T) {
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Droplets.Update(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{
-					Image: testutil.StringPtr("image-identifier"),
+					Image: "image-identifier",
 				})
 			},
 		},

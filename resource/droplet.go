@@ -51,7 +51,7 @@ type DropletList struct {
 
 type DropletUpdate struct {
 	Metadata *Metadata `json:"metadata,omitempty"`
-	Image    *string   `json:"image,omitempty"`
+	Image    string    `json:"image,omitempty"`
 }
 
 type DropletCurrent struct {
