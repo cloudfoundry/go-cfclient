@@ -57,7 +57,7 @@ func TestBuilds(t *testing.T) {
 			},
 		},
 		{
-			Description: "Update build",
+			Description: "Update build metadata",
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
@@ -71,6 +71,27 @@ func TestBuilds(t *testing.T) {
 				r.Metadata = resource.NewMetadata().
 					WithAnnotation("", "foo", "bar").
 					WithLabel("", "env", "dev")
+				return c.Builds.Update(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f", r)
+			},
+		},
+		{
+			Description: "Update build image",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
+				Output:   g.Single(build),
+				PostForm: `{"state": "STAGED", "lifecycle": {"data": {"image": "image-identifier"}}}`,
+				Status:   http.StatusOK,
+			},
+			Expected: build,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewBuildUpdate()
+				r.State = "STAGED"
+				r.Lifecycle = &resource.Lifecycle{
+					BuildpackData: resource.BuildpackLifecycle{
+						Image: "image-identifier",
+					},
+				}
 				return c.Builds.Update(context.Background(), "be9db090-ad79-41c1-9a01-6200d896f20f", r)
 			},
 		},
