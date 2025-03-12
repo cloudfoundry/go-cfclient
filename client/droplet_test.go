@@ -177,16 +177,37 @@ func TestDroplets(t *testing.T) {
 			},
 		},
 		{
-			Description: "Update droplet",
+			Description: "Update droplet image",
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
 				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
 				Output:   g.Single(droplet),
 				Status:   http.StatusOK,
+				PostForm: `{ "image": "image-identifier"}`,
 			},
 			Expected: droplet,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				return c.Droplets.Update(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{})
+				return c.Droplets.Update(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{
+					Image: testutil.StringPtr("image-identifier"),
+				})
+			},
+		},
+		{
+			Description: "Update droplet metadata",
+			Route: testutil.MockRoute{
+				Method:   "PATCH",
+				Endpoint: "/v3/droplets/59c3d133-2b83-46f3-960e-7765a129aea4",
+				Output:   g.Single(droplet),
+				Status:   http.StatusOK,
+				PostForm: `{ "metadata": { "labels": { "key": "value" }, "annotations": {"note": "detailed information"}}}`,
+			},
+			Expected: droplet,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Droplets.Update(context.Background(), "59c3d133-2b83-46f3-960e-7765a129aea4", &resource.DropletUpdate{
+					Metadata: resource.NewMetadata().
+						WithLabel("", "key", "value").
+						WithAnnotation("", "note", "detailed information"),
+				})
 			},
 		},
 		{
