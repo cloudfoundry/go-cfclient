@@ -19,6 +19,12 @@ type UserCreate struct {
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
 
+type UserCreateWithUsername struct {
+	Username string    `json:"username"`
+	Origin   string    `json:"origin"`
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
+
 type UserUpdate struct {
 	Metadata *Metadata `json:"metadata,omitempty"`
 }
@@ -26,4 +32,17 @@ type UserUpdate struct {
 type UserList struct {
 	Pagination Pagination `json:"pagination"`
 	Resources  []*User    `json:"resources"`
+}
+
+func NewUserCreateWithGUID(userGUID string) *UserCreate {
+	return &UserCreate{
+		GUID: userGUID,
+	}
+}
+
+func NewUserCreateWithUsername(userName string, origin string) *UserCreateWithUsername {
+	return &UserCreateWithUsername{
+		Username: userName,
+		Origin:   origin,
+	}
 }

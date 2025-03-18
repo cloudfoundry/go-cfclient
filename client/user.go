@@ -41,8 +41,18 @@ func (o UserListOptions) ToQueryString() (url.Values, error) {
 	return o.ListOptions.ToQueryString(o)
 }
 
-// Create a new user
+// Create a new user via GUID
 func (c *UserClient) Create(ctx context.Context, r *resource.UserCreate) (*resource.User, error) {
+	return c.createUserCall(ctx, r)
+}
+
+// Create a new user via Username and Origin
+func (c *UserClient) CreateWithUsername(ctx context.Context, r *resource.UserCreateWithUsername) (*resource.User, error) {
+	return c.createUserCall(ctx, r)
+}
+
+// Common Code for creating the user via API
+func (c *UserClient) createUserCall(ctx context.Context, r any) (*resource.User, error) {
 	var user resource.User
 	_, err := c.client.post(ctx, "/v3/users", r, &user)
 	if err != nil {
