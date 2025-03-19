@@ -2,7 +2,7 @@ package resource
 
 type Organization struct {
 	Name          string            `json:"name"`
-	Suspended     *bool             `json:"suspended,omitempty"`
+	Suspended     bool              `json:"suspended"`
 	Relationships QuotaRelationship `json:"relationships,omitempty"`
 	Metadata      *Metadata         `json:"metadata,omitempty"`
 	Resource      `json:",inline"`
