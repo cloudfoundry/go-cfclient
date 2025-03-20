@@ -2,9 +2,9 @@ package resource
 
 // User implements the user object
 type User struct {
-	Username         string    `json:"username"`
+	Username         *string   `json:"username"`
 	PresentationName string    `json:"presentation_name"`
-	Origin           string    `json:"origin"`
+	Origin           *string   `json:"origin"`
 	Metadata         *Metadata `json:"metadata"`
 	Resource         `json:",inline"`
 }

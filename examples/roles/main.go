@@ -56,7 +56,7 @@ func listSpaceDevsInSpace(ctx context.Context, cf *client.Client) error {
 		fmt.Printf("%s - %s\n", r.Type, r.GUID)
 	}
 	for _, u := range users {
-		fmt.Printf("%s - %s\n", u.Username, u.GUID)
+		fmt.Printf("%s - %s\n", *u.Username, u.GUID)
 	}
 
 	return nil
@@ -70,7 +70,7 @@ func listAllSpaceDevelopers(ctx context.Context, cf *client.Client) error {
 		return err
 	}
 	for _, u := range users {
-		fmt.Printf("%s - %s\n", u.Username, u.GUID)
+		fmt.Printf("%s - %s\n", *u.Username, u.GUID)
 	}
 
 	return nil
