@@ -2,6 +2,7 @@ package operation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -73,10 +74,10 @@ func (p *AppPushOperation) pushWithStrategyApp(ctx context.Context, space *resou
 
 func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	originalApp, err := p.findApp(ctx, manifest.Name, space)
-	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+	if err != nil && !errors.Is(err, client.ErrExactlyOneResultNotReturned) {
 		return nil, err
 	}
-	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+	if errors.Is(err, client.ErrExactlyOneResultNotReturned) || originalApp.State != "STARTED" {
 		return p.pushApp(ctx, space, manifest, zipFile)
 	}
 
@@ -96,7 +97,7 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 		Name: tempAppName,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to update app name failed with: %s", err.Error())
+		return nil, fmt.Errorf("failed to update app name failed with: %w", err)
 	}
 
 	// Apply the manifest
@@ -107,23 +108,23 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 			Name: originalApp.Name,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to update app name back to original name: failed with %s", err.Error())
+			return nil, fmt.Errorf("failed to update app name back to original name: failed with %w", err)
 		}
-		return nil, fmt.Errorf("blue green deployment failed with: %s", err.Error())
+		return nil, fmt.Errorf("blue green deployment failed with: %w", err)
 	}
 	if newApp.State == "STARTED" {
 		err = p.gracefulDeletion(ctx, originalApp)
 		return newApp, err
 	}
-	return newApp, fmt.Errorf("failed to verify application start: %s", err.Error())
+	return newApp, fmt.Errorf("failed to verify application start: %w", err)
 }
 
 func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
 	originalApp, err := p.findApp(ctx, manifest.Name, space)
-	if err != nil && err != client.ErrExactlyOneResultNotReturned {
+	if err != nil && !errors.Is(err, client.ErrExactlyOneResultNotReturned) {
 		return nil, err
 	}
-	if err == client.ErrExactlyOneResultNotReturned || originalApp.State != "STARTED" {
+	if errors.Is(err, client.ErrExactlyOneResultNotReturned) || originalApp.State != "STARTED" {
 		return p.pushApp(ctx, space, manifest, zipFile)
 	}
 	// Get the fallback revision in case of rollback
@@ -151,7 +152,7 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 
 	deployment, err := p.createNewDeployment(ctx, originalApp, droplet)
 	if err != nil {
-		return nil, fmt.Errorf("failed to deploy with: %s", err.Error())
+		return nil, fmt.Errorf("failed to deploy with: %w", err)
 	}
 	// In case application crashed due to new deployment, deployment will be stuck with value "ACTIVE" and reason "DEPLOYING"
 	// This will be considered as deployment failed after timeout
@@ -160,18 +161,18 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 	// Check the app state if app not started or deployment failed rollback the deployment
 	originalApp, err = p.findApp(ctx, manifest.Name, space)
 	if err != nil {
-		return nil, fmt.Errorf("failed to verify application status with: %s", err.Error())
+		return nil, fmt.Errorf("failed to verify application status with: %w", err)
 	}
 	if originalApp.State != "STARTED" || depPollErr != nil {
 		rollBackDeployment, rollBackErr := p.rollBackDeployment(ctx, originalApp, fallbackRevision)
 		if rollBackErr != nil {
-			return nil, fmt.Errorf("failed to confirm rollback deployment with: %s", rollBackErr.Error())
+			return nil, fmt.Errorf("failed to confirm rollback deployment with: %w", rollBackErr)
 		}
 		depRollPollErr := p.waitForDeployment(ctx, rollBackDeployment.GUID, *manifest.Instances)
 		if depRollPollErr != nil {
-			return nil, fmt.Errorf("failed to deploy with: %s \nfailed to confirm roll back to last deployment with: %s", depPollErr.Error(), depRollPollErr.Error())
+			return nil, fmt.Errorf("failed to deploy with: %w \nfailed to confirm roll back to last deployment with: %w", depPollErr, depRollPollErr)
 		}
-		return nil, fmt.Errorf("failed to deploy with: %s \nrolled back to last deployment", depPollErr.Error())
+		return nil, fmt.Errorf("failed to deploy with: %w \nrolled back to last deployment", depPollErr)
 	}
 
 	return originalApp, nil
@@ -232,7 +233,7 @@ func (p *AppPushOperation) rollBackDeployment(ctx context.Context, originalApp *
 func (p *AppPushOperation) gracefulDeletion(ctx context.Context, app *resource.App) error {
 	app, err := p.client.Applications.Stop(ctx, app.GUID)
 	if err != nil {
-		return fmt.Errorf("failed to stop the application with: %s", err.Error())
+		return fmt.Errorf("failed to stop the application with: %w", err)
 	}
 	jobId, err := p.client.Applications.Delete(ctx, app.GUID)
 	if err != nil {

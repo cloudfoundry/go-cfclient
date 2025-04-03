@@ -39,5 +39,5 @@ func TestPollForStateOrTimeout(t *testing.T) {
 	require.NoError(t, err)
 
 	err = PollForStateOrTimeout(timeoutFn, "SUCCESS", noWaitOpts)
-	require.Equal(t, AsyncProcessTimeoutError, err)
+	require.Equal(t, ErrAsyncProcessTimeout, err)
 }

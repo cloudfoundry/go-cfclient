@@ -46,7 +46,7 @@ func (c *UserClient) Create(ctx context.Context, r *resource.UserCreate) (*resou
 	return c.createUserCall(ctx, r)
 }
 
-// Create a new user via Username and Origin
+// CreateWithUsername creates a new user via Username and Origin
 func (c *UserClient) CreateWithUsername(ctx context.Context, r *resource.UserCreateWithUsername) (*resource.User, error) {
 	return c.createUserCall(ctx, r)
 }

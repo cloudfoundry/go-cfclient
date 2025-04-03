@@ -26,8 +26,9 @@ func (r FilterModifier) String() string {
 		return "lt"
 	case FilterModifierLessThanOrEqual:
 		return "lte"
+	default:
+		return ""
 	}
-	return ""
 }
 
 type TimestampFilterList []TimestampFilter
@@ -124,7 +125,7 @@ type ExclusionFilter struct {
 }
 
 func (e *ExclusionFilter) NotEqualTo(v ...string) {
-	e.Filter.Values = v
+	e.Values = v
 	e.Not = true
 }
 

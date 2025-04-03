@@ -131,7 +131,8 @@ func (d *Package) UnmarshalJSON(data []byte) error {
 	}
 
 	// post-processing based on type
-	if d.Type == "bits" {
+	switch d.Type {
+	case "bits":
 		var p BitsPackage
 		err = json.Unmarshal(d.DataRaw, &p)
 		if err != nil {
@@ -139,7 +140,7 @@ func (d *Package) UnmarshalJSON(data []byte) error {
 		}
 		d.Data.Bits = &p
 		return nil
-	} else if d.Type == "docker" {
+	case "docker":
 		var p DockerPackage
 		err = json.Unmarshal(d.DataRaw, &p)
 		if err != nil {
@@ -147,6 +148,7 @@ func (d *Package) UnmarshalJSON(data []byte) error {
 		}
 		d.Data.Docker = &p
 		return nil
+	default:
+		return fmt.Errorf("could not unmarshal data as bits or docker package: %w", err)
 	}
-	return fmt.Errorf("could not unmarshal data as bits or docker package: %w", err)
 }

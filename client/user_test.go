@@ -26,10 +26,23 @@ func TestUsers(t *testing.T) {
 			},
 			Expected: user,
 			Action: func(c *Client, t *testing.T) (any, error) {
-				r := &resource.UserCreate{
-					GUID: "3ebeaa8b-fd55-4724-a764-9f2231d8f7db",
-				}
+				r := resource.NewUserCreateWithGUID("3ebeaa8b-fd55-4724-a764-9f2231d8f7db")
 				return c.Users.Create(context.Background(), r)
+			},
+		},
+		{
+			Description: "Create UAA shadow user",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/users",
+				Output:   g.Single(user),
+				Status:   http.StatusCreated,
+				PostForm: `{ "username": "sneal", "origin": "ldap" }`,
+			},
+			Expected: user,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewUserCreateWithUsername("sneal", "ldap")
+				return c.Users.CreateWithUsername(context.Background(), r)
 			},
 		},
 		{

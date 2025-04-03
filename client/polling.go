@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var AsyncProcessTimeoutError = errors.New("timed out after waiting for async process")
+var ErrAsyncProcessTimeout = errors.New("timed out after waiting for async process")
 
 type PollingOptions struct {
 	Timeout       time.Duration
@@ -36,7 +36,7 @@ func PollForStateOrTimeout(getState getStateFunc, successState string, opts *Pol
 	for {
 		select {
 		case <-timeout:
-			return AsyncProcessTimeoutError
+			return ErrAsyncProcessTimeout
 		case <-ticker.C:
 			state, cfError, err := getState()
 			if err != nil {
