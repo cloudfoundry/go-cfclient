@@ -124,7 +124,7 @@ type ExclusionFilter struct {
 }
 
 func (e *ExclusionFilter) NotEqualTo(v ...string) {
-	e.Filter.Values = v
+	e.Values = v
 	e.Not = true
 }
 
