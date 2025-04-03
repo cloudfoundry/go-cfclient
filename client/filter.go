@@ -26,8 +26,9 @@ func (r FilterModifier) String() string {
 		return "lt"
 	case FilterModifierLessThanOrEqual:
 		return "lte"
+	default:
+		return ""
 	}
-	return ""
 }
 
 type TimestampFilterList []TimestampFilter
