@@ -33,6 +33,12 @@ type OrganizationList struct {
 type UsageSummary struct {
 	StartedInstances int `json:"started_instances"`
 	MemoryInMb       int `json:"memory_in_mb"`
+	Routes           int `json:"routes"`
+	ServiceInstances int `json:"service_instances"`
+	ReservedPorts    int `json:"reserved_ports"`
+	Domains          int `json:"domains"`
+	PerAppTasks      int `json:"per_app_tasks"`
+	ServiceKeys      int `json:"service_keys"`
 }
 
 type QuotaRelationship struct {
