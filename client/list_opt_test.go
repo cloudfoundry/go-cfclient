@@ -65,18 +65,18 @@ func TestListOptions(t *testing.T) {
 
 	// multiple exact dates
 	opts = newEmptyOpts()
-	opts.CreateAts.EqualTo(date("2016-03-18T00:00:00Z"), date("2016-10-17T00:00:00Z"))
+	opts.CreatedAts.EqualTo(date("2016-03-18T00:00:00Z"), date("2016-10-17T00:00:00Z"))
 	require.Equal(t, "created_ats=2016-03-18T00:00:00Z,2016-10-17T00:00:00Z", qs(opts))
 
 	// gt date
 	opts = newEmptyOpts()
-	opts.CreateAts.After(date("2019-12-31T23:59:59Z"))
+	opts.CreatedAts.After(date("2019-12-31T23:59:59Z"))
 	require.Equal(t, "created_ats[gt]=2019-12-31T23:59:59Z", qs(opts))
 
 	// date range
 	opts = newEmptyOpts()
-	opts.CreateAts.After(date("2025-02-06T13:00:00Z"))
-	opts.CreateAts.Before(date("2025-02-06T14:00:00Z"))
+	opts.CreatedAts.After(date("2025-02-06T13:00:00Z"))
+	opts.CreatedAts.Before(date("2025-02-06T14:00:00Z"))
 	require.Equal(t, "created_ats[gt]=2025-02-06T13:00:00Z&created_ats[lt]=2025-02-06T14:00:00Z", qs(opts))
 
 	// lifecycle type
