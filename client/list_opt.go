@@ -33,7 +33,7 @@ type ListOptions struct {
 	PerPage    int                 `qs:"per_page"`
 	OrderBy    string              `qs:"order_by"`
 	LabelSel   LabelSelector       `qs:"label_selector"`
-	CreateAts  TimestampFilterList `qs:"created_ats"`
+	CreatedAts TimestampFilterList `qs:"created_ats"`
 	UpdatedAts TimestampFilterList `qs:"updated_ats"`
 }
 
