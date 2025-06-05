@@ -7,7 +7,7 @@ import (
 const (
 	IncludeNone              = ""
 	IncludeSpaceOrganization = "space.organization"
-	IncludeSpace             = "Space"
+	IncludeSpace             = "space"
 	IncludeUser              = "user"
 	IncludeOrganization      = "organization"
 	IncludeDomain            = "domain"
