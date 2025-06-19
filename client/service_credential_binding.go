@@ -86,8 +86,8 @@ func (c *ServiceCredentialBindingClient) GetDetails(ctx context.Context, guid st
 }
 
 // GetParameters the specified service credential binding details
-func (c *ServiceCredentialBindingClient) GetParameters(ctx context.Context, guid string) (map[string]string, error) {
-	var p map[string]string
+func (c *ServiceCredentialBindingClient) GetParameters(ctx context.Context, guid string) (map[string]any, error) {
+	var p map[string]any
 	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings/%s/parameters", guid), &p)
 	if err != nil {
 		return nil, err
