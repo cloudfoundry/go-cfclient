@@ -31,6 +31,24 @@ func ClientCredentials(clientID, clientSecret string) Option {
 	}
 }
 
+// ClientAssertion is a functional option to set client assertion.
+func ClientAssertion(assertion string) Option {
+	return func(c *Config) error {
+		// if set, must be a valid JWT token
+		// alternative to client secret
+		// usually used with ClientCredentials
+		// can be combined with JWTBearerAssertion
+		// refer RFC 7523 for more details
+		if assertion = strings.TrimSpace(assertion); assertion == "" {
+			return errors.New("assertion must be valid JWT Token")
+		} else {
+			c.clientAssertion = assertion
+		}
+
+		return nil
+	}
+}
+
 // UserPassword is a functional option to set user credentials.
 func UserPassword(username, password string) Option {
 	return func(c *Config) error {
@@ -41,6 +59,24 @@ func UserPassword(username, password string) Option {
 		}
 		c.username = username
 		c.password = password
+		return nil
+	}
+}
+
+// JWTBearerAssertion is a functional option to set JWT Bearer credentials.
+func JWTBearerAssertion(assertion string) Option {
+	return func(c *Config) error {
+		// if set, must be a valid JWT token
+		// can be used alone
+		// or with ClientCredentials
+		// or with ClientCredentials + ClientAssertion
+		// refer RFC 7523 for more details
+		if assertion = strings.TrimSpace(assertion); assertion == "" {
+			return errors.New("assertion is required for JWT Bearer grant type")
+		} else {
+			c.assertion = assertion
+		}
+
 		return nil
 	}
 }
