@@ -6,6 +6,7 @@ type Route struct {
 	URL          string             `json:"url"`
 	Protocol     string             `json:"protocol"`
 	Port         *int               `json:"port"`
+	Options      *RouteOptions      `json:"options"`
 	Destinations []RouteDestination `json:"destinations"`
 
 	Metadata      *Metadata          `json:"metadata"`
@@ -18,6 +19,7 @@ type RouteCreate struct {
 	Host          *string            `json:"host,omitempty"`
 	Path          *string            `json:"path,omitempty"`
 	Port          *int               `json:"port"`
+	Options       *RouteOptions      `json:"options,omitempty"`
 	Metadata      *Metadata          `json:"metadata,omitempty"`
 }
 
@@ -93,6 +95,11 @@ type RouteIncluded struct {
 	Organizations []*Organization `json:"organizations"`
 	Spaces        []*Space        `json:"spaces"`
 	Domains       []*Domain       `json:"domains"`
+}
+
+// RouteOptions https://v3-apidocs.cloudfoundry.org/version/3.192.0/index.html#the-route-options-object
+type RouteOptions struct {
+	LoadBalancing string `json:"loadbalancing"`
 }
 
 // RouteIncludeType https://v3-apidocs.cloudfoundry.org/version/3.126.0/index.html#include

@@ -7,6 +7,9 @@
   "host": "a-hostname",
   "path": "/some_path",
   "url": "a-hostname.a-domain.com/some_path",
+  "options": {
+    "loadbalancing": "round-robin"
+  },
   "destinations": [
     {
       "guid": "385bf117-17f5-4689-8c5c-08c6cc821fed",
