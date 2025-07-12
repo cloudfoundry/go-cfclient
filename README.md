@@ -57,9 +57,19 @@ Client and client secret:
 cfg, _ := config.New("https://api.example.org", config.ClientCredentials("cf", "secret"))
 cf, _ := client.New(cfg)
 ```
+Client and client assertion:
+```go
+cfg, _ := config.New("https://api.example.org", config.ClientCredentials("cf",""),config.ClientAssertion("client-assertion-token"))
+cf, _ := client.New(cfg)
+```
 Static OAuth token, which requires both an access and refresh token:
 ```go
 cfg, _ := config.New("https://api.example.org", config.Token(accessToken, refreshToken))
+cf, _ := client.New(cfg)
+```
+Using JWT Bearer Assertion Grant
+```go
+cfg, _ := config.New("https://api.example.org",config.JWTBearerAssertion("jwt-assertion-token"))
 cf, _ := client.New(cfg)
 ```
 For more detailed examples of using the various authentication and configuration options, see the

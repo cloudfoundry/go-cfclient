@@ -25,11 +25,11 @@ const (
 	GrantTypeRefreshToken      = "refresh_token"
 	GrantTypeClientCredentials = "client_credentials"
 	GrantTypePassword          = "password"
-
-	DefaultRequestTimeout = 30 * time.Second
-	DefaultUserAgent      = "Go-CF-Client/3.0"
-	DefaultClientID       = "cf"
-	DefaultSSHClientID    = "ssh-proxy"
+	GrantTypeJwtBearer         = "jwt_bearer"
+	DefaultRequestTimeout      = 30 * time.Second
+	DefaultUserAgent           = "Go-CF-Client/3.0"
+	DefaultClientID            = "cf"
+	DefaultSSHClientID         = "ssh-proxy"
 )
 
 var ErrConfigInvalid = errors.New("configuration is invalid")
@@ -48,6 +48,8 @@ type Config struct {
 	grantType         string
 	origin            string
 	scopes            []string
+	assertion         string
+	clientAssertion   string
 	oAuthToken        *oauth2.Token
 	httpClient        *http.Client
 	httpAuthClient    *http.Client
@@ -170,6 +172,21 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 	case GrantTypeRefreshToken:
 		authConfig := threeLeggedAuthConfigFn()
 		tokenSource = authConfig.TokenSource(oauthCtx, c.oAuthToken)
+	case GrantTypeJwtBearer:
+		var uaaEndpointURL string
+		if c.origin != "" {
+			// Add optional login hint to the token URL
+			uaaEndpointURL = addLoginHintToURL(c.uaaEndpointURL+"/oauth/token", c.origin)
+		}
+		tokenSource = &jwt.JWTAssertionTokenSource{
+			Assertion:       c.assertion,
+			ClientAssertion: c.clientAssertion,
+			TokenURL:        uaaEndpointURL,
+			ClientID:        c.clientID,
+			ClientSecret:    c.clientSecret,
+			HTTPClient:      c.httpClient,
+			Scopes:          c.scopes,
+		}
 	default:
 		return nil, fmt.Errorf("unsupported OAuth2 grant type '%s'", c.grantType)
 	}
@@ -252,7 +269,9 @@ func setGrantType(c *Config) error {
 	switch {
 	case c.username != "" && c.password != "":
 		c.grantType = GrantTypePassword
-	case c.clientID != "" && c.clientSecret != "":
+	case c.assertion != "":
+		c.grantType = GrantTypeJwtBearer
+	case c.clientID != "" && (c.clientSecret != "" || c.clientAssertion != ""):
 		c.grantType = GrantTypeClientCredentials
 	case c.oAuthToken != nil:
 		c.grantType = GrantTypeRefreshToken
