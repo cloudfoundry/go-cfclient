@@ -20,6 +20,9 @@ const clientID = "cf"
 const clientSecret = "secret"
 const accessToken = "<access-token>"
 const refreshToken = "<refresh-token>"
+const jwtAssertion = "<jwt-assertion>"
+const clientAssertion = "<client-assertion>"
+const origin = "<origin>"
 
 func main() {
 	err := execute()
@@ -69,6 +72,32 @@ func execute() error {
 	cfg, err = config.New(apiURL,
 		config.Token(accessToken, refreshToken),
 		config.SkipTLSValidation())
+	if err != nil {
+		return err
+	}
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// use the hardcoded CF API endpoint and JWT Bearer Assertion token and optional origin
+	// minimally requires the assertion
+	cfg, err = config.New(apiURL,
+		config.JWTBearerAssertion(jwtAssertion),
+		config.Origin(origin))
+	if err != nil {
+		return err
+	}
+	err = listOrganizationsWithConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	// use the hardcoded CF API endpoint and JWT Bearer Assertion token and optional origin
+	// minimally requires the assertion
+	cfg, err = config.New(apiURL,
+		config.ClientCredentials(clientID, ""),
+		config.ClientAssertion(clientAssertion))
 	if err != nil {
 		return err
 	}

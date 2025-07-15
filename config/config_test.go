@@ -12,6 +12,8 @@ import (
 
 const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QgY2YgdG9rZW4iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjIzOTAyMn0.mLvUvu-ED_lIkyI3UTXS_hUEPPFdI0BdNqRMgMThAhk"
 const refreshToken = "secret-refresh-token"
+const clientAssertion = "client-assertion-token"
+const jwtAssertion = "jwt-assertion-token"
 
 func TestInvalidConfig(t *testing.T) {
 	c := &Config{}
@@ -110,6 +112,17 @@ func TestClientCredentials(t *testing.T) {
 		require.NotNil(t, c.oAuthToken)
 		require.Equal(t, accessToken, c.oAuthToken.AccessToken)
 		require.Equal(t, refreshToken, c.oAuthToken.RefreshToken)
+		require.Equal(t, GrantTypeClientCredentials, c.grantType)
+	})
+
+	t.Run("with clientID and client assertion", func(t *testing.T) {
+		c, err := New("https://api.example.com",
+			ClientCredentials("clientID", ""),
+			ClientAssertion(clientAssertion),
+			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com")) // skip service discovery
+		require.NoError(t, err)
+		require.Equal(t, "clientID", c.clientID)
+		require.Equal(t, clientAssertion, c.clientAssertion)
 		require.Equal(t, GrantTypeClientCredentials, c.grantType)
 	})
 }
@@ -222,5 +235,16 @@ func TestNewConfigFromCFHomeDir(t *testing.T) {
 		require.Equal(t, "pass", cfg.password)
 		require.Equal(t, DefaultClientID, cfg.clientID)
 		require.Equal(t, GrantTypePassword, cfg.grantType)
+	})
+}
+
+func TestJwBearerAssertion(t *testing.T) {
+	t.Run("minimalistic setup", func(t *testing.T) {
+		cfg, err := New("https://api.example.com",
+			JWTBearerAssertion(jwtAssertion),
+			AuthTokenURL("https://login.cf.example.com", "https://token.cf.example.com")) // skip service discovery
+		require.NoError(t, err)
+		require.Equal(t, jwtAssertion, cfg.assertion)
+		require.Equal(t, GrantTypeJwtBearer, cfg.grantType)
 	})
 }
