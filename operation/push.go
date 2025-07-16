@@ -355,7 +355,7 @@ func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Packa
 	} else {
 		newBuild.Lifecycle = &resource.Lifecycle{
 			Type: resource.LifecycleBuildpack.String(),
-			BuildpackData: resource.BuildpackLifecycle{
+			Data: &resource.BuildpackLifecycle{
 				Buildpacks: manifest.Buildpacks,
 				Stack:      manifest.Stack,
 			},

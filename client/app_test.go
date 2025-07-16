@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"github.com/cloudfoundry/go-cfclient/v3/resource"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/cloudfoundry/go-cfclient/v3/resource"
+	"github.com/stretchr/testify/require"
 
 	"github.com/cloudfoundry/go-cfclient/v3/testutil"
 )
@@ -312,12 +313,34 @@ func TestApps(t *testing.T) {
 					Name: "new_name",
 					Lifecycle: &resource.Lifecycle{
 						Type: "buildpack",
-						BuildpackData: resource.BuildpackLifecycle{
+						Data: &resource.BuildpackLifecycle{
 							Buildpacks: []string{"java_offline"},
 						},
 					},
 				}
 				return c.Applications.Update(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446", r)
+			},
+		},
+		{
+			Description: "Create app with CNB lifecycle",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/apps",
+				Output:   g.Single(app1),
+				Status:   http.StatusCreated,
+				PostForm: `{"name":"cnb-app","lifecycle":{"type":"cnb","data":{"buildpacks":["paketo-buildpacks/go"],"stack":"cflinuxfs4"}},"relationships":{"space":{"data":{"guid":"space-guid"}}}}`,
+			},
+			Expected: app1,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				r := resource.NewAppCreate("cnb-app", "space-guid")
+				r.Lifecycle = &resource.Lifecycle{
+					Type: "cnb",
+					Data: &resource.CNBLifecycle{
+						Buildpacks: []string{"paketo-buildpacks/go"},
+						Stack:      "cflinuxfs4",
+					},
+				}
+				return c.Applications.Create(context.Background(), r)
 			},
 		},
 	}

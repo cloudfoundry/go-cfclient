@@ -63,14 +63,24 @@ type EnvVarResponse struct {
 }
 
 type Lifecycle struct {
-	Type          string             `json:"type,omitempty"`
-	BuildpackData BuildpackLifecycle `json:"data,omitempty"` // TODO: support other lifecycles
+	Type string      `json:"type,omitempty"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 type BuildpackLifecycle struct {
 	Buildpacks []string `json:"buildpacks,omitempty"`
 	Stack      string   `json:"stack,omitempty"`
-	Image      string   `json:"image,omitempty"`
+}
+
+type DockerLifecycle struct {
+	Image    string `json:"image,omitempty"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+type CNBLifecycle struct {
+	Buildpacks []string `json:"buildpacks,omitempty"`
+	Stack      string   `json:"stack,omitempty"`
 }
 
 type AppWithIncluded struct {
@@ -227,4 +237,58 @@ func convertEnvVars(envVars map[string]interface{}) map[string]string {
 		}
 	}
 	return envVarMap
+}
+
+// Update marshaling/unmarshaling logic for Lifecycle to handle multiple types
+func (l *Lifecycle) MarshalJSON() ([]byte, error) {
+	var data interface{}
+	switch l.Type {
+	case "buildpack":
+		data = l.Data
+	case "docker":
+		data = l.Data
+	case "cnb":
+		data = l.Data
+	default:
+		data = nil
+	}
+	return json.Marshal(&struct {
+		Type string      `json:"type,omitempty"`
+		Data interface{} `json:"data,omitempty"`
+	}{
+		Type: l.Type,
+		Data: data,
+	})
+}
+
+func (l *Lifecycle) UnmarshalJSON(b []byte) error {
+	var aux struct {
+		Type string          `json:"type"`
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	l.Type = aux.Type
+	switch aux.Type {
+	case "buildpack":
+		var bp BuildpackLifecycle
+		if err := json.Unmarshal(aux.Data, &bp); err != nil {
+			return err
+		}
+		l.Data = &bp
+	case "docker":
+		var d DockerLifecycle
+		if err := json.Unmarshal(aux.Data, &d); err != nil {
+			return err
+		}
+		l.Data = &d
+	case "cnb":
+		var cnb CNBLifecycle
+		if err := json.Unmarshal(aux.Data, &cnb); err != nil {
+			return err
+		}
+		l.Data = &cnb
+	}
+	return nil
 }
