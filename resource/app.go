@@ -62,6 +62,10 @@ type EnvVarResponse struct {
 	Links map[string]Link `json:"links"`
 }
 
+// Lifecycle represents the Cloud Foundry V3 application lifecycle block.
+// It supports buildpack, docker, and cnb (Cloud Native Buildpacks) types.
+// Custom marshaling/unmarshaling is used to ensure correct JSON structure for each type.
+// To add support for new lifecycle types, extend the marshaler/unmarshaler logic below.
 type Lifecycle struct {
 	Type string      `json:"type,omitempty"`
 	Data interface{} `json:"data,omitempty"`
