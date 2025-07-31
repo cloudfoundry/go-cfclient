@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"net/url"
 
 	"github.com/cloudfoundry/go-cfclient/v3/internal/path"
@@ -86,13 +87,13 @@ func (c *ServiceCredentialBindingClient) GetDetails(ctx context.Context, guid st
 }
 
 // GetParameters the specified service credential binding details
-func (c *ServiceCredentialBindingClient) GetParameters(ctx context.Context, guid string) (map[string]string, error) {
-	var p map[string]string
-	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings/%s/parameters", guid), &p)
+func (c *ServiceCredentialBindingClient) GetParameters(ctx context.Context, guid string) (*json.RawMessage, error) {
+	var parameters *json.RawMessage
+	err := c.client.get(ctx, path.Format("/v3/service_credential_bindings/%s/parameters", guid), &parameters)
 	if err != nil {
 		return nil, err
 	}
-	return p, nil
+	return parameters, nil
 }
 
 // GetIncludeApp allows callers to fetch a service credential binding and include the associated app
