@@ -80,7 +80,7 @@ func TestBuilds(t *testing.T) {
 				Method:   "PATCH",
 				Endpoint: "/v3/builds/be9db090-ad79-41c1-9a01-6200d896f20f",
 				Output:   g.Single(build),
-				PostForm: `{"state": "STAGED", "lifecycle": {"data": {"image": "image-identifier"}}}`,
+				PostForm: `{"state": "STAGED", "lifecycle": {"type": "docker", "data": {"image": "image-identifier"}}}`,
 				Status:   http.StatusOK,
 			},
 			Expected: build,
@@ -88,7 +88,8 @@ func TestBuilds(t *testing.T) {
 				r := resource.NewBuildUpdate()
 				r.State = "STAGED"
 				r.Lifecycle = &resource.Lifecycle{
-					BuildpackData: resource.BuildpackLifecycle{
+					Type: "docker",
+					Data: &resource.DockerLifecycle{
 						Image: "image-identifier",
 					},
 				}
