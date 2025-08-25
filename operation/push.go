@@ -351,7 +351,10 @@ func (p *AppPushOperation) uploadBitsPackage(ctx context.Context, app *resource.
 func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
 	if pkg.Type == resource.LifecycleDocker.String() {
-		newBuild.Lifecycle = &resource.Lifecycle{Type: pkg.Type}
+		newBuild.Lifecycle = &resource.Lifecycle{
+			Type: pkg.Type,
+			Data: &resource.DockerLifecycle{}, // Empty docker lifecycle data
+		}
 	} else {
 		newBuild.Lifecycle = &resource.Lifecycle{
 			Type: resource.LifecycleBuildpack.String(),
