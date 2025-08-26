@@ -378,7 +378,7 @@ func (p *AppPushOperation) uploadBitsPackage(ctx context.Context, app *resource.
 
 func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
-	
+
 	// Check if lifecycle is explicitly set in manifest first
 	if manifest.Lifecycle != "" {
 		switch manifest.Lifecycle {
