@@ -196,7 +196,7 @@ func TestDockerLifecycleBuildCreation(t *testing.T) {
 	require.NoError(t, err)
 
 	pusher := NewAppPushOperation(cf, "", "")
-	
+
 	// Test the buildDroplet method specifically with a docker package
 	resultDroplet, err := pusher.buildDroplet(context.Background(), dockerPkg, manifest)
 	require.NoError(t, err, "Docker lifecycle build should not fail")
@@ -215,7 +215,7 @@ func TestDockerLifecycleStructure(t *testing.T) {
 
 	// Create build request directly to test lifecycle structure
 	buildCreate := resource.NewBuildCreate(dockerPkg.GUID)
-	
+
 	// Apply the same logic as in buildDroplet method
 	if dockerPkg.Type == resource.LifecycleDocker.String() {
 		buildCreate.Lifecycle = &resource.Lifecycle{
@@ -228,7 +228,7 @@ func TestDockerLifecycleStructure(t *testing.T) {
 	require.NotNil(t, buildCreate.Lifecycle, "Docker build should have lifecycle")
 	require.Equal(t, "docker", buildCreate.Lifecycle.Type, "Docker build should have docker lifecycle type")
 	require.NotNil(t, buildCreate.Lifecycle.Data, "Docker build should have lifecycle data")
-	
+
 	// Verify it's the correct type
 	dockerLifecycle, ok := buildCreate.Lifecycle.Data.(*resource.DockerLifecycle)
 	require.True(t, ok, "Docker build lifecycle data should be DockerLifecycle type")
@@ -245,11 +245,11 @@ func TestDockerLifecycleJSONMarshaling(t *testing.T) {
 	// Test JSON marshaling to ensure it produces the expected structure
 	// This is what the CF API expects: {"type":"docker","data":{}}
 	expectedJSON := `{"type":"docker","data":{}}`
-	
+
 	// Marshal the lifecycle
 	actualJSON, err := dockerLifecycle.MarshalJSON()
 	require.NoError(t, err, "Docker lifecycle should marshal without error")
-	
+
 	// Verify the JSON structure matches expectations
 	require.JSONEq(t, expectedJSON, string(actualJSON), "Docker lifecycle JSON should match expected format")
 }
