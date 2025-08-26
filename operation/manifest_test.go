@@ -140,3 +140,103 @@ func TestManifestUnMarshalling(t *testing.T) {
 	require.Equal(t, 1, len(m.Applications))
 	require.Equal(t, 2, len(*m.Applications[0].Services))
 }
+
+func TestManifestLifecycle(t *testing.T) {
+	t.Run("Marshall with buildpack lifecycle", func(t *testing.T) {
+		m := &Manifest{
+			Applications: []*AppManifest{
+				{
+					Name:      "test-app",
+					Lifecycle: Buildpack,
+				},
+			},
+		}
+		b, err := yaml.Marshal(&m)
+		require.NoError(t, err)
+		require.Contains(t, string(b), "lifecycle: buildpack")
+	})
+
+	t.Run("Marshall with docker lifecycle", func(t *testing.T) {
+		m := &Manifest{
+			Applications: []*AppManifest{
+				{
+					Name:      "test-app",
+					Lifecycle: Docker,
+				},
+			},
+		}
+		b, err := yaml.Marshal(&m)
+		require.NoError(t, err)
+		require.Contains(t, string(b), "lifecycle: docker")
+	})
+
+	t.Run("Marshall with cnb lifecycle", func(t *testing.T) {
+		m := &Manifest{
+			Applications: []*AppManifest{
+				{
+					Name:      "test-app",
+					Lifecycle: CNB,
+				},
+			},
+		}
+		b, err := yaml.Marshal(&m)
+		require.NoError(t, err)
+		require.Contains(t, string(b), "lifecycle: cnb")
+	})
+
+	t.Run("Marshall without lifecycle (omitempty)", func(t *testing.T) {
+		m := &Manifest{
+			Applications: []*AppManifest{
+				{
+					Name: "test-app",
+				},
+			},
+		}
+		b, err := yaml.Marshal(&m)
+		require.NoError(t, err)
+		require.NotContains(t, string(b), "lifecycle:")
+	})
+
+	t.Run("Unmarshall with buildpack lifecycle", func(t *testing.T) {
+		yamlData := `applications:
+- name: test-app
+  lifecycle: buildpack`
+
+		var m Manifest
+		err := yaml.Unmarshal([]byte(yamlData), &m)
+		require.NoError(t, err)
+		require.Equal(t, Buildpack, m.Applications[0].Lifecycle)
+	})
+
+	t.Run("Unmarshall with docker lifecycle", func(t *testing.T) {
+		yamlData := `applications:
+- name: test-app
+  lifecycle: docker`
+
+		var m Manifest
+		err := yaml.Unmarshal([]byte(yamlData), &m)
+		require.NoError(t, err)
+		require.Equal(t, Docker, m.Applications[0].Lifecycle)
+	})
+
+	t.Run("Unmarshall with cnb lifecycle", func(t *testing.T) {
+		yamlData := `applications:
+- name: test-app
+  lifecycle: cnb`
+
+		var m Manifest
+		err := yaml.Unmarshal([]byte(yamlData), &m)
+		require.NoError(t, err)
+		require.Equal(t, CNB, m.Applications[0].Lifecycle)
+	})
+
+	t.Run("Unmarshall without lifecycle (empty)", func(t *testing.T) {
+		yamlData := `applications:
+- name: test-app`
+
+		var m Manifest
+		err := yaml.Unmarshal([]byte(yamlData), &m)
+		require.NoError(t, err)
+		require.Equal(t, AppLifecycle(""), m.Applications[0].Lifecycle)
+	})
+}
