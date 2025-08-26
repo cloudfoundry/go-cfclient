@@ -136,10 +136,24 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 	}
 
 	var pkg *resource.Package
-	if manifest.Docker != nil {
-		pkg, err = p.uploadDockerPackage(ctx, originalApp, manifest.Docker)
+	// Check if lifecycle is explicitly set in manifest
+	if manifest.Lifecycle != "" {
+		switch manifest.Lifecycle {
+		case Docker:
+			pkg, err = p.uploadDockerPackage(ctx, originalApp, manifest.Docker)
+		case Buildpack, CNB:
+			pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+		default:
+			// Default to buildpack for unknown lifecycle types
+			pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+		}
 	} else {
-		pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+		// Fall back to old logic when lifecycle is not set
+		if manifest.Docker != nil {
+			pkg, err = p.uploadDockerPackage(ctx, originalApp, manifest.Docker)
+		} else {
+			pkg, err = p.uploadBitsPackage(ctx, originalApp, zipFile)
+		}
 	}
 	if err != nil {
 		return nil, err
@@ -268,10 +282,24 @@ func (p *AppPushOperation) pushApp(ctx context.Context, space *resource.Space, m
 	}
 
 	var pkg *resource.Package
-	if app.Lifecycle.Type == resource.LifecycleDocker.String() {
-		pkg, err = p.uploadDockerPackage(ctx, app, manifest.Docker)
+	// Check if lifecycle is explicitly set in manifest
+	if manifest.Lifecycle != "" {
+		switch manifest.Lifecycle {
+		case Docker:
+			pkg, err = p.uploadDockerPackage(ctx, app, manifest.Docker)
+		case Buildpack, CNB:
+			pkg, err = p.uploadBitsPackage(ctx, app, zipFile)
+		default:
+			// Default to buildpack for unknown lifecycle types
+			pkg, err = p.uploadBitsPackage(ctx, app, zipFile)
+		}
 	} else {
-		pkg, err = p.uploadBitsPackage(ctx, app, zipFile)
+		// Fall back to old logic when lifecycle is not set
+		if app.Lifecycle.Type == resource.LifecycleDocker.String() {
+			pkg, err = p.uploadDockerPackage(ctx, app, manifest.Docker)
+		} else {
+			pkg, err = p.uploadBitsPackage(ctx, app, zipFile)
+		}
 	}
 	if err != nil {
 		return nil, err
@@ -350,18 +378,50 @@ func (p *AppPushOperation) uploadBitsPackage(ctx context.Context, app *resource.
 
 func (p *AppPushOperation) buildDroplet(ctx context.Context, pkg *resource.Package, manifest *AppManifest) (*resource.Droplet, error) {
 	newBuild := resource.NewBuildCreate(pkg.GUID)
-	if pkg.Type == resource.LifecycleDocker.String() {
-		newBuild.Lifecycle = &resource.Lifecycle{
-			Type: pkg.Type,
-			Data: &resource.DockerLifecycle{}, // Empty docker lifecycle data
+	
+	// Check if lifecycle is explicitly set in manifest first
+	if manifest.Lifecycle != "" {
+		switch manifest.Lifecycle {
+		case Docker:
+			newBuild.Lifecycle = &resource.Lifecycle{
+				Type: string(Docker),
+				Data: &resource.DockerLifecycle{}, // Empty docker lifecycle data
+			}
+		case CNB:
+			newBuild.Lifecycle = &resource.Lifecycle{
+				Type: string(CNB),
+				Data: &resource.CNBLifecycle{
+					Buildpacks: manifest.Buildpacks,
+					Stack:      manifest.Stack,
+				},
+			}
+		case Buildpack:
+			fallthrough
+		default:
+			// Default to buildpack lifecycle for unknown types or explicit buildpack
+			newBuild.Lifecycle = &resource.Lifecycle{
+				Type: resource.LifecycleBuildpack.String(),
+				Data: &resource.BuildpackLifecycle{
+					Buildpacks: manifest.Buildpacks,
+					Stack:      manifest.Stack,
+				},
+			}
 		}
 	} else {
-		newBuild.Lifecycle = &resource.Lifecycle{
-			Type: resource.LifecycleBuildpack.String(),
-			Data: &resource.BuildpackLifecycle{
-				Buildpacks: manifest.Buildpacks,
-				Stack:      manifest.Stack,
-			},
+		// Fall back to old logic based on package type when lifecycle is not set
+		if pkg.Type == resource.LifecycleDocker.String() {
+			newBuild.Lifecycle = &resource.Lifecycle{
+				Type: pkg.Type,
+				Data: &resource.DockerLifecycle{}, // Empty docker lifecycle data
+			}
+		} else {
+			newBuild.Lifecycle = &resource.Lifecycle{
+				Type: resource.LifecycleBuildpack.String(),
+				Data: &resource.BuildpackLifecycle{
+					Buildpacks: manifest.Buildpacks,
+					Stack:      manifest.Stack,
+				},
+			}
 		}
 	}
 	build, err := p.client.Builds.Create(ctx, newBuild)

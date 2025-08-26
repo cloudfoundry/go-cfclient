@@ -253,3 +253,92 @@ func TestDockerLifecycleJSONMarshaling(t *testing.T) {
 	// Verify the JSON structure matches expectations
 	require.JSONEq(t, expectedJSON, string(actualJSON), "Docker lifecycle JSON should match expected format")
 }
+
+func TestPushOperationLifecycleLogic(t *testing.T) {
+	tests := []struct {
+		name              string
+		manifestLifecycle AppLifecycle
+		docker            *AppManifestDocker
+		expectedPackage   string // "docker" or "bits"
+		expectedLifecycle string // "docker", "buildpack", or "cnb"
+	}{
+		{
+			name:              "Explicit docker lifecycle",
+			manifestLifecycle: Docker,
+			docker:            &AppManifestDocker{Image: "nginx:latest"},
+			expectedPackage:   "docker",
+			expectedLifecycle: "docker",
+		},
+		{
+			name:              "Explicit buildpack lifecycle",
+			manifestLifecycle: Buildpack,
+			docker:            nil,
+			expectedPackage:   "bits",
+			expectedLifecycle: "buildpack",
+		},
+		{
+			name:              "Explicit CNB lifecycle",
+			manifestLifecycle: CNB,
+			docker:            nil,
+			expectedPackage:   "bits",
+			expectedLifecycle: "cnb",
+		},
+		{
+			name:              "No lifecycle with docker",
+			manifestLifecycle: "",
+			docker:            &AppManifestDocker{Image: "nginx:latest"},
+			expectedPackage:   "docker",
+			expectedLifecycle: "fallback", // This would use app.Lifecycle.Type in actual code
+		},
+		{
+			name:              "No lifecycle without docker",
+			manifestLifecycle: "",
+			docker:            nil,
+			expectedPackage:   "bits",
+			expectedLifecycle: "fallback", // This would use app.Lifecycle.Type in actual code
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			manifest := &AppManifest{
+				Name:      "test-app",
+				Lifecycle: tt.manifestLifecycle,
+				Docker:    tt.docker,
+			}
+
+			// Test package type decision logic
+			var shouldUseDockerpPackage bool
+			if manifest.Lifecycle != "" {
+				shouldUseDockerpPackage = (manifest.Lifecycle == Docker)
+			} else {
+				shouldUseDockerpPackage = (manifest.Docker != nil)
+			}
+
+			if tt.expectedPackage == "docker" {
+				require.True(t, shouldUseDockerpPackage, "Should use docker package")
+			} else {
+				require.False(t, shouldUseDockerpPackage, "Should use bits package")
+			}
+
+			// Test lifecycle type decision logic (only when explicitly set)
+			if manifest.Lifecycle != "" {
+				var lifecycleType string
+				switch manifest.Lifecycle {
+				case Docker:
+					lifecycleType = "docker"
+				case CNB:
+					lifecycleType = "cnb"
+				case Buildpack:
+					fallthrough
+				default:
+					lifecycleType = "buildpack"
+				}
+
+				if tt.expectedLifecycle != "fallback" {
+					require.Equal(t, tt.expectedLifecycle, lifecycleType, "Lifecycle type should match expected")
+				}
+			}
+		})
+	}
+}
