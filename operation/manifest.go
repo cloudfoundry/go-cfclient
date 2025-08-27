@@ -27,6 +27,14 @@ const (
 	TCP   AppRouteProtocol = "tcp"
 )
 
+type AppLifecycle string
+
+const (
+	Buildpack AppLifecycle = "buildpack"
+	Docker    AppLifecycle = "docker"
+	CNB       AppLifecycle = "cnb"
+)
+
 type Manifest struct {
 	Version      string         `yaml:"version,omitempty"`
 	Applications []*AppManifest `yaml:"applications"`
@@ -37,6 +45,7 @@ type AppManifest struct {
 	Path               string                `yaml:"path,omitempty"`
 	Buildpacks         []string              `yaml:"buildpacks,omitempty"`
 	Docker             *AppManifestDocker    `yaml:"docker,omitempty"`
+	Lifecycle          AppLifecycle          `yaml:"lifecycle,omitempty"`
 	Env                map[string]string     `yaml:"env,omitempty"`
 	RandomRoute        bool                  `yaml:"random-route,omitempty"`
 	NoRoute            bool                  `yaml:"no-route,omitempty"`
