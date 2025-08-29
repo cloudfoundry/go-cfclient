@@ -28,6 +28,7 @@ type AppPushOperation struct {
 	spaceName string
 	client    *client.Client
 	strategy  StrategyMode
+	stopped   bool
 }
 
 // NewAppPushOperation creates a new AppPushOperation
@@ -38,6 +39,7 @@ func NewAppPushOperation(client *client.Client, orgName, spaceName string) *AppP
 		client:    client,
 	}
 	apo.strategy = StrategyNone
+	apo.stopped = false
 	return &apo
 }
 func (p *AppPushOperation) WithStrategy(s StrategyMode) {
@@ -47,6 +49,10 @@ func (p *AppPushOperation) WithStrategy(s StrategyMode) {
 	default:
 		p.strategy = StrategyNone
 	}
+}
+
+func (p *AppPushOperation) WithNoStart(stopped bool) {
+	p.stopped = stopped
 }
 
 // Push creates or updates an application using the specified manifest and zipped source files
@@ -315,7 +321,11 @@ func (p *AppPushOperation) pushApp(ctx context.Context, space *resource.Space, m
 		return nil, err
 	}
 
-	return p.client.Applications.Start(ctx, app.GUID)
+	if p.stopped {
+		return p.client.Applications.Stop(ctx, app.GUID)
+	} else {
+		return p.client.Applications.Start(ctx, app.GUID)
+	}
 }
 
 func (p *AppPushOperation) applySpaceManifest(ctx context.Context, space *resource.Space, manifest *AppManifest) error {
