@@ -87,6 +87,15 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 		return p.pushApp(ctx, space, manifest, zipFile)
 	}
 
+	if p.stopped {
+		// If stopped flag is set just stop the original app and return
+		_, err = p.client.Applications.Stop(ctx, originalApp.GUID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stop the application with: %w", err)
+		}
+		return originalApp, err
+	}
+
 	tempAppName := originalApp.Name + "-venerable"
 
 	// Check if temporary app name already exists if yes gracefully delete the app and continue
@@ -133,6 +142,16 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 	if errors.Is(err, client.ErrExactlyOneResultNotReturned) || originalApp.State != "STARTED" {
 		return p.pushApp(ctx, space, manifest, zipFile)
 	}
+
+	if p.stopped {
+		// If stopped flag is set just stop the original app and return
+		_, err = p.client.Applications.Stop(ctx, originalApp.GUID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stop the application with: %w", err)
+		}
+		return originalApp, err
+	}
+
 	// Get the fallback revision in case of rollback
 	fallbackRevision, _ := p.client.Revisions.SingleForAppDeployed(ctx, originalApp.GUID, nil)
 
