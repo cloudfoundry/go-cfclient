@@ -63,8 +63,8 @@ func (c *ServicePlanClient) Get(ctx context.Context, guid string) (*resource.Ser
 	return &ServicePlan, nil
 }
 
-// GetIncludeServicePlan allows callers to fetch a service plan and include the associated service offering
-func (c *ServicePlanClient) GetIncludeServicePlan(ctx context.Context, guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
+// GetIncludeServiceOffering allows callers to fetch a service plan and include the associated service offering
+func (c *ServicePlanClient) GetIncludeServiceOffering(ctx context.Context, guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
 	var servicePlan resource.ServicePlanWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
 	if err != nil {
@@ -106,6 +106,11 @@ func (c *ServicePlanClient) ListAll(ctx context.Context, opts *ServicePlanListOp
 	return AutoPage[*ServicePlanListOptions, *resource.ServicePlan](opts, func(opts *ServicePlanListOptions) ([]*resource.ServicePlan, *Pager, error) {
 		return c.List(ctx, opts)
 	})
+}
+
+// Deprecated: ListIncludeServicePlan page all service plans the user has access to and include the associated service offerings
+func (c *ServicePlanClient) ListIncludeServicePlan(ctx context.Context, opts *ServicePlanListOptions) ([]*resource.ServicePlan, []*resource.ServiceOffering, *Pager, error) {
+	return c.ListIncludeServiceOffering(ctx, opts)
 }
 
 // ListIncludeServiceOffering page all service plans the user has access to and include the associated service offerings
