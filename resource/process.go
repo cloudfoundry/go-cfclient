@@ -47,15 +47,19 @@ type ProcessStats struct {
 }
 
 type ProcessStat struct {
-	Type                string           `json:"type"`  // Process type; a unique identifier for processes belonging to an app
-	Index               int              `json:"index"` // The zero-based index of running instances
-	State               string           `json:"state"` // The state of the instance; valid values are RUNNING, CRASHED, STARTING, DOWN
+	Type                string           `json:"type"`          // Process type; a unique identifier for processes belonging to an app
+	Index               int              `json:"index"`         // The zero-based index of running instances
+	InstanceGuid        string           `json:"instance_guid"` // The unique identifier of the instance
+	State               string           `json:"state"`         // The state of the instance; valid values are RUNNING, CRASHED, STARTING, DOWN
+	Routable            bool             `json:"routable"`      // Whether the instance is routable (determined by the readiness check of the app). If app readiness checks and routability are unsupported by Diego, this will return as null.
 	Usage               Usage            `json:"usage"`
 	Host                string           `json:"host"`
+	InstanceInternalIp  string           `json:"instance_internal_ip"` // The internal IP address of the instance
 	InstancePorts       []map[string]int `json:"instance_ports"`
 	Uptime              int              `json:"uptime"`
 	MemoryQuota         int              `json:"mem_quota"`
 	DiskQuota           int              `json:"disk_quota"`
+	LogRateLimit        int              `json:"log_rate_limit"` // The current maximum log rate allocated for the instance; the value -1 is unlimited, the value is null when the log_rate_limit is unavailable
 	FileDescriptorQuota int              `json:"fds_quota"`
 
 	// The current isolation segment that the instance is running on; the value is null when the
