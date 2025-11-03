@@ -3,7 +3,9 @@
     {
       "type": "web",
       "index": 0,
+      "instance_guid": "35abad02-f2b8-4247-53ba-9ce1",
       "state": "RUNNING",
+      "routable": true,
       "usage": {
         "time": "2016-03-23T23:17:30.476314154Z",
         "cpu": 0.00038711029163348665,
@@ -13,6 +15,7 @@
         "log_rate": 0
       },
       "host": "10.244.16.10",
+      "instance_internal_ip": "10.255.176.38",
       "instance_ports": [
         {
           "external": 64546,
@@ -24,6 +27,7 @@
       "uptime": 9042,
       "mem_quota": 268435456,
       "disk_quota": 1073741824,
+      "log_rate_limit": 50000,
       "fds_quota": 16384,
       "isolation_segment": "example_iso_segment",
       "details": null
