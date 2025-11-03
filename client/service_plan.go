@@ -63,8 +63,13 @@ func (c *ServicePlanClient) Get(ctx context.Context, guid string) (*resource.Ser
 	return &ServicePlan, nil
 }
 
-// GetIncludeServicePlan allows callers to fetch a service plan and include the associated service offering
+// Deprecated: GetIncludeServicePlan allows callers to fetch a service plan and include the associated service offering
 func (c *ServicePlanClient) GetIncludeServicePlan(ctx context.Context, guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
+	return c.GetIncludeServiceOffering(ctx, guid)
+}
+
+// GetIncludeServiceOffering allows callers to fetch a service plan and include the associated service offering
+func (c *ServicePlanClient) GetIncludeServiceOffering(ctx context.Context, guid string) (*resource.ServicePlan, *resource.ServiceOffering, error) {
 	var servicePlan resource.ServicePlanWithIncluded
 	err := c.client.get(ctx, path.Format("/v3/service_plans/%s?include=%s", guid, resource.ServicePlanIncludeServiceOffering), &servicePlan)
 	if err != nil {
