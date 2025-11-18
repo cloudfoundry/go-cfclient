@@ -15,42 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAppPush(t *testing.T) {
-	serverURL := testutil.SetupFakeAPIServer()
-	defer testutil.Teardown()
-
-	g := testutil.NewObjectJSONGenerator()
-	org := g.Organization()
-	space := g.Space()
-	job := g.Job("COMPLETE")
-	app := g.Application()
-	pkg := g.Package("READY")
-	build := g.Build("STAGED")
-	droplet := g.Droplet()
-	dropletAssoc := g.DropletAssociation()
-
-	fakeAppZipReader := strings.NewReader("blah zip zip")
-	var numOfInstances uint = 2
-	manifest := &AppManifest{
-		Name:       app.Name,
-		Buildpacks: []string{"java-buildpack-offline"},
-
-		AppManifestProcess: AppManifestProcess{
-			HealthCheckType:         "http",
-			HealthCheckHTTPEndpoint: "/health",
-			Instances:               &numOfInstances,
-			Memory:                  "1G",
-		},
-		Routes: &AppManifestRoutes{
-			{
-				Route: "https://spring-music.cf.apps.example.org",
-			},
-		},
-		Services: &AppManifestServices{{Name: "spring-music-sql"}},
-		Stack:    "cflinuxfs3",
-	}
-
-	testutil.SetupMultiple([]testutil.MockRoute{
+func setupAppPushRoutes(t *testing.T, serverURL string, g *testutil.ObjectJSONGenerator, org, space, job, app, pkg, build, droplet, dropletAssoc *testutil.JSONResource, finalAction string) {
+	routes := []testutil.MockRoute{
 		{
 			Method:   http.MethodGet,
 			Endpoint: "/v3/organizations",
@@ -124,13 +90,55 @@ func TestAppPush(t *testing.T) {
 			Output:   g.Single(dropletAssoc.JSON),
 			Status:   http.StatusOK,
 		},
-		{
-			Method:   http.MethodPost,
-			Endpoint: fmt.Sprintf("/v3/apps/%s/actions/start", app.GUID),
-			Output:   g.Single(app.JSON),
-			Status:   http.StatusOK,
+	}
+
+	routes = append(routes, testutil.MockRoute{
+		Method:   http.MethodPost,
+		Endpoint: fmt.Sprintf("/v3/apps/%s/actions/%s", app.GUID, finalAction),
+		Output:   g.Single(app.JSON),
+		Status:   http.StatusOK,
+	})
+
+	testutil.SetupMultiple(routes, t)
+}
+
+func TestAppPushStartsStoppedApp(t *testing.T) {
+	serverURL := testutil.SetupFakeAPIServer()
+	defer testutil.Teardown()
+
+	g := testutil.NewObjectJSONGenerator()
+	org := g.Organization()
+	space := g.Space()
+	job := g.Job("COMPLETE")
+	app := g.Application()
+	app.JSON = strings.Replace(app.JSON, `"state": "STARTED"`, `"state": "STOPPED"`, 1)
+	pkg := g.Package("READY")
+	build := g.Build("STAGED")
+	droplet := g.Droplet()
+	dropletAssoc := g.DropletAssociation()
+
+	fakeAppZipReader := strings.NewReader("blah zip zip")
+	var numOfInstances uint = 2
+	manifest := &AppManifest{
+		Name:       app.Name,
+		Buildpacks: []string{"java-buildpack-offline"},
+
+		AppManifestProcess: AppManifestProcess{
+			HealthCheckType:         "http",
+			HealthCheckHTTPEndpoint: "/health",
+			Instances:               &numOfInstances,
+			Memory:                  "1G",
 		},
-	}, t)
+		Routes: &AppManifestRoutes{
+			{
+				Route: "https://spring-music.cf.apps.example.org",
+			},
+		},
+		Services: &AppManifestServices{{Name: "spring-music-sql"}},
+		Stack:    "cflinuxfs3",
+	}
+
+	setupAppPushRoutes(t, serverURL, g, org, space, job, app, pkg, build, droplet, dropletAssoc, "start")
 
 	c, _ := config.New(serverURL, config.Token("", "fake-refresh-token"), config.SkipTLSValidation())
 	cf, err := client.New(c)
@@ -138,6 +146,54 @@ func TestAppPush(t *testing.T) {
 
 	pusher := NewAppPushOperation(cf, org.Name, space.Name)
 	// Invalid strategy
+	strategy := StrategyMode(10)
+	pusher.WithStrategy(strategy)
+	_, err = pusher.Push(context.Background(), manifest, fakeAppZipReader)
+	require.NoError(t, err)
+}
+
+func TestAppPushRestartsRunningApp(t *testing.T) {
+	serverURL := testutil.SetupFakeAPIServer()
+	defer testutil.Teardown()
+
+	g := testutil.NewObjectJSONGenerator()
+	org := g.Organization()
+	space := g.Space()
+	job := g.Job("COMPLETE")
+	app := g.Application()
+	pkg := g.Package("READY")
+	build := g.Build("STAGED")
+	droplet := g.Droplet()
+	dropletAssoc := g.DropletAssociation()
+
+	fakeAppZipReader := strings.NewReader("blah zip zip")
+	var numOfInstances uint = 2
+	manifest := &AppManifest{
+		Name:       app.Name,
+		Buildpacks: []string{"java-buildpack-offline"},
+
+		AppManifestProcess: AppManifestProcess{
+			HealthCheckType:         "http",
+			HealthCheckHTTPEndpoint: "/health",
+			Instances:               &numOfInstances,
+			Memory:                  "1G",
+		},
+		Routes: &AppManifestRoutes{
+			{
+				Route: "https://spring-music.cf.apps.example.org",
+			},
+		},
+		Services: &AppManifestServices{{Name: "spring-music-sql"}},
+		Stack:    "cflinuxfs3",
+	}
+
+	setupAppPushRoutes(t, serverURL, g, org, space, job, app, pkg, build, droplet, dropletAssoc, "restart")
+
+	c, _ := config.New(serverURL, config.Token("", "fake-refresh-token"), config.SkipTLSValidation())
+	cf, err := client.New(c)
+	require.NoError(t, err)
+
+	pusher := NewAppPushOperation(cf, org.Name, space.Name)
 	strategy := StrategyMode(10)
 	pusher.WithStrategy(strategy)
 	_, err = pusher.Push(context.Background(), manifest, fakeAppZipReader)

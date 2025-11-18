@@ -305,6 +305,7 @@ func (p *AppPushOperation) pushApp(ctx context.Context, space *resource.Space, m
 	if err != nil {
 		return nil, err
 	}
+	appWasStarted := app.State == "STARTED"
 
 	var pkg *resource.Package
 	// Check if lifecycle is explicitly set in manifest
@@ -342,9 +343,11 @@ func (p *AppPushOperation) pushApp(ctx context.Context, space *resource.Space, m
 
 	if p.stopped {
 		return p.client.Applications.Stop(ctx, app.GUID)
-	} else {
-		return p.client.Applications.Start(ctx, app.GUID)
 	}
+	if appWasStarted {
+		return p.client.Applications.Restart(ctx, app.GUID)
+	}
+	return p.client.Applications.Start(ctx, app.GUID)
 }
 
 func (p *AppPushOperation) applySpaceManifest(ctx context.Context, space *resource.Space, manifest *AppManifest) error {
