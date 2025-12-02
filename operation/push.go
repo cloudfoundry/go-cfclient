@@ -146,8 +146,8 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 	}
 
 	if newApp.State == "STARTED" {
-
-		healthCheckErr := p.waitForAppHealthy(ctx, newApp)
+		pollOptions := p.getAppDeployedRunningPollingOptions(ctx)
+		healthCheckErr := p.waitForAppHealthy(ctx, newApp, pollOptions)
 		// If health check fails, delete new app and change back original app name
 		if healthCheckErr != nil {
 			originalName := newApp.Name
@@ -171,7 +171,7 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 	return newApp, fmt.Errorf("failed to verify application start: %w", pushError)
 }
 
-func getAppDeployedRunningPollingOptions(ctx context.Context) (uint, uint) {
+func (p *AppPushOperation) getAppDeployedRunningPollingOptions(ctx context.Context) *client.PollingOptions {
 	rawTimeout := ctx.Value("app_deployed_running_timeout")
 	processedTimeout := uint(AppDeployedRunningTimeoutMinutesDefault)
 
@@ -200,7 +200,10 @@ func getAppDeployedRunningPollingOptions(ctx context.Context) (uint, uint) {
 		}
 	}
 
-	return processedTimeout, processedCheckInterval
+	pollOptions := client.NewPollingOptions()
+	pollOptions.Timeout = time.Duration(processedTimeout) * time.Minute
+	pollOptions.CheckInterval = time.Duration(processedCheckInterval) * time.Second
+	return pollOptions
 }
 
 func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
@@ -564,11 +567,7 @@ func (p *AppPushOperation) findSpace(ctx context.Context, orgGUID string) (*reso
 	return space, nil
 }
 
-func (p *AppPushOperation) waitForAppHealthy(ctx context.Context, app *resource.App) error {
-	timeout, checkInterval := getAppDeployedRunningPollingOptions(ctx)
-	pollOptions := client.NewPollingOptions()
-	pollOptions.Timeout = time.Duration(timeout) * time.Minute
-	pollOptions.CheckInterval = time.Duration(checkInterval) * time.Second
+func (p *AppPushOperation) waitForAppHealthy(ctx context.Context, app *resource.App, pollOptions *client.PollingOptions) error {
 	appPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
 		for {
 			procData, err := p.client.Processes.GetStatsForApp(ctx, app.GUID, "web")
