@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -26,17 +25,17 @@ const (
 const (
 	AppDeployedRunningCheckIntervalSecondsDefault = 5
 	AppDeployedRunningTimeoutMinutesDefault       = 5
-	EnvironmentVariablesConvertBaseDecimal        = 10
-	EnvironmentVariablesConvertBitsSize           = 32
 )
 
 // AppPushOperation can be used to push buildpack apps
 type AppPushOperation struct {
-	orgName   string
-	spaceName string
-	client    *client.Client
-	strategy  StrategyMode
-	stopped   bool
+	orgName       string
+	spaceName     string
+	client        *client.Client
+	strategy      StrategyMode
+	stopped       bool
+	timeout       uint
+	checkInterval uint
 }
 
 // NewAppPushOperation creates a new AppPushOperation
@@ -57,6 +56,12 @@ func (p *AppPushOperation) WithStrategy(s StrategyMode) {
 	default:
 		p.strategy = StrategyNone
 	}
+}
+
+func (p *AppPushOperation) WithBlueGreenStrategy(timeout uint, checkInterval uint) {
+	p.strategy = StrategyBlueGreen
+	p.timeout = timeout
+	p.checkInterval = checkInterval
 }
 
 func (p *AppPushOperation) WithNoStart(stopped bool) {
@@ -146,7 +151,7 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 	}
 
 	if newApp.State == "STARTED" {
-		pollOptions := p.getAppDeployedRunningPollingOptions(ctx)
+		pollOptions := p.getAppDeployedRunningPollingOptions()
 		healthCheckErr := p.waitForAppHealthy(ctx, newApp, pollOptions)
 		// If health check fails, delete new app and change back original app name
 		if healthCheckErr != nil {
@@ -171,38 +176,19 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 	return newApp, fmt.Errorf("failed to verify application start: %w", pushError)
 }
 
-func (p *AppPushOperation) getAppDeployedRunningPollingOptions(ctx context.Context) *client.PollingOptions {
-	rawTimeout := ctx.Value("app_deployed_running_timeout")
-	processedTimeout := uint(AppDeployedRunningTimeoutMinutesDefault)
+func (p *AppPushOperation) getAppDeployedRunningPollingOptions() *client.PollingOptions {
 
-	rawCheckInterval := ctx.Value("app_deployed_running_check_interval")
-	processedCheckInterval := uint(AppDeployedRunningCheckIntervalSecondsDefault)
-
-	if rawTimeout != nil {
-		t, ok := rawTimeout.(uint)
-		if ok == true {
-			processedTimeout = t
-		}
-	} else if envTimeout := os.Getenv("CF_APP_DEPLOYED_RUNNING_TIMEOUT"); envTimeout != "" {
-		if t, err := strconv.ParseUint(envTimeout, EnvironmentVariablesConvertBaseDecimal, EnvironmentVariablesConvertBitsSize); err == nil {
-			processedTimeout = uint(t)
-		}
+	if p.timeout == 0 {
+		p.timeout = uint(AppDeployedRunningTimeoutMinutesDefault)
 	}
 
-	if rawCheckInterval != nil {
-		ci, ok := rawCheckInterval.(uint)
-		if ok {
-			processedCheckInterval = ci
-		}
-	} else if envInterval := os.Getenv("CF_APP_DEPLOYED_RUNNING_CHECK_INTERVAL"); envInterval != "" {
-		if ci, err := strconv.ParseUint(envInterval, EnvironmentVariablesConvertBaseDecimal, EnvironmentVariablesConvertBitsSize); err == nil {
-			processedCheckInterval = uint(ci)
-		}
+	if p.checkInterval == 0 {
+		p.checkInterval = uint(AppDeployedRunningCheckIntervalSecondsDefault)
 	}
 
 	pollOptions := client.NewPollingOptions()
-	pollOptions.Timeout = time.Duration(processedTimeout) * time.Minute
-	pollOptions.CheckInterval = time.Duration(processedCheckInterval) * time.Second
+	pollOptions.Timeout = time.Duration(p.timeout) * time.Minute
+	pollOptions.CheckInterval = time.Duration(p.checkInterval) * time.Second
 	return pollOptions
 }
 
