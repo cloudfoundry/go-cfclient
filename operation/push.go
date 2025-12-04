@@ -22,13 +22,20 @@ const (
 	StrategyRolling
 )
 
+const (
+	AppDeployedRunningCheckIntervalSecondsDefault = 5
+	AppDeployedRunningTimeoutMinutesDefault       = 5
+)
+
 // AppPushOperation can be used to push buildpack apps
 type AppPushOperation struct {
-	orgName   string
-	spaceName string
-	client    *client.Client
-	strategy  StrategyMode
-	stopped   bool
+	orgName       string
+	spaceName     string
+	client        *client.Client
+	strategy      StrategyMode
+	stopped       bool
+	timeout       uint
+	checkInterval uint
 }
 
 // NewAppPushOperation creates a new AppPushOperation
@@ -49,6 +56,12 @@ func (p *AppPushOperation) WithStrategy(s StrategyMode) {
 	default:
 		p.strategy = StrategyNone
 	}
+}
+
+func (p *AppPushOperation) WithBlueGreenStrategy(timeout uint, checkInterval uint) {
+	p.strategy = StrategyBlueGreen
+	p.timeout = timeout
+	p.checkInterval = checkInterval
 }
 
 func (p *AppPushOperation) WithNoStart(stopped bool) {
@@ -96,42 +109,93 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 		return originalApp, err
 	}
 
-	tempAppName := originalApp.Name + "-venerable"
+	originalAppName := originalApp.Name
+	tempAppName := originalAppName + "-venerable"
 
 	// Check if temporary app name already exists if yes gracefully delete the app and continue
-	tempApp, err := p.findApp(ctx, tempAppName, space)
-	if err == nil {
-		err = p.gracefulDeletion(ctx, tempApp)
-		if err != nil {
-			return nil, err
+	tempApp, tempFindError := p.findApp(ctx, tempAppName, space)
+	if tempFindError == nil {
+		deleteTmpErr := p.gracefulDeletion(ctx, tempApp)
+		if deleteTmpErr != nil {
+			return nil, fmt.Errorf("failed to delete temp app due to: %w", deleteTmpErr)
 		}
 	}
 
 	// Update the existing app's name
-	_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+	_, updateErr := p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
 		Name: tempAppName,
 	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to update app name failed with: %w", err)
+	if updateErr != nil {
+		return nil, fmt.Errorf("failed to update: %s, failed with: %w", tempAppName, updateErr)
 	}
 
-	// Apply the manifest
-	newApp, err := p.pushApp(ctx, space, manifest, zipFile)
-	if err != nil {
-		// If push fails change back original app name
-		_, err = p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+	newApp, pushError := p.pushApp(ctx, space, manifest, zipFile)
+	if pushError != nil {
+		// If push fails delete new application and change back original app name
+		invalidNewApp, findAppErr := p.findApp(ctx, originalAppName, space)
+		if findAppErr == nil && invalidNewApp != nil {
+			deleteErr := p.gracefulDeletion(ctx, invalidNewApp)
+			if deleteErr != nil {
+				return nil, fmt.Errorf("failed to deploy the new application and failed to revert it.\nNow the old application is running under name %s and is attached to state. \nThe new application under name %s is detached from state, and failed to start correctly: %w", tempAppName, originalApp.Name, deleteErr)
+			}
+		}
+
+		_, updateErr := p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
 			Name: originalApp.Name,
 		})
-		if err != nil {
-			return nil, fmt.Errorf("failed to update app name back to original name: failed with %w", err)
+		if updateErr != nil {
+			return nil, fmt.Errorf("failed to push new version of application %s.\nDuring rollback also failed to update old app name from %s back to original name: %s. The old version of the application is currently running as: %s. The operation failed due with: %w",
+				originalApp.Name, tempAppName, originalApp.Name, tempAppName, updateErr)
 		}
-		return nil, fmt.Errorf("blue green deployment failed with: %w", err)
+		return nil, fmt.Errorf("blue-green deployment for application %s failed with: %w", originalApp.Name, pushError)
 	}
+
 	if newApp.State == "STARTED" {
-		err = p.gracefulDeletion(ctx, originalApp)
-		return newApp, err
+		if p.isWaitForAppDeployedRunningEnabled() {
+			pollOptions := p.getAppDeployedRunningPollingOptions()
+			healthCheckErr := p.waitForAppHealthy(ctx, newApp, pollOptions)
+			// If health check fails, delete new app and change back original app name
+			if healthCheckErr != nil {
+				originalName := newApp.Name
+				deleteErr := p.gracefulDeletion(ctx, newApp)
+				if deleteErr != nil {
+					return nil, fmt.Errorf("failed to delete new app after health check failure: %w", deleteErr)
+				}
+				_, revertUpdateErr := p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+					Name: originalName,
+				})
+
+				if revertUpdateErr != nil {
+					return nil, fmt.Errorf("failed to update app name back to original name: failed with: %w", revertUpdateErr)
+				}
+
+				return nil, fmt.Errorf("new application failed health check with: %w", healthCheckErr)
+			}
+		}
+		cleanUpOldErr := p.gracefulDeletion(ctx, originalApp)
+		return newApp, cleanUpOldErr
 	}
-	return newApp, fmt.Errorf("failed to verify application start: %w", err)
+	return newApp, fmt.Errorf("failed to verify application start: %w", pushError)
+}
+
+func (p *AppPushOperation) isWaitForAppDeployedRunningEnabled() bool {
+	return p.timeout != 0 || p.checkInterval != 0
+}
+
+func (p *AppPushOperation) getAppDeployedRunningPollingOptions() *client.PollingOptions {
+
+	if p.timeout == 0 {
+		p.timeout = uint(AppDeployedRunningTimeoutMinutesDefault)
+	}
+
+	if p.checkInterval == 0 {
+		p.checkInterval = uint(AppDeployedRunningCheckIntervalSecondsDefault)
+	}
+
+	pollOptions := client.NewPollingOptions()
+	pollOptions.Timeout = time.Duration(p.timeout) * time.Minute
+	pollOptions.CheckInterval = time.Duration(p.checkInterval) * time.Second
+	return pollOptions
 }
 
 func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.Space, manifest *AppManifest, zipFile io.Reader) (*resource.App, error) {
@@ -493,4 +557,23 @@ func (p *AppPushOperation) findSpace(ctx context.Context, orgGUID string) (*reso
 		return nil, fmt.Errorf("could not find space %s: %w", p.spaceName, err)
 	}
 	return space, nil
+}
+
+func (p *AppPushOperation) waitForAppHealthy(ctx context.Context, app *resource.App, pollOptions *client.PollingOptions) error {
+
+	appPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
+		for {
+			procData, err := p.client.Processes.GetStatsForApp(ctx, app.GUID, "web")
+			if err != nil {
+				return "FAILED", "Failed to get processes stats for application", err
+			}
+			for _, proc := range procData.Stats {
+				if proc.State != "RUNNING" {
+					return proc.State, "One or more instances are not running", nil
+				}
+			}
+			return "RUNNING", "", nil
+		}
+	}, "RUNNING", pollOptions)
+	return appPollErr
 }
