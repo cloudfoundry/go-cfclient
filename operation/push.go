@@ -151,29 +151,35 @@ func (p *AppPushOperation) pushBlueGreenApp(ctx context.Context, space *resource
 	}
 
 	if newApp.State == "STARTED" {
-		pollOptions := p.getAppDeployedRunningPollingOptions()
-		healthCheckErr := p.waitForAppHealthy(ctx, newApp, pollOptions)
-		// If health check fails, delete new app and change back original app name
-		if healthCheckErr != nil {
-			originalName := newApp.Name
-			deleteErr := p.gracefulDeletion(ctx, newApp)
-			if deleteErr != nil {
-				return nil, fmt.Errorf("failed to delete new app after health check failure: %w", deleteErr)
-			}
-			_, revertUpdateErr := p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
-				Name: originalName,
-			})
+		if p.isWaitForAppDeployedRunningEnabled() {
+			pollOptions := p.getAppDeployedRunningPollingOptions()
+			healthCheckErr := p.waitForAppHealthy(ctx, newApp, pollOptions)
+			// If health check fails, delete new app and change back original app name
+			if healthCheckErr != nil {
+				originalName := newApp.Name
+				deleteErr := p.gracefulDeletion(ctx, newApp)
+				if deleteErr != nil {
+					return nil, fmt.Errorf("failed to delete new app after health check failure: %w", deleteErr)
+				}
+				_, revertUpdateErr := p.client.Applications.Update(ctx, originalApp.GUID, &resource.AppUpdate{
+					Name: originalName,
+				})
 
-			if revertUpdateErr != nil {
-				return nil, fmt.Errorf("failed to update app name back to original name: failed with: %w", revertUpdateErr)
-			}
+				if revertUpdateErr != nil {
+					return nil, fmt.Errorf("failed to update app name back to original name: failed with: %w", revertUpdateErr)
+				}
 
-			return nil, fmt.Errorf("new application failed health check with: %w", healthCheckErr)
+				return nil, fmt.Errorf("new application failed health check with: %w", healthCheckErr)
+			}
 		}
 		cleanUpOldErr := p.gracefulDeletion(ctx, originalApp)
 		return newApp, cleanUpOldErr
 	}
 	return newApp, fmt.Errorf("failed to verify application start: %w", pushError)
+}
+
+func (p *AppPushOperation) isWaitForAppDeployedRunningEnabled() bool {
+	return p.timeout != 0 || p.checkInterval != 0
 }
 
 func (p *AppPushOperation) getAppDeployedRunningPollingOptions() *client.PollingOptions {
@@ -554,6 +560,7 @@ func (p *AppPushOperation) findSpace(ctx context.Context, orgGUID string) (*reso
 }
 
 func (p *AppPushOperation) waitForAppHealthy(ctx context.Context, app *resource.App, pollOptions *client.PollingOptions) error {
+
 	appPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
 		for {
 			procData, err := p.client.Processes.GetStatsForApp(ctx, app.GUID, "web")
