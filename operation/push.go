@@ -560,20 +560,17 @@ func (p *AppPushOperation) findSpace(ctx context.Context, orgGUID string) (*reso
 }
 
 func (p *AppPushOperation) waitForAppHealthy(ctx context.Context, app *resource.App, pollOptions *client.PollingOptions) error {
-
 	appPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
-		for {
-			procData, err := p.client.Processes.GetStatsForApp(ctx, app.GUID, "web")
-			if err != nil {
-				return "FAILED", "Failed to get processes stats for application", err
-			}
-			for _, proc := range procData.Stats {
-				if proc.State != "RUNNING" {
-					return proc.State, "One or more instances are not running", nil
-				}
-			}
-			return "RUNNING", "", nil
+		procData, err := p.client.Processes.GetStatsForApp(ctx, app.GUID, "web")
+		if err != nil {
+			return "FAILED", "Failed to get processes stats for application", err
 		}
+		for _, proc := range procData.Stats {
+			if proc.State != "RUNNING" {
+				return proc.State, "One or more instances are not running", nil
+			}
+		}
+		return "RUNNING", "", nil
 	}, "RUNNING", pollOptions)
 	return appPollErr
 }
