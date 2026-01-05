@@ -7,6 +7,7 @@
 - Support for setting and reading application lifecycle (`buildpack`, `docker`, and `cnb`/Cloud Native Buildpacks) in V3 API.
 - Custom marshaling/unmarshaling for `Lifecycle` struct to support multiple lifecycle types.
 - Unit tests for all lifecycle types, including CNB.
+- Support for Service Broker-provided metadata (labels and attributes) on Service Instances. This includes the `BrokerProvidedMetadata` field on `ServiceInstance`, `ServiceInstanceManagedCreate`, and `ServiceInstanceManagedUpdate` structs, along with fluent builder methods for managing labels and attributes.
 
 ### Changed
 
