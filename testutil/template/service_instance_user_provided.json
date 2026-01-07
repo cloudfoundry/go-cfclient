@@ -25,6 +25,10 @@
     "labels": {},
     "annotations": {}
   },
+  "broker_provided_metadata": {
+    "labels": {},
+    "attributes": {}
+  },
   "links": {
     "self": {
       "href": "https://api.example.org/v3/service_instances/88ce23e5-27c3-4381-a2df-32a28ec43133"

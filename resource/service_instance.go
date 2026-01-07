@@ -5,12 +5,13 @@ import (
 )
 
 type ServiceInstance struct {
-	Name          string                       `json:"name"`
-	Tags          []string                     `json:"tags"` // Used by apps to identify service instances; they are shown in the app VCAP_SERVICES env
-	Type          string                       `json:"type"` // Either managed or user-provided
-	LastOperation LastOperation                `json:"last_operation"`
-	Relationships ServiceInstanceRelationships `json:"relationships"`
-	Metadata      *Metadata                    `json:"metadata"`
+	Name                   string                       `json:"name"`
+	Tags                   []string                     `json:"tags"` // Used by apps to identify service instances; they are shown in the app VCAP_SERVICES env
+	Type                   string                       `json:"type"` // Either managed or user-provided
+	LastOperation          LastOperation                `json:"last_operation"`
+	Relationships          ServiceInstanceRelationships `json:"relationships"`
+	Metadata               *Metadata                    `json:"metadata"`
+	BrokerProvidedMetadata *BrokerProvidedMetadata      `json:"broker_provided_metadata"`
 
 	// Information about the version of this service instance; only shown when type is managed
 	MaintenanceInfo *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
@@ -32,12 +33,13 @@ type ServiceInstance struct {
 }
 
 type ServiceInstanceManagedCreate struct {
-	Type          string                       `json:"type"` // Either managed or user-provided
-	Name          string                       `json:"name"`
-	Relationships ServiceInstanceRelationships `json:"relationships"`
-	Metadata      *Metadata                    `json:"metadata,omitempty"`
-	Parameters    *json.RawMessage             `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
-	Tags          []string                     `json:"tags,omitempty"`
+	Type                   string                       `json:"type"` // Either managed or user-provided
+	Name                   string                       `json:"name"`
+	Relationships          ServiceInstanceRelationships `json:"relationships"`
+	Metadata               *Metadata                    `json:"metadata,omitempty"`
+	BrokerProvidedMetadata *BrokerProvidedMetadata      `json:"broker_provided_metadata,omitempty"`
+	Parameters             *json.RawMessage             `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
+	Tags                   []string                     `json:"tags,omitempty"`
 }
 type ServiceInstanceUserProvidedCreate struct {
 	Type            string                       `json:"type"` // Either managed or user-provided
@@ -51,12 +53,13 @@ type ServiceInstanceUserProvidedCreate struct {
 }
 
 type ServiceInstanceManagedUpdate struct {
-	Name            *string                         `json:"name,omitempty"`
-	Relationships   *ServiceInstanceRelationships   `json:"relationships,omitempty"`
-	MaintenanceInfo *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
-	Parameters      *json.RawMessage                `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
-	Tags            []string                        `json:"tags"`
-	Metadata        *Metadata                       `json:"metadata,omitempty"`
+	Name                   *string                         `json:"name,omitempty"`
+	Relationships          *ServiceInstanceRelationships   `json:"relationships,omitempty"`
+	MaintenanceInfo        *ServiceInstanceMaintenanceInfo `json:"maintenance_info,omitempty"`
+	Parameters             *json.RawMessage                `json:"parameters,omitempty"` // A JSON object that is passed to the service broker
+	Tags                   []string                        `json:"tags"`
+	Metadata               *Metadata                       `json:"metadata,omitempty"`
+	BrokerProvidedMetadata *BrokerProvidedMetadata         `json:"broker_provided_metadata,omitempty"`
 }
 
 type ServiceInstanceUserProvidedUpdate struct {
@@ -140,6 +143,11 @@ func (u *ServiceInstanceManagedCreate) WithParameters(parameters json.RawMessage
 	return u
 }
 
+func (u *ServiceInstanceManagedCreate) WithBrokerProvidedMetadata(metadata *BrokerProvidedMetadata) *ServiceInstanceManagedCreate {
+	u.BrokerProvidedMetadata = metadata
+	return u
+}
+
 func NewServiceInstanceCreateUserProvided(name, spaceGUID string) *ServiceInstanceUserProvidedCreate {
 	return &ServiceInstanceUserProvidedCreate{
 		Type: "user-provided",
@@ -209,6 +217,11 @@ func (u *ServiceInstanceManagedUpdate) WithMaintenanceInfo(version, description 
 		Version:     version,
 		Description: description,
 	}
+	return u
+}
+
+func (u *ServiceInstanceManagedUpdate) WithBrokerProvidedMetadata(metadata *BrokerProvidedMetadata) *ServiceInstanceManagedUpdate {
+	u.BrokerProvidedMetadata = metadata
 	return u
 }
 
