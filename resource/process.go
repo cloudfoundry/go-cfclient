@@ -6,6 +6,9 @@ type Process struct {
 	// Process type; a unique identifier for processes belonging to an app: web, task
 	Type string `json:"type"`
 
+	// Random identifier that changes every time the process will be recreated in the runtime.
+	Version string `json:"version,omitempty"`
+
 	// The command used to start the process; use null to revert to the buildpack-detected or procfile-provided start command
 	Command *string `json:"command"`
 

@@ -41,6 +41,7 @@
   },
   "created_at": "2016-03-23T18:48:22Z",
   "updated_at": "2016-03-23T18:48:42Z",
+  "version": "e9df685c-0464-4aa7-b5f0-8ed843077c13",
   "links": {
     "self": {
       "href": "https://api.example.org/v3/processes/{{.GUID}}"
