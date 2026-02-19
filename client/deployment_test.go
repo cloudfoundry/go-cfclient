@@ -56,6 +56,56 @@ func TestDeployments(t *testing.T) {
 			},
 		},
 		{
+			Description: "Create deployment with strategy and options (rolling)",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/deployments",
+				Output:   g.Single(deployment),
+				Status:   http.StatusCreated,
+				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}},"droplet":{"guid":"c2941033-4575-486d-bf2c-3ae49e8b4ca1"},"strategy":"rolling","options":{"max_in_flight":3,"web_instances":5}}`,
+			},
+			Expected: deployment,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				maxInFlight, webInstances := 3, 5
+				r := resource.NewDeploymentCreate("305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+				r.Droplet = &resource.Relationship{GUID: "c2941033-4575-486d-bf2c-3ae49e8b4ca1"}
+				r.Strategy = "rolling"
+				r.Options = &resource.DeploymentOptions{
+					MaxInFlight:  &maxInFlight,
+					WebInstances: &webInstances,
+				}
+				return c.Deployments.Create(context.Background(), r)
+			},
+		},
+		{
+			Description: "Create deployment with strategy and options (canary)",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/deployments",
+				Output:   g.Single(deployment),
+				Status:   http.StatusCreated,
+				PostForm: `{"relationships":{"app":{"data":{"guid":"305cea31-5a44-45ca-b51b-e89c7a8ef8b2"}}},"droplet":{"guid":"c2941033-4575-486d-bf2c-3ae49e8b4ca1"},"strategy":"canary","options":{"max_in_flight":2,"web_instances":4,"canary":{"steps":[{"instance_weight":10},{"instance_weight":20}]}}}`,
+			},
+			Expected: deployment,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				maxInFlight, webInstances := 2, 4
+				r := resource.NewDeploymentCreate("305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
+				r.Droplet = &resource.Relationship{GUID: "c2941033-4575-486d-bf2c-3ae49e8b4ca1"}
+				r.Strategy = "canary"
+				r.Options = &resource.DeploymentOptions{
+					MaxInFlight:  &maxInFlight,
+					WebInstances: &webInstances,
+					Canary: &resource.DeploymentCanaryOptions{
+						Steps: []resource.CanaryStep{
+							{InstanceWeight: 10},
+							{InstanceWeight: 20},
+						},
+					},
+				}
+				return c.Deployments.Create(context.Background(), r)
+			},
+		},
+		{
 			Description: "Create deployment with revision and droplet",
 			Action: func(c *Client, t *testing.T) (any, error) {
 				r := resource.NewDeploymentCreate("305cea31-5a44-45ca-b51b-e89c7a8ef8b2")
@@ -80,6 +130,17 @@ func TestDeployments(t *testing.T) {
 			},
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return nil, c.Deployments.Cancel(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998")
+			},
+		},
+		{
+			Description: "Continue deployment",
+			Route: testutil.MockRoute{
+				Method:   "POST",
+				Endpoint: "/v3/deployments/2b56dc7b-2a14-49ea-be29-ca182b14a998/actions/continue",
+				Status:   http.StatusOK,
+			},
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return nil, c.Deployments.Continue(context.Background(), "2b56dc7b-2a14-49ea-be29-ca182b14a998")
 			},
 		},
 		{

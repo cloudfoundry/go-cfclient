@@ -38,6 +38,12 @@ func (c *DeploymentClient) Cancel(ctx context.Context, guid string) error {
 	return err
 }
 
+// Continue a canary deployment that is paused
+func (c *DeploymentClient) Continue(ctx context.Context, guid string) error {
+	_, err := c.client.post(ctx, path.Format("/v3/deployments/%s/actions/continue", guid), nil, nil)
+	return err
+}
+
 // Create a new deployment
 // Rolling restart can be triggered by passing in the app guid and existing droplet guid
 func (c *DeploymentClient) Create(ctx context.Context, r *resource.DeploymentCreate) (*resource.Deployment, error) {
