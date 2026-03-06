@@ -6,6 +6,8 @@ package resource
 type Stack struct {
 	Name             string    `json:"name"`
 	Description      *string   `json:"description"`
+	State            *string   `json:"state,omitempty"`
+	StateReason      *string   `json:"state_reason,omitempty"`
 	RunRootfsImage   string    `json:"run_rootfs_image"`
 	BuildRootfsImage string    `json:"build_rootfs_image"`
 	Default          bool      `json:"default"`
@@ -16,11 +18,15 @@ type Stack struct {
 type StackCreate struct {
 	Name        string    `json:"name"`
 	Description *string   `json:"description,omitempty"`
+	State       *string   `json:"state,omitempty"`
+	StateReason *string   `json:"state_reason,omitempty"`
 	Metadata    *Metadata `json:"metadata,omitempty"`
 }
 
 type StackUpdate struct {
-	Metadata *Metadata `json:"metadata,omitempty"`
+	Metadata    *Metadata `json:"metadata,omitempty"`
+	State       *string   `json:"state,omitempty"`
+	StateReason *string   `json:"state_reason,omitempty"`
 }
 
 type StackList struct {
