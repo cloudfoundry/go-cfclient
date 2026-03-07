@@ -455,6 +455,18 @@ func (o ObjectJSONGenerator) Stack() *JSONResource {
 	return o.renderTemplate(r, "stack.json")
 }
 
+func (o ObjectJSONGenerator) StackWithState(state, stateReason string) *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+		Name: RandomName(),
+		Params: map[string]string{
+			"state":        state,
+			"state_reason": stateReason,
+		},
+	}
+	return o.renderTemplate(r, "stack.json")
+}
+
 func (o ObjectJSONGenerator) Task() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
