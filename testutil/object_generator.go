@@ -439,6 +439,13 @@ func (o ObjectJSONGenerator) Space() *JSONResource {
 	return o.renderTemplate(r, "space.json")
 }
 
+func (o ObjectJSONGenerator) SpaceUsageSummary() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "space_usage_summary.json")
+}
+
 func (o ObjectJSONGenerator) SpaceQuota() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),

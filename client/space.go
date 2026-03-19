@@ -200,6 +200,16 @@ func (c *SpaceClient) Single(ctx context.Context, opts *SpaceListOptions) (*reso
 	})
 }
 
+// GetUsageSummary retrieves usage statistics for the specified space
+func (c *SpaceClient) GetUsageSummary(ctx context.Context, guid string) (*resource.SpaceUsageSummary, error) {
+	var summary resource.SpaceUsageSummary
+	err := c.client.get(ctx, path.Format("/v3/spaces/%s/usage_summary", guid), &summary)
+	if err != nil {
+		return nil, err
+	}
+	return &summary, nil
+}
+
 // Update the specified attributes of a space
 func (c *SpaceClient) Update(ctx context.Context, guid string, r *resource.SpaceUpdate) (*resource.Space, error) {
 	var space resource.Space

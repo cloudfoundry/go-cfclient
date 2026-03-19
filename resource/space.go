@@ -38,6 +38,11 @@ type SpaceIncluded struct {
 	Organizations []*Organization `json:"organizations"`
 }
 
+type SpaceUsageSummary struct {
+	UsageSummary UsageSummary `json:"usage_summary"`
+	Links        Links        `json:"links,omitempty"`
+}
+
 const (
 	SpaceIncludeNone SpaceIncludeType = iota
 	SpaceIncludeOrganization
