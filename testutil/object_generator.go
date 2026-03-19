@@ -202,6 +202,16 @@ func (o ObjectJSONGenerator) FeatureFlag() *JSONResource {
 	return o.renderTemplate(r, "feature_flag.json")
 }
 
+func (o ObjectJSONGenerator) Info() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "info.json")
+}
+
+func (o ObjectJSONGenerator) InfoUsageSummary() *JSONResource {
+	r := &JSONResource{}
+	return o.renderTemplate(r, "info_usage_summary.json")
+}
+
 func (o ObjectJSONGenerator) IsolationSegment() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
