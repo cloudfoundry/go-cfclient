@@ -1,0 +1,20 @@
+{
+  "usage_summary": {
+    "started_instances": 3,
+    "memory_in_mb": 3072,
+    "routes": 3,
+    "service_instances": 2,
+    "reserved_ports": 1,
+    "domains": 1,
+    "per_app_tasks": 0,
+    "service_keys": 1
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/spaces/{{.GUID}}/usage_summary"
+    },
+    "space": {
+      "href": "https://api.example.org/v3/spaces/{{.GUID}}"
+    }
+  }
+}

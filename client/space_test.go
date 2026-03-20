@@ -19,6 +19,7 @@ func TestSpaces(t *testing.T) {
 	user2 := g.User().JSON
 	org := g.Organization().JSON
 	org2 := g.Organization().JSON
+	usageSummary := g.SpaceUsageSummary().JSON
 
 	tests := []RouteTest{
 		{
@@ -169,6 +170,18 @@ func TestSpaces(t *testing.T) {
 			Expected: g.Array(user, user2),
 			Action: func(c *Client, t *testing.T) (any, error) {
 				return c.Spaces.ListUsersAll(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92", nil)
+			},
+		},
+		{
+			Description: "Get space usage summary",
+			Route: testutil.MockRoute{
+				Method:   "GET",
+				Endpoint: "/v3/spaces/000d1e0c-218e-470b-b5db-84481b89fa92/usage_summary",
+				Output:   g.Single(usageSummary),
+				Status:   http.StatusOK},
+			Expected: usageSummary,
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Spaces.GetUsageSummary(context.Background(), "000d1e0c-218e-470b-b5db-84481b89fa92")
 			},
 		},
 		{
