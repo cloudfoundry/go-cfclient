@@ -304,3 +304,8 @@ func (c *AppClient) SSHEnabled(ctx context.Context, guid string) (*resource.AppS
 	}
 	return &appSSH, nil
 }
+
+// ClearBuildpackCache clears the buildpack cache for a specific application.
+func (c *AppClient) ClearBuildpackCache(ctx context.Context, guid string) (string, error) {
+	return c.client.post(ctx, path.Format("/v3/apps/%s/actions/clear_buildpack_cache", guid), nil, nil)
+}

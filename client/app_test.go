@@ -299,6 +299,19 @@ func TestApps(t *testing.T) {
 			},
 		},
 		{
+			Description: "Clear app buildpack cache",
+			Route: testutil.MockRoute{
+				Method:           "POST",
+				Endpoint:         "/v3/apps/1cb006ee-fb05-47e1-b541-c34179ddc446/actions/clear_buildpack_cache",
+				Status:           http.StatusAccepted,
+				RedirectLocation: "https://api.example.org/api/v3/jobs/c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			},
+			Expected: "c33a5caf-77e0-4d6e-b587-5555d339bc9a",
+			Action: func(c *Client, t *testing.T) (any, error) {
+				return c.Applications.ClearBuildpackCache(context.Background(), "1cb006ee-fb05-47e1-b541-c34179ddc446")
+			},
+		},
+		{
 			Description: "Update app",
 			Route: testutil.MockRoute{
 				Method:   "PATCH",
