@@ -173,12 +173,12 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 		authConfig := threeLeggedAuthConfigFn()
 		tokenSource = authConfig.TokenSource(oauthCtx, c.oAuthToken)
 	case GrantTypeJwtBearer:
-		var uaaEndpointURL string
+		uaaEndpointURL := c.uaaEndpointURL + "/oauth/token"
 		if c.origin != "" {
 			// Add optional login hint to the token URL
-			uaaEndpointURL = addLoginHintToURL(c.uaaEndpointURL+"/oauth/token", c.origin)
+			uaaEndpointURL = addLoginHintToURL(uaaEndpointURL, c.origin)
 		}
-		tokenSource = &jwt.JWTAssertionTokenSource{
+		exchanger := &jwt.JWTAssertionTokenSource{
 			Assertion:       c.assertion,
 			ClientAssertion: c.clientAssertion,
 			TokenURL:        uaaEndpointURL,
@@ -186,6 +186,28 @@ func (c *Config) CreateOAuth2TokenSource(ctx context.Context) (oauth2.TokenSourc
 			ClientSecret:    c.clientSecret,
 			HTTPClient:      c.httpClient,
 			Scopes:          c.scopes,
+		}
+		// Eagerly exchange the (short-lived) assertion for an access token, mirroring
+		// how the password grant calls PasswordCredentialsToken at config-init time.
+		// This surfaces a bad/expired assertion at config.New(...) instead of on the
+		// first authenticated API call.
+		token, err := exchanger.Token()
+		if err != nil {
+			return nil, fmt.Errorf("jwt-bearer assertion exchange failed: %w", err)
+		}
+		if token.RefreshToken != "" {
+			// Hand off to the standard refresh-token flow: the access token is cached
+			// until expiry and refreshed using refresh_token, never re-presenting the
+			// assertion (which is typically only valid for a few minutes).
+			authConfig := threeLeggedAuthConfigFn()
+			tokenSource = authConfig.TokenSource(oauthCtx, token)
+		} else {
+			// UAA returned no refresh_token. There is no durable credential to live
+			// off; once the access token expires, the only remedy is reconfiguring
+			// the client with a fresh assertion. Wrap so the access token is reused
+			// until expiry, then surface a clear diagnostic instead of silently
+			// re-presenting the (likely expired) assertion.
+			tokenSource = oauth2.ReuseTokenSource(token, expiredJwtBearerSource{})
 		}
 	default:
 		return nil, fmt.Errorf("unsupported OAuth2 grant type '%s'", c.grantType)
@@ -270,6 +292,18 @@ func setGrantType(c *Config) error {
 	case c.username != "" && c.password != "":
 		c.grantType = GrantTypePassword
 	case c.assertion != "":
+		// The jwt-bearer flow does an eager exchange and then hands off to the
+		// refresh-token grant via oauth2.Config.TokenSource, which authenticates
+		// refreshes using only client_id / client_secret. A ClientAssertion
+		// supplied alongside a user assertion would be honored on the initial
+		// exchange but silently dropped on every subsequent refresh — if UAA
+		// requires client_assertion auth, refreshes would then fail at runtime.
+		// Reject the combination up front so the failure mode is loud.
+		if c.clientAssertion != "" {
+			return errors.New("client assertion is not supported with the JWT Bearer assertion grant: " +
+				"the refresh-token handoff cannot replay the client assertion, so refreshes would silently " +
+				"fall back to client_id/client_secret auth")
+		}
 		c.grantType = GrantTypeJwtBearer
 	case c.clientID != "" && (c.clientSecret != "" || c.clientAssertion != ""):
 		c.grantType = GrantTypeClientCredentials
@@ -403,4 +437,15 @@ func addLoginHintToURL(tokenURL, origin string) string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
+}
+
+// expiredJwtBearerSource is the inner source for ReuseTokenSource on the
+// jwt-bearer flow when UAA did not issue a refresh token. Once the cached
+// access token expires, oauth2.ReuseTokenSource calls Token() on this and we
+// surface a diagnostic error instead of silently re-presenting the (now
+// likely expired) original assertion.
+type expiredJwtBearerSource struct{}
+
+func (expiredJwtBearerSource) Token() (*oauth2.Token, error) {
+	return nil, errors.New("jwt-bearer access token expired and no refresh token was issued by UAA; reconfigure the client with a fresh assertion")
 }

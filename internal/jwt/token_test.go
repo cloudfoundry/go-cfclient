@@ -152,4 +152,44 @@ func TestTokenSource(t *testing.T) {
 		_, err := src.Token()
 		require.EqualError(t, err, "client_id is required when using client assertion")
 	})
+	t.Run("Test response parsing populates Expiry and RefreshToken", func(t *testing.T) {
+		ts := mockServer(200, `{"access_token":"`+validToken+`","token_type":"bearer","expires_in":3600,"refresh_token":"r-token"}`)
+		defer ts.Close()
+		src := &JWTAssertionTokenSource{
+			Assertion: validAssertionToken,
+			TokenURL:  ts.URL,
+		}
+		before := time.Now()
+		token, err := src.Token()
+		require.NoError(t, err)
+		require.Equal(t, validToken, token.AccessToken)
+		require.Equal(t, "bearer", token.TokenType)
+		require.Equal(t, "r-token", token.RefreshToken)
+		require.False(t, token.Expiry.IsZero(), "Expiry must be populated from expires_in")
+		// Expiry should be roughly now + 3600s (allow a generous window for slow CI).
+		require.WithinDuration(t, before.Add(3600*time.Second), token.Expiry, 10*time.Second)
+	})
+	t.Run("Test missing expires_in is rejected", func(t *testing.T) {
+		// Without expires_in, oauth2.Token.Expiry would be zero and Valid() would
+		// treat the token as never-expiring — defeating both the refresh-token
+		// handoff and the no-refresh-token diagnostic. Such a response must error.
+		ts := mockServer(200, `{"access_token":"`+validToken+`","token_type":"bearer","refresh_token":"r-token"}`)
+		defer ts.Close()
+		src := &JWTAssertionTokenSource{
+			Assertion: validAssertionToken,
+			TokenURL:  ts.URL,
+		}
+		_, err := src.Token()
+		require.EqualError(t, err, "token response missing or invalid expires_in")
+	})
+	t.Run("Test zero expires_in is rejected", func(t *testing.T) {
+		ts := mockServer(200, `{"access_token":"`+validToken+`","token_type":"bearer","expires_in":0,"refresh_token":"r-token"}`)
+		defer ts.Close()
+		src := &JWTAssertionTokenSource{
+			Assertion: validAssertionToken,
+			TokenURL:  ts.URL,
+		}
+		_, err := src.Token()
+		require.EqualError(t, err, "token response missing or invalid expires_in")
+	})
 }

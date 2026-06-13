@@ -91,6 +91,22 @@ cfg, _ := config.New("https://api.example.org",config.JWTBearerAssertion("jwt-as
 cf, _ := client.New(cfg)
 ```
 
+The assertion is exchanged with UAA exactly once, at `config.New` time.
+If UAA issues a refresh token (the standard configuration), subsequent
+API calls use the cached access token and refresh it via the
+refresh-token grant — the assertion is never presented again. This means
+the client survives long-running operations (e.g. a Terraform apply with
+polling) even when the assertion's lifetime is only a few minutes, as
+long as the refresh token's lifetime covers the run.
+
+If the UAA client is configured to *not* issue a refresh token for the
+jwt-bearer grant, the client can only operate until the access token
+expires; after that, calls fail with a diagnostic and a fresh assertion
+must be supplied. Check `refresh_token_validity` and the
+`authorized_grant_types` (which must include both
+`urn:ietf:params:oauth:grant-type:jwt-bearer` and `refresh_token`) on
+the UAA client when planning long-running uses.
+
 For more detailed examples of using the various authentication and configuration options, see the
 [auth example](./examples/auth/main.go).
 
