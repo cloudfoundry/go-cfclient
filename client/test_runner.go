@@ -21,6 +21,7 @@ type RouteTest struct {
 	Action      func(c *Client, t *testing.T) (any, error)
 	Action2     func(c *Client, t *testing.T) (any, any, error)
 	Action3     func(c *Client, t *testing.T) (any, any, any, error)
+	Action4     func(c *Client, t *testing.T) (any, any, any, any, error)
 }
 
 func ExecuteTests(tests []RouteTest, t *testing.T) {

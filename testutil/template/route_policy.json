@@ -1,0 +1,38 @@
+{
+  "guid": "{{.GUID}}",
+  "source": "1cb006ee-fb05-47e1-b541-c34179ddc446",
+  "created_at": "2023-01-01T00:00:00Z",
+  "updated_at": "2023-01-01T00:00:00Z",
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  },
+  "relationships": {
+    "route": {
+      "data": {
+        "guid": "5a85c020-3e3d-42a5-a475-5084c5357e82"
+      }
+    },
+    "app": {
+      "data": {
+        "guid": "1cb006ee-fb05-47e1-b541-c34179ddc446"
+      }
+    },
+    "space": {
+      "data": {
+        "guid": "33d27af8-788d-4de5-8f37-fb80d517f2ed"
+      }
+    },
+    "organization": {
+      "data": {
+        "guid": "3a5f687b-2ce8-4ade-be75-8eca99b0db8b"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/route_policies/{{.GUID}}"
+    }
+  }
+}
+

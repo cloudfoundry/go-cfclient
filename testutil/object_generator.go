@@ -343,6 +343,13 @@ func (o ObjectJSONGenerator) RouteDestinationWithLinks() *JSONResource {
 	return o.renderTemplate(r, "route_destination_with_links.json")
 }
 
+func (o ObjectJSONGenerator) RoutePolicy() *JSONResource {
+	r := &JSONResource{
+		GUID: RandomGUID(),
+	}
+	return o.renderTemplate(r, "route_policy.json")
+}
+
 func (o ObjectJSONGenerator) ServiceBroker() *JSONResource {
 	r := &JSONResource{
 		GUID: RandomGUID(),
