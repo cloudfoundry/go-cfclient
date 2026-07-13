@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cloudfoundry/go-cfclient/v3/client"
 	"github.com/cloudfoundry/go-cfclient/v3/config"
@@ -395,6 +396,90 @@ func TestPushOperationLifecycleLogic(t *testing.T) {
 					require.Equal(t, tt.expectedLifecycle, lifecycleType, "Lifecycle type should match expected")
 				}
 			}
+		})
+	}
+}
+
+// TestWithRollingStrategy verifies that WithRollingStrategy is a functional option setter
+// that configures strategy, timeout, and checkInterval on AppPushOperation.
+func TestWithRollingStrategy(t *testing.T) {
+	c, _ := config.New("https://fake.api", config.Token("", "fake-refresh-token"), config.SkipTLSValidation())
+	cf, _ := client.New(c)
+
+	pusher := NewAppPushOperation(cf, "org", "space")
+	pusher.WithRollingStrategy(10, 30)
+
+	require.Equal(t, StrategyRolling, pusher.strategy)
+	require.Equal(t, uint(10), pusher.timeout)
+	require.Equal(t, uint(30), pusher.checkInterval)
+}
+
+// TestWaitForDeploymentTimeout verifies the timeout/checkInterval logic in waitForDeployment.
+// The mock returns FINALIZED immediately so the poll exits on the first tick.
+func TestWaitForDeploymentTimeout(t *testing.T) {
+	tests := []struct {
+		name              string
+		instances         uint
+		rollingTimeout    uint
+		rollingInterval   uint
+		wantTimeout       time.Duration
+		wantCheckInterval time.Duration
+	}{
+		{
+			name:              "default: instances * 1 minute",
+			instances:         2,
+			rollingInterval:   1, // speed up poll tick; does not affect timeout assertion
+			wantTimeout:       2 * time.Minute,
+			wantCheckInterval: 1 * time.Second,
+		},
+		{
+			name:              "default: zero instances falls back to 1 minute",
+			instances:         0,
+			rollingInterval:   1,
+			wantTimeout:       1 * time.Minute,
+			wantCheckInterval: 1 * time.Second,
+		},
+		{
+			name:              "WithRollingStrategy: p.timeout overrides instance-based default",
+			instances:         2,
+			rollingTimeout:    10,
+			rollingInterval:   1,
+			wantTimeout:       10 * time.Minute,
+			wantCheckInterval: 1 * time.Second,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serverURL := testutil.SetupFakeAPIServer()
+			defer testutil.Teardown()
+
+			g := testutil.NewObjectJSONGenerator()
+			deployment := g.Deployment()
+
+			finalizedJSON := strings.Replace(deployment.JSON, `"value": "ACTIVE"`, `"value": "FINALIZED"`, 1)
+			finalizedJSON = strings.Replace(finalizedJSON, `"reason": "DEPLOYING"`, `"reason": "DEPLOYED"`, 1)
+
+			testutil.SetupMultiple([]testutil.MockRoute{
+				{
+					Method:   http.MethodGet,
+					Endpoint: fmt.Sprintf("/v3/deployments/%s", deployment.GUID),
+					Output:   g.Single(finalizedJSON),
+					Status:   http.StatusOK,
+				},
+			}, t)
+
+			c, _ := config.New(serverURL, config.Token("", "fake-refresh-token"), config.SkipTLSValidation())
+			cf, err := client.New(c)
+			require.NoError(t, err)
+
+			pusher := NewAppPushOperation(cf, "org", "space")
+			if tt.rollingTimeout > 0 || tt.rollingInterval > 0 {
+				pusher.WithRollingStrategy(tt.rollingTimeout, tt.rollingInterval)
+			}
+
+			err = pusher.waitForDeployment(context.Background(), deployment.GUID, tt.instances)
+			require.NoError(t, err)
 		})
 	}
 }
