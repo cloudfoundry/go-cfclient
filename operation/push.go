@@ -64,6 +64,12 @@ func (p *AppPushOperation) WithBlueGreenStrategy(timeout uint, checkInterval uin
 	p.checkInterval = checkInterval
 }
 
+func (p *AppPushOperation) WithRollingStrategy(timeout uint, checkInterval uint) {
+	p.strategy = StrategyRolling
+	p.timeout = timeout
+	p.checkInterval = checkInterval
+}
+
 func (p *AppPushOperation) WithNoStart(stopped bool) {
 	p.stopped = stopped
 }
@@ -281,15 +287,23 @@ func (p *AppPushOperation) pushRollingApp(ctx context.Context, space *resource.S
 	return originalApp, nil
 }
 
-// Poll for deployment status and wait for the deployment to be in the final state
-// Timeout is calculated based on the number of instances
+// Poll for deployment status and wait for the deployment to be in the final state.
+// Timeout defaults to instances × 1 minute; overridable via WithRollingStrategy.
 func (p *AppPushOperation) waitForDeployment(ctx context.Context, deploymentGUID string, instances uint) error {
-	// If instances is not set default to 1
 	if instances == 0 {
 		instances = 1
 	}
 	pollOptions := client.NewPollingOptions()
-	pollOptions.Timeout = time.Duration(instances) * time.Minute
+	if p.timeout > 0 {
+		pollOptions.Timeout = time.Duration(p.timeout) * time.Minute
+	} else {
+		pollOptions.Timeout = time.Duration(instances) * time.Minute
+	}
+	if p.checkInterval > 0 {
+		pollOptions.CheckInterval = time.Duration(p.checkInterval) * time.Second
+	} else {
+		pollOptions.CheckInterval = time.Duration(AppDeployedRunningCheckIntervalSecondsDefault) * time.Second
+	}
 
 	depPollErr := client.PollForStateOrTimeout(func() (string, string, error) {
 		deployment, err := p.client.Deployments.Get(ctx, deploymentGUID)
